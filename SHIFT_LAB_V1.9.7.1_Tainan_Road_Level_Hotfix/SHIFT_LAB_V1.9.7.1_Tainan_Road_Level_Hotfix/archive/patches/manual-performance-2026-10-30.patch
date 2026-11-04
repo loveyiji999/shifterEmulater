@@ -1,0 +1,598 @@
+--- a/desktop3d/package.json
++++ b/desktop3d/package.json
+@@ -16,7 +16,7 @@
+     "qa:manual": "node ./tests/validate-manual-gear.mjs",
+     "qa:streaming": "node ./tests/validate-collider-partition.mjs && node ./tests/validate-geometry-upload.mjs && node ./tests/validate-streaming.mjs",
+     "qa:all": "npm run qa:streaming && npm run qa:vehicle && npm run qa:surface && npm run qa:terrain && npm run qa:grading && npm run qa:materials && npm run qa:lighting && npm run qa:engineering && npm run qa:performance && npm run qa:scenarios && npm run qa:map && npm run qa:transmission && npm run qa:manual && npm run qa:health && npm run qa:prnd",
+-    "qa:performance": "node ./tests/validate-performance-capture.mjs",
++    "qa:performance": "node ./tests/validate-performance-capture.mjs && node ./tests/validate-manual-performance.mjs",
+     "qa:surface": "node ./tests/validate-surface-map.mjs && node ./tests/validate-pavement.mjs",
+     "qa:terrain": "node ./tests/validate-terrain.mjs && node ./tests/validate-terrain-surface.mjs && node ./tests/validate-scenery.mjs",
+     "qa:grading": "node ./tests/validate-terrain-grading.mjs",
+--- a/desktop3d/tests/game-driver.mjs
++++ b/desktop3d/tests/game-driver.mjs
+@@ -4,6 +4,7 @@
+ import {driveRoadV3Check} from './road-v3-driver.mjs';
+ import {isAutomaticMode} from '../src/automatic-transmission.mjs';
+ import {collectPerformanceBaseline} from './performance-baseline.mjs';
++import {collectManualPerformance,downloadManualPerformance} from './manual-performance.mjs';
+ import {driveSurfaceBraking} from './surface-driver.mjs';
+ import {configurePBRPreview} from './pbr-preview.mjs';
+ import {collectStreamingProfile} from './streaming-profile.mjs';
+@@ -13,7 +14,7 @@
+ export function installGameDriver({getContext,stepOnce,updateHud,applyMap,openGameMode,
+   selectAutomaticRange,driveProcedural,setPause,frameView}){
+   const $=id=>document.getElementById(id);
+-  let baseline={status:'idle',result:null,error:null};
++  let baseline={status:'idle',result:null,error:null},manualCapture={status:'idle',result:null,error:null};
+ function currentSnapshot(){
+   const {core:d,bridge,road,vehicle,labReady,paused,autoRange,visualVehicleId,gameModes,userMapConfig,physicsMs,dropSteps,trackedKeys}=getContext();
+   if(!labReady)return {ready:false,error:$('input-status').textContent};
+@@ -59,7 +60,7 @@
+     inspectScenery:()=>inspectScenery(getContext()),
+     driveRockContact:()=>driveRockContact({getContext,stepOnce,setPause}),
+     startStreamingTrace(options){
+-      if(baseline.status==='running')throw Error('Trace already running');
++      if(baseline.status==='running'||manualCapture.status==='running')throw Error('Trace already running');
+       baseline={status:'running',result:null,error:null};
+       collectStreamingProfile({getContext,stepOnce,setPause},options).then(result=>{baseline={status:'complete',result,error:null};})
+         .catch(error=>{baseline={status:'failed',result:null,error:error.message};});
+@@ -68,7 +69,7 @@
+     driveSurfaceBraking:(condition,material='asphalt_dense',options={})=>driveSurfaceBraking({getContext,stepOnce,setPause},condition,false,material,options),
+     driveTerrainBraking:(condition='dry',options={})=>driveSurfaceBraking({getContext,stepOnce,setPause},condition,true,'asphalt_dense',{maxSteps:5400,...options}),
+     startBaseline(options){
+-      if(baseline.status==='running')throw Error('Baseline already running');
++      if(baseline.status==='running'||manualCapture.status==='running')throw Error('Baseline already running');
+       const context=getContext();
+       if(context.paused||context.locked)throw Error('Baseline needs active simulation');
+       baseline={status:'running',result:null,error:null};
+@@ -77,6 +78,18 @@
+         .catch(error=>{baseline={status:'failed',result:null,error:error.message};});
+       return {status:baseline.status};
+     },
++    startManualCapture(options={}){
++      if(baseline.status==='running'||manualCapture.status==='running')throw Error('Capture already running');
++      const context=getContext();
++      if(context.paused||context.locked)throw Error('Manual capture needs active simulation');
++      manualCapture={status:'running',result:null,error:null};
++      collectManualPerformance({getContext},options).then(result=>{
++        manualCapture={status:result.status,result,error:result.error};
++        if(options.download!==false)downloadManualPerformance(result);
++      }).catch(error=>{manualCapture={status:'failed',result:manualCapture.result,error:error.message};});
++      return {status:manualCapture.status};
++    },
++    get manualCapture(){return manualCapture;},
+     get baseline(){return baseline;},
+     frameView,version:'1.9.7.1',steeringMapping:{visualLeft:legacyDirectionalKey('a'),
+       visualRight:legacyDirectionalKey('d'),visualPadRight:legacySteerFromVisualAxis(1)},
+@@ -94,4 +107,12 @@
+     applyMap(config){applyMap(config);return currentSnapshot();},
+     openMode:openGameMode,selectAutomaticRange
+   };
++  const url=new URL(window.location.href),duration=url.searchParams.get('capture-performance');
++  if(duration!==null){
++    url.searchParams.delete('capture-performance');window.history.replaceState(null,'',url);
++    const seconds=Number(duration);
++    if(Number.isFinite(seconds)&&seconds>=1&&seconds<=120){
++      openGameMode('drive');window.__SHIFT_LAB_3D_QA__.startManualCapture({captureSeconds:seconds});
++    }
++  }
+ }
+--- a/desktop3d/tests/performance-baseline.mjs
++++ b/desktop3d/tests/performance-baseline.mjs
+@@ -40,9 +40,11 @@
+   if(originalPump)road.pumpStreaming=function(...args){const start=performance.now();
+     try{return originalPump.apply(this,args);}finally{stream+=performance.now()-start;}};
+   const begin=performance.now(),initial=getContext(),simStart=core.state.time,dropsStart=initial.dropSteps,initialScenery=road.terrain?.sceneryStats?.()??null;
+-  options.onCaptureStart?.();
+-  let previous=begin;
++  const initialDrawingBuffer=[gl.drawingBufferWidth,gl.drawingBufferHeight],initialPixelRatio=devicePixelRatio;
++  const initialMap={...core.route.config},initialPavement=road.surfaceMap?.pavementMaterial??'asphalt_dense';
++  let previous=begin,stopReason='duration';
+   try{
++    options.onCaptureStart?.();
+     await new Promise((resolve,reject)=>{
+       // A synchronous setup can run inside an existing RAF batch. Its supplied
+       // timestamp predates setup; use the actual observation clock consistently.
+@@ -50,11 +52,16 @@
+         const now=performance.now();
+         if(gl.isContextLost()){reject(Error('Context lost during baseline'));return;}
+         const context=getContext();
+-        if(context.paused||context.locked){reject(Error('Simulation paused during baseline'));return;}
++        if(context.paused||context.locked){
++          if(options.stopOnPause){stopReason=context.locked?'locked':'paused';previous=now;resolve();}
++          else reject(Error('Simulation paused during baseline'));
++          return;
++        }
+         const info=renderer.info,render=visibleRender||info.render;
+         frames.push({timeMs:now-begin,frameMs:now-previous,physicsCpuMs:physics,
+           streamCpuMs:stream,renderSubmissionCpuMs:submit,calls:render.calls,
+           triangles:render.triangles,geometries:info.memory.geometries,textures:info.memory.textures});
++        try{options.onFrame?.(frames.at(-1));}catch(error){reject(error);return;}
+         previous=now;physics=0;stream=0;submit=0;poll();
+         if(now-begin>=captureSeconds*1000)resolve();else requestAnimationFrame(frame);
+       };requestAnimationFrame(frame);
+@@ -72,13 +79,13 @@
+       return {p50:q(.5),p95:q(.95),p99:q(.99),max:sorted.length?sorted.at(-1):null};};
+     return {schema:'shiftlab.performance.baseline.v1',scope:'current-game-stationary-baseline-not-P3-environment-completion',
+       recordedAt:new Date().toISOString(),metadata:{browser:navigator.userAgent,device,backend:'WebGL2',
+-        drawingBuffer:[gl.drawingBufferWidth,gl.drawingBufferHeight],devicePixelRatio,
++        drawingBuffer:initialDrawingBuffer,devicePixelRatio:initialPixelRatio,
+         hardwareConcurrency:navigator.hardwareConcurrency,deviceMemoryGiB:navigator.deviceMemory??null,
+-        map:{...core.route.config},scenery:initialScenery,pavementMaterial:road.surfaceMap?.pavementMaterial??'asphalt_dense',preset:initial.visualVehicleId,warmupSeconds,captureSeconds},
++        map:initialMap,scenery:initialScenery,pavementMaterial:initialPavement,preset:initial.visualVehicleId,warmupSeconds,captureSeconds},
+       frameMs:quantiles(frames.map(f=>f.frameMs)),physicsCpuMs:quantiles(frames.map(f=>f.physicsCpuMs)),
+       streamCpuMs:quantiles(frames.map(f=>f.streamCpuMs)),renderSubmissionCpuMs:quantiles(frames.map(f=>f.renderSubmissionCpuMs)),
+       gpuRenderMs:quantiles(gpuMs),gpuTimer:{available:!!ext,samples:gpuMs.length,disjointSamples,queryMisses,unavailableSamples:pending.length},
+-      wallSeconds,simSeconds,simulationRatio:simSeconds/wallSeconds,droppedSteps,
++      stopReason,wallSeconds,simSeconds,simulationRatio:simSeconds/wallSeconds,droppedSteps,
+       resourceMemoryBytes:null,memoryStatus:'resource-counts-only-not-VRAM-bytes',
+       frames,gpuMs};
+   }finally{
+--- a/desktop3d/tests/validate-performance-capture.mjs
++++ b/desktop3d/tests/validate-performance-capture.mjs
+@@ -6,7 +6,7 @@
+ try{
+   for(const key of keys)Object.defineProperty(globalThis,key,{value:null,writable:true,configurable:true});
+   globalThis.navigator={userAgent:'deterministic test double',hardwareConcurrency:4};globalThis.devicePixelRatio=1;
+-  async function run({software=false,paused=false,disjoint=false,postRenderPreparation=false}={}){
++  async function run({software=false,paused=false,disjoint=false,postRenderPreparation=false,stopOnPause=false,callbackFailure=false,startCallbackFailure=false,changeConfigOnPause=false}={}){
+     let clock=0,frame=0,active=null,deleted=0,target=null;
+     const queries=[];
+     globalThis.performance={now:()=>clock};
+@@ -29,11 +29,15 @@
+       road.ensure();core.advancePhysics();renderer.render();
+       if(postRenderPreparation){target={};renderer.render();target=null;}
+       clock=end;
+-      context.paused=paused&&frame>5;callback(clock-100);
++      context.paused=paused&&frame>5;
++      if(context.paused&&changeConfigOnPause){core.route.config={seed:'changed-after-pause'};road.surfaceMap={pavementMaterial:'steel'};gl.drawingBufferWidth=640;gl.drawingBufferHeight=360;globalThis.devicePixelRatio=2;}
++      callback(clock-100);
+     });
+     let result;
+     try{result=await collectPerformanceBaseline({renderer,road,core,getContext:()=>context},
+-      {warmupSeconds:0,captureSeconds:1,requireNative:true});}
++      {warmupSeconds:0,captureSeconds:1,requireNative:true,stopOnPause,
++        onCaptureStart:startCallbackFailure?()=>{throw Error('start callback failure');}:undefined,
++        onFrame:callbackFailure?()=>{throw Error('frame callback failure');}:undefined});}
+     finally{
+       assert.equal(renderer.render,originals.render);assert.equal(core.advancePhysics,originals.advance);
+       assert.equal(road.ensure,originals.ensure);assert.equal(deleted,queries.length,'all GPU queries deleted');
+@@ -54,6 +58,13 @@
+   assert.ok(invalid.gpuTimer.disjointSamples>0);
+   await assert.rejects(run({software:true}),/Native GPU required/);
+   await assert.rejects(run({paused:true}),/paused/);
++  const partial=await run({paused:true,stopOnPause:true});assert.equal(partial.stopReason,'paused');
++  assert.equal(partial.frames.length,5);assert.ok(partial.wallSeconds<1);
++  await assert.rejects(run({callbackFailure:true}),/frame callback failure/);
++  await assert.rejects(run({startCallbackFailure:true}),/start callback failure/);
++  const changed=await run({paused:true,stopOnPause:true,changeConfigOnPause:true});
++  assert.equal(changed.metadata.map.seed,'fixed');assert.equal(changed.metadata.pavementMaterial,'asphalt_dense');
++  assert.deepEqual(changed.metadata.drawingBuffer,[1280,720]);assert.equal(changed.metadata.devicePixelRatio,1);
+   console.log('PASS capture accounting: async GPU availability/disjoint disposal, CPU intervals, simulation clock excludes drain, native-only gate and interruption restoration');
+ }finally{
+   for(const key of keys){if(saved[key])Object.defineProperty(globalThis,key,saved[key]);else delete globalThis[key];}
+--- a/desktop3d/tests/validate-procedural-browser.mjs
++++ b/desktop3d/tests/validate-procedural-browser.mjs
+@@ -138,6 +138,62 @@
+   }
+   assert.ok(gameReady,'Game startup timeout');
+   const evaluate=expression=>cdp.evaluate(expression,sessionId);
++  if(process.argv.includes('--manual-performance')){
++    const before=await evaluate(`(()=>{const q=window.__SHIFT_LAB_3D_QA__;q.applyMap({...q.map,generator:3,seed:'ROAD-38274CD4'});const select=document.getElementById('car-preset');select.value='city';select.dispatchEvent(new Event('change'));q.openMode('drive');const snapshot=q.snapshot();q.startManualCapture({captureSeconds:1,download:false});let concurrentRejected=false;try{q.startBaseline({captureSeconds:1});}catch{concurrentRejected=true;}return {snapshot,concurrentRejected};})()`);
++    assert.ok(before.concurrentRejected,'instrumentation sessions cannot overlap');
++    const waitManual=async()=>{
++      let report;
++      for(let i=0;i<500;i++){
++        report=await evaluate('window.__SHIFT_LAB_3D_QA__.manualCapture');
++        if(report.status==='complete'||report.status==='failed')return report;
++        await delay(100);
++      }throw Error('Manual capture timeout');
++    };
++    const full=await waitManual();assert.equal(full.status,'complete',JSON.stringify(full.error));
++    assert.equal(full.result.schema,'shiftlab.performance.manual.v1');assert.ok(full.result.baseline.frames.length>0);
++    assert.equal(full.result.initial.map.seed,'ROAD-38274CD4');assert.equal(full.result.initial.preset,'city');
++    assert.ok(full.result.baseline.frames.every(f=>f.activeColliders>0&&Number.isFinite(f.physicsStepCpuMs)));
++    const after=await evaluate('window.__SHIFT_LAB_3D_QA__.snapshot()');
++    for(const key of ['mapSeed','vehiclePreset','roadMaterial','chassisColliderCount','bumpStopCount'])assert.equal(after[key],before.snapshot[key]);
++    assert.ok(Math.hypot(after.x-before.snapshot.x,after.z-before.snapshot.z)<.1,'idle recording must not reposition the car');
++    await evaluate("window.__manualDownloadUrl=URL.createObjectURL;URL.createObjectURL=()=>{throw Error('Injected local download failure');};window.__SHIFT_LAB_3D_QA__.startManualCapture({captureSeconds:1})");
++    const exportFailure=await waitManual();await evaluate('URL.createObjectURL=window.__manualDownloadUrl;delete window.__manualDownloadUrl');
++    assert.equal(exportFailure.status,'failed');assert.match(exportFailure.error,/Injected local download failure/);
++    assert.ok(exportFailure.result.baseline.frames.length>0,'download failure must preserve collected diagnostics');
++    await evaluate('window.__SHIFT_LAB_3D_QA__.startManualCapture({captureSeconds:10,download:false})');
++    await delay(250);await evaluate("window.__SHIFT_LAB_3D_QA__.openMode('settings')");
++    const partial=await waitManual();assert.equal(partial.status,'complete');assert.equal(partial.result.baseline.stopReason,'paused');
++    assert.ok(partial.result.baseline.frames.length>0);assert.ok(partial.result.baseline.wallSeconds<5);
++    assert.equal(await evaluate('window.__SHIFT_LAB_3D_QA__.paused'),true,'recorder must not unpause manual play');
++    const directory=path.join(root,'../artifacts/tests/manual-performance-downloads-2026-10-30');await fs.mkdir(directory,{recursive:true});
++    const existing=new Set(await fs.readdir(directory));
++    await cdp.send('Browser.setDownloadBehavior',{behavior:'allow',downloadPath:directory});
++    await cdp.send('Page.navigate',{url:url+'tests/performance/index.html'},sessionId);
++    let launcherReady=false;
++    for(let i=0;i<200;i++){launcherReady=await evaluate("document.title==='SHIFT LAB 手動效能擷取'");if(launcherReady)break;await delay(50);}
++    assert.ok(launcherReady);assert.equal(await evaluate("document.querySelector('a').getAttribute('href')"),'../../?capture-performance=60');
++    if(process.argv.includes('--screenshot'))await fs.writeFile(path.join(root,'../artifacts/tests/manual-performance-launcher-2026-10-30.png'),Buffer.from((await cdp.send('Page.captureScreenshot',{format:'png'},sessionId)).data,'base64'));
++    await cdp.send('Page.navigate',{url:url+'?capture-performance=1'},sessionId);
++    for(let i=0;i<500;i++){if(await evaluate('!!window.__SHIFT_LAB_3D_QA__?.ready'))break;await delay(100);}
++    const boot=await waitManual();assert.equal(boot.status,'complete',boot.error);
++    assert.equal(await evaluate("new URL(location.href).searchParams.has('capture-performance')"),false);
++    let downloaded;
++    for(let i=0;i<200;i++){
++      downloaded=(await fs.readdir(directory)).find(name=>!existing.has(name)&&name.startsWith('shiftlab-performance-')&&name.endsWith('.json'));
++      if(downloaded)break;await delay(100);
++    }
++    assert.ok(downloaded,'local JSON download must complete');
++    const saved=JSON.parse(await fs.readFile(path.join(directory,downloaded),'utf8'));
++    assert.equal(saved.schema,'shiftlab.performance.manual.v1');assert.equal(saved.initial.map.seed,'ROAD-38274CD4');assert.equal(saved.initial.preset,'city');
++    assert.ok(saved.baseline.frames.length>0);assert.deepEqual(saved.view,{width:1440,height:900,dpr:1});
++    await fs.writeFile(path.join(root,'../artifacts/tests/manual-performance-browser-latest.json'),JSON.stringify({full:full.result,partial:partial.result,exportFailure,download:downloaded},null,2)+'\n');
++    const previousTimeOrigin=await evaluate('performance.timeOrigin');
++    await cdp.send('Page.reload',{},sessionId);
++    for(let i=0;i<500;i++){if(await evaluate(`performance.timeOrigin!==${previousTimeOrigin}&&!!window.__SHIFT_LAB_3D_QA__?.ready`))break;await delay(100);}
++    assert.equal(await evaluate('window.__SHIFT_LAB_3D_QA__.manualCapture.status'),'idle','reload cannot restart an already consumed capture request');
++    assert.deepEqual(cdp.errors,[]);assert.deepEqual(httpErrors,[]);
++    console.log('PASS real browser manual diagnostics: unchanged player setup / idle pose, concurrent capture rejection, pause preserves samples, standalone launcher, local JSON download and no repeated capture on reload');return;
++  }
+   if(process.argv.includes('--streaming-performance')||process.argv.includes('--reveal-performance')||process.argv.includes('--scenery-performance')){
+     assert.ok(nativeGpu,'Streaming timing requires native GPU');
+     const reveal=process.argv.includes('--reveal-performance')||process.argv.includes('--scenery-performance');
+@@ -569,10 +625,10 @@
+     assert.ok(!requests.some(value=>/\/tests\/|scenarios\.mjs|obstacles\.mjs/.test(value)),
+       'Production requested development/acceptance modules');
+     const files=await fs.readdir(path.join(root,'dist'),{recursive:true});
+-    assert.ok(!files.some(value=>/acceptance|game-driver|scenarios|obstacles|vehicle-diagnostics|performance-baseline|surface-driver|pbr-preview|material-gallery|streaming-profile|scenery-driver|terrain-blend-driver|tunnel-lighting-driver/.test(value)));
++    assert.ok(!files.some(value=>/acceptance|game-driver|scenarios|obstacles|vehicle-diagnostics|performance-baseline|surface-driver|pbr-preview|material-gallery|manual-performance|streaming-profile|scenery-driver|terrain-blend-driver|tunnel-lighting-driver/.test(value)));
+     for(const file of files.filter(value=>/\.(?:js|html)$/.test(value))){
+       const source=await fs.readFile(path.join(root,'dist',file),'utf8');
+-      assert.ok(!/AcceptanceObstacles|__SHIFT_LAB_3D_QA__|__SHIFT_LAB_ACCEPTANCE__|__SHIFT_LAB_VEHICLE_DIAGNOSTICS__|collectPerformanceBaseline|collectStreamingProfile|startStreamingTrace|inspectScenery|inspectTerrainBlend|inspectTunnelLighting|getTunnelLightingState|driveRockContact|shiftlab.performance.baseline.v1|driveSurfaceBraking|runSuite|qa-results|tests-panel/.test(source),file);
++      assert.ok(!/AcceptanceObstacles|__SHIFT_LAB_3D_QA__|__SHIFT_LAB_ACCEPTANCE__|__SHIFT_LAB_VEHICLE_DIAGNOSTICS__|collectPerformanceBaseline|collectManualPerformance|startManualCapture|shiftlab.performance.manual.v1|capture-performance|collectStreamingProfile|startStreamingTrace|inspectScenery|inspectTerrainBlend|inspectTunnelLighting|getTunnelLightingState|driveRockContact|shiftlab.performance.baseline.v1|driveSurfaceBraking|runSuite|qa-results|tests-panel/.test(source),file);
+     }
+     assert.deepEqual(httpErrors,[]);assert.deepEqual(cdp.errors,[]);
+     if(process.argv.includes('--screenshot')||process.argv.includes('--vehicle-screenshot')){
+--- /dev/null
++++ b/desktop3d/tests/manual-performance.mjs
+@@ -0,0 +1,121 @@
++import {collectPerformanceBaseline} from './performance-baseline.mjs';
++
++// Opt-in DEV diagnostics: observe normal play without applying a map, controls,
++// pose, render size or physics settings. All data remains in a local JSON file.
++export async function collectManualPerformance({getContext},options={}){
++  const captureSeconds=options.captureSeconds??60,warmupSeconds=options.warmupSeconds??0;
++  if(!Number.isFinite(captureSeconds)||captureSeconds<1||captureSeconds>120||
++    !Number.isFinite(warmupSeconds)||warmupSeconds<0||warmupSeconds>10)throw Error('Invalid manual capture duration');
++  const {renderer,road,core,bridge}=getContext(),world=bridge.world,gl=renderer.getContext();
++  const events=[],frames=[],browserEntries=[],runtimeErrors=[],restore=[],observers=[];
++  const limits={events:4096,browserEntries:256,runtimeErrors:32},overflow={events:0,browserEntries:0,runtimeErrors:0},cursor={events:0,browserEntries:0,runtimeErrors:0};
++  let begin=null,end=null,capturing=false,initial=null,final=null,stepCpu=0,contactCpu=0,maxStep=0;
++  const append=(kind,value)=>{const list={events,browserEntries,runtimeErrors}[kind];
++    if(list.length<limits[kind])list.push(value);
++    else{list[cursor[kind]]=value;cursor[kind]=(cursor[kind]+1)%limits[kind];overflow[kind]++;}};
++  const ordered=(kind,list)=>overflow[kind]?list.slice(cursor[kind]).concat(list.slice(0,cursor[kind])):list;
++  const view=()=>({width:typeof window==='undefined'?null:window.innerWidth,height:typeof window==='undefined'?null:window.innerHeight,
++    dpr:typeof window==='undefined'?null:window.devicePixelRatio,visibility:typeof document==='undefined'?null:document.visibilityState,
++    focused:typeof document==='undefined'?null:document.hasFocus(),drawingBuffer:[gl.drawingBufferWidth,gl.drawingBufferHeight]});
++  const state=()=>{
++    const c=getContext(),p=bridge.rigidBody.translation();
++    return {view:view(),map:{...core.route.config},preset:c.visualVehicleId,surface:core.state.surface,
++      pavement:road.surfaceMap.pavementMaterial,routeS:core.route.distance,position:{x:p.x,y:p.y,z:p.z},
++      collisions:bridge.collisionCount,railHits:bridge.railHits,barrierHits:bridge.barrierHits,
++      maxImpulse:bridge.maxImpactImpulse,colliders:world.colliders.len(),streaming:road.streamingStats()};
++  };
++  const record=(kind,ms,extra={})=>{if(capturing)append('events',{kind,timeMs:performance.now()-begin,ms,...extra});};
++  const wrap=(object,name,observe)=>{
++    if(typeof object[name]!=='function')return;
++    const original=object[name],wrapper=function(...args){
++      const start=performance.now();try{return original.apply(this,args);}finally{if(capturing)observe(performance.now()-start);}
++    };
++    object[name]=wrapper;restore.push(()=>{if(object[name]===wrapper)object[name]=original;});
++  };
++  const profilePhysics=options.profilePhysics!==false,wasProfiling=world.profilerEnabled;
++  world.profilerEnabled=profilePhysics;
++  restore.push(()=>world.profilerEnabled=wasProfiling);
++  wrap(world,'step',ms=>{
++    stepCpu+=ms;maxStep=Math.max(maxStep,ms);
++    if(ms>=1){const timings=profilePhysics?Object.fromEntries(['timingBroadPhase','timingNarrowPhase','timingSolver','timingCcd']
++      .map(name=>[name,world[name]()] )):{};record('physics-step',ms,timings);}
++  });
++  wrap(bridge,'captureContacts',ms=>{contactCpu+=ms;if(ms>=.5)record('contact-report',ms);});
++  wrap(world,'castRayAndGetNormal',ms=>{if(ms>=.5)record('wheel-ray',ms);});
++  let previousStream=null;
++  wrap(road,'pumpStreaming',ms=>{
++    const s=road.streamingStats();
++    if(ms>=1||!previousStream||s.commits!==previousStream.commits||s.mode!==previousStream.mode||s.error!==previousStream.error)
++      record('streaming',ms,{...s,activeColliders:world.colliders.len()});
++    previousStream=s;
++  });
++  const consume=entries=>{
++    if(begin===null)return;
++    for(const entry of entries)if(entry.startTime>=begin&&(end===null||entry.startTime<=end))
++      append('browserEntries',{kind:entry.entryType,timeMs:entry.startTime-begin,duration:entry.duration,
++        blockingDuration:entry.blockingDuration??null,renderStart:entry.renderStart?entry.renderStart-begin:null,
++        scripts:Array.from(entry.scripts||[]).slice(0,8).map(s=>({duration:s.duration,
++          invokerType:s.invokerType,sourceFunctionName:s.sourceFunctionName||null}))});
++  };
++  const observerSupport={'longtask':false,'long-animation-frame':false};
++  if(typeof PerformanceObserver!=='undefined')for(const type of ['longtask','long-animation-frame']){
++    observerSupport[type]=PerformanceObserver.supportedEntryTypes?.includes(type)||false;
++    if(observerSupport[type])try{
++      const observer=new PerformanceObserver(list=>consume(list.getEntries()));observer.observe({type});observers.push(observer);
++    }catch{observerSupport[type]=false;}
++  }
++  const errorListener=e=>{if(capturing)append('runtimeErrors',{timeMs:performance.now()-begin,message:String(e.message||e.reason?.message||e.reason||'runtime error').slice(0,500)});};
++  if(typeof window!=='undefined')for(const type of ['error','unhandledrejection']){
++    window.addEventListener(type,errorListener);restore.push(()=>window.removeEventListener(type,errorListener));
++  }
++  const windowState=e=>record('window-state',0,{event:e.type,view:view()});
++  if(typeof window!=='undefined')for(const type of ['resize','focus','blur']){
++    window.addEventListener(type,windowState);restore.push(()=>window.removeEventListener(type,windowState));
++  }
++  if(typeof document!=='undefined'){
++    document.addEventListener('visibilitychange',windowState);restore.push(()=>document.removeEventListener('visibilitychange',windowState));
++  }
++  const stop=()=>{
++    if(!capturing)return;
++    try{final=state();}catch(cause){final={snapshotError:String(cause?.message||cause)};}
++    end=performance.now();capturing=false;
++    for(const observer of observers)consume(observer.takeRecords());
++  };
++  let baseline=null,error=null;
++  try{
++    baseline=await collectPerformanceBaseline({renderer,road,core,getContext},{warmupSeconds,captureSeconds,
++      requireNative:false,stopOnPause:true,
++      onCaptureStart(){begin=performance.now();initial=state();capturing=true;stepCpu=0;contactCpu=0;maxStep=0;},
++      onCaptureStop:stop,
++      onFrame(frame){
++        const s=road.streamingStats();
++        Object.assign(frame,{visibilityState:typeof document==='undefined'?null:document.visibilityState,
++          windowFocused:typeof document==='undefined'?null:document.hasFocus(),
++          drawingBufferWidth:gl.drawingBufferWidth,drawingBufferHeight:gl.drawingBufferHeight,
++          devicePixelRatio:typeof window==='undefined'?null:window.devicePixelRatio,physicsStepCpuMs:stepCpu,contactReportCpuMs:contactCpu,maxPhysicsStepMs:maxStep,
++          activeColliders:world.colliders.len(),collisions:bridge.collisionCount,
++          streamMode:s.mode,colliderPending:s.colliderPending??0,visualPending:s.visualPending??0,workerPending:s.pending??0});
++        frames.push(frame);stepCpu=0;contactCpu=0;maxStep=0;
++      }});
++    baseline.scope='normal player session; instrumented diagnostic, not benchmark acceptance';
++  }catch(cause){error=String(cause?.message||cause);}
++  finally{
++    stop();for(const observer of observers)observer.disconnect();
++    for(const undo of restore.reverse())undo();
++  }
++  return {schema:'shiftlab.performance.manual.v1',status:error?'failed':'complete',error,
++    scope:'instrumented normal player session; not performance acceptance or proof of root cause',
++    recordedAt:new Date().toISOString(),profilePhysics,observerSupport,
++    view:typeof window==='undefined'?null:{width:window.innerWidth,height:window.innerHeight,dpr:window.devicePixelRatio},
++    initial,final,baseline,frames:baseline?undefined:frames,
++    events:ordered('events',events),browserEntries:ordered('browserEntries',browserEntries),
++    runtimeErrors:ordered('runtimeErrors',runtimeErrors),overflow,retention:'latest bounded entries in chronological order'};
++}
++
++export function downloadManualPerformance(report){
++  const blob=new Blob([JSON.stringify(report,null,2)+'\n'],{type:'application/json'}),url=URL.createObjectURL(blob);
++  const link=document.createElement('a');link.href=url;
++  link.download='shiftlab-performance-'+report.recordedAt.replace(/[^0-9TZ]/g,'-')+'.json';
++  document.body.append(link);
++  try{link.click();}finally{link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
++}
+--- /dev/null
++++ b/desktop3d/tests/validate-manual-performance.mjs
+@@ -0,0 +1,72 @@
++import assert from 'node:assert/strict';
++import {collectManualPerformance} from './manual-performance.mjs';
++
++const keys=['performance','requestAnimationFrame','navigator','devicePixelRatio','window','PerformanceObserver'];
++const saved=Object.fromEntries(keys.map(k=>[k,Object.getOwnPropertyDescriptor(globalThis,k)]));
++try{
++  for(const key of keys)Object.defineProperty(globalThis,key,{value:null,writable:true,configurable:true});
++  globalThis.navigator={userAgent:'manual capture test double',hardwareConcurrency:4};globalThis.devicePixelRatio=1.5;
++  async function run({paused=false,lost=false,profilePhysics=true,observerSupport=true}={}){
++    let clock=0,frame=0,timingReads=0;const listeners=new Map(),observers=[];
++    globalThis.performance={now:()=>clock};
++    globalThis.window={innerWidth:1280,innerHeight:720,devicePixelRatio:1.5,
++      addEventListener(type,fn){listeners.set(type,fn);},removeEventListener(type,fn){assert.equal(listeners.get(type),fn);listeners.delete(type);}};
++    globalThis.PerformanceObserver=observerSupport?class{
++      static supportedEntryTypes=['longtask','long-animation-frame'];
++      constructor(callback){this.callback=callback;observers.push(this);}
++      observe({type}){this.type=type;}takeRecords(){return [];}disconnect(){this.disconnected=true;}
++    }:undefined;
++    const map={generator:3,seed:'ROAD-38274CD4',turnChance:58,slopeChance:52};
++    const world={profilerEnabled:false,colliders:{len:()=>100},step(){clock+=1.2;},castRayAndGetNormal(){clock+=.6;}};
++    for(const name of ['timingBroadPhase','timingNarrowPhase','timingSolver','timingCcd'])world[name]=()=>{timingReads++;return .1;};
++    const bridge={world,rigidBody:{translation:()=>({x:1,y:2,z:3})},collisionCount:0,railHits:0,barrierHits:0,maxImpactImpulse:0,
++      captureContacts(){clock+=.6;this.collisionCount++;}};
++    const core={route:{config:map,distance:70},state:{time:0,surface:'dry'},advancePhysics(){
++      world.step();world.castRayAndGetNormal();bridge.captureContacts();core.state.time+=1/60;
++    }};
++    const road={surfaceMap:{pavementMaterial:'gravel'},ensure(){clock+=.1;},pumpStreaming(){clock+=2;},
++      streamingStats:()=>({mode:'worker',commits:frame>10?1:0,colliderPending:frame>10?0:20,visualPending:3,pending:0})};
++    const gl={RENDERER:1,drawingBufferWidth:1920,drawingBufferHeight:1080,
++      getExtension:()=>null,getParameter:()=> 'Software test GPU',isContextLost:()=>lost&&frame>5};
++    const renderer={getContext:()=>gl,render(){clock+=2;},info:{render:{calls:5,triangles:600},memory:{geometries:3,textures:2}}};
++    const context={core,road,bridge,renderer,paused:false,locked:false,dropSteps:0,visualVehicleId:'city'};
++    const originals={step:world.step,ray:world.castRayAndGetNormal,contacts:bridge.captureContacts,advance:core.advancePhysics,pump:road.pumpStreaming};
++    globalThis.requestAnimationFrame=callback=>queueMicrotask(()=>{
++      frame++;const end=clock+1000/60;
++      road.ensure();core.advancePhysics();renderer.render();road.pumpStreaming();clock=end;
++      context.paused=paused&&frame>5;
++      if(frame===3){
++        for(const observer of observers)observer.callback({getEntries:()=>Array.from({length:300},()=>({entryType:observer.type,startTime:1,duration:75,scripts:[]}))});
++        for(let i=0;i<40;i++)listeners.get('error')?.({message:'injected diagnostic error '+i});
++      }
++      callback(clock);
++    });
++    const result=await collectManualPerformance({getContext:()=>context},{captureSeconds:1,profilePhysics});
++    assert.equal(world.step,originals.step);assert.equal(world.castRayAndGetNormal,originals.ray);
++    assert.equal(bridge.captureContacts,originals.contacts);assert.equal(core.advancePhysics,originals.advance);
++    assert.equal(road.pumpStreaming,originals.pump);assert.equal(world.profilerEnabled,false);
++    assert.equal(listeners.size,0);assert.ok(observers.every(o=>o.disconnected));
++    assert.deepEqual(core.route.config,map);assert.deepEqual(result.initial.map,map);
++    assert.deepEqual(result.initial.position,{x:1,y:2,z:3});assert.equal(result.initial.preset,'city');assert.equal(result.initial.pavement,'gravel');
++    assert.equal(result.browserEntries.length,observerSupport?256:0);assert.equal(result.overflow.browserEntries,observerSupport?344:0);
++    assert.equal(result.runtimeErrors.length,32);assert.equal(result.overflow.runtimeErrors,8);
++    assert.match(result.runtimeErrors[0].message,/error 8$/);assert.match(result.runtimeErrors.at(-1).message,/error 39$/);
++    if(observerSupport)assert.ok(result.browserEntries.every(e=>e.kind==='long-animation-frame'),'retain most recent bounded observations');
++    assert.equal(timingReads>0,profilePhysics);return result;
++  }
++  const full=await run();assert.equal(full.status,'complete');assert.equal(full.schema,'shiftlab.performance.manual.v1');
++  assert.equal(full.baseline.metadata.device,'Software test GPU','diagnostics retain software renderer evidence');
++  assert.deepEqual(full.baseline.metadata.drawingBuffer,[1920,1080]);assert.equal(full.view.dpr,1.5);
++  assert.ok(full.baseline.frames.every(f=>f.activeColliders===100&&Math.abs(f.physicsStepCpuMs-1.2)<1e-8&&Math.abs(f.contactReportCpuMs-.6)<1e-8));
++  assert.ok(full.events.some(e=>e.kind==='physics-step'&&e.timingBroadPhase===.1));
++  assert.ok(full.events.some(e=>e.kind==='streaming'));assert.ok(full.events.some(e=>e.kind==='wheel-ray'));
++  assert.ok(full.baseline.frames.some(f=>f.colliderPending===20));assert.ok(full.baseline.frames.some(f=>f.colliderPending===0));
++  const partial=await run({paused:true});assert.equal(partial.status,'complete');assert.equal(partial.baseline.stopReason,'paused');assert.equal(partial.baseline.frames.length,5);
++  const failed=await run({lost:true});assert.equal(failed.status,'failed');assert.match(failed.error,/Context lost/);assert.equal(failed.frames.length,5);
++  const unsupported=await run({observerSupport:false});assert.equal(unsupported.status,'complete');assert.deepEqual(unsupported.observerSupport,{'longtask':false,'long-animation-frame':false});
++  const unprofiled=await run({profilePhysics:false});assert.equal(unprofiled.status,'complete');assert.equal(unprofiled.profilePhysics,false);
++  await assert.rejects(collectManualPerformance({getContext:()=>{throw Error('must not inspect invalid input');}},{captureSeconds:NaN}),/Invalid manual/);
++  console.log('PASS manual diagnostics: original map / vehicle / pose, CPU and queue correlation, software renderer evidence, bounded buffers, pause / context loss preservation and complete instrumentation cleanup');
++}finally{
++  for(const key of keys){if(saved[key])Object.defineProperty(globalThis,key,saved[key]);else delete globalThis[key];}
++}
+--- /dev/null
++++ b/desktop3d/tests/performance/index.html
+@@ -0,0 +1,17 @@
++<!doctype html>
++<html lang="zh-Hant">
++<meta charset="utf-8">
++<meta name="viewport" content="width=device-width,initial-scale=1">
++<title>SHIFT LAB 手動效能擷取</title>
++<style>
++  :root{color-scheme:dark;font-family:system-ui,sans-serif;background:#101923;color:#e8f0f5}
++  body{max-width:650px;margin:10vh auto;padding:24px;line-height:1.8}
++  h1{font-size:26px}p{color:#bdd0dd}a{display:inline-block;padding:12px 20px;border-radius:8px;background:#a2efcc;color:#10241a;font-weight:bold;text-decoration:none}
++  small{display:block;margin-top:24px;color:#9ab0bf}
++</style>
++<h1>記錄實際遊戲的卡頓</h1>
++<p>請在原本遊戲的同一個分頁開啟本頁，避免同時執行兩份遊戲。</p>
++<p>開始後會回到遊戲，沿用已保存的地圖與車輛設定。請照常行駛，重現地形載入或碰撞時的卡頓。60 秒後會下載一份 JSON；也可以按 Esc 提早結束記錄。</p>
++<a href="../../?capture-performance=60">載入遊戲並開始記錄</a>
++<small>僅供開發版本機排查。記錄包含瀏覽器、畫面尺寸、地圖設定、幀時間與碰撞／載入耗時，不會上傳資料，也不會更改畫質或物理參數。這是帶有量測開銷的診斷，不是效能驗收。</small>
++</html>
+--- /dev/null
++++ b/docs/PERFORMANCE_MANUAL_CAPTURE.md
+@@ -0,0 +1,47 @@
++# 實際玩家操作的手動效能擷取
++
++日期：2026-10-30。本工作包補上P0／P3的實際玩家診斷能力；使用者回報的大量地形載入與碰撞卡頓仍未確定根因，不能把擷取器完成當成效能已達標。完整P2水系／場景銜接、P3十場景、P4與P5範圍維持不變。
++
++## 使用
++
++使用原有 START_GAME.cmd 啟動開發版。在原本遊戲的同一個分頁開啟 http://127.0.0.1:5173/tests/performance/ ，按「載入遊戲並開始記錄」，接著照平常方式行駛並重現掉幀。遊戲就緒後記錄60秒，自動下載 shiftlab-performance-時間.json；按 Esc 開選單可提早結束並保留已記錄資料。
++
++入口以同一分頁導向遊戲，沿用已保存的車型與地圖。不要為了記錄另外執行第二份遊戲。工具不指定種子、不自動轉向、不傳送車輛、不修改畫質或物理參數，也不把玩家視窗改成測試用的1440×900。初始化完成前的載入不在這份記錄內。
++
++這個入口、查詢參數與記錄API僅存在Vite開發版；正式版沒有診斷頁、診斷選單或測試API。原本玩家入口保持不變。報告只下載到本機，不使用外部上傳、讀取其他分頁、偏好原始JSON或認證資料。
++
++## 資料與閱讀方式
++
++外層schema是 shiftlab.performance.manual.v1；baseline保留原始逐幀資料、CPU與GPU分布、模擬／牆鐘比率及丟步。initial／final包括地圖、車型、位置、路面、碰撞、載入模式及視窗資訊。
++
++| 分類 | 記錄 |
++| --- | --- |
++| 實際環境 | 瀏覽器、繪製後端、內部解析度、DPR、視窗大小；逐幀記錄解析度、分頁可見性與焦點 |
++| 長幀 | 原始frameMs、物理CPU、串流CPU、送繪CPU、資源數及GPU timer的可用／遺失狀態 |
++| 物理／碰撞 | 每幀world.step及接觸回報CPU、最大單步、碰撞事件數；慢步另記Rapier broad phase／narrow phase／solver／CCD計時 |
++| 地形載入 | activeColliders、colliderPending、visualPending、workerPending、worker／fallback模式、提交與錯誤 |
++| 瀏覽器事件 | 可用時的longtask及long-animation-frame；只保留有限的函式名稱與時間，不收集頁面文字或完整腳本 |
++| 中斷 | stopReason區分duration／paused／locked；context loss保留已收集的逐幀資料與錯誤，並恢復掛鉤 |
++
++CPU分項存在巢狀，例如world.step包含於物理CPU，隱藏繪製亦包含於串流工作，不可把所有欄位直接相加當成總CPU。GPU timer包含所有已量測pass，分布不與逐幀資料一一配對。裝置不支援的觀測明確記錄為false／null；軟體繪製器仍可擷取，保留其身分供排查，不假裝原生GPU驗收。
++
++慢事件最多4096筆、瀏覽器事件256筆、錯誤32筆；超量以固定容量保留最近資料，依時間排序輸出並記overflow計數。原始幀數由最多120秒擷取時間限制。預設開啟Rapier profiler及量測掛鉤會增加開銷，因此這是定位資料，不能直接當成沒有量測工具時的遊戲幀率。
++
++long-animation-frame和longtask並非相同訊號，且瀏覽器支援與歸因範圍有限；實作使用功能檢測並記錄支援狀態。來源：[Chrome官方Long Animation Frames文件](https://developer.chrome.com/docs/web-platform/long-animation-frames)。本工具不因觀察到某個事件便自動宣稱其為卡頓根因。
++
++## 實作與邊界
++
++- tests/performance/index.html：外部啟動頁，使用單一分頁的正常連結。
++- tests/manual-performance.mjs：正常操作觀察、固定容量事件、完整復原及本機Blob JSON下載。
++- tests/game-driver.mjs：DEV入口、互斥擷取與一次性capture-performance參數；參數消耗後重新整理不再記錄。
++- tests/performance-baseline.mjs：新增可選逐幀回呼與暫停提前結束；既有預設仍在暫停時拒絕。開始／逐幀回呼失敗均會恢復原掛鉤。地圖、材質、內部解析度與DPR metadata取開始時的副本。
++
++沒有改動src/、public/、lockfile或production dependency。package.json只把新診斷測試接到qa:performance。正式版bundle仍需另行隔離驗證。
++
++## 本輪驗證
++
++npm.cmd run qa:performance已通過：原擷取行為、GPU查詢清理、暫停／回呼失敗復原、初始設定快照；手動擷取保留車型／地圖／位置、逐幀碰撞與佇列欄位、軟體後端、固定容量及無observer回退、context loss和profile開關。
++
++原生瀏覽器 --manual-performance 已驗證完整擷取、暫停保留、互斥記錄、外部啟動頁、實際JSON下載、下載例外保留已收集資料並可再次記錄、保存設定還原及消耗參數後重新整理不再記錄。啟動頁1440×900截圖已人工檢視，按鈕與說明無遮擋。一次回歸因Page.reload回傳後讀到舊document的ready而失敗，已改為確認新的performance.timeOrigin後才讀取新頁API，重跑通過。
++
++這些瀏覽器操作只驗證工具功能，並行QA期間的幀時間不作效能成績。npm.cmd run qa:all、npm.cmd run build、正式版隔離及一般瀏覽器回歸均已通過。最終重建與本輪初次建置的整個dist逐位元相同；src/、public/及lockfile亦和前一來源檢查點一致。最終結果記於 artifacts/tests/manual-performance-verification-2026-10-30.json。使用者實際手動行駛的記錄尚未取得。
+--- a/docs/DEVELOPMENT_PLAN.md
++++ b/docs/DEVELOPMENT_PLAN.md
+@@ -1,6 +1,6 @@
+ # SHIFT LAB 車輛與環境整合開發規劃書
+ 
+-版本：1.6　更新：2026-10-30（Asia/Taipei）；初版：2026-10-28
++版本：1.7　更新：2026-10-30（Asia/Taipei）；初版：2026-10-28
+ 
+ 適用專案：`SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/`。
+ 
+@@ -16,7 +16,7 @@
+ 
+ 既有物理與變速箱保留為回歸基線。近期沿用現有傳動模型，賽事與生涯後置；WebGL2作為畫質與效能比較基線，WebGPU是否採用由同場景實測決定。
+ 
+-**目前最值得投入的是P2連續地形與路面整合。**基準車和逐輪接觸已能支撐環境驗證；完整變速箱編輯器、調教方案與外觀創作工具依P4／P5交付，避免它們延後可駕駛場景。
++**目前最高優先是定位使用者回報的大量地形載入與車輛碰撞卡頓。**已加入[外部手動效能擷取](PERFORMANCE_MANUAL_CAPTURE.md)，沿用實際玩家設定與正常操作；工具通過不代表卡頓已解決。P2水系、場景銜接與遠景、P3完整量測、P4調教及P5創作仍保留完整交付範圍。
+ 
+ ## 使用者已確立的範圍
+ 
+@@ -191,7 +191,7 @@
+ | --- | --- |
+ | 車輛契約、共用模型與輪拱 | `npm.cmd run qa:vehicle` |
+ | 逐面材質與接觸 | `npm.cmd run qa:surface` |
+-| 量測資料擷取邏輯 | `npm.cmd run qa:performance`；此指令不等於原生GPU場景測試 |
++| 量測資料擷取邏輯 | `npm.cmd run qa:performance`、`node tests/validate-procedural-browser.mjs --manual-performance`；工具功能通過不等於原生GPU場景驗收 |
+ | 車輪接觸與施力生命週期 | `node tests/validate-ray-contact.mjs`、`node tests/validate-force-lifecycle.mjs` |
+ | 傳動與手自排 | `npm.cmd run qa:transmission`、`npm.cmd run qa:manual`、`npm.cmd run qa:prnd` |
+ | 道路與結構 | `npm.cmd run qa:map`、`npm.cmd run qa:map:compatibility`、`npm.cmd run qa:map:driving` |
+@@ -249,7 +249,7 @@
+ 
+ P2第一包的連續地表、土路接觸及結構／洞口已整合，實作及邊界見[P2連續地表](P2_CONTINUOUS_TERRAIN.md)。下列工作包保留完整目標；結構基礎接地與洞口後續成果見[P2結構整合](P2_ENGINEERING.md)。橋端整形、PBR與光照後續成果見[P2材質與整形](P2_PBR_AND_GRADING.md)。已依使用者最新要求恢復分階段開發；混凝土與碎石已加入遊戲路面選擇及接觸驗證，詳見[P2可行駛路面](P2_DRIVABLE_PAVEMENTS.md)。第十包的基本樹木／岩石與土色變化見[P2造景](P2_SCENERY.md)。第十一包的土／碎石／裸岩混合與同源接觸見[P2地形混合](P2_TERRAIN_BLEND.md)。第十二包的局部天空光、洞內燈光與側緣銜接見[P2洞內外光照](P2_TUNNEL_LIGHTING.md)。第十三包的十類路面發布與40組制動見[P2十類路面](P2_TEN_PAVEMENTS.md)。水系、外側入口造景及遠景品質仍保留原目標。
+ 
+-目前接續水系與外側入口地形銜接；下方保留已實作地形工作的驗收定義，不表示重新開發另一套地圖。
++目前優先取得實際玩家長幀／碰撞／串流記錄並依證據處理卡頓，再接續水系與外側入口地形銜接；下方保留已實作地形工作的驗收定義，不表示重新開發另一套地圖。
+ 
+ **P2地形工作包：可駕駛的連續地形與道路銜接。**沿用V3中心線、拓樸及結構資料，新增地形不得消耗道路的隨機序列或改變下一個彎道。
+ 
+--- a/docs/DATA_CATALOG.md
++++ b/docs/DATA_CATALOG.md
+@@ -24,6 +24,7 @@
+ | 結構與地面足跡 | `desktop3d/src/road-engineering.mjs`、`road-geometry-v3.mjs` | 依實際地形足跡建立基礎、橫梁、支承、洞口與覆土；構件紀錄為生成資料，不新增玩家storage |
+ | 程序材質與光照 | `desktop3d/src/surface-materials.mjs`、`surface-uv.mjs`、`scene-lighting.mjs` | 10類外觀資料、色彩／法線／粗糙度、米UV、陰影與環境照明；外觀不決定輪胎係數 |
+ | 玩家偏好 | 瀏覽器 localStorage | `shiftlab.v189.settings`、`shiftlab.v189.procedural-map`；不屬於本機研究檔案 |
++| 手動效能診斷 | `desktop3d/tests/manual-performance.mjs`、`tests/performance/` | DEV正常玩家操作的長幀／碰撞／串流記錄與本機JSON下載；不寫玩家storage、不進入production |
+ | 開發驗收 | `desktop3d/tests/acceptance/` | 固定參考地圖、standard 車型及五項工況；不納入玩家建置 |
+ 
+ ## 車輛研究與校準資料
+--- a/docs/AGENT_KNOWLEDGE.md
++++ b/docs/AGENT_KNOWLEDGE.md
+@@ -1,3 +1,7 @@
++# 第十四工作包 實際玩家手動效能擷取
++
++2026-10-30補齊P0／P3診斷：外部入口回到同一遊戲分頁，保留玩家設定與正常操作，記錄長幀、Rapier碰撞／射線／接觸耗時、串流佇列、實際後端／解析度／焦點，60秒或Esc後下載本機JSON。單元與原生瀏覽器流程通過；完整結果及限制見[手動效能擷取](PERFORMANCE_MANUAL_CAPTURE.md)。使用者嚴重卡頓尚未確定根因，P2水系／場景銜接、P3十場景、P4及P5仍未完成。下方保留歷史。
++
+ # 2026-10-30 大量載入與碰撞卡頓排查
+ 
+ 本次將道路／地形／造景碰撞體建立拆入分幀佇列，先提交當前畫面再準備後續資源，並保留換圖及延後配置失敗回退。完整回歸、正式版隔離及54組立體道路通過；自然路線串流CPU最大3.8→2.2ms，但整體p99為20.8→21.6ms，尚未證明整體改善，也尚未重現使用者實際視窗的嚴重碰撞停頓。不要把局部工作預算修正當成所有卡頓已解決。詳見[分幀碰撞體預算](PERFORMANCE_TERRAIN_COLLIDER_BUDGET.md)；下方保留歷史。
+--- a/docs/AGENT_VERIFICATION.md
++++ b/docs/AGENT_VERIFICATION.md
+@@ -1,3 +1,7 @@
++# 第十四工作包 實際玩家手動效能擷取
++
++2026-10-30補齊P0／P3診斷：外部入口回到同一遊戲分頁，保留玩家設定與正常操作，記錄長幀、Rapier碰撞／射線／接觸耗時、串流佇列、實際後端／解析度／焦點，60秒或Esc後下載本機JSON。單元與原生瀏覽器流程通過；完整結果及限制見[手動效能擷取](PERFORMANCE_MANUAL_CAPTURE.md)。使用者嚴重卡頓尚未確定根因，P2水系／場景銜接、P3十場景、P4及P5仍未完成。下方保留歷史。
++
+ # 2026-10-30 大量載入與碰撞卡頓排查
+ 
+ 本次將道路／地形／造景碰撞體建立拆入分幀佇列，先提交當前畫面再準備後續資源，並保留換圖及延後配置失敗回退。完整回歸、正式版隔離及54組立體道路通過；自然路線串流CPU最大3.8→2.2ms，但整體p99為20.8→21.6ms，尚未證明整體改善，也尚未重現使用者實際視窗的嚴重碰撞停頓。不要把局部工作預算修正當成所有卡頓已解決。詳見[分幀碰撞體預算](PERFORMANCE_TERRAIN_COLLIDER_BUDGET.md)；下方保留歷史。
+--- a/docs/DEVELOPMENT_PROGRESS.md
++++ b/docs/DEVELOPMENT_PROGRESS.md
+@@ -1,3 +1,7 @@
++# 第十四工作包 實際玩家手動效能擷取
++
++2026-10-30補齊P0／P3診斷：外部入口回到同一遊戲分頁，保留玩家設定與正常操作，記錄長幀、Rapier碰撞／射線／接觸耗時、串流佇列、實際後端／解析度／焦點，60秒或Esc後下載本機JSON。單元與原生瀏覽器流程通過；完整結果及限制見[手動效能擷取](PERFORMANCE_MANUAL_CAPTURE.md)。使用者嚴重卡頓尚未確定根因，P2水系／場景銜接、P3十場景、P4及P5仍未完成。下方保留歷史。
++
+ # 2026-10-30 大量載入與碰撞卡頓排查
+ 
+ 本次將道路／地形／造景碰撞體建立拆入分幀佇列，先提交當前畫面再準備後續資源，並保留換圖及延後配置失敗回退。完整回歸、正式版隔離及54組立體道路通過；自然路線串流CPU最大3.8→2.2ms，但整體p99為20.8→21.6ms，尚未證明整體改善，也尚未重現使用者實際視窗的嚴重碰撞停頓。不要把局部工作預算修正當成所有卡頓已解決。詳見[分幀碰撞體預算](PERFORMANCE_TERRAIN_COLLIDER_BUDGET.md)；下方保留歷史。

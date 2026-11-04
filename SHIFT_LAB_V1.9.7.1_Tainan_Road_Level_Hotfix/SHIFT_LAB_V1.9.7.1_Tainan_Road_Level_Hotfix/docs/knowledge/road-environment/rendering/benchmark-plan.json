@@ -1,0 +1,136 @@
+{
+  "schema": "shiftlab.environment.rendering.benchmark-plan.v1",
+  "created_on": "2026-10-28",
+  "scope": "planning_only",
+  "runtime_importable": false,
+  "priority": "environment_rendering_before_race_features",
+  "baseline_backend": "existing_WebGL2",
+  "backend_candidates": [
+    "existing_WebGL2",
+    "WebGPURenderer_after_parity_validation"
+  ],
+  "engine_versions": {
+    "three": "0.180.0",
+    "rapier": "0.18.2"
+  },
+  "measurement_status": "not_run",
+  "target": {
+    "status": "project_proposal_not_measured",
+    "preferred_fps": 60,
+    "nominal_frame_budget_ms": 16.666666666666668,
+    "hardware": null,
+    "browser": null,
+    "internal_resolution": null,
+    "p95_frame_gate_ms": null,
+    "p99_frame_gate_ms": null,
+    "gpu_budget_ms": null,
+    "memory_budget_bytes": null,
+    "contact_error_tolerance_m": null
+  },
+  "procedure": {
+    "warmup_seconds": 10,
+    "capture_seconds": 60,
+    "repetitions": 3,
+    "long_session_seconds": 600,
+    "native_gpu_required_for_perf_claim": true,
+    "record_cold_and_warm_cache": true,
+    "same_scene_required": true,
+    "fixed_physics_hz": 120,
+    "microstep_hz": 480
+  },
+  "device_classes": [
+    "desktop_discrete_gpu",
+    "laptop_integrated_gpu",
+    "mobile_separate_target_if_required"
+  ],
+  "metrics": [
+    "frame_p50_p95_p99_ms",
+    "over_budget_fraction",
+    "long_frames",
+    "physics_cpu_ms",
+    "generation_cpu_ms",
+    "render_submission_cpu_ms",
+    "gpu_ms_or_unavailable",
+    "draw_calls_all_passes",
+    "triangles_all_passes",
+    "resource_counts",
+    "estimated_gpu_bytes_by_format",
+    "js_heap_if_available",
+    "stream_generation_transcode_upload_latency",
+    "visual_contract_errors",
+    "simulated_time_vs_active_wall_time",
+    "dropped_physics_steps"
+  ],
+  "invariants": [
+    "visible_contact_geometry_agrees",
+    "no_unloaded_reachable_ground",
+    "no_near_collision_change_with_lod",
+    "no_hidden_blocking_surface",
+    "material_and_level_match_contact",
+    "physics_frequency_preserved",
+    "map_seed_reproducible"
+  ],
+  "scenarios": [
+    {
+      "id": "material_gallery",
+      "name": "10類路面樣板",
+      "purpose": "統一光照與尺度，靜態、斜視及移動檢查，近景起伏與接觸對照",
+      "result": null
+    },
+    {
+      "id": "road_contact",
+      "name": "曲坡道路與路肩",
+      "purpose": "彎道、坡道、路緣、材質分界及四輪命中",
+      "result": null
+    },
+    {
+      "id": "cut_fill_slope",
+      "name": "挖填邊坡與岩壁",
+      "purpose": "坡頂坡腳、擋牆、法線接縫及可到達坡地",
+      "result": null
+    },
+    {
+      "id": "mountain_panorama",
+      "name": "近中遠山體",
+      "purpose": "山脊輪廓、LOD過渡、相機轉向與深度精度",
+      "result": null
+    },
+    {
+      "id": "bridge_valley",
+      "name": "跨層橋梁與河谷",
+      "purpose": "同XY上下層、橋台／橋墩接地與視覺遮蔽",
+      "result": null
+    },
+    {
+      "id": "tunnel_portal",
+      "name": "隧道與洞口",
+      "purpose": "覆土、開孔、內外光照及出口辨識",
+      "result": null
+    },
+    {
+      "id": "vegetation_overdraw",
+      "name": "植被與透明過繪",
+      "purpose": "密集林緣、陰影、alpha及近景障礙",
+      "result": null
+    },
+    {
+      "id": "streaming_motion",
+      "name": "高速反向與跨層串流",
+      "purpose": "前進反向、支路、掉落邊坡及載入尖峰",
+      "result": null
+    },
+    {
+      "id": "map_reset",
+      "name": "切圖與版本取消",
+      "purpose": "舊Worker結果隔離、碰撞／渲染一致啟用、資源回復",
+      "result": null
+    },
+    {
+      "id": "long_session",
+      "name": "長時間行駛",
+      "purpose": "反覆載入、快取上限及記憶體穩定",
+      "result": null
+    }
+  ],
+  "results": []
+}

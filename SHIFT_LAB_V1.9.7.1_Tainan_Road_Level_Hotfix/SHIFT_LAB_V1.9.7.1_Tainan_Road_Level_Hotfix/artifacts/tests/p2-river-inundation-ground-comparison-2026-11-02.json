@@ -1,0 +1,83 @@
+[
+  {
+    "seed": "LEVEL-1",
+    "groundBefore": "e8397db44e63aa65c5ed1de64ad3e2caf8ec2681ca6176a62cb40961aaf832da",
+    "groundAfter": "e8397db44e63aa65c5ed1de64ad3e2caf8ec2681ca6176a62cb40961aaf832da",
+    "before": {
+      "changedVertices": 5477,
+      "maxCut": 20.90858829021454,
+      "protectedVertices": 1219,
+      "wetMaskEdges": 0,
+      "minPathCoverage": 1,
+      "waterTriangles": 1323
+    },
+    "after": {
+      "changedVertices": 5477,
+      "maxCut": 20.90858829021454,
+      "protectedVertices": 1219,
+      "wetMaskEdges": 0,
+      "openWaterEdges": 0,
+      "openOuterEdges": 0,
+      "openInteriorEdges": 0,
+      "terminalWaterEdges": 5,
+      "discardedWaterTriangles": 78,
+      "outsideCorridorTriangles": 0,
+      "minPathCoverage": 1,
+      "waterTriangles": 1245
+    }
+  },
+  {
+    "seed": "LEVEL-2",
+    "groundBefore": "bf57bb4af0069c8df21c24f37fc62747ecbb928728d85cac6d54299c5b397a5b",
+    "groundAfter": "bf57bb4af0069c8df21c24f37fc62747ecbb928728d85cac6d54299c5b397a5b",
+    "before": {
+      "changedVertices": 5517,
+      "maxCut": 20.820564776659012,
+      "protectedVertices": 4566,
+      "wetMaskEdges": 11,
+      "minPathCoverage": 1,
+      "waterTriangles": 1317
+    },
+    "after": {
+      "changedVertices": 5517,
+      "maxCut": 20.820564776659012,
+      "protectedVertices": 4566,
+      "wetMaskEdges": 11,
+      "openWaterEdges": 113,
+      "openOuterEdges": 52,
+      "openInteriorEdges": 61,
+      "terminalWaterEdges": 6,
+      "discardedWaterTriangles": 8696,
+      "outsideCorridorTriangles": 2092,
+      "minPathCoverage": 1,
+      "waterTriangles": 3303
+    }
+  },
+  {
+    "seed": "ROAD-38274CD4",
+    "groundBefore": "68031a03e2992de67f9c26cb4a9a7fd50db4756ac4c89405e1257d1153cda816",
+    "groundAfter": "68031a03e2992de67f9c26cb4a9a7fd50db4756ac4c89405e1257d1153cda816",
+    "before": {
+      "changedVertices": 6384,
+      "maxCut": 22.200616359710693,
+      "protectedVertices": 518,
+      "wetMaskEdges": 0,
+      "minPathCoverage": 1,
+      "waterTriangles": 1631
+    },
+    "after": {
+      "changedVertices": 6384,
+      "maxCut": 22.200616359710693,
+      "protectedVertices": 518,
+      "wetMaskEdges": 0,
+      "openWaterEdges": 0,
+      "openOuterEdges": 0,
+      "openInteriorEdges": 0,
+      "terminalWaterEdges": 4,
+      "discardedWaterTriangles": 102,
+      "outsideCorridorTriangles": 0,
+      "minPathCoverage": 1,
+      "waterTriangles": 1529
+    }
+  }
+]

@@ -1,0 +1,602 @@
+--- /dev/null
++++ b/desktop3d/src/tunnel-light-field.mjs
+@@ -0,0 +1,39 @@
++const clamp=x=>Math.max(0,Math.min(1,x));
++const smooth=x=>{x=clamp(x);return x*x*(3-2*x);};
++// Local sky-access approximation for the generated bore, not global exposure
++// or a GI solution. Query actual XYZ so the roof and upper roads stay outside.
++export class TunnelLightField {
++  constructor(core){
++    this.core=core;this.state=core.route.v3State;this.revision=this.state?.revision;this.buckets=new Map();this.height=core.roadDesign?.tunnelHeight??6.5;
++    for(const [id,feature] of (core.route.v3State?.features||[]).entries())if(feature.kind==='tunnel'){
++      const cuts=[feature.start];for(let s=Math.ceil(feature.start/4)*4;s<feature.end;s+=4)if(s>feature.start)cuts.push(s);cuts.push(feature.end);
++      for(let i=1;i<cuts.length;i++){
++        const a=core.roadPointAt(cuts[i-1]),b=core.roadPointAt(cuts[i]),segment={a,b,feature,id:id+1};
++        for(let x=Math.floor((Math.min(a.x,b.x)-8)/32);x<=Math.floor((Math.max(a.x,b.x)+8)/32);x++)
++          for(let z=Math.floor((Math.min(a.z,b.z)-8)/32);z<=Math.floor((Math.max(a.z,b.z)+8)/32);z++){
++            const key=x+','+z;if(!this.buckets.has(key))this.buckets.set(key,[]);this.buckets.get(key).push(segment);
++          }
++      }
++    }
++  }
++  at(p){
++    let sky=1,id=0;
++    for(const {a,b,feature,id:featureId} of this.buckets.get(Math.floor(p.x/32)+','+Math.floor(p.z/32))||[]){
++      const dx=b.x-a.x,dz=b.z-a.z,L2=dx*dx+dz*dz;
++      const t=((p.x-a.x)*dx+(p.z-a.z)*dz)/(L2||1);
++      if(t< -1e-6||t>1+1e-6)continue;
++      const u=clamp(t),x=a.x+u*dx,z=a.z+u*dz,L=Math.sqrt(L2)||1,l=((p.x-x)*dz-(p.z-z)*dx)/L;
++      if(Math.abs(l)>6.201)continue;
++      const y=(a.y+this.core.roadCrossElevation(a,l))*(1-u)+(b.y+this.core.roadCrossElevation(b,l))*u;
++      if(p.y<y-.05||p.y>y+this.height+.002)continue;
++      const s=a.s+(b.s-a.s)*u,depth=Math.max(0,Math.min(s-feature.start,feature.end-s));
++      const access=1-.94*smooth(depth/24);if(access<=sky){sky=access;id=featureId;}
++    }
++    return {sky,id};
++  }
++  sample(p){return this.at(p).sky;}
++  bake(vertices){const sky=new Float32Array(vertices.length/3),tunnelIds=new Float32Array(sky.length);
++    for(let i=0;i<sky.length;i++){const p=this.at({x:vertices[i*3],y:vertices[i*3+1],z:vertices[i*3+2]});sky[i]=p.sky;tunnelIds[i]=p.id;}
++    return {sky,tunnelIds};}
++  values(vertices){return this.bake(vertices).sky;}
++}
+--- /dev/null
++++ b/desktop3d/src/tunnel-lighting.mjs
+@@ -0,0 +1,63 @@
++import * as THREE from 'three';
++import {TunnelLightField} from './tunnel-light-field.mjs';
++export const TUNNEL_LIGHT_LIMIT=6;
++export class TunnelLighting {
++  constructor(scene,road){
++    this.scene=scene;this.road=road;this.vehicleSky={value:1};this.vehicleTunnel={value:0};this.lightIds={value:new Float32Array(TUNNEL_LIGHT_LIMIT)};this.registered=new WeakMap();this.materialRefs=[];
++    this.lights=Array.from({length:TUNNEL_LIGHT_LIMIT},()=>{const light=new THREE.PointLight(0xffe4bb,0,38,2);
++      light.name='tunnel-luminaire';scene.add(light);return light;});
++    this.active=[];road.skyLighting=this;
++  }
++  registerMaterial(material,dynamic=false){
++    if(!material.isMeshStandardMaterial||this.registered.has(material))return;
++    const record={onBeforeCompile:material.onBeforeCompile,cacheKey:material.customProgramCacheKey};
++    this.registered.set(material,record);this.materialRefs.push(new WeakRef(material));
++    const previous=material.onBeforeCompile.bind(material),cache=material.customProgramCacheKey.bind(material);
++    material.onBeforeCompile=shader=>{
++      previous(shader);shader.uniforms.tunnelVehicleSky=this.vehicleSky;shader.uniforms.tunnelVehicleId=this.vehicleTunnel;shader.uniforms.tunnelLightIds=this.lightIds;
++      shader.vertexShader=(dynamic?'uniform float tunnelVehicleSky,tunnelVehicleId;':'attribute float skyVisibility,tunnelId;')+'varying float vTunnelSky;varying float vTunnelId;\n'+shader.vertexShader;
++      shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvTunnelSky='+(dynamic?'tunnelVehicleSky':'skyVisibility')+';vTunnelId='+(dynamic?'tunnelVehicleId':'tunnelId')+';');
++      shader.fragmentShader='varying float vTunnelSky;varying float vTunnelId;uniform float tunnelLightIds[6];\n'+shader.fragmentShader;
++      shader.fragmentShader=shader.fragmentShader.replace('#include <lights_fragment_begin>',THREE.ShaderChunk.lights_fragment_begin.replace(
++        'getPointLightInfo( pointLight, geometryPosition, directLight );',
++        'if(tunnelLightIds[i]>.5&&abs(vTunnelId-tunnelLightIds[i])<.25&&vTunnelSky<.9999){getPointLightInfo( pointLight, geometryPosition, directLight );directLight.color*=clamp((1.0-vTunnelSky)/.94,0.0,1.0);}else{directLight.visible=false;directLight.color=vec3(0.0);directLight.direction=vec3(0.0,1.0,0.0);}'));
++      shader.fragmentShader=shader.fragmentShader.replace('#include <lights_fragment_maps>',`#include <lights_fragment_maps>
++#if defined(RE_IndirectDiffuse)
++irradiance*=vTunnelSky;iblIrradiance*=vTunnelSky;
++#endif
++#if defined(RE_IndirectSpecular)
++radiance*=vTunnelSky;clearcoatRadiance*=vTunnelSky;
++#endif`);
++    };
++    material.customProgramCacheKey=()=>cache()+'|tunnel-sky-v1-'+(dynamic?'vehicle':'static');record.wrapper=material.onBeforeCompile;record.keyWrapper=material.customProgramCacheKey;material.needsUpdate=true;
++  }
++  registerStatic(mesh){
++    if(!mesh.geometry.attributes.skyVisibility){const count=mesh.geometry.attributes.position.count;
++      mesh.geometry.setAttribute('skyVisibility',new THREE.BufferAttribute(new Float32Array(count).fill(1),1));}
++    if(!mesh.geometry.attributes.tunnelId)mesh.geometry.setAttribute('tunnelId',new THREE.BufferAttribute(new Float32Array(mesh.geometry.attributes.position.count),1));
++    for(const m of Array.isArray(mesh.material)?mesh.material:[mesh.material])this.registerMaterial(m);
++  }
++  registerVehicle(group){group.traverse(mesh=>{if(mesh.isMesh)for(const m of Array.isArray(mesh.material)?mesh.material:[mesh.material])this.registerMaterial(m,true);});}
++  update(position){
++    const road=this.road,isV3=road.physics.route.config?.generator===3;
++    const state=road.physics.route.v3State;
++    if(isV3&&(this.field?.state!==state||this.field?.revision!==state.revision)){
++      const prepared=road.terrain.skyField;
++      this.field=prepared?.state===state&&prepared.revision===state.revision?prepared:new TunnelLightField(road.physics);
++    }
++    const access=isV3?this.field.at(position):null;this.vehicleSky.value=access?.sky??1;this.vehicleTunnel.value=access?.id??0;
++    const candidates=[];
++    if(isV3)for(const chunk of road.chunks.values())for(const c of chunk.components||[])if(c.kind==='tunnel-luminaire'){
++      const distance=Math.hypot(position.x-c.position.x,position.y-c.position.y,position.z-c.position.z);
++      if(distance<65)candidates.push({...c,distance});
++    }
++    candidates.sort((a,b)=>a.distance-b.distance||a.id.localeCompare(b.id));this.active=candidates.slice(0,TUNNEL_LIGHT_LIMIT);
++    this.lights.forEach((light,i)=>{const c=this.active[i];light.intensity=c?220:0;this.lightIds.value[i]=c?.tunnelId??0;if(c)light.position.copy(c.position);});
++  }
++  reset(){this.field=null;this.vehicleSky.value=1;this.vehicleTunnel.value=0;this.active=[];this.lightIds.value.fill(0);for(const light of this.lights)light.intensity=0;}
++  dispose(){this.reset();
++    for(const ref of this.materialRefs){const material=ref.deref(),record=material&&this.registered.get(material);if(!record)continue;
++      if(material.onBeforeCompile===record.wrapper)material.onBeforeCompile=record.onBeforeCompile;
++      if(material.customProgramCacheKey===record.keyWrapper)material.customProgramCacheKey=record.cacheKey;material.needsUpdate=true;}
++    this.materialRefs=[];this.registered=new WeakMap();if(this.road.skyLighting===this)this.road.skyLighting=null;for(const light of this.lights)this.scene.remove(light);this.active=[];}
++}
+--- a/desktop3d/src/scene-lighting.mjs
++++ b/desktop3d/src/scene-lighting.mjs
+@@ -1,4 +1,5 @@
+ import * as THREE from 'three';
++import {TunnelLighting} from './tunnel-lighting.mjs';
+ 
+ export function createSceneLighting(renderer,scene){
+   renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
+@@ -21,11 +22,12 @@
+   const generator=new THREE.PMREMGenerator(renderer),environment=generator.fromScene(sky,.04,.1,100);
+   scene.environment=environment.texture;scene.environmentIntensity=.35;
+   generator.dispose();geometry.dispose();material.dispose();
++  let tunnel=null;
+   const update=p=>{
+     const texel=160/sun.shadow.mapSize.x,x=Math.round(p.x/texel)*texel,z=Math.round(p.z/texel)*texel;
+-    sun.target.position.set(x,p.y,z);sun.position.set(x-40,p.y+125,z+80);sun.target.updateMatrixWorld();
++    sun.target.position.set(x,p.y,z);sun.position.set(x-40,p.y+125,z+80);sun.target.updateMatrixWorld();tunnel?.update(p);
+   };
+   update({x:0,y:0,z:0});
+-  return {sun,hemi,update,dispose(){scene.remove(hemi,sun,sun.target);if(scene.environment===environment.texture)scene.environment=null;
++  return {sun,hemi,update,get tunnel(){return tunnel;},attachRoad(road){tunnel?.dispose();tunnel=new TunnelLighting(scene,road);return tunnel;},dispose(){tunnel?.dispose();scene.remove(hemi,sun,sun.target);if(scene.environment===environment.texture)scene.environment=null;
+     environment.dispose();sun.shadow.map?.dispose();}};
+ }
+--- a/desktop3d/src/road-geometry-v3.mjs
++++ b/desktop3d/src/road-geometry-v3.mjs
+@@ -94,6 +94,20 @@
+       if(f.kind==='tunnel'){
+         const h=design.tunnelHeight,aa=pos(sa,-6.2,h),ab=pos(sa,6.2,h),ba=pos(sb,-6.2,h),bb=pos(sb,6.2,h);
+         quad(meshes.structure,aa,ab,ba,bb);
++        // Paved verge reaches the real inner wall. TerrainField consumes these
++        // same ground triangles as its cut, so earth cannot rise inside bore.
++        for(const [lo,hi] of [[-6.2,-6],[6,6.2]])quad(meshes.shoulder,pos(sa,lo),pos(sa,hi),pos(sb,lo),pos(sb,hi));
++        const lightStation=Math.ceil((sa-8-1e-7)/16)*16+8;
++        if(lightStation>=sa-1e-7&&lightStation<sb-1e-7){
++          // Emissive ceiling finish lies exactly in an existing roof triangle.
++          // No raised fixture or duplicate physical surface is introduced.
++          if(!meshes.luminaire)meshes.luminaire=emptyMesh();
++          const at=(u,v)=>({x:aa.x*u+ba.x*v+ab.x*(1-u-v),y:aa.y*u+ba.y*v+ab.y*(1-u-v),z:aa.z*u+ba.z*v+ab.z*(1-u-v)});
++          const a=at(.25,.3),b=at(.25,.4),c=at(.35,.3),d=at(.35,.4);quad(meshes.luminaire,a,b,c,d);
++          const center=at(.3,.35),tunnelId=state.features.findIndex(x=>x.kind==='tunnel'&&x.start===f.start&&x.end===f.end)+1;
++          components.push({kind:'tunnel-luminaire',id:`tunnel-lamp:${lightStation}`,tunnelId,s:sa+(sb-sa)*.35,
++            position:{...center,y:center.y-.12},ceilingPosition:center});
++        }
+         const top=p=>({...p,y:p.y+.8});quad(meshes.structure,top(aa),top(ba),top(ab),top(bb));
+         // Ridge shoulders, with a true open portal and no terrain across bore.
+         for(const sign of [-1,1])quad(meshes.earth,pos(sa,sign*6.85,h+.8),pos(sb,sign*6.85,h+.8),pos(sa,sign*22),pos(sb,sign*22));
+--- a/desktop3d/src/road.mjs
++++ b/desktop3d/src/road.mjs
+@@ -28,6 +28,7 @@
+     this.soilMaterial = this.materialLibrary.material('earth');
+     this.concreteMaterial = this.materialLibrary.material('concrete');
+     this.railMaterial = this.materialLibrary.material('steel');
++    this.luminaireMaterial=new THREE.MeshStandardMaterial({color:0xffedcf,emissive:0xffe4bb,emissiveIntensity:3,roughness:.6,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1});
+     this.markMaterial = new THREE.MeshStandardMaterial({color:0xe6d9aa,roughness:.89});
+     this.leafMaterial = new THREE.MeshStandardMaterial({color:0x326452,roughness:1});
+     this.trunkMaterial = new THREE.MeshStandardMaterial({color:0x6b5642,roughness:1});
+@@ -103,7 +104,7 @@
+     const objects=[],colliders=[];
+     const materials={asphalt:this.surfaceMaterial,shoulder:this.shoulderMaterial,earth:this.soilMaterial,
+       structure:this.concreteMaterial,rail:this.railMaterial,cable:this.railMaterial,mark:this.markMaterial,
+-      cover:this.soilMaterial,earthWall:this.soilMaterial};
++      cover:this.soilMaterial,earthWall:this.soilMaterial,luminaire:this.luminaireMaterial};
+     try{
+       for(const [kind,part] of Object.entries(data.meshes)){
+         // TerrainField consumes old earth as boundary constraints and provides
+@@ -119,6 +120,9 @@
+         const geometry=new THREE.BufferGeometry();
+         geometry.setAttribute('position',new THREE.BufferAttribute(vertices,3));
+         geometry.setAttribute('uv',new THREE.BufferAttribute(part.uv||surfaceUV(this.physics,index,kind,vertices),2));
++        const sky=part.sky?part:this.terrain.skyField.bake(vertices);
++        geometry.setAttribute('skyVisibility',new THREE.BufferAttribute(sky.sky,1));geometry.setAttribute('tunnelId',new THREE.BufferAttribute(sky.tunnelIds,1));
++        if(kind==='cover'||kind==='earthWall')geometry.setAttribute('color',new THREE.BufferAttribute(new Float32Array(vertices.length).fill(1),3));
+         geometry.setIndex(new THREE.BufferAttribute(indices,1));
+         if(part.normals)geometry.setAttribute('normal',new THREE.BufferAttribute(part.normals,3));else geometry.computeVertexNormals();
+         let material=materials[kind];
+@@ -126,13 +130,13 @@
+           material=prepared.keys.map(key=>this.surfaceMaterialFor(key));
+           for(const group of prepared.groups)geometry.addGroup(group.start,group.count,group.material);
+         }
+-        const mesh=new THREE.Mesh(geometry,material);mesh.receiveShadow=true;
++        const mesh=new THREE.Mesh(geometry,material);this.skyLighting?.registerStatic(mesh);mesh.receiveShadow=true;
+         mesh.userData.hiddenForPavement=kind==='mark'&&this.surfaceMap.pavementMaterial==='gravel';
+         mesh.visible=!staged&&!mesh.userData.hiddenForPavement;
+         if(kind==='cover'||kind==='earthWall')mesh.customDepthMaterial=this.terrain.depthMaterial;
+         if(prepared){mesh.userData.surfaceLayerId=prepared.binding.layerId;mesh.userData.surfaceProfiles=prepared.keys;}
+-        mesh.castShadow=kind!=='mark';this.scene.add(mesh);objects.push(mesh);
+-        if(kind==='mark')continue;
++        mesh.castShadow=kind!=='mark';mesh.userData.nonPhysicalFinish=kind==='mark'||kind==='luminaire';this.scene.add(mesh);objects.push(mesh);
++        if(kind==='mark'||kind==='luminaire')continue;
+         const parts=indices===sourceIndices&&part.collision?part.collision:partitionColliderMesh(vertices,indices,ground?16:8);
+         for(const piece of parts){
+           const descriptor=this.rapier.ColliderDesc.trimesh(piece.vertices,piece.indices).setFriction(kind==='cover'?.7:.65);
+@@ -240,6 +244,7 @@
+         rails.push(railMesh);
+       }
+     }
++    for(const item of [mesh,...rails.filter(x=>x instanceof THREE.Object3D),...decorations])item.traverse(object=>{if(object.isMesh)this.skyLighting?.registerStatic(object);});
+     return {collider,mesh,rails,decorations};
+   }
+   disposeChunk(index,chunk,forget=true){
+@@ -268,7 +273,7 @@
+     this.streamer?.invalidate();
+     this.terrain.clear();
+     for(const [index,chunk] of [...this.chunks])this.disposeChunk(index,chunk);
+-    this.spatialChunks.clear();this.spatialRevision=-1;this.spatialState=null;
++    this.spatialChunks.clear();this.spatialRevision=-1;this.spatialState=null;this.skyLighting?.reset();
+     // AcceptanceObstacles.dispose() must run before clear(); foreign ground
+     // handles (e.g. ramp) are never silently deleted by this RoadWorld.
+   }
+--- a/desktop3d/src/terrain-world.mjs
++++ b/desktop3d/src/terrain-world.mjs
+@@ -1,3 +1,4 @@
++import {TunnelLightField} from './tunnel-light-field.mjs';
+ import {terrainWeights} from './terrain-surface.mjs';
+ import {TerrainMaterial} from './terrain-material.mjs';
+ import {SceneryPlanner,buildScenery,terrainColors} from './scenery-geometry.mjs';
+@@ -9,23 +10,23 @@
+ // Chunk-owned, reachable terrain. Rendering and compact collision partitions
+ // preserve the same Float32 triangles; quality cannot replace near-field support.
+ export class TerrainWorld {
+-  constructor(road){this.road=road;this.tiles=new Map();this.field=null;this.data=new Map();this.planner=null;this.scenery=null;this.material=null;
++  constructor(road){this.road=road;this.tiles=new Map();this.field=null;this.data=new Map();this.planner=null;this.scenery=null;this.material=null;this.skyField=null;
+     this.depthMaterial=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,polygonOffset:true,
+       polygonOffsetFactor:2,polygonOffsetUnits:4});}
+   clear(){
+     for(const tile of this.tiles.values())this.dispose(tile);
+-    this.tiles.clear();this.field=null;this.data.clear();this.planner=null;
++    this.tiles.clear();this.field=null;this.skyField=null;this.data.clear();this.planner=null;
+   }
+   prepare(){
+     const state=this.road.physics.route.v3State;
+     if(!this.field||this.field.state!==state||this.field.revision!==state.revision){
+-      this.clear();this.field=new TerrainField(this.road.physics);
++      this.clear();this.field=new TerrainField(this.road.physics);this.skyField=new TunnelLightField(this.road.physics);
+     }
+   }
+   dataFor(tx,tz){
+     const key=tx+','+tz;
+     if(!this.data.has(key)){
+-      const data=this.field.buildTile(tx,tz);data.colors=terrainColors(data,this.road.physics.route.seedHash);data.weights=terrainWeights(data,this.road.physics.route.seedHash);data.queryBuckets=new Map();
++      const data=this.field.buildTile(tx,tz);data.colors=terrainColors(data,this.road.physics.route.seedHash);data.weights=terrainWeights(data,this.road.physics.route.seedHash);Object.assign(data,this.skyField.bake(data.vertices));data.queryBuckets=new Map();
+       for(let n=0;n<data.indices.length;n+=3){
+         const a=data.indices[n]*3,b=data.indices[n+1]*3,c=data.indices[n+2]*3,v=data.vertices;
+         for(let x=Math.floor(Math.min(v[a],v[b],v[c])/16);x<=Math.floor(Math.max(v[a],v[b],v[c])/16);x++)
+@@ -39,7 +40,8 @@
+   }
+   sceneryFor(tx,tz){
+     this.prepare();if(!this.planner)this.planner=new SceneryPlanner(this.road.physics);
+-    return buildScenery(this.planner.plan(this,tx,tz),tx,tz);
++    const data=buildScenery(this.planner.plan(this,tx,tz),tx,tz);
++    for(const part of Object.values(data.meshes))Object.assign(part,this.skyField.bake(part.vertices));return data;
+   }
+   sceneryStats(){
+     const stats={trees:0,rocks:0,batches:0,colliders:0};
+@@ -133,9 +135,11 @@
+       geometry.setAttribute('normal',new THREE.BufferAttribute(data.normals,3));
+       geometry.setAttribute('color',new THREE.BufferAttribute(data.colors||terrainColors(data,road.physics.route.seedHash),3));
+       geometry.setAttribute('terrainWeights',new THREE.BufferAttribute(data.weights||terrainWeights(data,road.physics.route.seedHash),3));
++      const sky=data.sky?data:this.skyField.bake(data.vertices);
++      geometry.setAttribute('skyVisibility',new THREE.BufferAttribute(sky.sky,1));geometry.setAttribute('tunnelId',new THREE.BufferAttribute(sky.tunnelIds,1));
+       geometry.setIndex(new THREE.BufferAttribute(data.indices,1));
+       if(!this.material)this.material=new TerrainMaterial(road.materialLibrary,road.surfaceMap);
+-      this.material.setCondition(road.surfaceMap);mesh=new THREE.Mesh(geometry,this.material);mesh.receiveShadow=true;mesh.castShadow=true;
++      this.material.setCondition(road.surfaceMap);mesh=new THREE.Mesh(geometry,this.material);road.skyLighting?.registerStatic(mesh);mesh.receiveShadow=true;mesh.castShadow=true;
+       mesh.visible=!staged;
+       mesh.customDepthMaterial=this.depthMaterial;
+       mesh.userData.terrainTile={tx,tz};
+--- a/desktop3d/src/scenery-world.mjs
++++ b/desktop3d/src/scenery-world.mjs
+@@ -18,8 +18,9 @@
+       for(const [kind,part] of Object.entries(data.meshes)){
+         const geometry=new THREE.BufferGeometry();
+         for(const [name,array,size] of [['position',part.vertices,3],['normal',part.normals,3],['uv',part.uv,2],['color',part.colors,3]])geometry.setAttribute(name,new THREE.BufferAttribute(array,size));
++        if(part.sky){geometry.setAttribute('skyVisibility',new THREE.BufferAttribute(part.sky,1));geometry.setAttribute('tunnelId',new THREE.BufferAttribute(part.tunnelIds,1));}
+         geometry.setIndex(new THREE.BufferAttribute(part.indices,1));
+-        const mesh=new THREE.Mesh(geometry,this.materials[kind]);mesh.visible=!staged;mesh.castShadow=true;mesh.receiveShadow=true;
++        const mesh=new THREE.Mesh(geometry,this.materials[kind]);road.skyLighting?.registerStatic(mesh);mesh.visible=!staged;mesh.castShadow=true;mesh.receiveShadow=true;
+         mesh.userData.sceneryKind=kind;if(kind==='rock')mesh.userData.surfaceLayerId=data.layerId;road.scene.add(mesh);result.objects.push(mesh);
+       }
+       for(const piece of data.collisions){
+--- a/desktop3d/src/streaming-geometry.mjs
++++ b/desktop3d/src/streaming-geometry.mjs
+@@ -22,9 +22,10 @@
+       for(const [kind,part] of Object.entries(data.meshes)){
+         if(kind==='earth'){delete data.meshes[kind];continue;}
+         const vertices=own(new Float32Array(part.vertices)),indices=own(new Uint32Array(part.indices));
++        const sky=this.terrain.skyField.bake(vertices);
+         const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.BufferAttribute(vertices,3));
+         geometry.setIndex(new THREE.BufferAttribute(indices,1));geometry.computeVertexNormals();
+-        data.meshes[kind]={vertices,indices,collision:kind==='mark'?[]:collision(vertices,indices,['asphalt','shoulder','cover'].includes(kind)?16:8),normals:own(geometry.attributes.normal.array),uv:own(surfaceUV(this.core,index,kind,vertices))};geometry.dispose();
++        data.meshes[kind]={vertices,indices,sky:own(sky.sky),tunnelIds:own(sky.tunnelIds),collision:['mark','luminaire'].includes(kind)?[]:collision(vertices,indices,['asphalt','shoulder','cover'].includes(kind)?16:8),normals:own(geometry.attributes.normal.array),uv:own(surfaceUV(this.core,index,kind,vertices))};geometry.dispose();
+       }
+       roads.push({index,data});
+     }
+@@ -33,7 +34,7 @@
+       for(const mesh of Object.values(scenery.meshes))for(const array of Object.values(mesh))own(array);
+       for(const piece of scenery.collisions){own(piece.vertices);own(piece.indices);own(piece.renderFaces);}
+       // Cached source arrays stay in the worker. Transfer only owned copies.
+-      terrain.push({tx,tz,scenery,colors:own(source.colors.slice()),weights:own(source.weights.slice()),collision:collision(source.vertices,source.indices,16),vertices:own(source.vertices.slice()),indices:own(source.indices.slice()),
++      terrain.push({tx,tz,scenery,colors:own(source.colors.slice()),weights:own(source.weights.slice()),sky:own(source.sky.slice()),tunnelIds:own(source.tunnelIds.slice()),collision:collision(source.vertices,source.indices,16),vertices:own(source.vertices.slice()),indices:own(source.indices.slice()),
+         normals:own(source.normals.slice()),uv:own(source.uv.slice()),queryBuckets:source.queryBuckets});
+     }
+     while(this.terrain.data.size>32)this.terrain.data.delete(this.terrain.data.keys().next().value);
+--- a/desktop3d/src/main.mjs
++++ b/desktop3d/src/main.mjs
+@@ -349,7 +349,7 @@
+ }
+ function makeCar(){
+   const result=createVehicleVisual(captureLegacyVehicle($('car-preset').value,d.params));
+-  scene.add(result.group);return result;
++  scene.add(result.group);sceneLighting?.tunnel?.registerVehicle(result.group);return result;
+ }
+ function syncVisuals(dt){
+   const b=bridge.rigidBody,t=b.translation();
+@@ -651,7 +651,7 @@
+   window.addEventListener('resize',resize);resize();
+   world=new RAPIER.World({x:0,y:-9.81,z:0});
+   world.maxCcdSubsteps=4;
+-  road=new RoadWorld(RAPIER,world,scene,d);d.roadAppearance.guardrails='both';road.ensure(70);
++  road=new RoadWorld(RAPIER,world,scene,d);sceneLighting.attachRoad(road);d.roadAppearance.guardrails='both';road.ensure(70);
+   road.materialLibrary.configureAnisotropy(renderer.capabilities.getMaxAnisotropy());
+   bridge=new RapierChassisBridge(RAPIER,world,road,d);bridge.create(d.params);
+   if(!d.setChassisBridge(bridge))throw new Error('原始物理核心拒絕外部剛體橋接');
+@@ -664,7 +664,7 @@
+   if(import.meta.env.DEV){
+     const {installGameDriver}=await import('../tests/game-driver.mjs');
+     installGameDriver({getContext:()=>({core:d,bridge,road,labReady,paused,locked,autoRange,
+-      renderer,camera,vehicle,visualVehicleId,gameModes,userMapConfig,physicsMs,dropSteps,trackedKeys}),
++      renderer,camera,sceneLighting,vehicle,visualVehicleId,gameModes,userMapConfig,physicsMs,dropSteps,trackedKeys}),
+       stepOnce,updateHud,applyMap,openGameMode,selectAutomaticRange,frameView:()=>{syncVisuals(10);renderer.render(scene,camera);},
+       driveProcedural:enterProceduralDriving,setPause});
+   }
+--- /dev/null
++++ b/desktop3d/tests/validate-tunnel-lighting.mjs
+@@ -0,0 +1,67 @@
++import assert from 'node:assert/strict';
++import * as THREE from 'three';
++import RAPIER from '@dimforge/rapier3d-compat';
++import {fixture,base,engine} from './road-v3-fixture.mjs';
++import {TunnelLightField} from '../src/tunnel-light-field.mjs';
++import {TunnelLighting,TUNNEL_LIGHT_LIMIT} from '../src/tunnel-lighting.mjs';
++import {RoadWorld} from '../src/road.mjs';
++
++const core=fixture(base,48),original=JSON.stringify(core.route.v3State),field=new TunnelLightField(core);
++const tunnels=core.route.v3State.features.filter(f=>f.kind==='tunnel');assert.ok(tunnels.length);
++let samples=0;
++for(const f of tunnels){
++  let previous=1;
++  for(let distance=0;distance<=Math.min(24,(f.end-f.start)/2);distance++){
++    const p=core.roadPointAt(f.start+distance),value=field.sample({...p,y:p.y+1});
++    assert.ok(value<=previous+1e-6);assert.ok(value>=.06-1e-12&&value<=1);previous=value;samples++;
++  }
++  const p=core.roadPointAt((f.start+f.end)/2);
++  if(f.end-f.start>=48)assert.ok(Math.abs(field.sample({...p,y:p.y+1})-.06)<1e-10);
++  for(const y of [p.y+field.height+1,p.y-1])assert.equal(field.sample({...p,y}),1,'no upper/lower-layer darkening');
++  for(const sign of [-1,1])assert.equal(field.sample({x:p.x+Math.cos(p.heading)*8*sign,z:p.z-Math.sin(p.heading)*8*sign,y:p.y+1}),1,'outside walls stays in daylight');
++}
++await RAPIER.init();
++const world=new RAPIER.World({x:0,y:0,z:0}),scene=new THREE.Scene(),road=new RoadWorld(RAPIER,world,scene,core),lighting=new TunnelLighting(scene,road);
++let fixtures=0;
++try{
++  const f=tunnels[0],s=(f.start+f.end)/2,p=core.roadPointAt(s);road.ensure(s);world.step();lighting.update({...p,y:p.y+1});
++  assert.equal(lighting.lights.length,TUNNEL_LIGHT_LIMIT);assert.ok(lighting.active.length>0&&lighting.active.length<=TUNNEL_LIGHT_LIMIT);
++  const ids=new Set();
++  for(const chunk of road.chunks.values())for(const c of chunk.components||[])if(c.kind==='tunnel-luminaire'){
++    assert.ok(!ids.has(c.id),'half-open chunk fixture ownership');ids.add(c.id);fixtures++;
++    const origin={...c.ceilingPosition,y:c.ceilingPosition.y-1};
++    const h=world.castRayAndGetNormal(new RAPIER.Ray(origin,{x:0,y:1,z:0}),2,true,undefined,undefined,undefined,undefined,x=>road.barrierHandles.has(x.handle));
++    assert.ok(h&&Math.abs(h.timeOfImpact-1)<1e-4,'emissive finish must coincide with the actual physical roof');
++  }
++  assert.ok(fixtures>5);
++  for(const side of [-6.1,6.1]){
++    const p=road.position(s,side),hit=world.castRayAndGetNormal(new RAPIER.Ray({...p,y:p.y+1},{x:0,y:-1,z:0}),2,true,undefined,undefined,undefined,undefined,c=>road.groundHandles.has(c.handle));
++    assert.ok(hit&&hit.normal.y>0);assert.equal(road.surfaceAtHit(hit).renderKind,'shoulder','paved verge must reach the actual wall');
++    assert.equal(road.terrain.surfaceAt(p.x,p.z),null,'no terrain can rise into the bore verge');
++  }
++  for(const chunk of road.chunks.values())for(const mesh of chunk.objects){
++    const sky=mesh.geometry.attributes.skyVisibility,id=mesh.geometry.attributes.tunnelId;
++    assert.equal(sky.count,mesh.geometry.attributes.position.count);assert.equal(id.count,sky.count);
++    assert.ok(sky.array.every(v=>Number.isFinite(v)&&v>=.059999&&v<=1));
++  }
++  let boreQueries=0;
++  for(const f of tunnels)for(let at=Math.ceil((f.start+2)/8)*8;at<f.end-2;at+=8)for(const lateral of [-6.1,6.1]){
++    const q=road.position(at,lateral);assert.equal(road.terrain.surfaceAt(q.x,q.z),null,'terrain inside tunnel wall at '+at+','+lateral);boreQueries++;
++  }
++  assert.ok(boreQueries>20);
++  const shader={uniforms:{},vertexShader:THREE.ShaderLib.standard.vertexShader,fragmentShader:THREE.ShaderLib.standard.fragmentShader};
++  road.surfaceMaterial.onBeforeCompile(shader);assert.ok(shader.fragmentShader.includes('tunnelLightIds[i]'));assert.ok(shader.fragmentShader.includes('irradiance*=vTunnelSky'));
++  lighting.update({...p,y:p.y+20});assert.equal(lighting.vehicleSky.value,1);assert.equal(lighting.vehicleTunnel.value,0);
++  assert.equal(JSON.stringify(core.route.v3State),original,'light queries must not consume V3 RNG');
++  const oldField=road.terrain.skyField,colliderCount=world.colliders.len(),oldTunnelCount=tunnels.length;
++  engine.extend(core.route.v3State,96);core.route.points=core.route.v3State.points;core.route.segments=core.route.v3State.segments;
++  const next=core.route.v3State.features.filter(f=>f.kind==='tunnel')[oldTunnelCount];assert.ok(next,'extended route tunnel required');
++  const nextPoint=core.roadPointAt((next.start+next.end)/2);lighting.update({...nextPoint,y:nextPoint.y+1});
++  assert.ok(lighting.vehicleSky.value<.1);assert.equal(lighting.field.revision,core.route.v3State.revision);
++  assert.equal(road.terrain.skyField,oldField);assert.equal(world.colliders.len(),colliderCount,'lighting revision refresh must not clear active geometry');
++  road.clear();lighting.update(p);assert.equal(lighting.active.length,0);assert.ok(lighting.lights.every(l=>l.intensity===0));
++  const material=new THREE.MeshStandardMaterial(),originalCompile=material.onBeforeCompile,originalKey=material.customProgramCacheKey;
++  lighting.registerMaterial(material);lighting.dispose();assert.equal(material.onBeforeCompile,originalCompile);assert.equal(material.customProgramCacheKey,originalKey);
++  const replacement=new TunnelLighting(scene,road);replacement.registerMaterial(material);replacement.dispose();material.dispose();
++  console.log('PASS tunnel sky field: '+JSON.stringify({samples,fixtures,boreQueries,lightLimit:TUNNEL_LIGHT_LIMIT})+'; portal continuity, XYZ/layer exclusion, exact physical roof, bounded lights and reset ownership');
++}finally{road.clear();lighting.dispose();road.assertClean();assert.equal(world.colliders.len(),0);assert.equal(scene.children.length,0);world.free();}
+--- /dev/null
++++ b/desktop3d/tests/tunnel-lighting-driver.mjs
+@@ -0,0 +1,30 @@
++import * as THREE from 'three';
++export function inspectTunnelLighting({getContext,stepOnce,setPause,frameView},view='interior'){
++  const {core,road,bridge,renderer,camera,sceneLighting}=getContext();
++  const f=core.route.v3State.features.find(f=>f.kind==='tunnel');if(!f)throw Error('Tunnel fixture missing');
++  const stations={entry:f.start-10,threshold:f.start+8,interior:(f.start+f.end)/2,exit:f.end+10},s=stations[view];
++  if(s===undefined)throw Error('Unknown tunnel view');
++  setPause(true);core.inputKeys.clear();core.releaseKeyboardOverride();core.requestGear(0);
++  Object.assign(core.hostControls,{active:true,steer:0,throttle:0,brake:0,clutch:1,parkPawl:false});
++  const p=core.roadPointAt(s);road.ensure(s);bridge.teleport({roadPoint:{...p,y:road.position(s,0).y}});
++  for(let i=0;i<120;i++)if(stepOnce()===false)throw Error('Missing prepared ground');
++  frameView();
++  const forward=new THREE.Vector3(Math.sin(p.heading),0,Math.cos(p.heading)),at=bridge.rigidBody.translation();
++  camera.position.set(at.x,at.y+1.4,at.z).addScaledVector(forward,-7);
++  camera.lookAt(new THREE.Vector3(at.x,at.y+.5,at.z).addScaledVector(forward,20));
++  const capture=()=>{
++    renderer.render(road.scene,camera);const gl=renderer.getContext();
++    for(const program of renderer.info.programs)if(!gl.getProgramParameter(program.program,gl.LINK_STATUS))throw Error('Tunnel shader failed to link');
++    const w=gl.drawingBufferWidth,h=gl.drawingBufferHeight,data=new Uint8Array(w*h*4);gl.readPixels(0,0,w,h,gl.RGBA,gl.UNSIGNED_BYTE,data);
++    let total=0,count=0;for(let y=Math.floor(h*.12);y<h*.5;y+=8)for(let x=Math.floor(w*.2);x<w*.8;x+=8){const i=(y*w+x)*4;total+=.2126*data[i]+.7152*data[i+1]+.0722*data[i+2];count++;}
++    return {meanDisplayLuma:total/count,image:renderer.domElement.toDataURL('image/png')};
++  };
++  const withLights=capture(),pose={...bridge.rigidBody.translation()},lighting=sceneLighting.tunnel;
++  const intensities=lighting.lights.map(l=>l.intensity);lighting.lights.forEach(l=>l.intensity=0);
++  let withoutLights;try{withoutLights=capture();}finally{lighting.lights.forEach((l,i)=>l.intensity=intensities[i]);}
++  if(JSON.stringify(pose)!==JSON.stringify(bridge.rigidBody.translation()))throw Error('Rendering changed body position');
++  return {view,s,feature:{start:f.start,end:f.end},sky:lighting.vehicleSky.value,tunnelId:lighting.vehicleTunnel.value,
++    activeLights:lighting.active.length,totalLights:lighting.lights.length,contacts:core.suspension.contacts,
++    invalidWheelLoads:bridge.invalidWheelLoads,exposure:renderer.toneMappingExposure,pose,
++    withLights,withoutLights,scope:'fixed-exposure live gameplay visual check; display-luma is not calibrated illuminance'};
++}
+--- /dev/null
++++ b/desktop3d/tests/validate-tunnel-baseline.mjs
+@@ -0,0 +1,26 @@
++// One-off source checkpoint comparison. Pass the original road geometry module
++// extracted from p2-tunnel-lighting-before-2026-10-29.zip with its import fixed.
++import assert from 'node:assert/strict';
++import path from 'node:path';
++import {pathToFileURL} from 'node:url';
++import {fixture,base} from './road-v3-fixture.mjs';
++import {buildRoadChunkV3} from '../src/road-geometry-v3.mjs';
++if(!process.argv[2])throw Error('Original geometry module path required');
++const {buildRoadChunkV3:original}=await import(pathToFileURL(path.resolve(process.argv[2])));
++const core=fixture(base,48),indices=new Set();
++for(const f of core.route.v3State.features.filter(f=>f.kind==='tunnel'))for(let i=Math.floor(f.start/100);i<=Math.floor(f.end/100);i++)indices.add(i);
++const triangles=mesh=>{const m=new Map();for(let i=0;i<mesh.indices.length;i+=3){const p=[];
++  for(let j=0;j<3;j++){const at=mesh.indices[i+j]*3;for(let k=0;k<3;k++)p.push(Math.fround(mesh.vertices[at+k]));}
++  const key=p.join(',');m.set(key,(m.get(key)||0)+1);}return m;};
++let addedVergeFaces=0,lights=0;
++for(const i of indices){
++  const a=original(core,i),b=buildRoadChunkV3(core,i);
++  for(const kind of Object.keys(a.meshes))if(kind!=='shoulder')assert.deepEqual(b.meshes[kind],a.meshes[kind],kind+' physical geometry changed');
++  const old=triangles(a.meshes.shoulder),now=triangles(b.meshes.shoulder);
++  for(const [key,count] of old){assert.ok((now.get(key)||0)>=count,'existing verge triangle changed');now.set(key,now.get(key)-count);}
++  addedVergeFaces+=[...now.values()].reduce((a,b)=>a+b,0);
++  assert.deepEqual(b.components.filter(c=>c.kind!=='tunnel-luminaire'),a.components);
++  lights+=b.components.filter(c=>c.kind==='tunnel-luminaire').length;
++}
++assert.ok(addedVergeFaces>0&&lights>0);
++console.log('PASS original core road mesh comparison: '+JSON.stringify({chunks:indices.size,addedVergeFaces,lights})+'; existing asphalt/roof/walls/rails/earth and verge faces retained; engineering uses current actual terrain separately');
+--- a/desktop3d/tests/validate-streaming.mjs
++++ b/desktop3d/tests/validate-streaming.mjs
+@@ -30,10 +30,10 @@
+     }
+     assert.deepEqual(data.components,expected.components);
+   }
+-  for(const key of ['vertices','indices','normals','uv','colors','weights'])assert.deepEqual(result.terrain[0][key],sampler.dataFor(0,0)[key]);
++  for(const key of ['vertices','indices','normals','uv','colors','weights','sky','tunnelIds'])assert.deepEqual(result.terrain[0][key],sampler.dataFor(0,0)[key]);
+   const repeat=once(worker,'message');worker.postMessage({id:2,epoch:1,revision:snapshot.state.revision,roads:[],terrain:[[0,0]]});
+   const repeated=(await repeat)[0];
+-  for(const key of ['vertices','colors','weights','scenery'])assert.deepEqual(repeated.terrain[0][key],result.terrain[0][key],'transfer must preserve deterministic cached source data: '+key);sampler.clear();
++  for(const key of ['vertices','colors','weights','sky','tunnelIds','scenery'])assert.deepEqual(repeated.terrain[0][key],result.terrain[0][key],'transfer must preserve deterministic cached source data: '+key);sampler.clear();
+ }finally{await worker.terminate();}
+ 
+ await RAPIER.init();const flat=fixture({...base,turnChance:0,hairpinChance:0,slopeChance:0},12);
+--- a/desktop3d/tests/game-driver.mjs
++++ b/desktop3d/tests/game-driver.mjs
+@@ -1,3 +1,4 @@
++import {inspectTunnelLighting} from './tunnel-lighting-driver.mjs';
+ import {inspectTerrainBlend} from './terrain-blend-driver.mjs';
+ import {inspectScenery,driveRockContact} from './scenery-driver.mjs';
+ import {driveRoadV3Check} from './road-v3-driver.mjs';
+@@ -52,6 +53,8 @@
+     focus:document.activeElement?.id||document.activeElement?.tagName||'none'};
+ }
+   window.__SHIFT_LAB_3D_QA__={
++    getTunnelLightingState:()=>{const l=getContext().sceneLighting.tunnel;return {sky:l.vehicleSky.value,tunnelId:l.vehicleTunnel.value,activeLights:l.active.length,totalLights:l.lights.length};},
++    inspectTunnelLighting:(view)=>inspectTunnelLighting({getContext,stepOnce,setPause,frameView},view),
+     inspectTerrainBlend:(overview=false)=>inspectTerrainBlend(getContext(),overview),
+     inspectScenery:()=>inspectScenery(getContext()),
+     driveRockContact:()=>driveRockContact({getContext,stepOnce,setPause}),
+--- a/desktop3d/tests/validate-procedural-browser.mjs
++++ b/desktop3d/tests/validate-procedural-browser.mjs
+@@ -226,6 +226,36 @@
+       Buffer.from((await cdp.send('Page.captureScreenshot',{format:'png'},sessionId)).data,'base64'));
+     assert.deepEqual(httpErrors,[]);assert.deepEqual(cdp.errors,[]);
+     console.log('PASS engineering overview capture with actual vehicle support');return;
++  }
++  if(process.argv.includes('--tunnel-performance')){
++    assert.ok(nativeGpu,'Tunnel timing requires native GPU');
++    const setup=await evaluate("(()=>{const q=window.__SHIFT_LAB_3D_QA__;q.applyMap({...q.map,generator:3,seed:'LEVEL-1',turnChance:70,hairpinChance:35,slopeChance:30});const s=q.inspectTunnelLighting('interior');delete s.withLights.image;delete s.withoutLights.image;if(!q.selectAutomaticRange('P'))throw Error('P rejected');q.openMode('settings');q.openMode('drive');q.startBaseline({warmupSeconds:10,captureSeconds:30,requireNative:true});return s;})()");
++    let trace;for(let i=0;i<700;i++){trace=await evaluate('window.__SHIFT_LAB_3D_QA__.baseline');if(trace.status==='complete'||trace.status==='failed')break;await delay(100);}
++    assert.equal(trace.status,'complete',JSON.stringify(trace));
++    const final=await evaluate('({lighting:window.__SHIFT_LAB_3D_QA__.getTunnelLightingState(),vehicle:window.__SHIFT_LAB_3D_QA__.snapshot()})');
++    assert.ok(final.lighting.sky<.1);assert.ok(final.lighting.activeLights>0);assert.equal(final.vehicle.invalidWheelLoads,0);
++    await fs.writeFile(path.join(root,'../artifacts/tests/p2-tunnel-native-performance-2026-10-29.json'),JSON.stringify({scope:'single interior stationary gameplay case; not P3 completion',setup,result:trace.result,final},null,2)+'\n');
++    assert.deepEqual(httpErrors,[]);assert.deepEqual(cdp.errors,[]);
++    console.log('PASS native tunnel rendering capture: '+JSON.stringify({frame:trace.result.frameMs,gpu:trace.result.gpuRenderMs,ratio:trace.result.simulationRatio,drops:trace.result.droppedSteps,lighting:final.lighting}));return;
++  }
++  if(process.argv.includes('--tunnel-lighting')){
++    await evaluate("(()=>{const q=window.__SHIFT_LAB_3D_QA__;q.applyMap({...q.map,generator:3,seed:'LEVEL-1',turnChance:70,hairpinChance:35,slopeChance:30});})()");
++    const results=[];
++    for(const view of ['entry','threshold','interior','exit']){
++      const result=await evaluate(`window.__SHIFT_LAB_3D_QA__.inspectTunnelLighting(${JSON.stringify(view)})`);
++      assert.ok(result.contacts>0);assert.equal(result.invalidWheelLoads,0);assert.equal(result.exposure,1.05);
++      assert.equal(result.totalLights,6);assert.ok(result.activeLights<=6);
++      if(view==='interior'){assert.ok(result.sky<.1);assert.ok(result.withLights.meanDisplayLuma>result.withoutLights.meanDisplayLuma+1);}
++      if(view==='entry'||view==='exit')assert.equal(result.sky,1);
++      for(const variant of ['withLights','withoutLights']){
++        await fs.writeFile(path.join(root,'../artifacts/tests/p2-tunnel-'+view+'-'+variant+'-2026-10-29.png'),Buffer.from(result[variant].image.split(',')[1],'base64'));
++        delete result[variant].image;
++      }
++      results.push(result);
++    }
++    await fs.writeFile(path.join(root,'../artifacts/tests/p2-tunnel-lighting-browser-2026-10-29.json'),JSON.stringify(results,null,2)+'\n');
++    assert.deepEqual(httpErrors,[]);assert.deepEqual(cdp.errors,[]);
++    console.log('PASS live tunnel lighting: '+JSON.stringify(results.map(r=>({view:r.view,sky:r.sky,lights:r.activeLights,lumaOn:r.withLights.meanDisplayLuma,lumaOff:r.withoutLights.meanDisplayLuma}))));return;
+   }
+   if(process.argv.includes('--terrain-blend')){
+     await evaluate("(()=>{const q=window.__SHIFT_LAB_3D_QA__;q.applyMap({...q.map,generator:3,seed:'LEVEL-1',turnChance:70,hairpinChance:35,slopeChance:30});q.step(12);q.frameView();})()");
+@@ -531,10 +561,10 @@
+     assert.ok(!requests.some(value=>/\/tests\/|scenarios\.mjs|obstacles\.mjs/.test(value)),
+       'Production requested development/acceptance modules');
+     const files=await fs.readdir(path.join(root,'dist'),{recursive:true});
+-    assert.ok(!files.some(value=>/acceptance|game-driver|scenarios|obstacles|vehicle-diagnostics|performance-baseline|surface-driver|pbr-preview|material-gallery|streaming-profile|scenery-driver|terrain-blend-driver/.test(value)));
++    assert.ok(!files.some(value=>/acceptance|game-driver|scenarios|obstacles|vehicle-diagnostics|performance-baseline|surface-driver|pbr-preview|material-gallery|streaming-profile|scenery-driver|terrain-blend-driver|tunnel-lighting-driver/.test(value)));
+     for(const file of files.filter(value=>/\.(?:js|html)$/.test(value))){
+       const source=await fs.readFile(path.join(root,'dist',file),'utf8');
+-      assert.ok(!/AcceptanceObstacles|__SHIFT_LAB_3D_QA__|__SHIFT_LAB_ACCEPTANCE__|__SHIFT_LAB_VEHICLE_DIAGNOSTICS__|collectPerformanceBaseline|collectStreamingProfile|startStreamingTrace|inspectScenery|inspectTerrainBlend|driveRockContact|shiftlab.performance.baseline.v1|driveSurfaceBraking|runSuite|qa-results|tests-panel/.test(source),file);
++      assert.ok(!/AcceptanceObstacles|__SHIFT_LAB_3D_QA__|__SHIFT_LAB_ACCEPTANCE__|__SHIFT_LAB_VEHICLE_DIAGNOSTICS__|collectPerformanceBaseline|collectStreamingProfile|startStreamingTrace|inspectScenery|inspectTerrainBlend|inspectTunnelLighting|getTunnelLightingState|driveRockContact|shiftlab.performance.baseline.v1|driveSurfaceBraking|runSuite|qa-results|tests-panel/.test(source),file);
+     }
+     assert.deepEqual(httpErrors,[]);assert.deepEqual(cdp.errors,[]);
+     if(process.argv.includes('--screenshot')||process.argv.includes('--vehicle-screenshot')){
+--- a/desktop3d/tests/validate-road-structures.mjs
++++ b/desktop3d/tests/validate-road-structures.mjs
+@@ -70,7 +70,7 @@
+   assert.equal(new Set(hits.map(h=>junctionRoad.surfaceAtHit(h).layerId)).size,1,'junction has distinct support layers');
+   assert.ok(Math.max(...hits.map(h=>h.timeOfImpact))-Math.min(...hits.map(h=>h.timeOfImpact))<.001,'junction has stacked support heights');
+   for(const h of hits)assert.ok(Math.abs(h.timeOfImpact-2)<.02);
+-  for(const chunk of junctionRoad.chunks.values())assertColliderTriangles(chunk.objects.filter(m=>m.material!==junctionRoad.markMaterial),chunk.colliders.map(x=>x.collider));
++  for(const chunk of junctionRoad.chunks.values())assertColliderTriangles(chunk.objects.filter(m=>!m.userData.nonPhysicalFinish),chunk.colliders.map(x=>x.collider));
+   for(const arc of [j.a,j.b])for(const offset of [-15,0,15]){
+     const p=junctionRoad.position(arc+offset,0);
+     assert.ok(hit({...p,y:p.y+1},{x:0,y:-1,z:0},2,c=>junctionRoad.groundHandles.has(c.handle)),'junction arm missing');
+@@ -98,7 +98,7 @@
+ road.ensure(state.crossings[0].upper);world.step();
+ for(const chunk of road.chunks.values()){
+   const physical=chunk.colliders.map(x=>x.collider);
+-  const rendered=chunk.objects.filter(x=>x.material!==road.markMaterial);
++  const rendered=chunk.objects.filter(x=>!x.userData.nonPhysicalFinish);
+   assertColliderTriangles(rendered,physical);
+   for(const collider of physical)if(road.barrierHandles.has(collider.handle))assert.equal(road.groundHandles.has(collider.handle),false);
+ }
+--- a/desktop3d/tests/validate-road-engineering.mjs
++++ b/desktop3d/tests/validate-road-engineering.mjs
+@@ -69,7 +69,7 @@
+   }
+   assert.equal(JSON.stringify(core.route.v3State),before,'engineering must not alter seeded route');
+   for(const chunk of road.chunks.values()){
+-    const physical=chunk.colliders.map(x=>x.collider),rendered=chunk.objects.filter(m=>m.material!==road.markMaterial);
++    const physical=chunk.colliders.map(x=>x.collider),rendered=chunk.objects.filter(m=>!m.userData.nonPhysicalFinish);
+     assertColliderTriangles(rendered,physical);
+   }
+   road.clear();road.assertClean();assert.equal(world.colliders.len(),0);assert.equal(scene.children.length,0);world.free();
+--- a/desktop3d/package.json
++++ b/desktop3d/package.json
+@@ -15,11 +15,12 @@
+     "qa:transmission": "node ./tests/validate-auto-transmission.mjs",
+     "qa:manual": "node ./tests/validate-manual-gear.mjs",
+     "qa:streaming": "node ./tests/validate-collider-partition.mjs && node ./tests/validate-geometry-upload.mjs && node ./tests/validate-streaming.mjs",
+-    "qa:all": "npm run qa:streaming && npm run qa:vehicle && npm run qa:surface && npm run qa:terrain && npm run qa:grading && npm run qa:materials && npm run qa:engineering && npm run qa:performance && npm run qa:scenarios && npm run qa:map && npm run qa:transmission && npm run qa:manual && npm run qa:health && npm run qa:prnd",
++    "qa:all": "npm run qa:streaming && npm run qa:vehicle && npm run qa:surface && npm run qa:terrain && npm run qa:grading && npm run qa:materials && npm run qa:lighting && npm run qa:engineering && npm run qa:performance && npm run qa:scenarios && npm run qa:map && npm run qa:transmission && npm run qa:manual && npm run qa:health && npm run qa:prnd",
+     "qa:performance": "node ./tests/validate-performance-capture.mjs",
+     "qa:surface": "node ./tests/validate-surface-map.mjs && node ./tests/validate-pavement.mjs",
+     "qa:terrain": "node ./tests/validate-terrain.mjs && node ./tests/validate-terrain-surface.mjs && node ./tests/validate-scenery.mjs",
+     "qa:grading": "node ./tests/validate-terrain-grading.mjs",
++    "qa:lighting": "node ./tests/validate-tunnel-lighting.mjs",
+     "qa:materials": "node ./tests/validate-surface-materials.mjs",
+     "qa:engineering": "node ./tests/validate-road-engineering.mjs",
+     "qa:engineering:ccd": "node ./tests/validate-foundation-ccd.mjs",

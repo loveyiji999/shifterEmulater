@@ -1,0 +1,110 @@
+[
+  {
+    "view": "entry",
+    "s": 2000.3207098599523,
+    "feature": {
+      "start": 2010.3207098599523,
+      "end": 2318.3338816976175
+    },
+    "sky": 1,
+    "tunnelId": 0,
+    "activeLights": 3,
+    "totalLights": 6,
+    "contacts": 4,
+    "invalidWheelLoads": 0,
+    "exposure": 1.05,
+    "pose": {
+      "x": -390.29095458984375,
+      "y": -1.4057446718215942,
+      "z": 216.8643341064453
+    },
+    "withLights": {
+      "meanDisplayLuma": 55.25334552110194
+    },
+    "withoutLights": {
+      "meanDisplayLuma": 53.90922898363417
+    },
+    "scope": "fixed-exposure live gameplay visual check; display-luma is not calibrated illuminance"
+  },
+  {
+    "view": "threshold",
+    "s": 2018.3207098599523,
+    "feature": {
+      "start": 2010.3207098599523,
+      "end": 2318.3338816976175
+    },
+    "sky": 0.754195797105555,
+    "tunnelId": 3,
+    "activeLights": 4,
+    "totalLights": 6,
+    "contacts": 4,
+    "invalidWheelLoads": 0,
+    "exposure": 1.05,
+    "pose": {
+      "x": -404.9878234863281,
+      "y": -1.8079054355621338,
+      "z": 206.45510864257812
+    },
+    "withLights": {
+      "meanDisplayLuma": 34.72336998277322
+    },
+    "withoutLights": {
+      "meanDisplayLuma": 21.708638329026606
+    },
+    "scope": "fixed-exposure live gameplay visual check; display-luma is not calibrated illuminance"
+  },
+  {
+    "view": "interior",
+    "s": 2164.327295778785,
+    "feature": {
+      "start": 2010.3207098599523,
+      "end": 2318.3338816976175
+    },
+    "sky": 0.06000000000000005,
+    "tunnelId": 3,
+    "activeLights": 6,
+    "totalLights": 6,
+    "contacts": 4,
+    "invalidWheelLoads": 0,
+    "exposure": 1.05,
+    "pose": {
+      "x": -536.8976440429688,
+      "y": -3.914403200149536,
+      "z": 208.69760131835938
+    },
+    "withLights": {
+      "meanDisplayLuma": 47.39137967269541
+    },
+    "withoutLights": {
+      "meanDisplayLuma": 12.106949913867306
+    },
+    "scope": "fixed-exposure live gameplay visual check; display-luma is not calibrated illuminance"
+  },
+  {
+    "view": "exit",
+    "s": 2328.3338816976175,
+    "feature": {
+      "start": 2010.3207098599523,
+      "end": 2318.3338816976175
+    },
+    "sky": 1,
+    "tunnelId": 0,
+    "activeLights": 4,
+    "totalLights": 6,
+    "contacts": 4,
+    "invalidWheelLoads": 0,
+    "exposure": 1.05,
+    "pose": {
+      "x": -497.3899841308594,
+      "y": -4.013571262359619,
+      "z": 351.2334289550781
+    },
+    "withLights": {
+      "meanDisplayLuma": 50.40792743324533
+    },
+    "withoutLights": {
+      "meanDisplayLuma": 50.40792743324533
+    },
+    "scope": "fixed-exposure live gameplay visual check; display-luma is not calibrated illuminance"
+  }
+]

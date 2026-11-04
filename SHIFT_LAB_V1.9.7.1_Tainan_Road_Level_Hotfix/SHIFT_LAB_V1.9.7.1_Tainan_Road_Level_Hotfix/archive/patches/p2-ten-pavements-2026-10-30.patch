@@ -1,0 +1,292 @@
+--- /dev/null
++++ b/desktop3d/src/pavement-definition.mjs
+@@ -0,0 +1,16 @@
++// Published gameplay choices. Surface coefficients below are authored values,
++// not measured material data; appearance never supplies tire friction.
++export const PAVEMENT_MATERIAL_IDS=Object.freeze(['asphalt_dense','asphalt_open','concrete','concrete_paver','clay_paver','natural_stone','gravel','earth','timber','steel']);
++export const pavementProfileId=(material,condition)=>(['earth','natural_stone'].includes(material)?'pavement_':'')+material+'.'+condition;
++export const pavementHasMarkings=material=>!['gravel','earth','timber','steel'].includes(material);
++// Existing asphalt/concrete/gravel profiles remain at their original source.
++// Earth and stone pavement use explicit profiles distinct from terrain/boulders.
++export const ADDITIONAL_PAVEMENT_DATA=Object.freeze({
++  asphalt_open:{mu:[.99,.70,.32,.13],rolling:[.014,.014,.02,.02],color:['#394046','#29343a','#e4ebeb','#93b5c1'],rough:[.97,.35,.98,.18],meters:2},
++  concrete_paver:{mu:[.92,.60,.30,.12],rolling:[.018,.02,.024,.022],color:['#a49b89','#777366','#e4ebeb','#93b5c1'],rough:[.9,.4,.98,.2],meters:2},
++  clay_paver:{mu:[.88,.55,.29,.12],rolling:[.019,.022,.026,.022],color:['#a05a3c','#713d2a','#e4ebeb','#93b5c1'],rough:[.88,.38,.98,.2],meters:2},
++  natural_stone:{mu:[.90,.57,.30,.12],rolling:[.02,.022,.026,.022],color:['#9a9890','#666b69','#d9e0df','#93b5c1'],rough:[.8,.4,.98,.2],meters:2},
++  earth:{mu:[.62,.38,.28,.12],rolling:[.035,.045,.03,.02],color:['#747455','#4c4b36','#d9e0df','#8badaf'],rough:[1,.72,.98,.23],meters:4},
++  timber:{mu:[.75,.45,.28,.12],rolling:[.017,.019,.022,.02],color:['#8c6843','#5f4934','#d9e0df','#93b5c1'],rough:[.82,.38,.98,.19],meters:2},
++  steel:{mu:[.74,.42,.24,.10],rolling:[.012,.014,.02,.02],color:['#a0aab0','#727f87','#d9e0df','#93b5c1'],rough:[.48,.24,.98,.18],metal:[.85,.85,0,0],meters:2}
++});
+--- a/desktop3d/src/surface-map.mjs
++++ b/desktop3d/src/surface-map.mjs
+@@ -1,3 +1,4 @@
++import {pavementProfileId,ADDITIONAL_PAVEMENT_DATA} from './pavement-definition.mjs';
+ import {TERRAIN_MATERIALS,terrainWeightsAt} from './terrain-surface.mjs';
+ import {readDesignData,requireKeys,requireText,inRange,designFingerprint} from './design-data.mjs';
+ import {readSurfaceDefinition,requireDrivableSurface} from './surface-definition.mjs';
+@@ -40,6 +41,13 @@
+         evidence:{basis:'project-illustrative',source:'P2 authored pavement gameplay assumptions; tests/validate-pavement.mjs and actual stopping experiment; not field calibration',status:'verified-gameplay'}});
+       trusted.set(profile.id,designFingerprint(profile));this.profiles.set(profile.id,requireDrivableSurface(profile,trusted));
+     }
++    for(const [material,values] of Object.entries(ADDITIONAL_PAVEMENT_DATA))for(const [i,condition] of LEGACY_SURFACE_CONDITIONS.entries()){
++      const profile=readSurfaceDefinition({schema:'shiftlab.surface.v1',revision:1,id:pavementProfileId(material,condition),material,condition,
++        pbr:{color:values.color[i],roughness:values.rough[i],metalness:values.metal?.[i]??0,uvMeters:values.meters},
++        contact:{tireMu:values.mu[i],rollingCoefficient:values.rolling[i],colliderFriction:.65},
++        evidence:{basis:'project-illustrative',source:'P2 authored solid pavement gameplay assumptions; tests/validate-pavement.mjs and ten-material actual driving experiment; not field calibration',status:'verified-gameplay'}});
++      trusted.set(profile.id,designFingerprint(profile));this.profiles.set(profile.id,requireDrivableSurface(profile,trusted));
++    }
+     for(const condition of LEGACY_SURFACE_CONDITIONS){
+       const original=this.profiles.get('gravel.'+condition);
+       const profile=readSurfaceDefinition({...original,id:'terrain_gravel.'+condition,
+@@ -58,6 +66,7 @@
+   }
+   get condition(){return this.core.state?.surface||'dry';}
+   profile(id){const p=this.profiles.get(id);if(!p)throw Error('Unverified surface profile: '+id);return p;}
++  pavementProfile(material=this.pavementMaterial,condition=this.condition){return this.profile(pavementProfileId(material,condition));}
+   normalizeZones(input){
+     const zones=readDesignData(input);
+     if(!Array.isArray(zones)||zones.length>64)throw Error('Invalid surface zone count');
+@@ -116,7 +125,7 @@
+         condition,tireMu:weighted('tireMu'),rollingCoefficient:weighted('rollingCoefficient'),colliderFriction:.7,
+         layerId:binding.layerId,faceIndex,colliderHandle:hit.collider.handle,renderKind:'terrain',scope:'project-illustrative-terrain-blend'};
+     }
+-    const profile=this.profile(binding.kind==='rock'?'natural_stone.'+this.condition:binding.kind==='terrain'?'earth.'+this.condition:key==='global'?(binding.kind==='asphalt'?this.pavementMaterial:'asphalt_dense')+'.'+this.condition:key);
++    const profile=this.profile(binding.kind==='rock'?'natural_stone.'+this.condition:binding.kind==='terrain'?'earth.'+this.condition:key==='global'?pavementProfileId(binding.kind==='asphalt'?this.pavementMaterial:'asphalt_dense',this.condition):key);
+     const legacy=profile.material==='asphalt_dense',registered=binding.kind==='asphalt'||binding.kind==='rock';
+     const rolling=legacy?(this.core.params?.rollingCoeff??profile.contact.rollingCoefficient):profile.contact.rollingCoefficient;
+     const tireMu=legacy?(this.core.params?.surfaces?.[profile.condition]?.mu??profile.contact.tireMu):profile.contact.tireMu;
+--- a/desktop3d/src/road.mjs
++++ b/desktop3d/src/road.mjs
+@@ -1,9 +1,10 @@
++import {PAVEMENT_MATERIAL_IDS,pavementHasMarkings} from './pavement-definition.mjs';
+ import {partitionColliderMesh} from './collider-partition.mjs';
+ import * as THREE from 'three';
+ import {buildRoadChunkV3} from './road-geometry-v3.mjs';
+ import {SurfaceMap} from './surface-map.mjs';
+ import {TerrainWorld} from './terrain-world.mjs';
+-import {SurfaceMaterialLibrary} from './surface-materials.mjs';
++import {SurfaceMaterialLibrary,MATERIAL_STYLES} from './surface-materials.mjs';
+ import {surfaceUV} from './surface-uv.mjs';
+ import {GeometryStreamer} from './geometry-streamer.mjs';
+ 
+@@ -52,26 +53,26 @@
+     return this.localSurfaceMaterials.get(key);
+   }
+   setPavementMaterial(id){
+-    if(!['asphalt_dense','concrete','gravel'].includes(id))throw Error('Unsupported drivable pavement');
++    if(!PAVEMENT_MATERIAL_IDS.includes(id))throw Error('Unsupported drivable pavement');
+     if(this.physics.route.config?.generator!==3&&id!=='asphalt_dense')throw Error('Pavement materials require V3');
+-    this.surfaceMap.profile(id+'.'+this.surfaceMap.condition);
++    this.surfaceMap.pavementProfile(id);
+     if(id===this.surfaceMap.pavementMaterial)return id;
+     // Prepare textures before changing the active material or contact profile.
+     const maps=this.materialLibrary.textures(id);
+     this.surfaceMap.pavementMaterial=id;
+     Object.assign(this.surfaceMaterial,{map:maps.color,normalMap:maps.normal,roughnessMap:maps.roughness});
+-    this.surfaceMaterial.userData.surfaceMaterial=id;this.surfaceMaterial.needsUpdate=true;
++    this.surfaceMaterial.userData.surfaceMaterial=id;this.surfaceMaterial.userData.reliefMeters=MATERIAL_STYLES[id].relief;this.surfaceMaterial.userData.uvMeters=this.surfaceMap.pavementProfile(id).pbr.uvMeters;this.surfaceMaterial.needsUpdate=true;
+     this.lastSurfaceCondition=null;this.syncSurfaceCondition();
+     for(const chunk of this.chunks.values())for(const mesh of chunk.objects||[])if(mesh.material===this.markMaterial){
+-      mesh.userData.hiddenForPavement=id==='gravel';mesh.visible=id!=='gravel';
+-    }
+-    for(const [,chunk] of this.streamer?.stagedRoads||[])for(const mesh of chunk.objects)if(mesh.material===this.markMaterial)mesh.userData.hiddenForPavement=id==='gravel';
++      mesh.userData.hiddenForPavement=!pavementHasMarkings(id);mesh.visible=pavementHasMarkings(id);
++    }
++    for(const [,chunk] of this.streamer?.stagedRoads||[])for(const mesh of chunk.objects)if(mesh.material===this.markMaterial)mesh.userData.hiddenForPavement=!pavementHasMarkings(id);
+     return id;
+   }
+   syncSurfaceCondition(){
+     const condition=this.surfaceMap.condition;if(condition===this.lastSurfaceCondition)return;
+-    const p=this.surfaceMap.profile(this.surfaceMap.pavementMaterial+'.'+condition).pbr;
+-    this.surfaceMaterial.color?.set(p.color);this.surfaceMaterial.roughness=p.roughness;
++    const p=this.surfaceMap.pavementProfile().pbr;
++    this.surfaceMaterial.color?.set(p.color);this.surfaceMaterial.roughness=p.roughness;this.surfaceMaterial.metalness=p.metalness;
+     const shoulder=this.surfaceMap.profile('asphalt_dense.'+condition).pbr;
+     this.shoulderMaterial.color.set(shoulder.color).multiplyScalar(.9);this.shoulderMaterial.roughness=shoulder.roughness;
+     const soil=this.surfaceMap.profile('earth.'+condition).pbr;
+@@ -131,7 +132,7 @@
+           for(const group of prepared.groups)geometry.addGroup(group.start,group.count,group.material);
+         }
+         const mesh=new THREE.Mesh(geometry,material);this.skyLighting?.registerStatic(mesh);mesh.receiveShadow=true;
+-        mesh.userData.hiddenForPavement=kind==='mark'&&this.surfaceMap.pavementMaterial==='gravel';
++        mesh.userData.hiddenForPavement=kind==='mark'&&!pavementHasMarkings(this.surfaceMap.pavementMaterial);
+         mesh.visible=!staged&&!mesh.userData.hiddenForPavement;
+         if(kind==='cover'||kind==='earthWall')mesh.customDepthMaterial=this.terrain.depthMaterial;
+         if(prepared){mesh.userData.surfaceLayerId=prepared.binding.layerId;mesh.userData.surfaceProfiles=prepared.keys;}
+--- a/desktop3d/index.html
++++ b/desktop3d/index.html
+@@ -82,8 +82,8 @@
+         <section class="group"><h2>駕駛與車輛</h2>
+           <label for="drive-mode">駕駛模式</label><select id="drive-mode"><option value="assisted">自排（自動起步／升降檔）</option><option value="manual">手排（自行操作離合器／換檔）</option></select>
+           <label for="car-preset">車輛配置</label><select id="car-preset"><option value="standard">2.0L 自然進氣 · 標準六速</option><option value="city">1.6L 自然進氣 · 輕型轎車</option><option value="turbo">2.0L 渦輪增壓 · 性能車</option><option value="diesel">2.2L 渦輪柴油 · 高扭力車</option></select>
+-          <label for="road-material">道路材質</label><select id="road-material"><option value="asphalt_dense">柏油</option><option value="concrete">混凝土</option><option value="gravel">碎石</option></select>
+-          <p class="desc">混凝土與碎石使用遊戲假設係數；舊版地圖沿用柏油。</p>
++          <label for="road-material">道路材質</label><select id="road-material"><option value="asphalt_dense">密級配柏油</option><option value="asphalt_open">開放級配柏油</option><option value="concrete">混凝土</option><option value="concrete_paver">混凝土鋪面磚</option><option value="clay_paver">黏土鋪面磚</option><option value="natural_stone">天然石鋪面</option><option value="gravel">碎石</option><option value="earth">壓實土路</option><option value="timber">木板鋪面</option><option value="steel">實心鋼板</option></select>
++          <p class="desc">新增材質使用遊戲假設係數；鋼板與木板為實心鋪面，不含陷沙或破壞模擬。舊版地圖沿用柏油。</p>
+           <label for="road-surface">路面狀態</label><select id="road-surface"><option value="dry">乾燥</option><option value="wet">濕滑</option><option value="snow">積雪</option><option value="ice">結冰</option></select>
+           <div class="duo"><div class="checkline"><input type="checkbox" id="abs-toggle" checked><label for="abs-toggle">ABS</label></div><div class="checkline"><input type="checkbox" id="tcs-toggle" checked><label for="tcs-toggle">TCS</label></div></div>
+           <div class="duo"><label>ESC<select id="esc"><option value="on">開啟</option><option value="off">關閉</option></select></label><label>抓地與救車手感<select id="feel"><option value="balanced">均衡</option><option value="sport">運動</option><option value="raw">原始</option></select></label></div>
+--- a/desktop3d/tests/validate-pavement.mjs
++++ b/desktop3d/tests/validate-pavement.mjs
+@@ -1,6 +1,7 @@
+ import assert from 'node:assert/strict';
+ import RAPIER from '@dimforge/rapier3d-compat';
+ import * as THREE from 'three';
++import {PAVEMENT_MATERIAL_IDS,pavementHasMarkings} from '../src/pavement-definition.mjs';
+ import {RoadWorld} from '../src/road.mjs';
+ import {fixture,base} from './road-v3-fixture.mjs';
+ import {vehicleParams} from './vehicle-core-fixture.mjs';
+@@ -8,24 +9,28 @@
+ const core=fixture({...base,turnChance:0,slopeChance:0,hairpinChance:0},12);
+ core.params=vehicleParams('diesel');core.state={surface:'dry'};
+ const world=new RAPIER.World({x:0,y:-9.81,z:0}),road=new RoadWorld(RAPIER,world,new THREE.Scene(),core);
+-const expected={asphalt_dense:[1.02,.68,.32,.13],concrete:[.98,.65,.31,.13],gravel:[.72,.52,.30,.12]};
++const expected={asphalt_dense:[1.02,.68,.32,.13],concrete:[.98,.65,.31,.13],gravel:[.72,.52,.30,.12],asphalt_open:[.99,.7,.32,.13],concrete_paver:[.92,.6,.3,.12],clay_paver:[.88,.55,.29,.12],natural_stone:[.9,.57,.3,.12],earth:[.62,.38,.28,.12],timber:[.75,.45,.28,.12],steel:[.74,.42,.24,.1]};
+ try{
+   road.ensure(70);world.step();const original=new Set(road.groundHandles),material=road.surfaceMaterial;
+   const contact=side=>{const p=road.position(70,side);const hit=world.castRayAndGetNormal(new RAPIER.Ray({...p,y:p.y+1},{x:0,y:-1,z:0}),2,true,
+     undefined,undefined,undefined,undefined,c=>road.groundHandles.has(c.handle));assert.ok(hit);return road.surfaceAtHit(hit);};
+   for(const [id,coefficients] of Object.entries(expected))for(const [i,condition] of ['dry','wet','snow','ice'].entries()){
+     road.setPavementMaterial(id);core.state.surface=condition;road.ensure(70);
+-    const actual=contact(1),profile=road.surfaceMap.profile(id+'.'+condition);
+-    assert.equal(actual.material,id);assert.equal(actual.profileId,id+'.'+condition);assert.equal(actual.tireMu,coefficients[i]);
++    const actual=contact(1),profile=road.surfaceMap.pavementProfile(id,condition);
++    assert.equal(actual.material,id);assert.equal(actual.profileId,profile.id);assert.equal(actual.tireMu,coefficients[i]);
+     assert.equal(actual.rollingCoefficient,id==='asphalt_dense'?core.params.rollingCoeff:profile.contact.rollingCoefficient);
+-    assert.equal(material.color.getHexString(),profile.pbr.color.slice(1));assert.equal(material.roughness,profile.pbr.roughness);
++    assert.equal(material.color.getHexString(),profile.pbr.color.slice(1));assert.equal(material.roughness,profile.pbr.roughness);assert.equal(material.metalness,profile.pbr.metalness);assert.equal(actual.colliderFriction,.65);
+     assert.equal(material.map,road.materialLibrary.textures(id).color);
+-    for(const chunk of road.chunks.values())for(const mesh of chunk.objects)if(mesh.material===road.markMaterial)assert.equal(mesh.visible,id!=='gravel');
++    for(const chunk of road.chunks.values())for(const mesh of chunk.objects)if(mesh.material===road.markMaterial)assert.equal(mesh.visible,pavementHasMarkings(id));
+     assert.equal(contact(5.6).material,null,'legacy shoulder classification must stay separate');
+     assert.deepEqual(road.groundHandles,original,'material selection cannot change contact geometry');
+   }
+   assert.equal(road.surfaceMaterial,material,'existing meshes keep their shared material reference');
+-  assert.throws(()=>road.setPavementMaterial('steel'));assert.equal(road.surfaceMap.pavementMaterial,'gravel');
++  assert.deepEqual(new Set(Object.keys(expected)),new Set(PAVEMENT_MATERIAL_IDS));
++  assert.throws(()=>road.setPavementMaterial('unknown'));assert.equal(road.surfaceMap.pavementMaterial,'steel');
++  const staged=road.makeChunkV3(0,null,true);road.streamer={stagedRoads:[[0,staged]]};
++  for(const id of ['earth','steel','asphalt_open']){road.setPavementMaterial(id);for(const m of staged.objects)if(m.material===road.markMaterial){assert.equal(m.visible,false);assert.equal(m.userData.hiddenForPavement,!pavementHasMarkings(id));}}
++  road.streamer=null;road.disposeChunk(0,staged,false);road.setPavementMaterial('gravel');
+   const textures=road.materialLibrary.textures;road.materialLibrary.textures=()=>{throw Error('texture allocation fixture');};
+   assert.throws(()=>road.setPavementMaterial('concrete'),/texture allocation/);road.materialLibrary.textures=textures;
+   assert.equal(road.surfaceMap.pavementMaterial,'gravel');assert.equal(contact(1).material,'gravel');
+@@ -34,4 +39,4 @@
+   assert.equal(contact(-1).tireMu,.65);assert.equal(contact(1).tireMu,.72);
+   core.route.config.generator=2;assert.throws(()=>road.setPavementMaterial('concrete'),/require V3/);road.ensure(70);assert.equal(road.surfaceMap.pavementMaterial,'asphalt_dense');
+ }finally{road.clear();road.assertClean();world.free();}
+-console.log('PASS 3 pavements x 4 conditions, actual Rapier face profiles, independent rolling/mu, shared PBR, zones, unchanged geometry, texture failure rollback and frozen-map restriction');
++console.log('PASS 10 pavements x 4 conditions, actual Rapier face profiles, independent rolling/mu, shared PBR, zones, unchanged geometry, texture failure rollback and frozen-map restriction');
+--- a/desktop3d/tests/validate-surface-map.mjs
++++ b/desktop3d/tests/validate-surface-map.mjs
+@@ -33,7 +33,7 @@
+ assert.equal(road.surfaceAtHit(hitAt(70,-1)).tireMu,.68,'explicit local condition overrides global default');
+ assert.equal(road.surfaceMaterial.color.getHexString(),'93b5c1');
+ const oldMap=road.chunks,oldCount=world.colliders.len(),oldBindings=road.surfaceMap.bindings.size,oldObjects=new Set(scene.children);
+-assert.throws(()=>road.setSurfaceZones([{...zone,profileId:'steel.dry'}]));assert.equal(road.chunks,oldMap);
++assert.throws(()=>road.setSurfaceZones([{...zone,profileId:'unregistered-steel.dry'}]));assert.equal(road.chunks,oldMap);
+ assert.throws(()=>road.setSurfaceZones([zone,{...zone,id:'duplicate-area'}]));
+ const create=world.createCollider;let allocations=0;
+ world.createCollider=function(...args){if(++allocations===3)throw Error('surface allocation fixture');return create.apply(this,args);};
+--- a/desktop3d/tests/surface-driver.mjs
++++ b/desktop3d/tests/surface-driver.mjs
+@@ -8,7 +8,7 @@
+   const mode=document.getElementById('drive-mode');mode.value='manual';mode.dispatchEvent(new Event('change'));
+   setPause(true);d.inputKeys.clear();d.releaseKeyboardOverride();d.requestGear(0);
+   Object.assign(d.hostControls,{active:true,steer:0,throttle:0,brake:1,clutch:1,parkPawl:false});
+-  road.setSurfaceZones(terrain?[]:[{id:'braking-'+condition,profileId:pavement+'.'+condition,
++  road.setSurfaceZones(terrain?[]:[{id:'braking-'+condition,profileId:road.surfaceMap.pavementProfile(pavement,condition).id,
+     layerIds:Array.from({length:7},(_,i)=>`v3:${i}:asphalt`),
+     bounds:{minX:-12,maxX:12,minZ:-20,maxZ:700}}]);
+   const point=d.roadPointAt(40),surface=road.position(40,0);
+--- a/desktop3d/tests/game-driver.mjs
++++ b/desktop3d/tests/game-driver.mjs
+@@ -65,7 +65,7 @@
+         .catch(error=>{baseline={status:'failed',result:null,error:error.message};});
+     },
+     configurePBRPreview:options=>configurePBRPreview(getContext(),options),
+-    driveSurfaceBraking:(condition,material='asphalt_dense')=>driveSurfaceBraking({getContext,stepOnce,setPause},condition,false,material),
++    driveSurfaceBraking:(condition,material='asphalt_dense',options={})=>driveSurfaceBraking({getContext,stepOnce,setPause},condition,false,material,options),
+     driveTerrainBraking:(condition='dry',options={})=>driveSurfaceBraking({getContext,stepOnce,setPause},condition,true,'asphalt_dense',{maxSteps:5400,...options}),
+     startBaseline(options){
+       if(baseline.status==='running')throw Error('Baseline already running');
+--- a/desktop3d/tests/validate-procedural-browser.mjs
++++ b/desktop3d/tests/validate-procedural-browser.mjs
+@@ -142,8 +142,9 @@
+     assert.ok(nativeGpu,'Streaming timing requires native GPU');
+     const reveal=process.argv.includes('--reveal-performance')||process.argv.includes('--scenery-performance');
+     if(process.argv.includes('--cpu-profile')){await cdp.send('Profiler.enable',{},sessionId);await cdp.send('Profiler.start',{},sessionId);}
++    const tracePavement=process.argv.find(a=>a.startsWith('--pavement='))?.slice(11)||'asphalt_dense';
+     const traceOptions={captureSeconds:reveal?(process.argv.includes('--short-profile')?15:40):25,speed:reveal?45:14,reveal,profilePhysics:process.argv.includes('--short-profile'),disableCCD:process.argv.includes('--diagnose-ccd'),requireNative:true,warmupSeconds:process.argv.includes('--warm')?10:1,synchronous:!reveal&&process.argv.includes('--before')};
+-    await evaluate(`(()=>{const q=window.__SHIFT_LAB_3D_QA__;q.applyMap({...q.map,generator:3,seed:'STREAM-TIMING-V1',turnChance:0,hairpinChance:0,slopeChance:0});q.startStreamingTrace(${JSON.stringify(traceOptions)});})()`);
++    await evaluate(`(()=>{const q=window.__SHIFT_LAB_3D_QA__;q.applyMap({...q.map,generator:3,seed:'STREAM-TIMING-V1',turnChance:0,hairpinChance:0,slopeChance:0});const select=document.getElementById('road-material');if(!Array.from(select.options).some(o=>o.value===${JSON.stringify(tracePavement)}))throw Error('Unsupported trace pavement');select.value=${JSON.stringify(tracePavement)};select.dispatchEvent(new Event('change'));q.startStreamingTrace(${JSON.stringify(traceOptions)});})()`);
+     let trace;
+     for(let i=0;i<800;i++){trace=await evaluate('window.__SHIFT_LAB_3D_QA__.baseline');
+       if(trace.status==='complete'||trace.status==='failed')break;await delay(100);}
+@@ -330,48 +331,51 @@
+     await fs.writeFile(path.join(root,'../artifacts/tests/p2-scenery-browser-2026-10-29.json'),JSON.stringify({first,legacy,restored,rockContact},null,2)+'\n');
+     console.log('PASS real scenery visual/physics rays, weather, deterministic rebuild, frozen maps and resource removal: '+JSON.stringify({trees:first.trees,rocks:first.rocks,batches:first.batches,maxErrorM:first.maxErrorM}));return;
+   }
+-  if(process.argv.includes('--pavement-contact')){
++  if(process.argv.includes('--pavement-contact')||process.argv.includes('--all-pavements')){
++    const allPavements=process.argv.includes('--all-pavements'),lastMaterial=allPavements?'steel':'gravel';
++    const materials=allPavements?['asphalt_dense','asphalt_open','concrete','concrete_paver','clay_paver','natural_stone','gravel','earth','timber','steel']:['asphalt_dense','concrete','gravel'];
+     await evaluate(`(()=>{const q=window.__SHIFT_LAB_3D_QA__;q.applyMap({...q.map,generator:3,seed:'P2-PAVEMENT-V1',turnChance:0,hairpinChance:0,slopeChance:0});})()`);
+     const results=[];
+-    for(const material of ['asphalt_dense','concrete','gravel']){
++    for(const material of materials){
+       const group=[];
+       for(const condition of ['dry','wet','snow','ice']){
+-        const result=await evaluate('window.__SHIFT_LAB_3D_QA__.driveSurfaceBraking('+JSON.stringify(condition)+','+JSON.stringify(material)+')');
+-        assert.ok(result.stopped&&result.distance>1&&result.distance<150,JSON.stringify({material,condition,distance:result.distance,stopped:result.stopped}));
++        const result=await evaluate('window.__SHIFT_LAB_3D_QA__.driveSurfaceBraking('+JSON.stringify(condition)+','+JSON.stringify(material)+','+JSON.stringify({maxSteps:allPavements?3600:1800})+')');
++        assert.ok(result.stopped&&result.distance>1&&result.distance<220,JSON.stringify({material,condition,distance:result.distance,stopped:result.stopped}));
+         assert.equal(result.collisions,0);assert.equal(result.invalidWheelLoads,0);
+         const contacts=result.samples.flatMap(s=>s.wheelSurface).filter(Boolean);
+         assert.ok(contacts.length>20&&contacts.every(s=>s.material===material&&s.condition===condition));
+         assert.ok(result.samples.some(s=>s.contacts===4&&s.wheelFx.some(fx=>fx< -20)));
+         group.push(result);results.push(result);
++        if(allPavements)await fs.writeFile(path.join(root,'../artifacts/tests/p2-ten-pavements-braking-2026-10-30.json'),JSON.stringify({scope:'authored gameplay coefficients, not field calibration',results},null,2)+'\n');
+         if(condition==='dry'&&process.argv.includes('--screenshot')){
+           await evaluate('window.__SHIFT_LAB_3D_QA__.frameView()');
+-          await fs.writeFile(path.join(root,'../artifacts/tests/p2-pavement-'+material+'-2026-10-29.png'),Buffer.from((await cdp.send('Page.captureScreenshot',{format:'png'},sessionId)).data,'base64'));
++          await fs.writeFile(path.join(root,'../artifacts/tests/'+(allPavements?'p2-ten-pavement-':'p2-pavement-')+material+(allPavements?'-2026-10-30.png':'-2026-10-29.png')),Buffer.from((await cdp.send('Page.captureScreenshot',{format:'png'},sessionId)).data,'base64'));
+         }
+       }
+       assert.ok(group[0].distance<group[1].distance&&group[1].distance<group[2].distance&&group[2].distance<group[3].distance,material+' condition stopping order');
+     }
+-    assert.equal(await evaluate("JSON.parse(localStorage.getItem('shiftlab.v189.settings'))['road-material']"),'gravel');
++    assert.equal(await evaluate("JSON.parse(localStorage.getItem('shiftlab.v189.settings'))['road-material']"),lastMaterial);
+     const previousOrigin=await evaluate('performance.timeOrigin');
+     await cdp.send('Page.reload',{},sessionId);
+     let restored=false;for(let i=0;i<200;i++){restored=await evaluate('performance.timeOrigin!=='+previousOrigin+'&&!!window.__SHIFT_LAB_3D_QA__?.ready');if(restored)break;await delay(100);}
+     assert.ok(restored);
+-    assert.equal(await evaluate("document.getElementById('road-material').value"),'gravel');
+-    const persisted=await evaluate('window.__SHIFT_LAB_3D_QA__.step(180)');assert.equal(persisted.roadMaterial,'gravel');
+-    assert.ok(persisted.wheelSurfaces.every(w=>w.surface?.material==='gravel'));
++    assert.equal(await evaluate("document.getElementById('road-material').value"),lastMaterial);
++    const persisted=await evaluate('window.__SHIFT_LAB_3D_QA__.step(180)');assert.equal(persisted.roadMaterial,lastMaterial);
++    assert.ok(persisted.wheelSurfaces.every(w=>w.surface?.material===lastMaterial));
+     await evaluate("(()=>{const s=document.getElementById('road-surface');s.value='wet';s.dispatchEvent(new Event('change'));})()");
+     const wet=await evaluate('window.__SHIFT_LAB_3D_QA__.step(24)');
+-    assert.ok(wet.wheelSurfaces.every(w=>w.surface?.condition==='wet'&&w.surface.tireMu===.52));
++    assert.ok(wet.wheelSurfaces.every(w=>w.surface?.condition==='wet'&&w.surface.tireMu===(allPavements ? .42 : .52)));
+     await evaluate("(()=>{const q=window.__SHIFT_LAB_3D_QA__;q.applyMap({...q.map,generator:2});})()");
+     assert.equal(await evaluate("document.getElementById('road-material').disabled"),true);
+     assert.equal((await evaluate('window.__SHIFT_LAB_3D_QA__.snapshot()')).roadMaterial,'asphalt_dense');
+     await evaluate("(()=>{const q=window.__SHIFT_LAB_3D_QA__;q.applyMap({...q.map,generator:3});})()");
+-    assert.equal((await evaluate('window.__SHIFT_LAB_3D_QA__.step(24)')).roadMaterial,'gravel');
++    assert.equal((await evaluate('window.__SHIFT_LAB_3D_QA__.step(24)')).roadMaterial,lastMaterial);
+     assert.equal(await evaluate("document.getElementById('road-material').disabled"),false);
+     await evaluate('window.__SHIFT_LAB_3D_QA__.frameView()');
+-    await fs.writeFile(path.join(root,'../artifacts/tests/p2-pavement-2026-10-29.png'),Buffer.from((await cdp.send('Page.captureScreenshot',{format:'png'},sessionId)).data,'base64'));
+-    assert.deepEqual(httpErrors,[]);assert.deepEqual(cdp.errors,[]);
+-    await fs.writeFile(path.join(root,'../artifacts/tests/p2-pavement-braking-2026-10-29.json'),JSON.stringify({scope:'authored gameplay coefficients, not field calibration',results},null,2)+'\n');
+-    console.log('PASS 3 pavements x 4 actual stopping experiments, tire forces, shared contact IDs, UI persistence, global weather and V1/V2 restriction: '+JSON.stringify(results.map(r=>({material:r.pavement,condition:r.condition,distance:r.distance}))));return;
++    await fs.writeFile(path.join(root,'../artifacts/tests/'+(allPavements?'p2-ten-pavements-2026-10-30.png':'p2-pavement-2026-10-29.png')),Buffer.from((await cdp.send('Page.captureScreenshot',{format:'png'},sessionId)).data,'base64'));
++    assert.deepEqual(httpErrors,[]);assert.deepEqual(cdp.errors,[]);
++    await fs.writeFile(path.join(root,'../artifacts/tests/'+(allPavements?'p2-ten-pavements-braking-2026-10-30.json':'p2-pavement-braking-2026-10-29.json')),JSON.stringify({scope:'authored gameplay coefficients, not field calibration',results},null,2)+'\n');
++    console.log('PASS '+materials.length+' pavements x 4 actual stopping experiments, tire forces, shared contact IDs, UI persistence, global weather and V1/V2 restriction: '+JSON.stringify(results.map(r=>({material:r.pavement,condition:r.condition,distance:r.distance}))));return;
+   }
+   if(surfaceContact){
+     await evaluate(`(()=>{const q=window.__SHIFT_LAB_3D_QA__;q.applyMap({...q.map,generator:3,

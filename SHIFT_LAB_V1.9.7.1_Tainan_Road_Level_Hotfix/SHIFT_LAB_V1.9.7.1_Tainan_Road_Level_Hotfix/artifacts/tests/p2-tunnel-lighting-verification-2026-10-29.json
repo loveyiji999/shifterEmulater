@@ -1,0 +1,164 @@
+{
+  "objective": "進行按階段的開發直到完成建置書所要求之成果",
+  "goalStatus": "active; P2 partial, P3/P4/P5 incomplete",
+  "previousGoalTurnClassification": "progress",
+  "previousTurnEvidence": "P2 terrain material implementation, actual tire integration and native/QA artifacts",
+  "sourceFiles": {
+    "desktop3d/src/tunnel-light-field.mjs": "6df878b323da7c5f9e8be32d7df6fb7dd722598e8a9c526bf23cc9b3bb96d756",
+    "desktop3d/src/tunnel-lighting.mjs": "12dfcc835ca3b6bea04cc51cda0a9d761b4951e8ebdfd6becf8a91fa18aa8708",
+    "desktop3d/src/scene-lighting.mjs": "8f5f561d1ea3120f1294e8c9dccc99ebc179dd48722f0419b49064dc39112b1b",
+    "desktop3d/src/road-geometry-v3.mjs": "b4fb7856a844c16f82c1e989a85998a57d8fad7991983ab409302c8553288ec3",
+    "desktop3d/src/road-engineering.mjs": "41e8405babd7f6d29b0d571e07fb82bff2de429e85e095d56168acca06543ba5",
+    "desktop3d/src/road.mjs": "b831f826329f1d6b5097e207458bf7cfda7b191b2f9a4483ffd705a13e796a26",
+    "desktop3d/src/terrain-world.mjs": "363c04ecb2eb423088e7c865321b5a7bc7d9d54718cb1c641e1943b8efc23d4d",
+    "desktop3d/src/terrain-geometry.mjs": "6fc832cbc9ef705e435c4b061299ee8c8e6ae3faa300146184a08c945a4d8da5",
+    "desktop3d/src/terrain-material.mjs": "d15a60683f6ef712adc32ccb81ab7855aeea3ed9f3ed1c9402f144928534d40b",
+    "desktop3d/src/scenery-world.mjs": "7a334e6d002e7df81d7d808573d84ebf2dced5c52e74101a5e40f31eb5b13e21",
+    "desktop3d/src/streaming-geometry.mjs": "6a9ecb973b7d49e2d6b3714e96cad140c9bc85254e0763283f8f9f66a045f4c4",
+    "desktop3d/src/geometry-streamer.mjs": "7b1d1b83d00a07f8cf5f1fe693f99f66ed3ce95b0c97f1b7f2d217d05143848a",
+    "desktop3d/src/geometry-upload-preparer.mjs": "4e3ade4fc406f88ea27c42fe7866bc884241771e44ffaa5193e157a05ef97ae0",
+    "desktop3d/src/main.mjs": "a5c20bd420a6f57c35a6cdc48c3ac54e9708dcb9d8d83daf6f939751fb67ba27",
+    "desktop3d/src/chassis.mjs": "808412a9443a18f0a6ee466e4bde2efe114511822d22af92f0419fd1c9e41a65",
+    "desktop3d/src/vehicle-visual.mjs": "6e13e4595886cc58206d8b9d4d5b0a14cbd001ecc7703d38f00a918959158c74",
+    "desktop3d/tests/validate-tunnel-lighting.mjs": "afdec0dd5af8eba937e829cc897fbb3ce871e375d7cc455b0c17ea11b48ab9d5",
+    "desktop3d/tests/tunnel-lighting-driver.mjs": "b34c2bb4f4b49026f2b7fbe707857dd4625669178f00dfcbdf63167f7469e0b6",
+    "desktop3d/tests/validate-tunnel-baseline.mjs": "1724f4ce97b33034b9547e1aa8e56db478e76c664ddebd82e3cb5391ece9bc96",
+    "desktop3d/tests/validate-streaming.mjs": "4926de5d1aafb14e9567eaf5dbc766638b0a6b56ad4f7ce76f97f4a7e6881df5",
+    "desktop3d/tests/game-driver.mjs": "3dce561e3c3a004cc8b0faf01562af023399c8b7df8575c18105ba9ca01e0f31",
+    "desktop3d/tests/validate-procedural-browser.mjs": "92e77fe11d3569d1533e96ce26200bf47bb4cebc593c15fe8aa1742ec60ebd26",
+    "desktop3d/tests/validate-road-engineering.mjs": "6f54ba1bbc7d58ab5185a6dc6da4d585b14710623d68f3e9e9e79a688c835844",
+    "desktop3d/tests/validate-road-structures.mjs": "0b9cbb5791f64c396c137b411bd9dacd365f40bb9640b4002c306cb5496a8b5d",
+    "desktop3d/package.json": "f75fee45c75f1cdc7b9f8cd795c49fe29ceba827fcc9e753ad6817ffb7765bab",
+    "desktop3d/package-lock.json": "f6acb5b69f34e0a9351be7f55f28914c490c01bee2ee9ca302435edad545ec86",
+    "desktop3d/public/physics.html": "c491cfc1ca5af23367822f87dfd27c12e122b83bf362ff6073829c75f952edbd",
+    "desktop3d/public/road-generator-v3.js": "d9d0c37bfa479bfcce098e5f86625eff36055fa04927f377b9b48cdc655a9668",
+    "docs/P2_TUNNEL_LIGHTING.md": "16b99e64ad02ac3ba14b2f26fb0e91660e006e19f1ea9547ceb7b782c8bed110",
+    "docs/DEVELOPMENT_PLAN.md": "67bb5d0a1a84b770783d5acb075d371fac47833fdb0a6abd30921da04e598f34",
+    "docs/DEVELOPMENT_PROGRESS.md": "0136f7daf314bf87ae0a8f481e6e68083fd96787864b340dc7da62d0e328467e",
+    "docs/AGENT_KNOWLEDGE.md": "4f9f1a0948d94c5ea082a870c5432dd059cd988a1df7bb4951489756fde0b0fb",
+    "docs/AGENT_VERIFICATION.md": "925d68c19b2eaf87fa2fa5ce016a9079be4a5aa175fe8d1f91cd0eb07ad3fb55",
+    "docs/DATA_CATALOG.md": "466a5b729a5fd054cd6a4853af424a554b519e9fcd8825583217bc551a5926c6",
+    "docs/P2_TERRAIN_BLEND.md": "e4b9b134634ee72320d8b0251555c99f457cd0e291d324f0ea93c33c2550f03b",
+    "artifacts/tests/p2-tunnel-lighting-original-road-geometry.mjs": "19424ef8025d16c44d2b43d06e1d25ae867f76774693e517f523f3a30f180c59"
+  },
+  "archive": "p2-tunnel-lighting-source-2026-10-29.zip",
+  "archiveSha256": "e90db8f07abf97f0615add41a7dd6f1712439ce45ac3ac21db38fc1b562786e4",
+  "patch": "archive/patches/p2-tunnel-lighting-2026-10-29.patch",
+  "checks": [
+    {
+      "command": "node tests/validate-tunnel-lighting.mjs (final 200 bore samples, actual route extension, material disposal/rebind)",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-streaming.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-tunnel-baseline.mjs ../artifacts/tests/p2-tunnel-lighting-original-road-geometry.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "npm.cmd run qa:all",
+      "result": "PASS"
+    },
+    {
+      "command": "npm.cmd run build",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --tunnel-lighting",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --reveal-performance --native-gpu --warm --capture-label=p2-tunnel-final-outdoor",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --tunnel-performance --native-gpu",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --production",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --road-v3",
+      "result": "PASS"
+    }
+  ],
+  "unchanged": [
+    "physics.html",
+    "chassis.mjs",
+    "vehicle-visual.mjs",
+    "road-generator-v3.js",
+    "package-lock.json"
+  ],
+  "geometryEvidence": {
+    "coreTunnelChunksCompared": 10,
+    "existingCoreTrianglesRetained": true,
+    "addedGroundVergeTriangles": 836,
+    "nonPhysicalCeilingFinishPanels": 52,
+    "boreTerrainQueries": 200,
+    "skySamples": 75,
+    "activeFixtureRoofQueries": 19,
+    "lightPoolLimit": 6
+  },
+  "captures": {
+    "inside": {
+      "source": "p2-tunnel-native-performance-2026-10-29.json",
+      "frameMs": {
+        "p50": 17.699999928474426,
+        "p95": 20,
+        "p99": 20.5,
+        "max": 25.899999976158142
+      },
+      "gpuRenderMs": {
+        "p50": 10.392552,
+        "p95": 10.656302,
+        "p99": 11.061926,
+        "max": 11.946302
+      },
+      "simulationRatio": 1.0004255002412625,
+      "drops": 0,
+      "finalLighting": {
+        "sky": 0.06000000000000005,
+        "tunnelId": 3,
+        "activeLights": 6,
+        "totalLights": 6
+      }
+    },
+    "outside": {
+      "source": "p2-tunnel-final-outdoor-terrain-reveal-after-warm-2026-10-29.json",
+      "frameMs": {
+        "p50": 17.699999928474426,
+        "p95": 19.100000023841858,
+        "p99": 19.700000047683716,
+        "max": 48
+      },
+      "gpuRenderMs": {
+        "p50": 12.754635,
+        "p95": 13.555468,
+        "p99": 14.025104,
+        "max": 14.897864
+      },
+      "simulationRatio": 1.0013131429287456,
+      "drops": 1,
+      "waits": 0
+    }
+  },
+  "resolvedSetupFailure": "First stationary baseline remained paused because drive was already open; forcing external settings-to-drive transition resolved it; no game pause logic changed",
+  "limitations": [
+    "Sky access is authored local volume approximation, not GI or measured sky-view factor",
+    "Six fixed unshadowed point lights have analytical tunnel/layer gating; not per-light ray occlusion around complex bends",
+    "Vehicle sky access is sampled at body position; not per-panel GI",
+    "Fixed six-light shader costs remain outdoors; quality/performance not finalized",
+    "Only two single native GPU cases; ten scenes/cold-warm triples/600-second endurance remain P3",
+    "P2 water, remaining pavement release, outside portal scenery and far-field quality remain",
+    "P4 complete tuning/transmission editing and P5 creation tools remain",
+    "Prior ice-terrain residual creep remains documented"
+  ]
+}

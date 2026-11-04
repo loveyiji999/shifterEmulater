@@ -1,0 +1,7 @@
+{
+  "desktop3d/src/main.mjs": "31ebb817a9bc73a130ac6f7ab58d249d4b57236f86722066d63c4af6ed220220",
+  "desktop3d/src/chassis.mjs": "808412a9443a18f0a6ee466e4bde2efe114511822d22af92f0419fd1c9e41a65",
+  "desktop3d/public/physics.html": "c491cfc1ca5af23367822f87dfd27c12e122b83bf362ff6073829c75f952edbd",
+  "desktop3d/public/road-generator-v3.js": "d9d0c37bfa479bfcce098e5f86625eff36055fa04927f377b9b48cdc655a9668",
+  "desktop3d/package-lock.json": "f6acb5b69f34e0a9351be7f55f28914c490c01bee2ee9ca302435edad545ec86"
+}

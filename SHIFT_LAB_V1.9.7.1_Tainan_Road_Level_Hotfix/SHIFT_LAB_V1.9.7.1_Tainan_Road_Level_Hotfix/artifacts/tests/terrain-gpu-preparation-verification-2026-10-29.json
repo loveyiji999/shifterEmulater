@@ -1,0 +1,80 @@
+{
+  "scope": "terrain first-visible geometry preparation; not a claim that all stutter is fixed",
+  "sourceFiles": {
+    "desktop3d/src/main.mjs": "b5bf999f8112074c046e48e8ccf73a1a1041ec93999e005f9c9ac09588120196",
+    "desktop3d/src/geometry-streamer.mjs": "7b1d1b83d00a07f8cf5f1fe693f99f66ed3ce95b0c97f1b7f2d217d05143848a",
+    "desktop3d/src/geometry-upload-preparer.mjs": "4e3ade4fc406f88ea27c42fe7866bc884241771e44ffaa5193e157a05ef97ae0",
+    "desktop3d/tests/validate-streaming.mjs": "68d28382388315f227b3b83a7ef92b448bfe8f2909d2c39e3a290c311d493f1b",
+    "desktop3d/tests/validate-geometry-upload.mjs": "b2f996fe3c6f446f64a8bd2a0c4bcdf0ff92f90fe14b4d2f4cc268ac54b38f68",
+    "desktop3d/tests/streaming-profile.mjs": "4c4974125e9f1e710da734339ee4aece3fcbabaaca01fd0c7e9a07fbbbaafe5a",
+    "desktop3d/tests/validate-procedural-browser.mjs": "cf332f4bd4b23f89affccce39abf80425b86c1100139e806e8794a89fea5b546",
+    "desktop3d/package.json": "9c71abb1000401e74199991ddcb67168d8f7224ef12e393872a656fc8ad7b273",
+    "docs/PERFORMANCE_TERRAIN_GPU_PREPARATION.md": "ba6ebbc1cf4d38c3c8a22540a2d856e06a8254e144a2f7d16cbaf4e8d25418e2",
+    "docs/AGENT_KNOWLEDGE.md": "98bd54aa31a2c9157bcf03ac37f0a4d05308723a3ec1b887b0e35e3055737fbd",
+    "docs/AGENT_VERIFICATION.md": "7c950c849ac5f08ab376d2f4dd5c9332209cd4cbe00929ae0f5cea3123385a95"
+  },
+  "archive": "terrain-gpu-preparation-source-2026-10-29.zip",
+  "archiveSha256": "df744322b2e07c1f59b896ac2e7d13986b07add75fb29a5e6b94d6b4d337fa61",
+  "patch": "archive/patches/terrain-gpu-preparation-2026-10-29.patch",
+  "checks": [
+    {
+      "command": "node tests/validate-geometry-upload.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "npm.cmd run qa:streaming",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-streaming.mjs (final mid-upload reset case)",
+      "result": "PASS"
+    },
+    {
+      "command": "npm.cmd run qa:all",
+      "result": "PASS"
+    },
+    {
+      "command": "npm.cmd run build",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --road-v3",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --production",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --reveal-performance --native-gpu --warm --capture-label=reveal-v2-before",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --reveal-performance --native-gpu --warm --capture-label=reveal-v2-after",
+      "result": "PASS"
+    },
+    {
+      "command": "Python raw phase assertions: after first second no visible uploads/bounds, hidden upload>0, waits=0",
+      "result": "PASS"
+    },
+    {
+      "command": "Python byte equality: physics.html, chassis.mjs, road-generator-v3.js, package-lock.json unchanged against preceding source checkpoint",
+      "result": "PASS"
+    }
+  ],
+  "measurements": "terrain-reveal-v2-comparison-2026-10-29.json",
+  "resolvedSetupInterruptions": [
+    "Sandbox native Chrome GPU process unavailable: rerun with approved native runner outside sandbox",
+    "First road-v3 browser run interrupted by Vite reload while restoring source newline convention; final rerun passed"
+  ],
+  "limitations": [
+    "Full interval p99 unchanged at 19.7 ms; full max frame increased 278.2 to 436.9 ms near reset; remaining cause unconfirmed",
+    "Warm-up cumulative maxUploadMs 54.2 ms; single mesh upload is not preemptible",
+    "Single scene, 40 seconds, UHD 770; not comprehensive performance acceptance",
+    "GPU per-pass sample distributions differ because zero-count preparation passes were added; not used for speed claims"
+  ]
+}

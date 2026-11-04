@@ -1,0 +1,840 @@
+--- a/desktop3d/src/main.mjs
++++ b/desktop3d/src/main.mjs
+@@ -3,8 +3,9 @@
+ import {RoadWorld} from './road.mjs';
+ import {RapierChassisBridge} from './chassis.mjs';
+ import {AcceptanceObstacles} from './obstacles.mjs';
+ import {SCENARIOS,TEST_ORDER,gradeScenario} from './scenarios.mjs';
++import {legacyDirectionalKey,legacySteerFromVisualAxis,visualSteeringFromLegacy,visualDirectionLabel} from './steering-input.mjs';
+ 
+ const $=id=>document.getElementById(id);
+ const canvas=$('view'),overlay=$('screen-overlay'),message=$('overlay-message');
+ const frame=$('physics'),gearSelect=$('gear');
+@@ -12,8 +13,27 @@
+ let d=null,road=null,bridge=null,obstacles=null,world=null,renderer=null,scene=null,camera=null,vehicle=null;
+ let paused=false,locked=false,accumulator=0,prevFrame=performance.now(),lastHud=0,renderFPS=60,dropSteps=0;
+ let chosenPad='auto',lastPadLabel='',lastPadIndex=null,steerFiltered=0,physicsMs=0;
+ let scenarioId='free',lastResult=null,suiteResults=[],labReady=false;
++let visualVehicleId='standard';
++const PREFERENCE_KEY='shiftlab.v188.unified-web';
++const preferenceIds=['car-preset','road-surface','abs-toggle','tcs-toggle','esc','feel',
++  'handling-balance','brake-bias','steering-preset','pad-invert'];
++function savePreferences(){
++  const record={};
++  for(const id of preferenceIds){const el=$(id);if(el)record[id]=el.type==='checkbox'?el.checked:el.value;}
++  try{localStorage.setItem(PREFERENCE_KEY,JSON.stringify(record));}catch{}
++}
++function restorePreferences(){
++  try{
++    const record=JSON.parse(localStorage.getItem(PREFERENCE_KEY)||'null');
++    if(!record||typeof record!=='object')return;
++    for(const id of preferenceIds){const el=$(id),value=record[id];if(!el)continue;
++      if(el.type==='checkbox'&&typeof value==='boolean')el.checked=value;
++      else if(typeof value==='string'&&[...el.options].some(item=>item.value===value))el.value=value;}
++  }catch{}
++}
++
+ const autoDrive={lastShiftTime:-100,shiftTarget:0};
+ function driveFocus(){
+   const active=document.activeElement;
+   if(active&&active!==canvas&&typeof active.blur==='function')active.blur();
+@@ -29,9 +49,9 @@
+ const keys={KeyW:'w',ArrowUp:'w',KeyS:'s',ArrowDown:'s',KeyA:'a',ArrowLeft:'a',KeyD:'d',ArrowRight:'d',ShiftLeft:'shift',ShiftRight:'shift'};
+ const trackedKeys=new Set();
+ 
+ function failure(e){
+-  labReady=false;console.error('v1.8.7.2 3D QA:',e);
++  labReady=false;console.error('v1.8.8 unified web:',e);
+   $('status').textContent='載入或執行失敗';
+   message.textContent='無法啟動 3D 驗收：'+(e?.message||String(e))+'。請確認 npm install / npm run dev，並使用支援 WebGL2 的桌面瀏覽器。';
+   if(!overlay.isConnected)document.body.append(overlay);
+   overlay.hidden=false;
+@@ -82,14 +102,17 @@
+     return;
+   }
+   if(lastPadIndex!==pad.index){lastPadIndex=pad.index;steerFiltered=0;}
+   const raw=pad.axes?.[binding.axis]??0;
+-  const steer=d.normalizedAdvancedAxis(raw,d.advancedSteering);
++  // Ignore any historical hidden-panel pad-invert setting: the ONE visible
++  // web panel controls inversion. Map the visual direction to legacy coordinates.
++  const steer=d.normalizedAdvancedAxis(raw,{...d.advancedSteering,padInvert:false});
+   const alpha=d.advancedSteering.padFilter>0?1-Math.exp(-dt/d.advancedSteering.padFilter):1;
+   steerFiltered+=alpha*(steer-steerFiltered);
+   if(Math.abs(steerFiltered)<.012&&Math.abs(steer)<.012)steerFiltered=0;
+   const speed=Math.min(1,Math.abs(d.state.velocity)/38);
+-  d.hostControls.steer=steerFiltered*(1-.43*d.advancedSteering.padSpeed*speed);
++  d.hostControls.steer=legacySteerFromVisualAxis(steerFiltered,$('pad-invert').checked)*
++    (1-.43*d.advancedSteering.padSpeed*speed);
+   d.hostControls.throttle=Math.max(0,pad.buttons?.[binding.gas]?.value||0);
+   d.hostControls.brake=Math.max(0,pad.buttons?.[binding.brake]?.value||0);
+   d.hostControls.clutch=pad.buttons?.[binding.clutch]?.pressed?1:0;
+   $('pad-status').textContent='已連接：'+pad.id.slice(0,40)+' · axis '+binding.axis+
+@@ -202,8 +225,11 @@
+     barrierHits:bridge.barrierHits,collisionCount:bridge.collisionCount,
+     impact:bridge.maxImpactImpulse,penetration:bridge.maxBarrierPenetration,
+     routeS:d.route.distance,physicsMs,frameDrops:dropSteps,
+     driverMode:$('drive-mode').value,inputKeys:[...trackedKeys],
++    driverSteer:visualSteeringFromLegacy(d.vehicleMotion.steerInput),
++    legacySteer:d.vehicleMotion.steerInput,roadSurface:d.state.surface,
++    vehiclePreset:visualVehicleId,
+     focus:document.activeElement?.id||document.activeElement?.tagName||'none'};
+ }
+ function htmlMetric(id,text){$(id).textContent=text;}
+ function updateHud(force=false){
+@@ -213,8 +239,11 @@
+   const a=currentSnapshot(),s=d.state,m=d.vehicleMotion;
+   htmlMetric('speed',(a.speed*3.6).toFixed(1)+' km/h');
+   htmlMetric('rpm',Math.round(s.engineOmega*60/(2*Math.PI)).toLocaleString('en-US'));
+   htmlMetric('yaw',(m.yawRate*180/Math.PI).toFixed(1)+' °/s');
++  const visualSteer=visualSteeringFromLegacy(m.steerInput);
++  htmlMetric('steer-direction',visualDirectionLabel(visualSteer)+' · '+
++    Math.abs(m.steerAngle*180/Math.PI).toFixed(1)+'°');
+   htmlMetric('attitude',(m.roll*180/Math.PI).toFixed(1)+' / '+(m.pitch*180/Math.PI).toFixed(1)+'°');
+   htmlMetric('contacts',d.suspension.contacts+' / 4');
+   htmlMetric('ext-force',bridge.maxExternalForceN.toFixed(0)+' N / '+bridge.maxExternalTorqueNm.toFixed(0)+' N·m');
+   htmlMetric('ray-health',bridge.invalidWheelLoads===0?
+@@ -265,14 +294,32 @@
+ }
+ function resetDriving(id){
+   if(!d||!bridge||!road)return;
+   const setting=SCENARIOS[id]||SCENARIOS.free;
+-  d.reset(); // This also resets Rapier pose via the single-authority bridge.
+-  // Original physics stays untouched. Force presets live only on this host page.
+-  frame.contentWindow.document.getElementById('abs-enabled').checked=true;
+-  frame.contentWindow.document.getElementById('tcs-enabled').checked=true;
+-  d.setESCEnabled($('esc').value==='on');
+-  d.setHandlingFeel($('feel').value);
++  d.reset(); // Also resets the single-authority Rapier body.
++  // QA uses the original reference preset; the one visible page owns all free-
++  // drive settings. The hidden iframe is a computation engine, never a second UI.
++  const free=id==='free';
++  const preset=free?$('car-preset').value:'standard';
++  if(!d.applyVehicle(preset))throw new Error('無法載入車型 '+preset);
++  if(preset!==visualVehicleId){
++    if(vehicle){scene.remove(vehicle.group);vehicle.group.traverse(part=>{
++      if(part.geometry)part.geometry.dispose();
++      if(part.material){const list=Array.isArray(part.material)?part.material:[part.material];
++        list.forEach(material=>material.dispose());}
++    });}
++    vehicle=makeCar();visualVehicleId=preset;
++  }
++  const inner=frame.contentWindow.document;
++  inner.getElementById('abs-enabled').checked=free?$('abs-toggle').checked:true;
++  inner.getElementById('tcs-enabled').checked=free?$('tcs-toggle').checked:true;
++  inner.getElementById('surface-select').value=free?$('road-surface').value:'dry';
++  d.setESCEnabled(free?$('esc').value==='on':true);
++  d.setHandlingFeel(free?$('feel').value:'balanced');
++  d.setHandlingBalance(free?$('handling-balance').value:'neutral');
++  d.setBrakeBias(free?Number($('brake-bias').value):.68);
++  const steeringPreset=free?$('steering-preset').value:'balanced';
++  Object.assign(d.advancedSteering,d.ADV_STEER_PRESETS[steeringPreset]);
+   d.roadAppearance.guardrails='both';
+   d.hostControls.active=true;
+   Object.assign(d.hostControls,{steer:0,throttle:0,brake:0,clutch:0});
+   trackedKeys.clear();d.inputKeys.clear();
+@@ -287,9 +334,9 @@
+   gearSelect.value='0';dropSteps=0;accumulator=0;
+   scenarioId=id;
+   $('scenario').value=id;
+   $('scenario-brief').textContent=setting.description;
+-  $('status').textContent='就緒：'+setting.name+' · 四輪模型 / Rapier 剛體';
++  $('status').textContent='就緒：'+setting.name+' · 單一網頁 / 四輪模型 / Rapier 剛體';
+   updateHud(true);
+ }
+ function stepOnce(){
+   road.ensure(d.route.distance);
+@@ -334,9 +381,11 @@
+   data.maxRouteS=Math.max(data.maxRouteS,d.route.distance);
+   return true;
+ }
+ function setBusy(value){
+-  locked=value;for(const id of ['scenario','drive-now','load-scenario','run-case','run-suite','reset','pause','step','gear','engine','drive-mode'])$(id).disabled=value;
++  locked=value;
++  for(const id of ['scenario','drive-now','load-scenario','run-case','run-suite','reset',
++    'pause','step','gear','engine','drive-mode',...preferenceIds])$(id).disabled=value;
+ }
+ async function runScenario(id,options={}){
+   if(!labReady)throw new Error('3D 引擎尚未就緒');
+   if(locked&&!options.fromSuite)throw new Error('已有測試進行中');
+@@ -362,9 +411,9 @@
+     data.runtimeMs=performance.now()-startTime;
+     const graded=gradeScenario(id,data);
+     const result={scenario:id,pass:graded.pass,checks:graded.checks,
+       metrics:{...data},runtimeMs:data.runtimeMs,
+-      engine:'Rapier 0.18 + SHIFT LAB four-wheel, fixed 120 Hz / 4 microsteps, per-microstep force reset',
++      engine:'Rapier 0.18 + SHIFT LAB four-wheel, 120 Hz / 4 microsteps, v1.8.8 visual steering adapter',
+       events:bridge.eventHistory.map(e=>({...e}))};
+     lastResult=result;displayResult('qa-results',result);updateHud(true);
+     $('status').textContent=(result.pass?'PASS':'FAIL')+' · '+setting.name+' · '+graded.checks.filter(x=>x.passed).length+'/'+graded.checks.length;
+     return result;
+@@ -394,20 +443,47 @@
+   finally{setBusy(false);}
+   return suiteResults.map(r=>({...r}));
+ }
+ function exportReport(){
+-  const bundle={version:'1.8.7.2',createdAt:new Date().toISOString(),
++  const bundle={version:'1.8.8',createdAt:new Date().toISOString(),
+     userAgent:navigator.userAgent,
+     physics:'Four-wheel SHIFT LAB v1.8.6 bridge / Rapier 3D 0.18',
+     suite:suiteResults.map(r=>({...r})),lastResult,
+     snapshot:currentSnapshot(),qaScope:'simulator only, not real-vehicle validation'};
+   const blob=new Blob([JSON.stringify(bundle,null,2)],{type:'application/json'});
+   const href=URL.createObjectURL(blob),link=document.createElement('a');
+-  link.href=href;link.download='SHIFT_LAB_V187_3D_QA_'+new Date().toISOString().slice(0,10)+'.json';
++  link.href=href;link.download='SHIFT_LAB_V188_Unified_Web_QA_'+new Date().toISOString().slice(0,10)+'.json';
+   link.click();setTimeout(()=>URL.revokeObjectURL(href),3000);
+ }
+ function installEvents(){
+-  selectOptions();
++  selectOptions();restorePreferences();
++  for(const id of preferenceIds){
++    $(id).addEventListener('change',()=>{
++      if(locked)return;
++      savePreferences();
++      if(!d||!labReady)return;
++      if(id==='car-preset'){
++        resetDriving('free');setPause(false);
++        driveStatus('已切換車型並重置為自由駕駛；使用 W/A/S/D');
++      }else if(id==='road-surface'){
++        frame.contentWindow.document.getElementById('surface-select').value=$('road-surface').value;
++      }else if(id==='abs-toggle'){
++        frame.contentWindow.document.getElementById('abs-enabled').checked=$('abs-toggle').checked;
++      }else if(id==='tcs-toggle'){
++        frame.contentWindow.document.getElementById('tcs-enabled').checked=$('tcs-toggle').checked;
++      }else if(id==='handling-balance')d.setHandlingBalance($('handling-balance').value);
++      else if(id==='brake-bias')d.setBrakeBias(Number($('brake-bias').value));
++      else if(id==='steering-preset')Object.assign(d.advancedSteering,d.ADV_STEER_PRESETS[$('steering-preset').value]);
++      driveFocus();
++    });
++  }
++  $('hud-toggle').addEventListener('click',()=>{
++    const panel=$('right'),hide=!panel.hidden;
++    panel.hidden=hide;
++    $('hud-toggle').textContent=hide?'顯示數據面板':'隱藏數據面板';
++    $('hud-toggle').setAttribute('aria-expanded',String(!hide));
++    driveFocus();
++  });
+   $('pad').addEventListener('change',e=>{chosenPad=e.target.value;driveFocus();});
+   $('scenario').addEventListener('change',e=>$('scenario-brief').textContent=SCENARIOS[e.target.value].description);
+   function goFree(){
+     if(locked||!labReady)return;
+@@ -448,9 +524,13 @@
+       return;
+     }
+     if(locked)return;
+     const key=keys[e.code];
+-    if(key){e.preventDefault();trackedKeys.add(key);if(d)d.inputKeys.add(key);return;}
++    if(key){
++      e.preventDefault();trackedKeys.add(key);
++      if(d)d.inputKeys.add(legacyDirectionalKey(key));
++      return;
++    }
+     if(e.repeat)return;
+     if(e.code==='Space'){e.preventDefault();paused=!paused;accumulator=0;$('pause').textContent=paused?'繼續':'暫停';}
+     else if(e.code==='KeyI'){e.preventDefault();d?.startEngine();}
+     else if(e.code==='Backspace'){e.preventDefault();resetDriving(scenarioId);driveFocus();}
+@@ -464,9 +544,12 @@
+     else if(e.code==='Digit0'){e.preventDefault();d?.requestGear(0);}
+     else if(e.code==='KeyR'){e.preventDefault();d?.requestGear(-1);}
+   });
+   window.addEventListener('keyup',e=>{
+-    const key=keys[e.code];if(key){e.preventDefault();trackedKeys.delete(key);if(d)d.inputKeys.delete(key);}
++    const key=keys[e.code];if(key){
++      e.preventDefault();trackedKeys.delete(key);
++      if(d)d.inputKeys.delete(legacyDirectionalKey(key));
++    }
+   });
+   window.addEventListener('blur',()=>{trackedKeys.clear();if(d)d.inputKeys.clear();});
+ }
+ function render(now){
+@@ -511,15 +594,17 @@
+   resetDriving('free');
+   overlay.remove();
+   prevFrame=performance.now();requestAnimationFrame(render);
+   window.__SHIFT_LAB_3D_QA__={
++    version:'1.8.8',steeringMapping:{visualLeft:legacyDirectionalKey('a'),
++      visualRight:legacyDirectionalKey('d'),visualPadRight:legacySteerFromVisualAxis(1)},
+     get ready(){return labReady;},get paused(){return paused;},snapshot:currentSnapshot,
+     loadScenario(id){if(!(id in SCENARIOS))throw Error('未知工況 '+id);if(locked)throw Error('正在執行自動驗收');
+       resetDriving(id);paused=true;return currentSnapshot();},
+     step(n=1){if(!labReady||locked)throw Error('busy/not ready');paused=true;
+       for(let i=0;i<Math.max(0,Math.min(10000,Math.trunc(n)));i++)stepOnce();updateHud(true);return currentSnapshot();},
+     runScenario,runSuite,gradeScenario,
+     get report(){return {lastResult,suiteResults:[...suiteResults]};}
+   };
+-  $('status').textContent='3D 已初始化 · 可按「開始自由駕駛」操作，或載入驗收場景';
++  $('status').textContent='v1.8.8 單頁版已初始化 · A 左轉 / D 右轉 · 可直接開始自由駕駛';
+ }
+ boot().catch(failure);
+--- a/desktop3d/index.html
++++ b/desktop3d/index.html
+@@ -3,57 +3,92 @@
+ <head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width,initial-scale=1">
+   <meta name="theme-color" content="#081623">
+-  <title>SHIFT//LAB v1.8.7.2 — 3D 修復與碰撞驗收</title>
++  <title>SHIFT//LAB v1.8.8 — 單頁 3D 網頁駕駛</title>
+   <style>
+     :root{color-scheme:dark;--ink:#e6f3f2;--muted:#a6bfca;--line:#3b6376;--mint:#8ce7c9;--warn:#ffd395;--fail:#ff9b9c}
+     *{box-sizing:border-box}body{margin:0;background:#07141c;color:var(--ink);font:13px/1.55 system-ui,'Noto Sans TC','Microsoft JhengHei',sans-serif;overflow:hidden}
+     #view{display:block;width:100vw;height:100vh;touch-action:none}#left,#right{position:absolute;top:16px;bottom:16px;background:#091a2ce9;backdrop-filter:blur(13px);border:1px solid var(--line);box-shadow:0 14px 50px #00101a8f;border-radius:16px;overflow:auto;scrollbar-color:#3c6476 transparent}
+     #left{left:16px;width:345px;padding:17px 18px}#right{right:16px;width:330px;padding:16px 17px}h1{font-size:19px;margin:0;color:#f4fffd;line-height:1.3;letter-spacing:.035em}h2{font-size:13px;color:var(--mint);letter-spacing:.08em;margin:18px 0 9px}h3{font-size:12px;margin:14px 0 8px}
+     small,.desc{font-size:11px;color:var(--muted);line-height:1.7}.overline{color:var(--mint);font-size:10px;font-weight:850;letter-spacing:.22em;margin-bottom:6px}p{margin:8px 0 11px}.status{border:1px solid #326e65;background:#153e3a;border-radius:9px;margin:14px 0;padding:10px;color:#b9ffe2;font-size:12px}label{display:block;color:#cbdfe6;font-size:11px;margin:7px 0 4px}select,button{font:inherit;border:1px solid #477083;background:#173345;color:var(--ink);border-radius:7px;padding:8px 9px}select{width:100%;max-width:100%;cursor:pointer}button{cursor:pointer;font-weight:650}button:hover:not(:disabled){background:#28516a;border-color:#9dd7cf}button:disabled{opacity:.40;cursor:not-allowed}button.primary{background:#207960;border-color:#5acaac;color:#fff}button.secondary{background:#23465c}button:focus-visible,select:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
+     .btnrow{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.btnrow>*{flex:1;min-width:88px}.duo{display:grid;grid-template-columns:1fr 1fr;gap:8px}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.fields label{min-width:0}.segment{border-top:1px solid #315266;margin-top:15px;padding-top:4px}.metricgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.metric{border:1px solid #2d5465;border-radius:10px;padding:10px;background:#0c2936}.metric strong{display:block;font:700 18px/1.35 ui-monospace,Consolas,monospace;color:#f7fffe;overflow-wrap:anywhere}.metric span{display:block;color:#a9c5d0;font-size:10px;margin-bottom:4px}.metric.critical strong{color:#ffca94}
+     #qa-results{min-height:40px;margin-top:8px}#events{list-style:none;margin:7px 0;padding:0;max-height:170px;overflow:auto}#events li{padding:6px 0;border-bottom:1px solid #254656;color:#c8dce3;font:11px/1.5 ui-monospace,monospace}#suite-results{border-top:1px solid #2a5566;margin-top:12px;padding-top:9px}.result{margin:7px 0;padding:7px 8px;border:1px solid #31556a;border-radius:7px;font-size:11px}.pass{color:var(--mint)}.fail{color:var(--fail)}.pending{color:var(--warn)}.footnote{font-size:10px;color:var(--muted);border-top:1px solid #305267;padding-top:12px;margin-top:14px}
+-    kbd{font:11px ui-monospace,monospace;border:1px solid #45677a;padding:1px 4px;border-radius:4px;background:#173143;color:#fff}#screen-overlay{position:absolute;inset:0;background:#051421e8;display:grid;place-items:center;z-index:12}#screen-overlay .message{background:#0e2639;padding:24px;border:1px solid #426877;border-radius:16px;max-width:560px;margin:15px;text-align:center;color:#e6f3f2}#screen-overlay .message strong{display:block;font-size:19px;margin-bottom:8px}#mini{position:absolute;left:380px;bottom:20px;background:#081f30d8;border:1px solid #3d6475;padding:9px 13px;border-radius:9px;color:#d8eff0;font:11px ui-monospace,Consolas,monospace;pointer-events:none}
++    kbd{font:11px ui-monospace,monospace;border:1px solid #45677a;padding:1px 4px;border-radius:4px;background:#173143;color:#fff}#screen-overlay{position:absolute;inset:0;background:#051421e8;display:grid;place-items:center;z-index:12}#screen-overlay .message{background:#0e2639;padding:24px;border:1px solid #426877;border-radius:16px;max-width:560px;margin:15px;text-align:center;color:#e6f3f2}#screen-overlay .message strong{display:block;font-size:19px;margin-bottom:8px}#mini{position:absolute;left:380px;bottom:20px;background:#081f30d8;border:1px solid #3d6475;padding:9px 13px;border-radius:9px;color:#d8eff0;font:11px ui-monospace,Consolas,monospace;pointer-events:auto}#mini button{margin-left:9px;padding:4px 7px;font:11px system-ui}#right[hidden]{display:none}
++    .checkboxline{display:flex;align-items:center;gap:8px;margin:8px 0;font-size:12px;color:#cbdfe6}
++    .checkboxline input{width:17px;height:17px;accent-color:#32bd91}
++    .legend{margin:6px 0 10px;color:#b7cfda;font-size:11px;border-left:2px solid #47bfa5;padding:5px 8px;background:#12313c}
++    .unified-pill{display:inline-block;border:1px solid #58ab93;color:#a4f8cf;background:#143c34;border-radius:30px;padding:3px 10px;font-size:10px;margin-bottom:10px}
++    .metric .tight{font-size:13px!important}
+     @media(max-width:1100px){#left{width:310px}#right{width:288px}#mini{left:340px}}@media(max-width:780px){body{overflow:auto}#view{height:64vh;width:100vw}#left,#right{position:relative;inset:auto;width:auto;max-height:none;margin:10px 12px}#mini{position:static;margin:10px 12px}#screen-overlay{position:fixed}}
+   </style>
+ </head>
+ <body>
+ <canvas id="view" tabindex="0" aria-label="3D 車輛與護欄碰撞場景"></canvas>
+ <section id="left" aria-label="駕駛及場景操作">
+-  <div class="overline">SHIFT//LAB · DESKTOP QA</div>
+-  <h1>v1.8.7.2<br>3D 駕駛與碰撞修復</h1>
+-  <p class="desc">保留 v1.8.6 四輪物理核心。本版修正 Rapier 懸吊接地射線與自由駕駛輸入狀態；3D 場景仍須於實際瀏覽器重新驗收。</p>
++  <div class="overline">SHIFT//LAB · WEB DRIVE</div>
++  <div class="unified-pill">單頁網頁版 · 3D 實際駕駛</div>
++  <h1>v1.8.8<br>整合式 3D 駕駛</h1>
++  <p class="desc">只有一個遊玩介面：3D 駕駛、車輛調校及碰撞驗收均在本頁完成。繼承已通過實機驗收的 v1.8.7.2 剛體核心。</p>
++  <div class="legend">轉向已校正：<kbd>A</kbd>／<kbd>←</kbd> 畫面向左，<kbd>D</kbd>／<kbd>→</kbd> 畫面向右。手柄同樣校正。</div>
+   <div class="status" id="status" role="status">正在初始化 WebGL / Rapier WASM…</div>
+-  <h2>驗收場景</h2>
++  <h2>自由駕駛及驗收</h2>
+   <label for="scenario">測試工況</label><select id="scenario"><option value="free">自由試駕</option><option value="frontal">正面碰撞</option><option value="glancing">斜角擦撞</option><option value="fast">高速 CCD</option><option value="ramp">坡道及離地</option><option value="settle">靜止穩定</option></select>
+   <p class="desc" id="scenario-brief">自由試駕：完整手排操作與四輪物理。</p>
+   <div class="btnrow"><button class="primary" id="drive-now">開始自由駕駛</button></div>
+   <div class="btnrow"><button class="primary" id="load-scenario">載入工況</button><button id="run-case">執行此工況</button></div>
+   <div class="btnrow"><button class="secondary" id="run-suite">完整自動驗收</button><button id="export-report">匯出 JSON 報告</button></div>
+   <div class="btnrow"><button id="pause">暫停</button><button id="step">單步 1/120 s</button><button id="reset">重置</button></div>
+-  <p class="desc">「開始自由駕駛」會清空測試路障、啟動車輛並取得鍵盤焦點；手排練習則保留原有起步程序。「執行此工況」以固定初速及中立操作驗證碰撞。驗收結果不代表實車安全認證。</p>
++  <p class="desc">「開始自由駕駛」會清空測試路障並取得鍵盤焦點。可使用下方車輛／路況設定；自動驗收會暫時使用標準車、乾地及固定物理設定，以保持原有五項工況可比較。</p>
+   <div class="segment"><h2>駕駛控制</h2>
+     <div class="btnrow"><button id="engine">啟動引擎 [I]</button></div>
+     <label for="drive-mode">駕駛方式</label><select id="drive-mode"><option value="assisted">快速駕駛（自動起步與換檔輔助）</option><option value="manual">手排練習（原始離合器與同步器）</option></select>
+-    <p class="desc" id="input-status">自由駕駛：先按「開始自由駕駛」，再使用 W/A/S/D。按 Esc 離開選單焦點或直接點擊 3D 畫面。</p>
++    <p class="desc" id="input-status">先按「開始自由駕駛」，再使用 W/A/S/D。Esc 可離開選單焦點，或直接點擊 3D 畫面。</p>
+     <div class="duo"><label>排檔<select id="gear"><option value="0">N 空檔</option><option value="1">1 檔</option><option value="2">2 檔</option><option value="3">3 檔</option><option value="4">4 檔</option><option value="5">5 檔</option><option value="6">6 檔</option><option value="-1">R 倒車</option></select></label><label>ESC<select id="esc"><option value="on">ON</option><option value="off">OFF</option></select></label></div>
+     <div class="duo"><label>輪胎極限手感<select id="feel"><option value="balanced">均衡</option><option value="sport">靈敏</option><option value="raw">原始</option></select></label><label>鏡頭<select id="camera-mode"><option value="chase">追尾</option><option value="side">側面</option><option value="top">俯視</option></select></label></div>
+     <p class="desc"><kbd>W</kbd> 加速、<kbd>S</kbd> 煞車、<kbd>A</kbd>/<kbd>D</kbd> 轉向、<kbd>Shift</kbd> 離合器、<kbd>1</kbd>–<kbd>6</kbd> 換檔、<kbd>R</kbd> 倒檔、<kbd>I</kbd> 引擎、<kbd>Space</kbd> 暫停、<kbd>Backspace</kbd> 重置。起步請先發動，踩離合器，選入 1 檔並平順鬆開離合器。</p>
+   </div>
++  <div class="segment"><h2>車輛與路況 · 整合控制</h2>
++    <label for="car-preset">車輛配置</label><select id="car-preset">
++      <option value="standard">2.0L 自然進氣 · 標準六速</option>
++      <option value="city">1.6L 自然進氣 · 輕型轎車</option>
++      <option value="turbo">2.0L 渦輪增壓 · 性能車</option>
++    </select>
++    <label for="road-surface">輪胎與路面的摩擦條件</label><select id="road-surface">
++      <option value="dry">乾燥柏油</option><option value="wet">濕滑柏油</option>
++      <option value="snow">積雪</option><option value="ice">結冰</option>
++    </select>
++    <div class="duo">
++      <label class="checkboxline"><input type="checkbox" id="abs-toggle" checked>ABS 防鎖死</label>
++      <label class="checkboxline"><input type="checkbox" id="tcs-toggle" checked>TCS 循跡控制</label>
++    </div>
++    <div class="duo">
++      <label>前後操控平衡<select id="handling-balance"><option value="neutral">中性</option>
++        <option value="understeer">偏向轉向不足</option><option value="oversteer">偏向轉向過度</option></select></label>
++      <label>前煞車分配<select id="brake-bias"><option value="0.60">60%</option>
++        <option value="0.64">64%</option><option value="0.68" selected>68%</option><option value="0.72">72%</option><option value="0.76">76%</option></select></label>
++    </div>
++    <label>鍵盤／手柄轉向特性<select id="steering-preset">
++      <option value="balanced">均衡預設</option><option value="precision">精準（較平順）</option>
++      <option value="quick">快速（較靈敏）</option>
++    </select></label>
++    <p class="desc">切換車型會重置自由駕駛車輛；輪胎、ABS、TCS 與操控設定可在本頁調整，無須進入舊版 2D 操作頁。</p>
++  </div>
+   <div class="segment"><h2>手柄映射</h2>
+     <label>裝置<select id="pad"><option value="off">不使用手柄</option><option value="auto" selected>自動使用第一個</option></select></label>
+     <div class="fields"><label>轉向軸<select id="pad-axis"></select></label><label>油門按鈕<select id="pad-gas"></select></label><label>煞車按鈕<select id="pad-brake"></select></label><label>離合器按鈕<select id="pad-clutch"></select></label></div>
+-    <p class="desc" id="pad-status">未偵測到手柄。標準配置預設：左搖桿水平軸／右扳機油門／左扳機煞車。</p>
++    <label class="checkboxline"><input type="checkbox" id="pad-invert">額外反轉手柄水平軸（非標準硬體）</label>
++    <p class="desc" id="pad-status">未偵測到手柄。標準配置：左搖桿水平軸／右扳機油門／左扳機煞車，已自動修正 3D 鏡頭左右方向。</p>
+   </div>
+-  <div class="footnote">此頁為桌面版工程驗收環境。手機觸控與手機效能最佳化已排除；不含真實地圖、網路連線或事故安全測試。若 WebGL / WASM 無法載入，頁面會明確顯示錯誤，不會假裝測試已通過。</div>
++  <div class="footnote">桌面 Chrome / Edge 網頁遊玩。手機觸控最佳化延後。舊版的 2D HTML 僅作為不可見的四輪計算引擎，不是另一套需要開啟的操作介面；需要 WebGL2 與 Rapier WASM。</div>
+ </section>
+ <aside id="right" aria-label="物理監測與結果">
+-  <div class="overline">LIVE TELEMETRY</div><h2 style="margin-top:2px">剛體狀態</h2>
++  <div class="overline">同頁即時監測 · LIVE TELEMETRY</div><h2 style="margin-top:2px">剛體狀態</h2>
+   <div class="metricgrid">
+     <div class="metric"><span>行駛速度</span><strong id="speed">0.0 km/h</strong></div>
+     <div class="metric"><span>引擎 RPM</span><strong id="rpm">0</strong></div>
+     <div class="metric"><span>偏航角速度</span><strong id="yaw">0 °/s</strong></div>
++    <div class="metric"><span>畫面上的轉向</span><strong id="steer-direction" class="tight">正前方</strong></div>
+     <div class="metric"><span>側傾 / 俯仰</span><strong id="attitude">0 / 0 °</strong></div>
+     <div class="metric"><span>輪胎接地</span><strong id="contacts">0 / 4</strong></div>
+     <div class="metric"><span>懸吊射線</span><strong id="ray-health">--</strong></div>
+     <div class="metric"><span>外力峰值／力矩峰值</span><strong id="ext-force">--</strong></div>
+@@ -69,10 +104,11 @@
+   <div id="suite-results"></div>
+   <h2>接觸事件</h2><ul id="events"><li>尚無碰撞事件</li></ul>
+   <p class="desc" id="alert"></p>
+ </aside>
+-<div id="mini">Rapier 6DOF · 四輪接觸點受力 · 120Hz ×4 microsteps</div>
+-<iframe id="physics" src="./physics.html" title="SHIFT LAB driving physics" aria-hidden="true" style="position:absolute;width:0;height:0;border:0;opacity:0;pointer-events:none"></iframe>
++<div id="mini">Rapier 6DOF · 四輪接觸點受力 · 120Hz ×4 microsteps <button type="button" id="hud-toggle" aria-expanded="true">隱藏數據面板</button></div>
++  <iframe id="physics" src="./physics.html" title="SHIFT LAB hidden computation engine"
++    tabindex="-1" aria-hidden="true" style="position:absolute;width:0;height:0;border:0;opacity:0;pointer-events:none"></iframe>
+ <div id="screen-overlay"><div class="message"><strong>SHIFT//LAB 3D</strong><span id="overlay-message">正在啟動 WebGL 與 WASM 物理引擎…</span></div></div>
+ <script type="module" src="./src/main.mjs"></script>
+ </body>
+ </html>
+--- a/desktop3d/package.json
++++ b/desktop3d/package.json
+@@ -1,19 +1,22 @@
+ {
+-  "name": "shift-lab-v187-desktop-3d-collision-qa",
+-  "version": "1.8.7-hotfix.2",
++  "name": "shift-lab-v188-unified-web-drive",
++  "version": "1.8.8",
+   "private": true,
+   "type": "module",
+   "scripts": {
+     "dev": "vite --host 127.0.0.1 --port 5173",
+     "build": "vite build",
+     "preview": "vite preview --host 127.0.0.1 --port 4173",
+-    "qa:scenarios": "node ./tests/validate-scenarios.mjs && node ./tests/validate-ray-contact.mjs && node ./tests/validate-force-lifecycle.mjs"
++    "qa:scenarios": "node ./tests/validate-scenarios.mjs && node ./tests/validate-ray-contact.mjs && node ./tests/validate-force-lifecycle.mjs && node ./tests/validate-steering.mjs",
++    "qa:steering": "node ./tests/validate-steering.mjs",
++    "dev:open": "node ./scripts/serve-and-open.mjs"
+   },
+   "dependencies": {
+     "@dimforge/rapier3d-compat": "0.18.2",
+     "three": "0.180.0"
+   },
+   "devDependencies": {
+     "vite": "7.1.0"
+-  }
++  },
++  "description": "Browser-only unified 3D driving and collision QA with visual steering adapter"
+ }
+--- a/desktop3d/START_WINDOWS.cmd
++++ b/desktop3d/START_WINDOWS.cmd
+@@ -2,18 +2,16 @@
+ setlocal
+ cd /d "%~dp0"
+ where node >nul 2>nul
+ if errorlevel 1 (
+-  echo Node.js 22+ or 20.19+ is required. Install it first.
++  echo Node.js 22+ or 20.19+ required for starting the local web server.
+   pause
+   exit /b 1
+ )
+-echo [SHIFT LAB v1.8.7.2] Installing desktop 3D dependencies...
+-call npm install --no-audit --no-fund
+-if errorlevel 1 (
+-  echo npm install failed. Check network access to registry.npmjs.org.
+-  pause
+-  exit /b 1
++if not exist "node_modules\three\package.json" (
++  echo [SHIFT LAB v1.8.8] Installing web dependencies for first launch...
++  call npm install --no-audit --no-fund
++  if errorlevel 1 (echo Dependency installation failed. & pause & exit /b 1)
+ )
+-echo Starting local browser server. Open http://127.0.0.1:5173/
+-call npm run dev
+-pause
++echo Launching single 3D browser page: http://127.0.0.1:5173/
++call npm run dev:open
++if errorlevel 1 pause
+--- a/desktop3d/START_UNIX.sh
++++ b/desktop3d/START_UNIX.sh
+@@ -1,8 +1,7 @@
+ #!/bin/sh
+ set -eu
+ cd "$(dirname "$0")"
+-command -v node >/dev/null || { echo 'Node.js 22+ or 20.19+ required'; exit 1; }
+-command -v npm >/dev/null || { echo 'npm required'; exit 1; }
+-npm install --no-audit --no-fund
+-printf 'Open http://127.0.0.1:5173/ in desktop Chrome or Edge.\n'
+-npm run dev
++command -v node >/dev/null || { echo "Node.js 22+ or 20.19+ required"; exit 1; }
++command -v npm >/dev/null || { echo "npm required"; exit 1; }
++if [ ! -f node_modules/three/package.json ]; then npm install --no-audit --no-fund; fi
++npm run dev:open
+--- a/tests/test_v183.py
++++ b/tests/test_v183.py
+@@ -124,9 +124,9 @@
+         self.addCleanup(p.close)
+         p.add_init_script('window.requestAnimationFrame = () => 0;')
+         self.errors=[]
+         p.on('pageerror', lambda exc: self.errors.append(str(exc)))
+-        p.set_content(ROOT.joinpath('index.html').read_text(encoding='utf-8'),wait_until='load',timeout=30000)
++        p.set_content(ROOT.joinpath('legacy/shiftlab-2d-reference.html').read_text(encoding='utf-8'),wait_until='load',timeout=30000)
+         return p
+ 
+     def test_browser_debug_data_and_no_physics_override(self):
+         p=self._page({'width':1366,'height':850})
+--- a/tests/test_v184.py
++++ b/tests/test_v184.py
+@@ -67,9 +67,9 @@
+         self.assertEqual(a['primary_webpage_rear_b_m'],1.10)
+         self.assertEqual(a['historical_script_rear_b_m'],1.15)
+         self.assertEqual(len(a['cases']),2)
+         self.assertGreater(a['cases'][1]['cornering_stiffness_common_multiplier']-a['cases'][0]['cornering_stiffness_common_multiplier'],.17)
+-        self.assertIn('校方連結的歷史 MATLAB', (ROOT/'index.html').read_text())
++        self.assertIn('校方連結的歷史 MATLAB', (ROOT/'legacy/shiftlab-2d-reference.html').read_text())
+     def test_default_and_historical_rear_b_produce_different_lateral_response(self):
+         a=fit.lateral_equations(.3,.1,10.,.05,fit.CF,fit.CR,.9,1.10)
+         b=fit.lateral_equations(.3,.1,10.,.05,fit.CF,fit.CR,.9,1.15)
+         self.assertNotAlmostEqual(a[1],b[1],places=4)
+@@ -81,9 +81,9 @@
+         self.assertFalse(list(ROOT.rglob('*.mat')))
+         self.assertFalse(list(ROOT.rglob('*.mat.bin')))
+ 
+     def test_html_no_full_car_application(self):
+-        content=(ROOT/'index.html').read_text()
++        content=(ROOT/'legacy/shiftlab-2d-reference.html').read_text()
+         self.assertIn('id="p1-dynamic-benchmark"',content)
+         self.assertIn('P1_REAL_DYNAMICS=Object.freeze',content)
+         self.assertIn('automaticallyAppliedToFourWheelSimulator',content)
+         self.assertIn('BODY DYNAMICS V1.8.5',content)  # version label expected to evolve, physics API remains unchanged
+@@ -108,9 +108,9 @@
+     def page(self,width):
+         b=self.browser.new_page(viewport={'width':width,'height':840});self.addCleanup(b.close)
+         b.add_init_script('window.requestAnimationFrame=()=>0;');err=[]
+         b.on('pageerror',lambda e:err.append(str(e)))
+-        b.set_content((ROOT/'index.html').read_text(),wait_until='load',timeout=40000)
++        b.set_content((ROOT/'legacy/shiftlab-2d-reference.html').read_text(),wait_until='load',timeout=40000)
+         return b,err
+     def test_physics_debug_unchanged_and_fitting_readonly(self):
+         p,errors=self.page(1366)
+         q=p.evaluate('''() => {const b=window.__SHIFT_LAB_DEBUG__;return {p1:b.P1_REAL_DYNAMICS, funcs:[typeof b.wheelCornerForce,typeof b.steeringRackStep,typeof b.advancePhysics],gate:b.evaluateMeasuredTransferGate({knownVehicleGeometry:true,verifiedUnitMapping:true,holdoutRmse:.8,baselineHoldoutRmse:1,identifiedPhysicalCoefficient:false})}}''')
+--- a/tests/test_v185.py
++++ b/tests/test_v185.py
+@@ -93,9 +93,9 @@
+     def page(self,width=1366):
+         p=self.browser.new_page(viewport={'width':width,'height':840});self.addCleanup(p.close)
+         p.add_init_script('window.requestAnimationFrame=()=>0;');errors=[]
+         p.on('pageerror',lambda e:errors.append(str(e)))
+-        p.set_content((ROOT/'index.html').read_text(),wait_until='load',timeout=60000)
++        p.set_content((ROOT/'legacy/shiftlab-2d-reference.html').read_text(),wait_until='load',timeout=60000)
+         return p,errors
+     def open_reference(self,p):
+         p.evaluate('''() => {document.querySelector('#vehicle-panel').open=true;document.querySelector('#reference-calibration-panel').open=true;document.querySelector('#v185-gasoline-validation').open=true;}''')
+     def test_real_gasoline_panel(self):
+--- a/tests/test_v186.py
++++ b/tests/test_v186.py
+@@ -17,9 +17,9 @@
+         self.addCleanup(pg.close)
+         self.errors=[]
+         pg.on('pageerror',lambda e:self.errors.append(str(e)))
+         pg.add_init_script('window.requestAnimationFrame=()=>0')
+-        pg.set_content((ROOT/'index.html').read_text(),wait_until='load')
++        pg.set_content((ROOT/'legacy/shiftlab-2d-reference.html').read_text(),wait_until='load')
+         return pg
+     def split_run(self,enable):
+         pg=self.page()
+         r=pg.evaluate('''(enable)=>{
+@@ -147,9 +147,9 @@
+         for src in [ROOT/'current_inline.js',*list((ROOT/'desktop3d/src').glob('*.mjs'))]:
+             result=subprocess.run(['node','--check',str(src)],capture_output=True,text=True)
+             self.assertEqual(result.returncode,0,f'{src.name}: {result.stderr}')
+     def test_3d_uses_same_physics_page(self):
+-        self.assertEqual((ROOT/'index.html').read_bytes(),(ROOT/'desktop3d/public/physics.html').read_bytes())
++        self.assertEqual((ROOT/'legacy/shiftlab-2d-reference.html').read_bytes(),(ROOT/'desktop3d/public/physics.html').read_bytes())
+         content=(ROOT/'desktop3d/src/chassis.mjs').read_text()
+         self.assertIn('world.timestep=h;this.world.step();',content)
+         self.assertIn('addForceAtPoint',content)
+         self.assertIn('stepForces',content)
+--- a/tests/test_v187.py
++++ b/tests/test_v187.py
+@@ -25,9 +25,9 @@
+         self.assertGreater(len(required),15)
+         self.assertEqual(required-present,set())
+ 
+     def test_original_model_not_duplicated(self):
+-        self.assertEqual((ROOT/'index.html').read_bytes(),(THREE/'public/physics.html').read_bytes())
++        self.assertEqual((ROOT/'legacy/shiftlab-2d-reference.html').read_bytes(),(THREE/'public/physics.html').read_bytes())
+         js=(THREE/'src/chassis.mjs').read_text()
+         self.assertEqual(js.count('this.world.step()'),1)
+         self.assertIn('this.rigidBody.addForceAtPoint',js)
+         self.assertIn('world.timestep=h;this.world.step();',js)
+@@ -74,9 +74,9 @@
+         self.assertIn("ShiftLeft:'shift'",main)
+ 
+     def test_version_and_start_scripts_exist(self):
+         package=json.loads((THREE/'package.json').read_text())
+-        self.assertEqual(package['version'],'1.8.7-hotfix.2')
++        self.assertEqual(package['version'],'1.8.8')
+         self.assertIn('rapier3d-compat',str(package['dependencies']))
+         self.assertTrue((THREE/'START_WINDOWS.cmd').exists())
+         self.assertTrue((THREE/'START_UNIX.sh').exists())
+         self.assertEqual((THREE/'vite.config.mjs').read_text().count("base:'./'"),1)
+--- /dev/null
++++ b/desktop3d/src/steering-input.mjs
+@@ -0,0 +1,30 @@
++// v1.8.8 desktop-view steering adapter.
++// The historical SHIFT LAB equations use +Z forward and +X vehicle-right.
++// The Three.js chase camera looks toward world +Z with +Y up; that projection
++// displays +X on the *left* side of the screen. Reverse only the player's
++// steering command at the host boundary. Do not invert tire forces, ESC,
++// Rapier torques or the original four-corner physics implementation.
++export const VISUAL_STEER_TO_LEGACY = -1;
++
++export function legacyDirectionalKey(driverKey) {
++  if (driverKey === 'a') return 'd';
++  if (driverKey === 'd') return 'a';
++  return driverKey;
++}
++
++export function legacySteerFromVisualAxis(visualAxis, extraInvert = false) {
++  const n = Number(visualAxis);
++  if (!Number.isFinite(n)) return 0;
++  return Math.max(-1, Math.min(1, n)) * VISUAL_STEER_TO_LEGACY * (extraInvert ? -1 : 1);
++}
++
++// For non-physics HUD labels. The user operates a camera-facing visual car.
++export function visualSteeringFromLegacy(legacySteer) {
++  const n = Number(legacySteer);
++  if (!Number.isFinite(n)) return 0;
++  return Math.max(-1, Math.min(1, n * VISUAL_STEER_TO_LEGACY));
++}
++
++export function visualDirectionLabel(visualSteer, deadzone = 0.02) {
++  return visualSteer < -deadzone ? '← 左轉' : visualSteer > deadzone ? '右轉 →' : '正前方';
++}
+--- /dev/null
++++ b/desktop3d/scripts/serve-and-open.mjs
+@@ -0,0 +1,22 @@
++// Starts the existing Vite server and opens exactly one browser game page.
++// No native game application is installed; the browser is the client.
++import {spawn} from 'node:child_process';
++import http from 'node:http';
++const url='http://127.0.0.1:5173/';
++const command=process.platform==='win32'?'npm.cmd':'npm';
++const server=spawn(command,['run','dev'],{cwd:new URL('../',import.meta.url),
++  stdio:'inherit',shell:process.platform==='win32'});
++let ready=false;let tries=0;
++const timer=setInterval(()=>{
++  if(ready||server.exitCode!==null){clearInterval(timer);return;}
++  if(++tries>120){clearInterval(timer);console.error('本機 Vite 啟動逾時，請檢查輸出訊息');return;}
++  const req=http.get(url,res=>{res.resume();if(res.statusCode>=200&&res.statusCode<500&&!ready){
++    ready=true;clearInterval(timer);
++    const cmd=process.platform==='win32'?['cmd',['/c','start','',url]]:
++      process.platform==='darwin'?['open',[url]]:['xdg-open',[url]];
++    try{const browser=spawn(cmd[0],cmd[1],{stdio:'ignore',detached:true});browser.unref();}
++    catch{console.log('請手動開啟',url);}
++  }});req.on('error',()=>{});req.setTimeout(1000,()=>req.destroy());
++},250);
++server.once('exit',code=>{clearInterval(timer);process.exitCode=code||0});
++for(const sig of ['SIGINT','SIGTERM'])process.on(sig,()=>{server.kill(sig)});
+--- /dev/null
++++ b/desktop3d/tests/validate-steering.mjs
+@@ -0,0 +1,29 @@
++// Deterministic viewport / legacy-input polarity regression.
++// No Rapier dependency: validates the exact right-handed chase projection.
++import assert from 'node:assert/strict';
++import {legacyDirectionalKey,legacySteerFromVisualAxis,
++  visualSteeringFromLegacy,visualDirectionLabel} from '../src/steering-input.mjs';
++
++// Three.js lookAt from a trailing camera toward +Z (up +Y):
++// camera-right = viewing direction x camera-up = +Z x +Y = -X.
++const screenRightX = -1;
++const screenDisplacementFromLegacySteer=steer=>screenRightX*steer;
++assert.equal(legacyDirectionalKey('a'),'d');
++assert.equal(legacyDirectionalKey('d'),'a');
++assert.equal(legacyDirectionalKey('w'),'w');
++assert.equal(legacyDirectionalKey('s'),'s');
++assert.equal(legacyDirectionalKey('shift'),'shift');
++assert.equal(legacySteerFromVisualAxis(-1),1);
++assert.equal(legacySteerFromVisualAxis(1),-1);
++assert.equal(legacySteerFromVisualAxis(-0.5),0.5);
++assert.equal(legacySteerFromVisualAxis(1,true),1);
++assert.equal(legacySteerFromVisualAxis(Infinity),0);
++assert.equal(visualSteeringFromLegacy(0.4),-0.4);
++assert.equal(visualDirectionLabel(visualSteeringFromLegacy(0.4)),'← 左轉');
++assert.equal(visualDirectionLabel(visualSteeringFromLegacy(-0.4)),'右轉 →');
++assert.equal(visualDirectionLabel(0),'正前方');
++// A/left-stick-left -> screen LEFT; D/right-stick-right -> screen RIGHT.
++assert.ok(screenDisplacementFromLegacySteer(legacySteerFromVisualAxis(-1))<0);
++assert.ok(screenDisplacementFromLegacySteer(legacySteerFromVisualAxis(1))>0);
++// The bridge must never change front/rear wheel-force or yaw-moment signs.
++console.log('PASS v1.8.8: A/Left => screen left, D/Right => screen right; controls only');
+--- /dev/null
++++ b/tests/test_v188.py
+@@ -0,0 +1,61 @@
++"""Source/adapter QA for the single-interface desktop browser game.
++This does not substitute for real-browser Rapier collision verification.
++"""
++from pathlib import Path
++import re, subprocess, json, unittest
++ROOT=Path(__file__).resolve().parents[1]
++WEB=ROOT/'desktop3d'
++
++class UnifiedWebQA(unittest.TestCase):
++    def test_legacy_solver_and_collision_stay_byte_identical(self):
++        baseline=Path('/mnt/data/SHIFT_LAB_V1.8.7.2_3D_Force_Stability_Hotfix')
++        # This case is self-contained when distributed without the baseline ZIP.
++        self.assertEqual((ROOT/'legacy/shiftlab-2d-reference.html').read_bytes(),(WEB/'public/physics.html').read_bytes())
++        if baseline.exists():
++            self.assertEqual((WEB/'public/physics.html').read_bytes(),(baseline/'desktop3d/public/physics.html').read_bytes())
++            for file in ['chassis.mjs','road.mjs','obstacles.mjs','scenarios.mjs']:
++                self.assertEqual((WEB/'src'/file).read_bytes(),(baseline/'desktop3d/src'/file).read_bytes())
++
++    def test_visual_left_right_unit(self):
++        proc=subprocess.run(['node',str(WEB/'tests/validate-steering.mjs')],capture_output=True,text=True)
++        self.assertEqual(proc.returncode,0,proc.stdout+proc.stderr)
++        self.assertIn('PASS v1.8.8',proc.stdout)
++
++    def test_one_entry_and_hidden_engine_only(self):
++        root=(ROOT/'index.html').read_text()
++        game=(WEB/'index.html').read_text()
++        self.assertIn('desktop3d/',root)
++        self.assertIn('3D 網頁',game)
++        self.assertIn('aria-hidden="true"',game)
++        self.assertIn('src="./physics.html"',game)
++        self.assertEqual(game.count('id="view"'),1)
++        self.assertNotIn('src="./physics.html"',root)
++        self.assertNotIn('id="view"',root)
++
++    def test_controls_are_present_and_wired(self):
++        html=(WEB/'index.html').read_text()
++        main=(WEB/'src/main.mjs').read_text()
++        fields=['car-preset','road-surface','abs-toggle','tcs-toggle','steer-direction',
++                'handling-balance','brake-bias','steering-preset','pad-invert']
++        for field in fields:
++            self.assertIn('id="'+field+'"',html)
++            self.assertIn("'"+field+"'",main)
++        self.assertIn('legacyDirectionalKey(key)',main)
++        self.assertIn('legacySteerFromVisualAxis(steerFiltered',main)
++        self.assertIn('visualSteeringFromLegacy(m.steerInput)',main)
++        self.assertIn('Object.assign(d.advancedSteering,d.ADV_STEER_PRESETS',main)
++
++    def test_web_dependency_contract(self):
++        pkg=json.loads((WEB/'package.json').read_text())
++        self.assertEqual(pkg['version'],'1.8.8')
++        self.assertEqual(pkg['dependencies']['three'],'0.180.0')
++        self.assertEqual(pkg['dependencies']['@dimforge/rapier3d-compat'],'0.18.2')
++        self.assertTrue((ROOT/'START_WEB_WINDOWS.cmd').is_file())
++        self.assertTrue((ROOT/'START_WEB_UNIX.sh').is_file())
++        self.assertTrue((WEB/'scripts/serve-and-open.mjs').is_file())
++        for f in [*list((WEB/'src').glob('*.mjs')),WEB/'scripts/serve-and-open.mjs']:
++            with self.subTest(source=f.name):
++                proc=subprocess.run(['node','--check',str(f)],capture_output=True,text=True)
++                self.assertEqual(proc.returncode,0,proc.stderr)
++
++if __name__=='__main__':unittest.main(verbosity=2)
+--- /dev/null
++++ b/tests/test_v188_interaction.py
+@@ -0,0 +1,77 @@
++"""Real Chromium DOM/keyboard interaction test with a stubbed 3D renderer.
++This exercises installed browser event handlers; it does NOT solve Rapier collisions.
++"""
++from pathlib import Path
++import re, unittest
++from playwright.sync_api import sync_playwright
++ROOT=Path(__file__).resolve().parents[1]
++D=ROOT/'desktop3d'
++
++class SteeringInputBrowser(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        cls.pw=sync_playwright().start()
++        cls.browser=cls.pw.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
++
++    @classmethod
++    def tearDownClass(cls):
++        cls.browser.close();cls.pw.stop()
++
++    def setUp(self):
++        self.page=self.browser.new_page()
++        self.addCleanup(self.page.close)
++        html=(D/'index.html').read_text().replace('src="./physics.html"','src="about:blank"')
++        html=html.replace('<script type="module" src="./src/main.mjs"></script>','')
++        self.page.set_content(html,wait_until='load')
++        self.page.eval_on_selector('#screen-overlay','el=>el.remove()')
++        helper=(D/'src/steering-input.mjs').read_text().replace('export const','const').replace('export function','function')
++        main=(D/'src/main.mjs').read_text()
++        main=re.sub(r'^import .*?;\s*$', '', main,flags=re.MULTILINE)
++        main=main.replace('boot().catch(failure);','')
++        # Only the UI event handlers and input filtering are executed. No physics mocks
++        # are allowed to claim successful chassis runtime; the target is control polarity.
++        extra='''
++const SCENARIOS={free:{description:'free'}};
++window.__V188_INPUT_TEST__={
++  install(fake){d=fake;labReady=true;installEvents();},
++  readInputs(dt){readInputs(dt)},
++  keys(){return [...trackedKeys]},
++  coreKeys(){return [...d.inputKeys]},
++  controls(){return {...d.hostControls}}
++};'''
++        self.page.add_script_tag(content=helper+'\n'+main.replace('const $=id=>document.getElementById(id);','const $=id=>document.getElementById(id);')+'\n'+extra)
++        self.page.evaluate('''()=>{
++          window.__V188_INPUT_TEST__.install({
++            inputKeys:new Set(),hostControls:{},advancedSteering:{padFilter:0,padSpeed:0,padInvert:false},
++            state:{velocity:0},normalizedAdvancedAxis(raw){return raw}
++          });
++        }''')
++        self.page.locator('#view').focus()
++
++    def test_keyboard_arrows_translate_to_visual_left_right(self):
++        for key,model,driver in [('a','d','a'),('d','a','d'),('ArrowLeft','d','a'),('ArrowRight','a','d')]:
++            with self.subTest(key=key):
++                self.page.keyboard.down(key)
++                self.assertEqual(self.page.evaluate('window.__V188_INPUT_TEST__.coreKeys()'),[model])
++                self.assertEqual(self.page.evaluate('window.__V188_INPUT_TEST__.keys()'),[driver])
++                self.page.keyboard.up(key)
++                self.assertEqual(self.page.evaluate('window.__V188_INPUT_TEST__.coreKeys()'),[])
++        self.page.keyboard.down('w')
++        self.assertEqual(self.page.evaluate('window.__V188_INPUT_TEST__.coreKeys()'),['w'])
++        self.page.keyboard.up('w')
++
++    def test_standard_gamepad_and_optional_extra_inversion(self):
++        self.page.evaluate('''()=>{
++          Object.defineProperty(navigator,'getGamepads',{configurable:true,value:()=>[
++            {connected:true,index:0,id:'Test Gamepad',axes:[-1],buttons:[]}
++          ]});
++          window.__V188_INPUT_TEST__.readInputs(.1);
++        }''')
++        out=self.page.evaluate('window.__V188_INPUT_TEST__.controls()')
++        self.assertGreater(out['steer'],0) # visually LEFT => legacy +X
++        self.page.locator('#pad-invert').check()
++        self.page.evaluate('window.__V188_INPUT_TEST__.readInputs(.1)')
++        out=self.page.evaluate('window.__V188_INPUT_TEST__.controls()')
++        self.assertLess(out['steer'],0)
++
++if __name__=='__main__':unittest.main(verbosity=2)
+--- /dev/null
++++ b/START_WEB_WINDOWS.cmd
+@@ -0,0 +1,2 @@
++@echo off
++call "%~dp0desktop3d\START_WINDOWS.cmd"
+--- /dev/null
++++ b/START_WEB_UNIX.sh
+@@ -0,0 +1,2 @@
++#!/bin/sh
++exec sh "$(dirname "$0")/desktop3d/START_UNIX.sh"
+--- /dev/null
++++ b/PUBLISH_WEB_WINDOWS.cmd
+@@ -0,0 +1,13 @@
++@echo off
++setlocal
++cd /d "%~dp0desktop3d"
++where node >nul 2>nul
++if errorlevel 1 (echo Node.js 22+ or 20.19+ required. & pause & exit /b 1)
++if not exist "node_modules\three\package.json" (
++  call npm install --no-audit --no-fund
++  if errorlevel 1 (pause & exit /b 1)
++)
++call npm run build
++if errorlevel 1 (echo Web build failed. & pause & exit /b 1)
++echo Done. Publish the contents of desktop3d\dist\ to a static HTTPS website.
++pause
+--- /dev/null
++++ b/PUBLISH_WEB_UNIX.sh
+@@ -0,0 +1,7 @@
++#!/bin/sh
++set -eu
++cd "$(dirname "$0")/desktop3d"
++[ -f node_modules/three/package.json ] || npm install --no-audit --no-fund
++npm run build
++printf 'Publish desktop3d/dist contents as one static website.
++'

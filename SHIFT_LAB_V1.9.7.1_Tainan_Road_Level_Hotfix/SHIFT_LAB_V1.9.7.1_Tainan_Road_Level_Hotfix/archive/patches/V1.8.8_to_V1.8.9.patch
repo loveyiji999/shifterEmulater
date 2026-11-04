@@ -1,0 +1,1458 @@
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,3 +1,15 @@
++# SHIFT LAB v1.8.9 · 程序化地圖與遊戲模式介面
++
++- **新增**：全螢幕自由駕駛（速度／RPM／檔位 HUD）、集中設定與獨立 QA 測試抽屜。
++- **新增**：沿用舊 seeded route generator 的 3D 隨機道路選單（種子／彎道／坡度／JSON／路線預覽）。
++- **新增**：更換地圖即移除老道路網格及碰撞體，重新建立 Three.js／Rapier 所需場景與護欄。
++- **新增**：固定 QA 路線與玩家隨機路線分離，測完自動還原玩家地圖。
++- **新增**：路面柏油／路肩／草地外觀及低多邊形路邊植栽（視覺專用）。
++- **保留**：v1.8.8 的四輪物理核心、底盤受力、ESC、鍵盤轉向、五項固定測試腳本；手機最佳化仍延後。
++- **已測試**：92 項單元/Chromium 程式測試中 90 通過、2 跳過；真實 Rapier WASM／WebGL 待使用者複驗。
++
++---
++
+ # v1.8.8 — 單頁桌面網頁駕駛 + 左右轉修正
+ 
+ - **修正**：3D 世界 +Z 車頭方向與 Three.js chase 視角的 X 軸水平投影不一致，致 A/D 及搖桿的畫面左右顛倒。只在 UI-to-core bridge 校正，不更動輪胎力、車身力矩和 Rapier 剛體。
+--- a/README.md
++++ b/README.md
+@@ -1,48 +1,51 @@
+-# SHIFT LAB v1.8.8 · 整合式 3D 網頁駕駛
++# SHIFT LAB v1.8.9 — 3D 網頁駕駛 × 種子隨機道路
+ 
+-**開發目標：** 將原本 2D 與 3D 兩套可見操作介面統一為一套 3D 網頁、修正左／右轉向顛倒，保留 v1.8.7.2 的碰撞與四輪物理功能。手機最佳化仍延後。
++目標：**玩家駕駛畫面精簡到 3D 場景、速度／轉速儀表及檔位**；車輛、手柄和隨機地圖集中於「設定」，物理診斷和固定五項驗收集中於「測試模式」。
+ 
+-## 直接開始（Windows 桌面）
++## Windows：在 Chrome／Edge 遊玩
+ 
+-1. 解壓縮本專案 ZIP，**關閉舊版 Vite 終端機**，避免仍開啟 v1.8.7.2。
+-2. 已有 Node.js 22+（或 20.19+）的電腦，雙擊根目錄的 **`START_WEB_WINDOWS.cmd`**。
+-3. 第一次會自動 `npm install`，需要連線 npm。安裝完成後會啟動 Vite HTTP 服務並開啟 Chrome／Edge 的 **`http://127.0.0.1:5173/`**。
+-4. 點「開始自由駕駛」，按 **W** 加速、**S** 煞車、**A** 左轉、**D** 右轉；也支援方向鍵和手柄。快速駕駛預設自動輔助發動／換檔，原本手排仍保留。
++1. 解壓縮 ZIP 到新資料夾，先關閉之前啟動的 v1.8.8 Vite 終端機。
++2. 使用 Node.js 22+ 或 20.19+，雙擊根目錄 `START_WEB_WINDOWS.cmd`。
++3. 第一次需下載 npm 套件；成功後自動開啟 `http://127.0.0.1:5173/`。
++4. 在頁面直接按 `W/A/S/D` 駕駛。面板按鈕或 `Esc` 可開啟主選單。
+ 
+-macOS/Linux：執行 `sh START_WEB_UNIX.sh`（或 `cd desktop3d && npm install && npm run dev`）。
++macOS／Linux：`sh START_WEB_UNIX.sh`。亦可到 `desktop3d` 執行 `npm install && npm run dev`。**不需要原生遊戲客戶端。** 本機開發版需要 HTTP 服務載入 ES modules／Rapier WASM，不能直接雙擊 `file://` HTML 期待 3D 引擎運作。
+ 
+-**這仍是純網頁遊戲：** 玩家操作都在 Chrome / Edge 的 **單一 3D 頁面**中，不需要安裝原生遊戲程式。開發包第一次啟動需要 Node/npm 以提供本機 HTTP 伺服器；無法直接以 `file://` 雙擊 HTML 載入 ES modules 與 Rapier WASM。
++## 遊戲中的三種畫面
+ 
+-## 部署到正式網站（玩家不需 Node/npm）
++| 模式 | 內容 | 操作 |
++|---|---|---|
++| 自由駕駛 | 全螢幕 3D 道路、速度與 RPM 儀表、檔位 | 預設畫面；`Esc` 開啟選單 |
++| 設定 | 車型、操控、手柄、地圖種子／彎道與坡度機率／路線預覽 | `F1` 或選單「設定」 |
++| 測試 | 靜止、正面、斜角、高速 CCD、坡道，含報告與即時物理監測 | `F2` 或選單「測試模式」 |
+ 
+-進入 `desktop3d/` 後執行：
++`W/S` 油門／煞車；`A/D` 左右轉；`I` 發動；`M` 切換快速駕駛／手排；`Shift` 離合器；`1–6` 換檔，`0` 空檔，`R` 倒檔；`Space` 暫停；`Backspace` 重置車輛。設定／測試開啟後，鍵盤操作不會穿透到駕駛輸入。
+ 
+-```sh
+-npm install
+-npm run build
+-```
++## 原始隨機地圖生成器已接到 3D
+ 
+-把 `desktop3d/dist/` 裡面的完整內容部署到任何支援靜態網站的 HTTPS 伺服器（例如一般 CDN/靜態主機）。**玩家只需要瀏覽器及遊戲網址**；不需安裝 Node、npm、Vite 或用兩個頁面操作。Vite 使用相對 `base:'./'`，可發布在子路徑。伺服器必須正確提供 JS 與 `.wasm` 靜態資產。
++`desktop3d/public/physics.html` 中保留原本 v0.7 **種子確定性程序化路線**演算法。新前端只輸入種子和以下設定：彎道、髮夾彎、坡度機率、左彎偏向、上坡偏向、最大坡度。**同種子與同參數產生相同道路**。
+ 
+-**本交付環境無法下載 npm，尚未產生真實 build 後的 dist，也尚未對新版執行實際 Rapier WASM/Three.js 3D 畫面驗收。** 開發原始碼及一鍵啟動／發佈腳本已包含。v1.8.7.2 的五項測試通過是使用者先前回報的基準；v1.8.8 需要獨立複驗。
++「隨機新地圖」會生成種子並重建；「按設定生成」使用指定值；可預覽下一彎／顯示前段路線／匯入匯出舊 `shiftlab.road.v1` JSON。玩家地圖設定在瀏覽器儲存（有權限時），不需架設地圖伺服器。
+ 
+-## 統一操作面板
++前端重建時先移除測試路障和舊道路三角網格／護欄，接著重建 Rapier 地面 collider 與 Three.js mesh，讓地圖與物理**使用同一組舊引擎道路座標**。路邊草地與植栽為程序化視覺表現，不具額外樹木碰撞。長路段會按區塊載入。原地圖屬虛構地形／道路，不是 Overture 真實道路或全球場景。
+ 
+-- **3D 駕駛**：鍵盤、手柄、快速／手排、ESC、輪胎抓地手感、鏡頭和檔位
+-- **車輛設定**：標準／城市／渦輪車型、乾地／濕地／雪／冰、ABS/TCS、操控平衡、煞車比例、轉向特性
+-- **測試與數據**：正面撞擊、斜角擦撞、CCD 高速、坡道與靜止穩定共五項，保留 JSON 匯出、碰撞監測與數據面板收合
++## 測試模式與物理核心相容
+ 
+-所有設定都在 `desktop3d/index.html`，不需要開啟根目錄舊的 2D 頁面。舊計算核心位於 `desktop3d/public/physics.html`，會被**不可見**的 iframe 載入；它不是第二個玩家操作介面。舊版完整畫面只在 `legacy/shiftlab-2d-reference.html` 保留為回歸測試資料。
++測試進入時切換到原本的 `SHIFT-2026-MOUNTAIN-07` 參考道路；返回自由駕駛時自動恢復玩家的地圖種子與參數，並移除測試障礙。四輪力學、離合器、輪胎、懸吊施力、Rapier 底盤／ESC 和既有五項工況的演算法未改。
+ 
+-## 改版說明與測試
++## 正式上線：玩家開網址即可玩
+ 
+-- `V188_IMPLEMENTATION.md`：轉向座標修正、介面整合、風險與設計限制
+-- `V188_QA.md`：已完成的測試／實際 3D 待驗證項目
+-- `V1.8.7.2_to_V1.8.8.patch`：原始碼差異
++在 `desktop3d/` 執行 `npm install && npm run build`（或雙擊根目錄 `PUBLISH_WEB_WINDOWS.cmd`），把 **`desktop3d/dist/` 的完整內容**放至可提供 JS／WASM 靜態檔的 HTTPS 網站。玩家只需 Chrome／Edge 等支援 WebGL2 的瀏覽器及網址，**不需要安裝 Node/npm**。
++
++## 驗證、限制和文件
+ 
+ ```sh
+ sh tests/RUN_V187_QA.sh
+ cd desktop3d && npm run qa:scenarios
+ ```
+ 
+-不包含真實地圖、網路同步、多玩家服務或手機最佳化；輪胎參數仍是娛樂級擬真模型，不是實車安全驗證。
++當前交付環境無法連線 npm 套件庫（EAI_AGAIN），所以 **v1.8.9 的真實 Rapier WASM／WebGL3D 運行尚未完成本機驗收**，未包含 `dist`。v1.8.8 通過 3D 實測是前一版的回報，不可代替 v1.8.9 實機驗收。建議按 `V189_QA.md` 先驗證隨機新地圖、返回 QA、再回到玩家地圖，最後再測五項固定碰撞工況。
++
++- `V189_IMPLEMENTATION.md`：模組／狀態切換／物理碰撞地圖更新方案
++- `V189_QA.md`：程式測試結果及實機驗收清單
++- `V1.8.8_to_V1.8.9.patch`：本版程式改動
+--- /dev/null
++++ b/README_V188_ARCHIVE.md
+@@ -0,0 +1,48 @@
++# SHIFT LAB v1.8.8 · 整合式 3D 網頁駕駛
++
++**開發目標：** 將原本 2D 與 3D 兩套可見操作介面統一為一套 3D 網頁、修正左／右轉向顛倒，保留 v1.8.7.2 的碰撞與四輪物理功能。手機最佳化仍延後。
++
++## 直接開始（Windows 桌面）
++
++1. 解壓縮本專案 ZIP，**關閉舊版 Vite 終端機**，避免仍開啟 v1.8.7.2。
++2. 已有 Node.js 22+（或 20.19+）的電腦，雙擊根目錄的 **`START_WEB_WINDOWS.cmd`**。
++3. 第一次會自動 `npm install`，需要連線 npm。安裝完成後會啟動 Vite HTTP 服務並開啟 Chrome／Edge 的 **`http://127.0.0.1:5173/`**。
++4. 點「開始自由駕駛」，按 **W** 加速、**S** 煞車、**A** 左轉、**D** 右轉；也支援方向鍵和手柄。快速駕駛預設自動輔助發動／換檔，原本手排仍保留。
++
++macOS/Linux：執行 `sh START_WEB_UNIX.sh`（或 `cd desktop3d && npm install && npm run dev`）。
++
++**這仍是純網頁遊戲：** 玩家操作都在 Chrome / Edge 的 **單一 3D 頁面**中，不需要安裝原生遊戲程式。開發包第一次啟動需要 Node/npm 以提供本機 HTTP 伺服器；無法直接以 `file://` 雙擊 HTML 載入 ES modules 與 Rapier WASM。
++
++## 部署到正式網站（玩家不需 Node/npm）
++
++進入 `desktop3d/` 後執行：
++
++```sh
++npm install
++npm run build
++```
++
++把 `desktop3d/dist/` 裡面的完整內容部署到任何支援靜態網站的 HTTPS 伺服器（例如一般 CDN/靜態主機）。**玩家只需要瀏覽器及遊戲網址**；不需安裝 Node、npm、Vite 或用兩個頁面操作。Vite 使用相對 `base:'./'`，可發布在子路徑。伺服器必須正確提供 JS 與 `.wasm` 靜態資產。
++
++**本交付環境無法下載 npm，尚未產生真實 build 後的 dist，也尚未對新版執行實際 Rapier WASM/Three.js 3D 畫面驗收。** 開發原始碼及一鍵啟動／發佈腳本已包含。v1.8.7.2 的五項測試通過是使用者先前回報的基準；v1.8.8 需要獨立複驗。
++
++## 統一操作面板
++
++- **3D 駕駛**：鍵盤、手柄、快速／手排、ESC、輪胎抓地手感、鏡頭和檔位
++- **車輛設定**：標準／城市／渦輪車型、乾地／濕地／雪／冰、ABS/TCS、操控平衡、煞車比例、轉向特性
++- **測試與數據**：正面撞擊、斜角擦撞、CCD 高速、坡道與靜止穩定共五項，保留 JSON 匯出、碰撞監測與數據面板收合
++
++所有設定都在 `desktop3d/index.html`，不需要開啟根目錄舊的 2D 頁面。舊計算核心位於 `desktop3d/public/physics.html`，會被**不可見**的 iframe 載入；它不是第二個玩家操作介面。舊版完整畫面只在 `legacy/shiftlab-2d-reference.html` 保留為回歸測試資料。
++
++## 改版說明與測試
++
++- `V188_IMPLEMENTATION.md`：轉向座標修正、介面整合、風險與設計限制
++- `V188_QA.md`：已完成的測試／實際 3D 待驗證項目
++- `V1.8.7.2_to_V1.8.8.patch`：原始碼差異
++
++```sh
++sh tests/RUN_V187_QA.sh
++cd desktop3d && npm run qa:scenarios
++```
++
++不包含真實地圖、網路同步、多玩家服務或手機最佳化；輪胎參數仍是娛樂級擬真模型，不是實車安全驗證。
+--- /dev/null
++++ b/V189_IMPLEMENTATION.md
+@@ -0,0 +1,25 @@
++# v1.8.9 實作說明
++
++## 設計邊界
++
++- **玩家單頁**：`desktop3d/index.html` 是唯一可見操作頁；hidden iframe `public/physics.html` 仍負責引擎及 seeded route 生成。
++- **三個 UI 狀態**：`src/game-modes.mjs` 中 `drive/settings/tests/menu` 控制模式。駕駛時僅渲染速度／轉速／檔位 HUD；設定位於 modal；測試位於側邊抽屜，3D 場景保持可見。進入工具畫面會暫停車輛並清除所有按鍵輸入。
++- **唯一道路真相**：`src/procedural-map.mjs` 管理舊 `shiftlab.road.v1` 設定資料驗證與 JSON 匯入匯出，並不包含第二個地圖生成器。真正中心線／坡度由隱藏四輪核心 `generateRoad()` 建立。
++- **Rapier 與 Three 同步**：`src/main.mjs` 的 `rebuildRoad()` 執行 `obstacles.dispose()` → `road.clear()` → `d.generateRoad(config)` → `road.ensure(70)` → `world.updateSceneQueries()`；最後 `resetDriving('free')` 依新路線重生。
++- **分離 QA**：`ensureScenarioMap(id)` 規定 QA 使用固定 `REFERENCE_MAP`，自由駕駛使用 `userMapConfig`。切回自由駕駛會先重建地圖，再重置車身，防止舊路障殘留。
++- **地表與場景視覺**：`src/road.mjs` 維持原本 Rapier 三角網格 `indices` 不變。僅 Three.js mesh 使用每區塊三組視覺材質（柏油／路肩／草地）；中心線與低多邊形植栽跟隨 chunks 的生命週期，未建立新的植栽物理 collider。
++- **物理模型保護**：`public/physics.html`、`chassis.mjs`、`obstacles.mjs`、`scenarios.mjs`、`steering-input.mjs` 與 v1.8.8 完全一致。沒有引入第二個車身積分器。
++
++## 狀態與 UX 邊界
++
++- `drive`: `paused=false`，畫面 HUD 可見，鍵盤／手柄輸入正常。
++- `menu/settings/tests`: 開啟時 `paused=true`，清除 `trackedKeys` 和 `d.inputKeys`／host 操作值，防止打字／切換選單時車輛動作。
++- 測試腳本使用原本 `advancePhysics(1/120)` 的單一路徑，不受一般遊玩模式的自動換檔輔助影響。
++- 切換車型或變更輔助駕駛方式仍可能重置車輛，但**設定畫面保持開啟、模擬保持暫停**。
++
++## 尚未完成事項
++
++- 不能保證每個隨機種子生成的髮夾彎或不同高度道路都不自交／互相覆蓋。現階段生成器延用舊設定模型，建議下一版加入道路自交/高差驗證。
++- 植栽為視覺裝飾，沒有物理碰撞。
++- 目前為本機 Vite 開發專案或部署後靜態網站。`file://` 不保證 ES Modules／WASM 會載入。
++- 不能將 Chromium DOM 模擬或 Rapier 受力替身測試視為真實 WebGL／WASM 的完整 3D 驗收。請重新執行五項實機測試。
+--- /dev/null
++++ b/V189_QA.md
+@@ -0,0 +1,25 @@
++# v1.8.9 QA 報告與實機驗收
++
++## 本交付環境可重現的測試
++
++- Python 回歸：**92 項，90 通過、2 因原始 Bucknell 資料不存在而跳過、0 失敗**（依 `tests/RUN_V187_QA.sh` 執行）。
++- Node 檢查：`validate-scenarios`, `validate-ray-contact`, `validate-force-lifecycle`, `validate-steering`, `validate-procedural-map`, `validate-road-reset` 均通過。
++- Chromium DOM：UI 中設定／測試模式攔截駕駛按鍵；進出畫面正常；原有鍵盤與手柄方向不變。
++- Chromium 舊道路引擎：相同種子和參數重現同一道路；不同種子產生不同道路。
++- Chromium 3D 主控流程（mock 3D 世界、真實舊路線核心）：玩家新地圖 → 固定 QA 地圖 → 玩家地圖依序成功切換。每次切換按順序清除舊碰撞資源。
++- RoadWorld JS + fake THREE／Rapier 資源：重複重建後無殘留 collider handle／visual chunk（**非 WASM 實體求解測試**）。
++
++以上結果不是 v1.8.9 WebGL 和 WASM 的真實驗收。此執行環境對 registry.npmjs.org 回報 `EAI_AGAIN`，無法安裝 Three.js、Rapier 和 Vite 套件；因此**無法驗證實際路況、髮夾彎隱形碰撞、長時間自由駕駛或打包產生的 dist**。
++
++## v1.8.9 在本機的驗收步驟
++
++1. 在新的解壓目錄啟動 `START_WEB_WINDOWS.cmd`，以 Chrome／Edge 檢查 3D 場景是否正常載入、HUD 是否僅有儀表與檔位。
++2. 先自由駕駛 2–3 分鐘，確認 A/D 未反向、加速與煞車無新增問題。
++3. 按 F1 進入設定，先按「隨機新地圖」，觀察路線預覽，再返回遊戲駕駛經過彎道／坡道；確認沒有地面穿透、殘留護欄或無故彈飛。
++4. 用相同地圖種子及參數「按設定生成」，確認可重現路線；試用 JSON 匯出及匯入。
++5. 按 F2 進入測試模式，執行完整五項；確認固定基準仍全部通過。測試結束返回駕駛，再打開 F1，確認仍是玩家剛才使用的種子。
++6. 再測 20–30 分鐘自由駕駛與反覆換種子；若發生卡住、異常碰撞或效能不穩，請從測試模式匯出 JSON 並記下種子。
++
++## 不應誤判為通過的部分
++
++先前 v1.8.8 的五項實機通過結果可作為比較基準，但不能自動移轉到 v1.8.9。新增程序化場景視覺與地圖重建會引入新的碰撞／路徑風險，需要獨立實機測試。
+--- a/desktop3d/START_WINDOWS.cmd
++++ b/desktop3d/START_WINDOWS.cmd
+@@ -8,7 +8,7 @@
+   exit /b 1
+ )
+ if not exist "node_modules\three\package.json" (
+-  echo [SHIFT LAB v1.8.8] Installing web dependencies for first launch...
++  echo [SHIFT LAB v1.8.9] Installing web dependencies for first launch...
+   call npm install --no-audit --no-fund
+   if errorlevel 1 (echo Dependency installation failed. & pause & exit /b 1)
+ )
+--- a/desktop3d/index.html
++++ b/desktop3d/index.html
+@@ -1,114 +1,154 @@
+ <!doctype html>
+ <html lang="zh-Hant">
+ <head>
+-  <meta charset="UTF-8">
+-  <meta name="viewport" content="width=device-width,initial-scale=1">
+-  <meta name="theme-color" content="#081623">
+-  <title>SHIFT//LAB v1.8.8 — 單頁 3D 網頁駕駛</title>
+-  <style>
+-    :root{color-scheme:dark;--ink:#e6f3f2;--muted:#a6bfca;--line:#3b6376;--mint:#8ce7c9;--warn:#ffd395;--fail:#ff9b9c}
+-    *{box-sizing:border-box}body{margin:0;background:#07141c;color:var(--ink);font:13px/1.55 system-ui,'Noto Sans TC','Microsoft JhengHei',sans-serif;overflow:hidden}
+-    #view{display:block;width:100vw;height:100vh;touch-action:none}#left,#right{position:absolute;top:16px;bottom:16px;background:#091a2ce9;backdrop-filter:blur(13px);border:1px solid var(--line);box-shadow:0 14px 50px #00101a8f;border-radius:16px;overflow:auto;scrollbar-color:#3c6476 transparent}
+-    #left{left:16px;width:345px;padding:17px 18px}#right{right:16px;width:330px;padding:16px 17px}h1{font-size:19px;margin:0;color:#f4fffd;line-height:1.3;letter-spacing:.035em}h2{font-size:13px;color:var(--mint);letter-spacing:.08em;margin:18px 0 9px}h3{font-size:12px;margin:14px 0 8px}
+-    small,.desc{font-size:11px;color:var(--muted);line-height:1.7}.overline{color:var(--mint);font-size:10px;font-weight:850;letter-spacing:.22em;margin-bottom:6px}p{margin:8px 0 11px}.status{border:1px solid #326e65;background:#153e3a;border-radius:9px;margin:14px 0;padding:10px;color:#b9ffe2;font-size:12px}label{display:block;color:#cbdfe6;font-size:11px;margin:7px 0 4px}select,button{font:inherit;border:1px solid #477083;background:#173345;color:var(--ink);border-radius:7px;padding:8px 9px}select{width:100%;max-width:100%;cursor:pointer}button{cursor:pointer;font-weight:650}button:hover:not(:disabled){background:#28516a;border-color:#9dd7cf}button:disabled{opacity:.40;cursor:not-allowed}button.primary{background:#207960;border-color:#5acaac;color:#fff}button.secondary{background:#23465c}button:focus-visible,select:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
+-    .btnrow{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.btnrow>*{flex:1;min-width:88px}.duo{display:grid;grid-template-columns:1fr 1fr;gap:8px}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.fields label{min-width:0}.segment{border-top:1px solid #315266;margin-top:15px;padding-top:4px}.metricgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.metric{border:1px solid #2d5465;border-radius:10px;padding:10px;background:#0c2936}.metric strong{display:block;font:700 18px/1.35 ui-monospace,Consolas,monospace;color:#f7fffe;overflow-wrap:anywhere}.metric span{display:block;color:#a9c5d0;font-size:10px;margin-bottom:4px}.metric.critical strong{color:#ffca94}
+-    #qa-results{min-height:40px;margin-top:8px}#events{list-style:none;margin:7px 0;padding:0;max-height:170px;overflow:auto}#events li{padding:6px 0;border-bottom:1px solid #254656;color:#c8dce3;font:11px/1.5 ui-monospace,monospace}#suite-results{border-top:1px solid #2a5566;margin-top:12px;padding-top:9px}.result{margin:7px 0;padding:7px 8px;border:1px solid #31556a;border-radius:7px;font-size:11px}.pass{color:var(--mint)}.fail{color:var(--fail)}.pending{color:var(--warn)}.footnote{font-size:10px;color:var(--muted);border-top:1px solid #305267;padding-top:12px;margin-top:14px}
+-    kbd{font:11px ui-monospace,monospace;border:1px solid #45677a;padding:1px 4px;border-radius:4px;background:#173143;color:#fff}#screen-overlay{position:absolute;inset:0;background:#051421e8;display:grid;place-items:center;z-index:12}#screen-overlay .message{background:#0e2639;padding:24px;border:1px solid #426877;border-radius:16px;max-width:560px;margin:15px;text-align:center;color:#e6f3f2}#screen-overlay .message strong{display:block;font-size:19px;margin-bottom:8px}#mini{position:absolute;left:380px;bottom:20px;background:#081f30d8;border:1px solid #3d6475;padding:9px 13px;border-radius:9px;color:#d8eff0;font:11px ui-monospace,Consolas,monospace;pointer-events:auto}#mini button{margin-left:9px;padding:4px 7px;font:11px system-ui}#right[hidden]{display:none}
+-    .checkboxline{display:flex;align-items:center;gap:8px;margin:8px 0;font-size:12px;color:#cbdfe6}
+-    .checkboxline input{width:17px;height:17px;accent-color:#32bd91}
+-    .legend{margin:6px 0 10px;color:#b7cfda;font-size:11px;border-left:2px solid #47bfa5;padding:5px 8px;background:#12313c}
+-    .unified-pill{display:inline-block;border:1px solid #58ab93;color:#a4f8cf;background:#143c34;border-radius:30px;padding:3px 10px;font-size:10px;margin-bottom:10px}
+-    .metric .tight{font-size:13px!important}
+-    @media(max-width:1100px){#left{width:310px}#right{width:288px}#mini{left:340px}}@media(max-width:780px){body{overflow:auto}#view{height:64vh;width:100vw}#left,#right{position:relative;inset:auto;width:auto;max-height:none;margin:10px 12px}#mini{position:static;margin:10px 12px}#screen-overlay{position:fixed}}
+-  </style>
++<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
++<meta name="theme-color" content="#07121d">
++<title>SHIFT LAB v1.8.9 — 3D 自由駕駛</title>
++<style>
++:root{color-scheme:dark;--paper:#07131f;--glass:#0a1d2eea;--line:#294756;--text:#e6f4f6;--quiet:#a7bdc7;--mint:#79eac5;--warn:#ffd59d;--danger:#ff9898}
++*{box-sizing:border-box}[hidden]{display:none!important}
++html,body{height:100%;margin:0;background:#081522;color:var(--text);font:13px/1.55 system-ui,'Noto Sans TC','Microsoft JhengHei',sans-serif;overflow:hidden}
++#view{position:fixed;inset:0;width:100vw;height:100vh;display:block;outline:none;touch-action:none}
++#dashboard{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);display:flex;align-items:end;gap:10px;pointer-events:none;z-index:3;user-select:none}
++.dial{width:154px;height:154px;border-radius:50%;position:relative;display:grid;place-items:center;background:conic-gradient(from 220deg,var(--mint) 0deg var(--arc,0deg),#193748 var(--arc,0deg) 255deg,transparent 255deg 360deg);filter:drop-shadow(0 9px 18px #03101bb3)}
++.dial:before{content:'';position:absolute;inset:8px;border-radius:50%;background:radial-gradient(circle at 50% 25%,#153348,#061725 78%);border:1px solid #375367}
++.dial .data{position:relative;text-align:center;line-height:1.1}.dial .number{font:800 37px/1.1 ui-monospace,Consolas,monospace;letter-spacing:-.07em;white-space:nowrap}.dial .unit{font:750 10px/1.7 system-ui;letter-spacing:.13em;color:#9dbac6}.dial .fine{font:700 12px/1.7 ui-monospace;color:#d6e8ef}.dial .number.tiny{font-size:28px}
++.gear-widget{width:105px;height:124px;border:1px solid #446a76;border-radius:22px;background:linear-gradient(155deg,#103047eb,#061522ee);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 10px 30px #00101bb0}
++.gear-widget small{font-size:10px;letter-spacing:.22em;color:#aec9cf}.gear-widget strong{font:900 68px/1 ui-monospace,Consolas,monospace;color:var(--mint)}
++#hud-menu{pointer-events:auto;align-self:end;border:1px solid #446373;background:#0b2238ec;color:#dffaf1;border-radius:14px;min-width:43px;height:43px;padding:8px;font-size:20px;cursor:pointer}
++#hud-menu:hover{background:#1e4a57}
++#panel-overlay{position:fixed;inset:0;z-index:8;background:#010b14aa;backdrop-filter:blur(12px);display:grid;place-items:center;padding:24px;overflow:auto}
++.panel{width:min(990px,100%);max-height:min(90vh,950px);overflow:auto;border:1px solid #416474;background:linear-gradient(152deg,#102b3ceF,#071624f7);border-radius:22px;padding:24px;box-shadow:0 20px 85px #000b;scrollbar-color:#3c6170 transparent}
++.panel--menu{width:min(460px,100%);text-align:center;padding:38px 30px}
++.overline{color:var(--mint);font-size:10px;font-weight:800;letter-spacing:.24em;text-transform:uppercase}
++h1{font-size:27px;letter-spacing:-.02em;margin:8px 0 10px;line-height:1.2}h2{font-size:16px;color:#e5f6f2;margin:18px 0 10px}h3{font-size:13px;color:var(--mint);margin:13px 0 8px}p{margin:7px 0 12px}.desc{font-size:12px;line-height:1.7;color:var(--quiet)}
++.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:14px}
++.panel-head h1{margin:0}.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}.btnrow button{flex:1 1 140px}.menustack{display:grid;gap:11px;margin-top:24px}
++button,select,input{font:inherit}button,select{background:#173548;border:1px solid #446a7b;border-radius:10px;color:var(--text);padding:10px 13px}
++button{cursor:pointer;font-weight:700}button:hover:not(:disabled){background:#22516a;border-color:#99dbc9}button.primary{background:#237a68;color:#fff;border-color:#66cbaa}button.ghost{background:transparent}button:disabled{cursor:not-allowed;opacity:.4}
++button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
++select{display:block;width:100%}input[type=text],input[type=number]{display:block;width:100%;color:var(--text);background:#0b2334;border:1px solid #406177;border-radius:8px;padding:9px 10px}
++input[type=range]{display:block;width:100%;accent-color:var(--mint)}input[type=checkbox]{accent-color:#43b690;width:16px;height:16px}
++label{display:block;color:#cedfe7;font-size:11px;margin:9px 0 5px}.duo,.trio{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.trio{grid-template-columns:repeat(3,minmax(0,1fr))}
++.group{background:#0a2030a9;border:1px solid #294756;border-radius:14px;padding:15px;margin-top:13px}.group h2{margin:0 0 9px}.checkline{display:flex;align-items:center;gap:8px;margin:10px 0}.checkline label{margin:0;font-size:12px}
++.settings-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}.settings-layout .wide{grid-column:1 / -1}
++#route-preview{width:100%;height:194px;display:block;border-radius:10px;background:#071723;border:1px solid #315061}
++.mapstats{display:flex;flex-wrap:wrap;gap:13px;color:#b5cdd5;font-size:11px;margin:9px 0}.mapstats strong{color:#d7fff1}.map-message{min-height:21px;color:var(--mint);font-size:12px}
++/* Test mode is a side tool drawer; the 3D collision remains visible. */
++#panel-overlay:has(#tests-panel:not([hidden])){display:block;padding:15px;background:none;backdrop-filter:none;pointer-events:none}
++#tests-panel{position:absolute;top:15px;bottom:15px;left:15px;width:min(540px,42vw);max-height:none;pointer-events:auto}
++#tests-panel .qa-layout{display:grid;grid-template-columns:1fr;gap:14px}.status{background:#11382f;border:1px solid #387b6a;border-radius:9px;padding:10px;margin:12px 0;color:#c9f9e7}
++#right{border:1px solid #2d5260;background:#091e2d;border-radius:12px;padding:12px}.metricgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
++.metric{background:#102b3b;border:1px solid #294c5d;border-radius:8px;padding:9px;min-width:0}.metric span{display:block;font-size:10px;color:#a9c5d0}.metric strong{display:block;font:750 14px/1.6 ui-monospace,Consolas,monospace;overflow-wrap:anywhere}.metric .tight{font-size:12px}
++.result{margin:6px 0;border:1px solid #365a6a;border-radius:6px;padding:7px;font-size:11px}.result.pass{color:var(--mint)}.result.fail{color:var(--danger)}#events{list-style:none;padding:0;font:11px ui-monospace,monospace;color:#cbdde4;max-height:120px;overflow:auto}#events li{border-bottom:1px solid #254859;padding:5px}
++#screen-overlay{position:fixed;inset:0;z-index:15;display:grid;place-items:center;background:#061725ea}.message{max-width:530px;border:1px solid #4b7b81;border-radius:15px;background:#102b3a;padding:24px;text-align:center}.message strong{display:block;font-size:20px;margin-bottom:9px}#overlay-message{color:#b7d4de}
++kbd{border:1px solid #4a6875;border-radius:4px;background:#173448;padding:1px 5px;font:11px ui-monospace,monospace}
++@media(max-width:780px){#tests-panel{width:min(440px,75vw)}.panel{padding:15px;max-height:96vh}.settings-layout,#tests-panel .qa-layout{grid-template-columns:1fr}.settings-layout .wide{grid-column:auto}.trio{grid-template-columns:repeat(2,minmax(0,1fr))}.dial{width:116px;height:116px}.dial .number{font-size:28px}.dial .number.tiny{font-size:22px}.gear-widget{width:77px;height:91px}.gear-widget strong{font-size:48px}#dashboard{gap:6px;bottom:10px}#hud-menu{min-width:35px;height:35px;font-size:15px}}
++@media(max-width:490px){.dial{width:91px;height:91px}.dial .number{font-size:23px}.dial .number.tiny{font-size:18px}.dial .unit{font-size:8px}.gear-widget{width:59px;height:76px}.gear-widget strong{font-size:42px}.duo{grid-template-columns:1fr}#panel-overlay{padding:8px}}
++</style>
+ </head>
+ <body>
+-<canvas id="view" tabindex="0" aria-label="3D 車輛與護欄碰撞場景"></canvas>
+-<section id="left" aria-label="駕駛及場景操作">
+-  <div class="overline">SHIFT//LAB · WEB DRIVE</div>
+-  <div class="unified-pill">單頁網頁版 · 3D 實際駕駛</div>
+-  <h1>v1.8.8<br>整合式 3D 駕駛</h1>
+-  <p class="desc">只有一個遊玩介面：3D 駕駛、車輛調校及碰撞驗收均在本頁完成。繼承已通過實機驗收的 v1.8.7.2 剛體核心。</p>
+-  <div class="legend">轉向已校正：<kbd>A</kbd>／<kbd>←</kbd> 畫面向左，<kbd>D</kbd>／<kbd>→</kbd> 畫面向右。手柄同樣校正。</div>
+-  <div class="status" id="status" role="status">正在初始化 WebGL / Rapier WASM…</div>
+-  <h2>自由駕駛及驗收</h2>
+-  <label for="scenario">測試工況</label><select id="scenario"><option value="free">自由試駕</option><option value="frontal">正面碰撞</option><option value="glancing">斜角擦撞</option><option value="fast">高速 CCD</option><option value="ramp">坡道及離地</option><option value="settle">靜止穩定</option></select>
+-  <p class="desc" id="scenario-brief">自由試駕：完整手排操作與四輪物理。</p>
+-  <div class="btnrow"><button class="primary" id="drive-now">開始自由駕駛</button></div>
+-  <div class="btnrow"><button class="primary" id="load-scenario">載入工況</button><button id="run-case">執行此工況</button></div>
+-  <div class="btnrow"><button class="secondary" id="run-suite">完整自動驗收</button><button id="export-report">匯出 JSON 報告</button></div>
+-  <div class="btnrow"><button id="pause">暫停</button><button id="step">單步 1/120 s</button><button id="reset">重置</button></div>
+-  <p class="desc">「開始自由駕駛」會清空測試路障並取得鍵盤焦點。可使用下方車輛／路況設定；自動驗收會暫時使用標準車、乾地及固定物理設定，以保持原有五項工況可比較。</p>
+-  <div class="segment"><h2>駕駛控制</h2>
+-    <div class="btnrow"><button id="engine">啟動引擎 [I]</button></div>
+-    <label for="drive-mode">駕駛方式</label><select id="drive-mode"><option value="assisted">快速駕駛（自動起步與換檔輔助）</option><option value="manual">手排練習（原始離合器與同步器）</option></select>
+-    <p class="desc" id="input-status">先按「開始自由駕駛」，再使用 W/A/S/D。Esc 可離開選單焦點，或直接點擊 3D 畫面。</p>
+-    <div class="duo"><label>排檔<select id="gear"><option value="0">N 空檔</option><option value="1">1 檔</option><option value="2">2 檔</option><option value="3">3 檔</option><option value="4">4 檔</option><option value="5">5 檔</option><option value="6">6 檔</option><option value="-1">R 倒車</option></select></label><label>ESC<select id="esc"><option value="on">ON</option><option value="off">OFF</option></select></label></div>
+-    <div class="duo"><label>輪胎極限手感<select id="feel"><option value="balanced">均衡</option><option value="sport">靈敏</option><option value="raw">原始</option></select></label><label>鏡頭<select id="camera-mode"><option value="chase">追尾</option><option value="side">側面</option><option value="top">俯視</option></select></label></div>
+-    <p class="desc"><kbd>W</kbd> 加速、<kbd>S</kbd> 煞車、<kbd>A</kbd>/<kbd>D</kbd> 轉向、<kbd>Shift</kbd> 離合器、<kbd>1</kbd>–<kbd>6</kbd> 換檔、<kbd>R</kbd> 倒檔、<kbd>I</kbd> 引擎、<kbd>Space</kbd> 暫停、<kbd>Backspace</kbd> 重置。起步請先發動，踩離合器，選入 1 檔並平順鬆開離合器。</p>
+-  </div>
+-  <div class="segment"><h2>車輛與路況 · 整合控制</h2>
+-    <label for="car-preset">車輛配置</label><select id="car-preset">
+-      <option value="standard">2.0L 自然進氣 · 標準六速</option>
+-      <option value="city">1.6L 自然進氣 · 輕型轎車</option>
+-      <option value="turbo">2.0L 渦輪增壓 · 性能車</option>
+-    </select>
+-    <label for="road-surface">輪胎與路面的摩擦條件</label><select id="road-surface">
+-      <option value="dry">乾燥柏油</option><option value="wet">濕滑柏油</option>
+-      <option value="snow">積雪</option><option value="ice">結冰</option>
+-    </select>
+-    <div class="duo">
+-      <label class="checkboxline"><input type="checkbox" id="abs-toggle" checked>ABS 防鎖死</label>
+-      <label class="checkboxline"><input type="checkbox" id="tcs-toggle" checked>TCS 循跡控制</label>
++<canvas id="view" tabindex="0" aria-label="3D 駕駛遊戲畫面"></canvas>
++<!-- Normal drive shows only the world, two instruments and gear. -->
++<div id="dashboard" aria-label="駕駛儀表">
++  <div class="dial" id="speed-dial"><div class="data"><div class="unit">SPEED</div><div class="number" id="dash-speed">0</div><div class="unit">km/h</div></div></div>
++  <div class="gear-widget"><small>GEAR</small><strong id="dash-gear">N</strong></div>
++  <div class="dial" id="rpm-dial"><div class="data"><div class="unit">RPM</div><div class="number tiny" id="dash-rpm">0</div><div class="unit">× 1000</div></div></div>
++  <button type="button" id="hud-menu" title="遊戲選單（Esc）" aria-label="開啟遊戲選單">☰</button>
++</div>
++<div id="panel-overlay" hidden>
++  <section id="menu-panel" class="panel panel--menu" role="dialog" aria-label="遊戲選單" hidden>
++    <div class="overline">SHIFT / LAB · WEB DRIVE</div>
++    <h1>駕駛選單</h1>
++    <p class="desc">v1.8.9 · 三維程序化道路</p>
++    <div class="menustack">
++      <button class="primary" id="resume-drive">繼續駕駛</button>
++      <button id="open-settings">設定與隨機地圖</button>
++      <button id="open-tests">測試模式</button>
++      <button id="menu-reset">重置車輛</button>
+     </div>
+-    <div class="duo">
+-      <label>前後操控平衡<select id="handling-balance"><option value="neutral">中性</option>
+-        <option value="understeer">偏向轉向不足</option><option value="oversteer">偏向轉向過度</option></select></label>
+-      <label>前煞車分配<select id="brake-bias"><option value="0.60">60%</option>
+-        <option value="0.64">64%</option><option value="0.68" selected>68%</option><option value="0.72">72%</option><option value="0.76">76%</option></select></label>
++    <p class="desc"><kbd>Esc</kbd> 選單 · <kbd>F1</kbd> 設定 · <kbd>F2</kbd> 測試</p>
++  </section>
++  <section id="settings-panel" class="panel" role="dialog" aria-label="遊戲設定" hidden>
++    <header class="panel-head"><div><div class="overline">GAME CONFIGURATION</div><h1>設定</h1></div><button class="primary" id="close-settings">返回駕駛</button></header>
++    <div class="settings-layout">
++      <div>
++        <section class="group"><h2>駕駛與車輛</h2>
++          <label for="drive-mode">駕駛模式</label><select id="drive-mode"><option value="assisted">快速駕駛（自動離合器／換檔）</option><option value="manual">手排（自行操作離合器／換檔）</option></select>
++          <label for="car-preset">車輛配置</label><select id="car-preset"><option value="standard">2.0L 自然進氣 · 標準六速</option><option value="city">1.6L 自然進氣 · 輕型轎車</option><option value="turbo">2.0L 渦輪增壓 · 性能車</option></select>
++          <label for="road-surface">路面附著力</label><select id="road-surface"><option value="dry">乾燥柏油</option><option value="wet">濕滑柏油</option><option value="snow">積雪</option><option value="ice">結冰</option></select>
++          <div class="duo"><div class="checkline"><input type="checkbox" id="abs-toggle" checked><label for="abs-toggle">ABS</label></div><div class="checkline"><input type="checkbox" id="tcs-toggle" checked><label for="tcs-toggle">TCS</label></div></div>
++          <div class="duo"><label>ESC<select id="esc"><option value="on">開啟</option><option value="off">關閉</option></select></label><label>抓地與救車手感<select id="feel"><option value="balanced">均衡</option><option value="sport">運動</option><option value="raw">原始</option></select></label></div>
++          <div class="duo"><label>操控平衡<select id="handling-balance"><option value="neutral">中性</option><option value="understeer">轉向不足</option><option value="oversteer">轉向過度</option></select></label><label>前軸煞車比例<select id="brake-bias"><option value="0.60">60%</option><option value="0.64">64%</option><option value="0.68" selected>68%</option><option value="0.72">72%</option><option value="0.76">76%</option></select></label></div>
++          <div class="duo"><label>轉向回應<select id="steering-preset"><option value="balanced">均衡</option><option value="precision">精準</option><option value="quick">靈敏</option></select></label><label>攝影機<select id="camera-mode"><option value="chase">追尾</option><option value="side">側視</option><option value="top">俯視</option></select></label></div>
++          <div class="duo"><label>手排檔位<select id="gear"><option value="0">N 空檔</option><option value="1">1 檔</option><option value="2">2 檔</option><option value="3">3 檔</option><option value="4">4 檔</option><option value="5">5 檔</option><option value="6">6 檔</option><option value="-1">R 倒檔</option></select></label><div><label>引擎</label><button id="engine">啟動引擎 [I]</button></div></div>
++          <p id="input-status" class="desc">W/A/S/D 駕駛，Shift 離合器，數字鍵排檔，M 切換自排／手排。</p>
++        </section>
++        <section class="group"><h2>手柄設定</h2>
++          <label>手柄<select id="pad"><option value="off">不使用</option><option value="auto" selected>自動偵測</option></select></label>
++          <div class="duo"><label>轉向軸<select id="pad-axis"></select></label><label>油門鍵<select id="pad-gas"></select></label><label>煞車鍵<select id="pad-brake"></select></label><label>離合器鍵<select id="pad-clutch"></select></label></div>
++          <div class="checkline"><input type="checkbox" id="pad-invert"><label for="pad-invert">反轉水平軸（特殊手柄）</label></div>
++          <p id="pad-status" class="desc">預設：左搖桿轉向，RT 油門，LT 煞車。</p>
++        </section>
++      </div>
++      <div>
++        <section class="group"><h2>程序化隨機道路</h2>
++          <p class="desc">沿用原始 SHIFT LAB v0.7 種子演算法；3D 道路網格與 Rapier 地面會同步重建。相同種子及參數可重現相同路線。</p>
++          <label for="map-seed">地圖種子</label><input type="text" id="map-seed" maxlength="64" spellcheck="false" value="SHIFT-2026-MOUNTAIN-07">
++          <div class="duo">
++            <label>彎道機率 <output id="map-turnChance-val">58%</output><input type="range" id="map-turnChance" min="0" max="100" value="58"></label>
++            <label>髮夾彎比例 <output id="map-hairpinChance-val">20%</output><input type="range" id="map-hairpinChance" min="0" max="100" value="20"></label>
++            <label>起伏機率 <output id="map-slopeChance-val">52%</output><input type="range" id="map-slopeChance" min="0" max="100" value="52"></label>
++            <label>左彎偏向 <output id="map-leftBias-val">50%</output><input type="range" id="map-leftBias" min="0" max="100" value="50"></label>
++            <label>上坡偏向 <output id="map-upBias-val">50%</output><input type="range" id="map-upBias" min="0" max="100" value="50"></label>
++            <label>最大坡度 <output id="map-maxGrade-val">9%</output><input type="range" id="map-maxGrade" min="3" max="12" value="9"></label>
++          </div>
++          <div class="btnrow"><button id="map-random" class="primary">隨機新地圖</button><button id="map-generate">按設定生成</button></div>
++          <div class="btnrow"><button id="map-next-bend">預覽下一彎</button><button id="map-export">匯出 JSON</button><button id="map-import">匯入 JSON</button><input id="map-import-file" type="file" accept=".json,application/json" hidden></div>
++          <canvas id="route-preview" width="470" height="194" aria-label="地圖路線預覽"></canvas>
++          <div class="mapstats" id="map-stats"></div><p class="map-message" id="map-message" role="status"></p>
++        </section>
++      </div>
+     </div>
+-    <label>鍵盤／手柄轉向特性<select id="steering-preset">
+-      <option value="balanced">均衡預設</option><option value="precision">精準（較平順）</option>
+-      <option value="quick">快速（較靈敏）</option>
+-    </select></label>
+-    <p class="desc">切換車型會重置自由駕駛車輛；輪胎、ABS、TCS 與操控設定可在本頁調整，無須進入舊版 2D 操作頁。</p>
+-  </div>
+-  <div class="segment"><h2>手柄映射</h2>
+-    <label>裝置<select id="pad"><option value="off">不使用手柄</option><option value="auto" selected>自動使用第一個</option></select></label>
+-    <div class="fields"><label>轉向軸<select id="pad-axis"></select></label><label>油門按鈕<select id="pad-gas"></select></label><label>煞車按鈕<select id="pad-brake"></select></label><label>離合器按鈕<select id="pad-clutch"></select></label></div>
+-    <label class="checkboxline"><input type="checkbox" id="pad-invert">額外反轉手柄水平軸（非標準硬體）</label>
+-    <p class="desc" id="pad-status">未偵測到手柄。標準配置：左搖桿水平軸／右扳機油門／左扳機煞車，已自動修正 3D 鏡頭左右方向。</p>
+-  </div>
+-  <div class="footnote">桌面 Chrome / Edge 網頁遊玩。手機觸控最佳化延後。舊版的 2D HTML 僅作為不可見的四輪計算引擎，不是另一套需要開啟的操作介面；需要 WebGL2 與 Rapier WASM。</div>
+-</section>
+-<aside id="right" aria-label="物理監測與結果">
+-  <div class="overline">同頁即時監測 · LIVE TELEMETRY</div><h2 style="margin-top:2px">剛體狀態</h2>
+-  <div class="metricgrid">
+-    <div class="metric"><span>行駛速度</span><strong id="speed">0.0 km/h</strong></div>
+-    <div class="metric"><span>引擎 RPM</span><strong id="rpm">0</strong></div>
+-    <div class="metric"><span>偏航角速度</span><strong id="yaw">0 °/s</strong></div>
+-    <div class="metric"><span>畫面上的轉向</span><strong id="steer-direction" class="tight">正前方</strong></div>
+-    <div class="metric"><span>側傾 / 俯仰</span><strong id="attitude">0 / 0 °</strong></div>
+-    <div class="metric"><span>輪胎接地</span><strong id="contacts">0 / 4</strong></div>
+-    <div class="metric"><span>懸吊射線</span><strong id="ray-health">--</strong></div>
+-    <div class="metric"><span>外力峰值／力矩峰值</span><strong id="ext-force">--</strong></div>
+-    <div class="metric"><span>ESC</span><strong id="esc-status">待命</strong></div>
+-    <div class="metric"><span>護欄 / 路障撞擊</span><strong id="rail-hits">0 / 0</strong></div>
+-    <div class="metric"><span>最大接觸衝量</span><strong id="impact">0 N·s</strong></div>
+-    <div class="metric"><span>最大碰撞穿透</span><strong id="penetration">0.000 m</strong></div>
+-    <div class="metric"><span>物理耗時</span><strong id="physics-step">0.00 ms</strong></div>
+-    <div class="metric"><span>畫面 FPS</span><strong id="fps">--</strong></div>
+-    <div class="metric"><span>累計掉步</span><strong id="lost-steps">0</strong></div>
+-  </div>
+-  <h2>判定結果</h2><div id="qa-results" role="status">尚未執行自動驗收</div>
+-  <div id="suite-results"></div>
+-  <h2>接觸事件</h2><ul id="events"><li>尚無碰撞事件</li></ul>
+-  <p class="desc" id="alert"></p>
+-</aside>
+-<div id="mini">Rapier 6DOF · 四輪接觸點受力 · 120Hz ×4 microsteps <button type="button" id="hud-toggle" aria-expanded="true">隱藏數據面板</button></div>
+-  <iframe id="physics" src="./physics.html" title="SHIFT LAB hidden computation engine"
+-    tabindex="-1" aria-hidden="true" style="position:absolute;width:0;height:0;border:0;opacity:0;pointer-events:none"></iframe>
+-<div id="screen-overlay"><div class="message"><strong>SHIFT//LAB 3D</strong><span id="overlay-message">正在啟動 WebGL 與 WASM 物理引擎…</span></div></div>
++  </section>
++  <section id="tests-panel" class="panel" role="dialog" aria-label="車輛物理測試模式" hidden>
++    <header class="panel-head"><div><div class="overline">PHYSICS VALIDATION</div><h1>測試模式</h1></div><button class="primary" id="close-tests">返回自由駕駛</button></header>
++    <p class="desc">本區才載入固定驗收道路及測試路障。開始自由駕駛會恢復玩家的隨機地圖；五項工況沿用 v1.8.7.2 固定參數。</p>
++    <div class="status" id="status" role="status">正在初始化物理引擎…</div>
++    <div class="qa-layout">
++      <div>
++        <label for="scenario">測試工況</label><select id="scenario"><option value="free">自由試駕</option><option value="frontal">正面碰撞</option><option value="glancing">斜角擦撞</option><option value="fast">高速 CCD</option><option value="ramp">坡道與離地</option><option value="settle">靜止穩定</option></select>
++        <p class="desc" id="scenario-brief">選擇測試工況。</p>
++        <div class="btnrow"><button class="primary" id="drive-now">恢復自由駕駛</button><button id="load-scenario">載入工況</button></div>
++        <div class="btnrow"><button id="run-case">執行此工況</button><button class="primary" id="run-suite">執行五項自動驗收</button></div>
++        <div class="btnrow"><button id="pause">暫停</button><button id="step">單步 1/120s</button><button id="reset">重置</button></div>
++        <div class="btnrow"><button id="export-report">匯出 JSON 報告</button><button id="hud-toggle" aria-expanded="true">收合詳細數據</button></div>
++        <h3>驗收結果</h3><div id="qa-results" role="status">尚未執行測試。</div><div id="suite-results"></div>
++      </div>
++      <aside id="right" aria-label="物理詳細數據">
++        <div class="metricgrid">
++          <div class="metric"><span>行駛速度</span><strong id="speed">0 km/h</strong></div>
++          <div class="metric"><span>引擎轉速</span><strong id="rpm">0</strong></div>
++          <div class="metric"><span>偏航</span><strong id="yaw">0 °/s</strong></div>
++          <div class="metric"><span>轉向指令</span><strong class="tight" id="steer-direction">中性</strong></div>
++          <div class="metric"><span>側傾／俯仰</span><strong id="attitude">0 / 0</strong></div>
++          <div class="metric"><span>四輪接地</span><strong id="contacts">0 / 4</strong></div>
++          <div class="metric"><span>懸吊射線</span><strong id="ray-health">—</strong></div>
++          <div class="metric"><span>外力／力矩</span><strong id="ext-force">—</strong></div>
++          <div class="metric"><span>ESC</span><strong id="esc-status">待命</strong></div>
++          <div class="metric"><span>護欄／路障碰撞</span><strong id="rail-hits">0 / 0</strong></div>
++          <div class="metric"><span>最大衝量</span><strong id="impact">0 N·s</strong></div>
++          <div class="metric"><span>最大穿透</span><strong id="penetration">0.000 m</strong></div>
++          <div class="metric"><span>物理耗時</span><strong id="physics-step">0 ms</strong></div>
++          <div class="metric"><span>FPS</span><strong id="fps">—</strong></div>
++          <div class="metric"><span>累計掉步</span><strong id="lost-steps">0</strong></div>
++        </div>
++        <h3>碰撞事件</h3><ul id="events"><li>尚無碰撞事件</li></ul><p class="desc" id="alert"></p>
++      </aside>
++    </div>
++  </section>
++</div>
++<iframe id="physics" src="./physics.html" title="SHIFT LAB hidden computation engine" tabindex="-1" aria-hidden="true" style="position:absolute;width:0;height:0;border:0;opacity:0;pointer-events:none"></iframe>
++<div id="screen-overlay"><div class="message"><strong>SHIFT LAB 3D</strong><span id="overlay-message">正在啟動 WebGL / Rapier WASM…</span></div></div>
+ <script type="module" src="./src/main.mjs"></script>
+-</body>
+-</html>
++</body></html>
+--- a/desktop3d/package.json
++++ b/desktop3d/package.json
+@@ -1,15 +1,16 @@
+ {
+-  "name": "shift-lab-v188-unified-web-drive",
+-  "version": "1.8.8",
++  "name": "shift-lab-v189-procedural-map-game-ui",
++  "version": "1.8.9",
+   "private": true,
+   "type": "module",
+   "scripts": {
+     "dev": "vite --host 127.0.0.1 --port 5173",
+     "build": "vite build",
+     "preview": "vite preview --host 127.0.0.1 --port 4173",
+-    "qa:scenarios": "node ./tests/validate-scenarios.mjs && node ./tests/validate-ray-contact.mjs && node ./tests/validate-force-lifecycle.mjs && node ./tests/validate-steering.mjs",
++    "qa:scenarios": "node ./tests/validate-scenarios.mjs && node ./tests/validate-ray-contact.mjs && node ./tests/validate-force-lifecycle.mjs && node ./tests/validate-steering.mjs && node ./tests/validate-procedural-map.mjs && node ./tests/validate-road-reset.mjs",
+     "qa:steering": "node ./tests/validate-steering.mjs",
+-    "dev:open": "node ./scripts/serve-and-open.mjs"
++    "dev:open": "node ./scripts/serve-and-open.mjs",
++    "qa:map": "node ./tests/validate-procedural-map.mjs"
+   },
+   "dependencies": {
+     "@dimforge/rapier3d-compat": "0.18.2",
+@@ -18,5 +19,5 @@
+   "devDependencies": {
+     "vite": "7.1.0"
+   },
+-  "description": "Browser-only unified 3D driving and collision QA with visual steering adapter"
++  "description": "Procedural seeded route and minimal game HUD with separate settings and QA modes"
+ }
+--- /dev/null
++++ b/desktop3d/src/game-modes.mjs
+@@ -0,0 +1,19 @@
++// Small DOM-only mode controller. Does not import Three.js or Rapier, so the
++// game/menu transition can be tested in Chromium without a WASM renderer.
++export function createGameModes(doc,callbacks={}){
++  const overlay=doc.getElementById('panel-overlay');
++  const pages={menu:doc.getElementById('menu-panel'),settings:doc.getElementById('settings-panel'),
++    tests:doc.getElementById('tests-panel')};
++  let mode='drive';
++  function open(next){
++    if(next!=='drive'&&!(next in pages))throw Error('不支援的介面 '+next);
++    const previous=mode;
++    mode=next;
++    overlay.hidden=next==='drive';
++    for(const [key,panel] of Object.entries(pages))panel.hidden=key!==next;
++    doc.getElementById('dashboard').hidden=next!=='drive';
++    if(next!==previous)callbacks.onModeChange?.(next,previous);
++    return mode;
++  }
++  return {open,get mode(){return mode;},toggleMenu(){return open(mode==='drive'?'menu':'drive');}};
++}
+--- a/desktop3d/src/main.mjs
++++ b/desktop3d/src/main.mjs
+@@ -5,6 +5,8 @@
+ import {AcceptanceObstacles} from './obstacles.mjs';
+ import {SCENARIOS,TEST_ORDER,gradeScenario} from './scenarios.mjs';
+ import {legacyDirectionalKey,legacySteerFromVisualAxis,visualSteeringFromLegacy,visualDirectionLabel} from './steering-input.mjs';
++import {REFERENCE_MAP,MAP_FIELDS,normalizeMapConfig,readMapDocument,serializeMap,sameMap,makeMapSeed,describeRoute} from './procedural-map.mjs';
++import {createGameModes} from './game-modes.mjs';
+ 
+ const $=id=>document.getElementById(id);
+ const canvas=$('view'),overlay=$('screen-overlay'),message=$('overlay-message');
+@@ -15,9 +17,11 @@
+ let chosenPad='auto',lastPadLabel='',lastPadIndex=null,steerFiltered=0,physicsMs=0;
+ let scenarioId='free',lastResult=null,suiteResults=[],labReady=false;
+ let visualVehicleId='standard';
+-const PREFERENCE_KEY='shiftlab.v188.unified-web';
++let gameModes=null,userMapConfig={...REFERENCE_MAP};
++const MAP_STORAGE_KEY='shiftlab.v189.procedural-map';
++const PREFERENCE_KEY='shiftlab.v189.settings';
+ const preferenceIds=['car-preset','road-surface','abs-toggle','tcs-toggle','esc','feel',
+-  'handling-balance','brake-bias','steering-preset','pad-invert'];
++  'handling-balance','brake-bias','steering-preset','pad-invert','drive-mode','camera-mode'];
+ function savePreferences(){
+   const record={};
+   for(const id of preferenceIds){const el=$(id);if(el)record[id]=el.type==='checkbox'?el.checked:el.value;}
+@@ -33,6 +37,103 @@
+   }catch{}
+ }
+ 
++function restoreMapPreference(){
++  try{
++    const str=localStorage.getItem(MAP_STORAGE_KEY);
++    if(str)return normalizeMapConfig(JSON.parse(str),true);
++  }catch(error){console.warn('Saved road config invalid:',error);}
++  return {...REFERENCE_MAP};
++}
++function readMapForm(){
++  return normalizeMapConfig({seed:$('map-seed').value,
++    ...Object.fromEntries(MAP_FIELDS.map(key=>[key,Number($('map-'+key).value)]))},true);
++}
++function fillMapForm(config){
++  $('map-seed').value=config.seed;
++  for(const key of MAP_FIELDS)$('map-'+key).value=String(config[key]);
++  updateMapFieldLabels();
++}
++function updateMapFieldLabels(){
++  for(const key of MAP_FIELDS)$('map-'+key+'-val').textContent=$('map-'+key).value+'%';
++}
++function mapMessage(text,error=false){
++  const el=$('map-message');el.textContent=text;el.style.color=error?'#ffaaa8':'';
++}
++function routePreview(){
++  if(!d)return;
++  const canvas=$('route-preview'),context=canvas.getContext('2d');
++  const width=canvas.width,height=canvas.height;
++  context.clearRect(0,0,width,height);context.fillStyle='#071723';context.fillRect(0,0,width,height);
++  const route=d.route,limit=Math.min(3700,d.roadTotalDistance());
++  const pts=route.points.filter((p,i)=>p.s<=limit&&i%4===0);
++  if(pts.length<2)return;
++  const minX=Math.min(...pts.map(p=>p.x)),maxX=Math.max(...pts.map(p=>p.x));
++  const minZ=Math.min(...pts.map(p=>p.z)),maxZ=Math.max(...pts.map(p=>p.z));
++  const scale=Math.min((width-46)/Math.max(70,maxX-minX),(height-32)/Math.max(70,maxZ-minZ));
++  const cx=(minX+maxX)/2,cz=(minZ+maxZ)/2;
++  const xy=p=>[width/2+(p.x-cx)*scale,height/2-(p.z-cz)*scale];
++  context.lineWidth=3;context.strokeStyle='#2e665c';context.beginPath();
++  pts.forEach((p,i)=>{const [x,y]=xy(p);i?context.lineTo(x,y):context.moveTo(x,y);});context.stroke();
++  context.lineWidth=1.5;context.strokeStyle='#98edd1';context.stroke();
++  for(const [p,color] of [[pts[0],'#f2c878'],[pts.at(-1),'#9ad8ff']]){
++    const [x,y]=xy(p);context.beginPath();context.arc(x,y,4.5,0,Math.PI*2);
++    context.fillStyle=color;context.fill();
++  }
++  context.fillStyle='#9bbac8';context.font='12px system-ui';
++  context.fillText('前 '+(limit/1000).toFixed(1)+' km · 平面路線預覽',13,18);
++}
++function updateMapInfo(){
++  if(!d)return;
++  const stats=describeRoute(d.route);
++  $('map-stats').replaceChildren();
++  for(const value of [stats.distanceKm+' km',stats.bends+' 彎',stats.hairpins+' 髮夾彎',
++    stats.climbs+' 上坡',stats.descents+' 下坡']){
++    const item=document.createElement('strong');item.textContent=value;$('map-stats').append(item);
++  }
++  routePreview();
++}
++function rebuildRoad(config){
++  if(!d||!road||!obstacles)throw Error('3D 場景尚未建立');
++  // Remove every old collision geometry before requesting the new centerline.
++  // The original seeded generator is the only source of road truth.
++  obstacles.dispose();obstacles.activeScenario='free';
++  road.clear();
++  d.generateRoad(config);d.route.gradeMode='route';
++  road.ensure(70);
++  if(typeof world.updateSceneQueries==='function')world.updateSceneQueries();
++  updateMapInfo();
++}
++function ensureScenarioMap(id){
++  const desired=id==='free'?userMapConfig:REFERENCE_MAP;
++  if(!sameMap(d.route.config,desired))rebuildRoad(desired);
++}
++function applyMap(config){
++  if(locked||!labReady)throw Error('正在驗收或 3D 引擎未就緒');
++  const normalized=normalizeMapConfig(config,true);
++  rebuildRoad(normalized);userMapConfig=normalized;
++  try{localStorage.setItem(MAP_STORAGE_KEY,JSON.stringify(normalized));}catch{}
++  resetDriving('free');setPause(true);
++  fillMapForm(normalized);
++  mapMessage('地圖已更新，車輛回到起點。返回駕駛即可遊玩。');
++}
++function previewNextBend(){
++  if(locked||!labReady)throw Error('3D 引擎尚未就緒');
++  if(scenarioId!=='free')resetDriving('free');
++  const bend=d.route.segments.find(x=>x.type!=='straight'&&x.start>d.route.distance+20);
++  if(!bend)throw Error('目前地圖沒有可預覽的下一個彎道');
++  d.reset();
++  const target=d.roadPointAt(Math.max(0,bend.start-65));
++  road.ensure(target.s);bridge.teleport({roadPoint:target});
++  d.route.distance=target.s;d.vehicleMotion.routeS=target.s;
++  updateMapInfo();setPause(true);
++  mapMessage('已將車輛移至彎道前 65 公尺；返回駕駛後可繼續行駛。');
++}
++function openGameMode(next){
++  if(locked||!gameModes)return;
++  // On leaving QA, restore the player's seed AND remove all test obstacles.
++  if(next==='drive'&&scenarioId!=='free')resetDriving('free');
++  gameModes.open(next);
++}
+ const autoDrive={lastShiftTime:-100,shiftTarget:0};
+ function driveFocus(){
+   const active=document.activeElement;
+@@ -50,7 +151,7 @@
+ const trackedKeys=new Set();
+ 
+ function failure(e){
+-  labReady=false;console.error('v1.8.8 unified web:',e);
++  labReady=false;console.error('v1.8.9 game:',e);
+   $('status').textContent='載入或執行失敗';
+   message.textContent='無法啟動 3D 驗收：'+(e?.message||String(e))+'。請確認 npm install / npm run dev，並使用支援 WebGL2 的桌面瀏覽器。';
+   if(!overlay.isConnected)document.body.append(overlay);
+@@ -93,7 +194,7 @@
+   return available.find(p=>String(p.index)===chosenPad)||(chosenPad==='auto'?available[0]:null)||null;
+ }
+ function readInputs(dt){
+-  if(!d||locked)return;
++  if(!d||locked||gameModes?.mode!=='drive')return;
+   const pad=readGamepad();
+   if(!pad){
+     lastPadIndex=null;steerFiltered=0;
+@@ -179,15 +280,6 @@
+   }
+   scene.add(group);return {group,wheels};
+ }
+-function placeMarkings(){
+-  const material=new THREE.MeshStandardMaterial({color:0xe4dbb9,roughness:1});
+-  for(let s=18;s<800;s+=15){
+-    const p=d.roadPointAt(s),sample=road.position(s,0);
+-    const strip=new THREE.Mesh(new THREE.BoxGeometry(.11,.023,4.2),material);
+-    strip.position.set(sample.x,sample.y+.035,sample.z);
+-    strip.rotation.y=p.heading;scene.add(strip);
+-  }
+-}
+ function syncVisuals(dt){
+   const b=bridge.rigidBody,t=b.translation(),rot=b.rotation();
+   vehicle.group.position.set(t.x,t.y,t.z);
+@@ -225,7 +317,7 @@
+     barrierHits:bridge.barrierHits,collisionCount:bridge.collisionCount,
+     impact:bridge.maxImpactImpulse,penetration:bridge.maxBarrierPenetration,
+     routeS:d.route.distance,physicsMs,frameDrops:dropSteps,
+-    driverMode:$('drive-mode').value,inputKeys:[...trackedKeys],
++    driverMode:$('drive-mode').value,inputKeys:[...trackedKeys],mapSeed:d.route.config.seed,uiMode:gameModes?.mode||'drive',
+     driverSteer:visualSteeringFromLegacy(d.vehicleMotion.steerInput),
+     legacySteer:d.vehicleMotion.steerInput,roadSurface:d.state.surface,
+     vehiclePreset:visualVehicleId,
+@@ -237,6 +329,12 @@
+   lastHud=now;
+   if(!labReady)return;
+   const a=currentSnapshot(),s=d.state,m=d.vehicleMotion;
++  const speedKmh=a.speed*3.6,rpmValue=s.engineOmega*60/(2*Math.PI);
++  $('dash-speed').textContent=String(Math.round(speedKmh));
++  $('dash-rpm').textContent=(Math.max(0,rpmValue)/1000).toFixed(1);
++  $('dash-gear').textContent=s.gear===-1?'R':s.gear===0?'N':String(s.gear);
++  $('speed-dial').style.setProperty('--arc',(Math.max(0,Math.min(speedKmh,240))/240*255).toFixed(1)+'deg');
++  $('rpm-dial').style.setProperty('--arc',(Math.max(0,Math.min(rpmValue,7500))/7500*255).toFixed(1)+'deg');
+   htmlMetric('speed',(a.speed*3.6).toFixed(1)+' km/h');
+   htmlMetric('rpm',Math.round(s.engineOmega*60/(2*Math.PI)).toLocaleString('en-US'));
+   htmlMetric('yaw',(m.yawRate*180/Math.PI).toFixed(1)+' °/s');
+@@ -295,6 +393,7 @@
+ function resetDriving(id){
+   if(!d||!bridge||!road)return;
+   const setting=SCENARIOS[id]||SCENARIOS.free;
++  ensureScenarioMap(id);
+   d.reset(); // Also resets the single-authority Rapier body.
+   // QA uses the original reference preset; the one visible page owns all free-
+   // drive settings. The hidden iframe is a computation engine, never a second UI.
+@@ -412,7 +511,7 @@
+     const graded=gradeScenario(id,data);
+     const result={scenario:id,pass:graded.pass,checks:graded.checks,
+       metrics:{...data},runtimeMs:data.runtimeMs,
+-      engine:'Rapier 0.18 + SHIFT LAB four-wheel, 120 Hz / 4 microsteps, v1.8.8 visual steering adapter',
++      engine:'Rapier 0.18 + SHIFT LAB four-wheel, 120 Hz / 4 microsteps, v1.8.9 game UI / unchanged vehicle steering adapter',
+       events:bridge.eventHistory.map(e=>({...e}))};
+     lastResult=result;displayResult('qa-results',result);updateHud(true);
+     $('status').textContent=(result.pass?'PASS':'FAIL')+' · '+setting.name+' · '+graded.checks.filter(x=>x.passed).length+'/'+graded.checks.length;
+@@ -444,25 +543,72 @@
+   return suiteResults.map(r=>({...r}));
+ }
+ function exportReport(){
+-  const bundle={version:'1.8.8',createdAt:new Date().toISOString(),
++  const bundle={version:'1.8.9',createdAt:new Date().toISOString(),
+     userAgent:navigator.userAgent,
+     physics:'Four-wheel SHIFT LAB v1.8.6 bridge / Rapier 3D 0.18',
+     suite:suiteResults.map(r=>({...r})),lastResult,
+     snapshot:currentSnapshot(),qaScope:'simulator only, not real-vehicle validation'};
+   const blob=new Blob([JSON.stringify(bundle,null,2)],{type:'application/json'});
+   const href=URL.createObjectURL(blob),link=document.createElement('a');
+-  link.href=href;link.download='SHIFT_LAB_V188_Unified_Web_QA_'+new Date().toISOString().slice(0,10)+'.json';
++  link.href=href;link.download='SHIFT_LAB_V189_Physics_QA_'+new Date().toISOString().slice(0,10)+'.json';
+   link.click();setTimeout(()=>URL.revokeObjectURL(href),3000);
+ }
+ function installEvents(){
+   selectOptions();restorePreferences();
++  gameModes=createGameModes(document,{onModeChange(next){
++    trackedKeys.clear();if(d)d.inputKeys.clear();
++    if(d)Object.assign(d.hostControls,{steer:0,throttle:0,brake:0,clutch:0});
++    if(next==='drive'){
++      setPause(false);driveFocus();
++    }else{
++      setPause(true);
++      if(next==='settings')updateMapInfo();
++    }
++  }});
++  for(const key of MAP_FIELDS){
++    $('map-'+key).addEventListener('input',()=>{updateMapFieldLabels();mapMessage('參數尚未套用，點擊「按設定生成」。');});
++  }
++  $('map-seed').addEventListener('input',()=>mapMessage('種子尚未套用，點擊「按設定生成」。'));
++  $('map-generate').addEventListener('click',()=>{
++    try{applyMap(readMapForm());}catch(error){mapMessage(error.message,true);}
++  });
++  $('map-random').addEventListener('click',()=>{
++    $('map-seed').value=makeMapSeed();
++    try{applyMap(readMapForm());}catch(error){mapMessage(error.message,true);}
++  });
++  $('map-next-bend').addEventListener('click',()=>{
++    try{previewNextBend();}catch(error){mapMessage(error.message,true);}
++  });
++  $('map-export').addEventListener('click',()=>{
++    try{
++      const blob=new Blob([serializeMap(userMapConfig)],{type:'application/json'});
++      const href=URL.createObjectURL(blob),link=document.createElement('a');
++      link.href=href;link.download='SHIFT_LAB_Road_'+userMapConfig.seed+'.json';link.click();
++      setTimeout(()=>URL.revokeObjectURL(href),3000);
++    }catch(error){mapMessage(error.message,true);}
++  });
++  $('map-import').addEventListener('click',()=>$('map-import-file').click());
++  $('map-import-file').addEventListener('change',async e=>{
++    const file=e.target.files?.[0];if(!file)return;
++    try{
++      if(file.size>10000)throw Error('道路設定檔不得超過 10 KB');
++      const config=readMapDocument(JSON.parse(await file.text()));
++      applyMap(config);
++    }catch(error){mapMessage('匯入失敗：'+error.message,true);}
++    e.target.value='';
++  });
++  const bindMode=(id,next)=>$(id).addEventListener('click',()=>openGameMode(next));
++  bindMode('hud-menu','menu');bindMode('resume-drive','drive');
++  bindMode('open-settings','settings');bindMode('open-tests','tests');
++  bindMode('close-settings','drive');bindMode('close-tests','drive');
++  $('menu-reset').addEventListener('click',()=>{if(!locked){resetDriving('free');openGameMode('drive');}});
+   for(const id of preferenceIds){
+     $(id).addEventListener('change',()=>{
+       if(locked)return;
+       savePreferences();
+       if(!d||!labReady)return;
+       if(id==='car-preset'){
+-        resetDriving('free');setPause(false);
++        resetDriving('free');setPause(gameModes?.mode!=='drive');
+         driveStatus('已切換車型並重置為自由駕駛；使用 W/A/S/D');
+       }else if(id==='road-surface'){
+         frame.contentWindow.document.getElementById('surface-select').value=$('road-surface').value;
+@@ -473,31 +619,30 @@
+       }else if(id==='handling-balance')d.setHandlingBalance($('handling-balance').value);
+       else if(id==='brake-bias')d.setBrakeBias(Number($('brake-bias').value));
+       else if(id==='steering-preset')Object.assign(d.advancedSteering,d.ADV_STEER_PRESETS[$('steering-preset').value]);
+-      driveFocus();
++      if(gameModes?.mode==='drive')driveFocus();
+     });
+   }
+   $('hud-toggle').addEventListener('click',()=>{
+     const panel=$('right'),hide=!panel.hidden;
+     panel.hidden=hide;
+-    $('hud-toggle').textContent=hide?'顯示數據面板':'隱藏數據面板';
++    $('hud-toggle').textContent=hide?'展開詳細數據':'收合詳細數據';
+     $('hud-toggle').setAttribute('aria-expanded',String(!hide));
+-    driveFocus();
+-  });
+-  $('pad').addEventListener('change',e=>{chosenPad=e.target.value;driveFocus();});
++  });
++  $('pad').addEventListener('change',e=>{chosenPad=e.target.value;if(gameModes?.mode==='drive')driveFocus();});
+   $('scenario').addEventListener('change',e=>$('scenario-brief').textContent=SCENARIOS[e.target.value].description);
+   function goFree(){
+     if(locked||!labReady)return;
+-    resetDriving('free');setPause(false);driveFocus();
++    resetDriving('free');openGameMode('drive');setPause(false);driveFocus();
+     driveStatus($('drive-mode').value==='manual'?'手排模式 · 按 I 發動，踩 Shift 入 1 檔後鬆開離合器':
+       '快速駕駛 · 車輛將自動起步並換檔，使用 W/A/S/D');
+   }
+   $('drive-now').addEventListener('click',goFree);
+   $('load-scenario').addEventListener('click',()=>{if(locked)return;
+-    resetDriving($('scenario').value);setPause(false);driveFocus();});
+-  $('reset').addEventListener('click',()=>{if(!locked){resetDriving(scenarioId);driveFocus();}});
++    resetDriving($('scenario').value);setPause(true);});
++  $('reset').addEventListener('click',()=>{if(!locked){resetDriving(scenarioId);setPause(gameModes?.mode!=='drive');}});
+   $('pause').addEventListener('click',()=>{if(locked)return;setPause(!paused);driveFocus();});
+   $('drive-mode').addEventListener('change',()=>{
+-    if(!locked&&scenarioId==='free')goFree();
++    if(!locked&&scenarioId==='free'){resetDriving('free');setPause(gameModes?.mode!=='drive');}
+   });
+   canvas.addEventListener('pointerdown',driveFocus);
+   $('step').addEventListener('click',()=>{if(!locked&&paused){stepOnce();updateHud(true);}});
+@@ -507,38 +652,34 @@
+       $('drive-mode').value='manual';driveStatus('已切換為手排模式，請自行操作離合器及換檔');
+     }
+     if(!d.requestGear(Number(gearSelect.value)))gearSelect.value=String(d.state.gear);});
+-  $('esc').addEventListener('change',()=>{d?.setESCEnabled($('esc').value==='on');driveFocus();});
+-  $('feel').addEventListener('change',()=>{d?.setHandlingFeel($('feel').value);driveFocus();});
++  $('esc').addEventListener('change',()=>{d?.setESCEnabled($('esc').value==='on');});
++  $('feel').addEventListener('change',()=>{d?.setHandlingFeel($('feel').value);});
+   for(const id of ['pad-axis','pad-gas','pad-brake','pad-clutch','camera-mode']){
+-    $(id).addEventListener('change',driveFocus);
++    $(id).addEventListener('change',()=>{if(gameModes?.mode==='drive')driveFocus();});
+   }
+   $('run-case').addEventListener('click',()=>runScenario($('scenario').value).catch(failure));
+   $('run-suite').addEventListener('click',()=>runSuite().catch(failure));
+   $('export-report').addEventListener('click',exportReport);
+   window.addEventListener('keydown',e=>{
++    if(e.code==='Escape'){
++      e.preventDefault();if(!e.repeat&&!locked)openGameMode(gameModes?.mode==='drive'?'menu':'drive');return;
++    }
++    if(e.code==='F1'||e.code==='F2'){
++      e.preventDefault();if(!e.repeat&&!locked)openGameMode(e.code==='F1'?'settings':'tests');return;
++    }
++    // Inputs in menus must never operate the car, including gear shortcuts.
++    if(gameModes?.mode!=='drive')return;
+     const editing=['INPUT','SELECT','TEXTAREA'].includes(e.target?.tagName);
+-    if(editing){
+-      if(e.code==='Escape'){
+-        e.preventDefault();driveFocus();
+-      }
+-      return;
+-    }
+-    if(locked)return;
++    if(editing||locked)return;
+     const key=keys[e.code];
+-    if(key){
+-      e.preventDefault();trackedKeys.add(key);
+-      if(d)d.inputKeys.add(legacyDirectionalKey(key));
+-      return;
+-    }
++    if(key){e.preventDefault();trackedKeys.add(key);if(d)d.inputKeys.add(legacyDirectionalKey(key));return;}
+     if(e.repeat)return;
+-    if(e.code==='Space'){e.preventDefault();paused=!paused;accumulator=0;$('pause').textContent=paused?'繼續':'暫停';}
++    if(e.code==='Space'){e.preventDefault();setPause(!paused);}
+     else if(e.code==='KeyI'){e.preventDefault();d?.startEngine();}
+-    else if(e.code==='Backspace'){e.preventDefault();resetDriving(scenarioId);driveFocus();}
++    else if(e.code==='Backspace'){e.preventDefault();resetDriving('free');driveFocus();}
+     else if(e.code==='KeyM'){
+       e.preventDefault();$('drive-mode').value=$('drive-mode').value==='manual'?'assisted':'manual';
+-      if(scenarioId==='free'){
+-        resetDriving('free');setPause(false);driveFocus();
+-      }
++      resetDriving('free');setPause(false);driveFocus();
+     }
+     else if(/^Digit[1-6]$/.test(e.code)){e.preventDefault();d?.requestGear(Number(e.code.slice(-1)));}
+     else if(e.code==='Digit0'){e.preventDefault();d?.requestGear(0);}
+@@ -572,6 +713,10 @@
+   installEvents();
+   d=await waitIframe();
+   d.setExternalClock(true);
++  userMapConfig=restoreMapPreference();
++  // The hidden original generator is run before Three.js builds road chunks.
++  if(!sameMap(d.route.config,userMapConfig))d.generateRoad(userMapConfig);
++  fillMapForm(userMapConfig);updateMapInfo();
+   await RAPIER.init();
+   if(!window.WebGL2RenderingContext)throw new Error('此瀏覽器不支援 WebGL2');
+   scene=new THREE.Scene();scene.background=new THREE.Color(0xa2c0cb);scene.fog=new THREE.Fog(0xa2c0cb,170,650);
+@@ -587,15 +732,15 @@
+   world=new RAPIER.World({x:0,y:-9.81,z:0});
+   world.maxCcdSubsteps=4;
+   road=new RoadWorld(RAPIER,world,scene,d);d.roadAppearance.guardrails='both';road.ensure(70);
+-  obstacles=new AcceptanceObstacles(RAPIER,world,scene,road);placeMarkings();
++  obstacles=new AcceptanceObstacles(RAPIER,world,scene,road);
+   bridge=new RapierChassisBridge(RAPIER,world,road,d);bridge.create(d.params);
+   if(!d.setChassisBridge(bridge))throw new Error('原始物理核心拒絕外部剛體橋接');
+   vehicle=makeCar();labReady=true;
+-  resetDriving('free');
++  resetDriving('free');updateMapInfo();
+   overlay.remove();
+   prevFrame=performance.now();requestAnimationFrame(render);
+   window.__SHIFT_LAB_3D_QA__={
+-    version:'1.8.8',steeringMapping:{visualLeft:legacyDirectionalKey('a'),
++    version:'1.8.9',steeringMapping:{visualLeft:legacyDirectionalKey('a'),
+       visualRight:legacyDirectionalKey('d'),visualPadRight:legacySteerFromVisualAxis(1)},
+     get ready(){return labReady;},get paused(){return paused;},snapshot:currentSnapshot,
+     loadScenario(id){if(!(id in SCENARIOS))throw Error('未知工況 '+id);if(locked)throw Error('正在執行自動驗收');
+@@ -603,8 +748,12 @@
+     step(n=1){if(!labReady||locked)throw Error('busy/not ready');paused=true;
+       for(let i=0;i<Math.max(0,Math.min(10000,Math.trunc(n)));i++)stepOnce();updateHud(true);return currentSnapshot();},
+     runScenario,runSuite,gradeScenario,
++    get map(){return {...d.route.config};},
++    get savedMap(){return {...userMapConfig};},
++    applyMap(config){applyMap(config);return currentSnapshot();},
++    openMode:openGameMode,
+     get report(){return {lastResult,suiteResults:[...suiteResults]};}
+   };
+-  $('status').textContent='v1.8.8 單頁版已初始化 · A 左轉 / D 右轉 · 可直接開始自由駕駛';
++  $('status').textContent='v1.8.9 已初始化 · 自由駕駛 / 隨機道路 / 獨立測試模式';
+ }
+ boot().catch(failure);
+--- /dev/null
++++ b/desktop3d/src/procedural-map.mjs
+@@ -0,0 +1,51 @@
++// The sole route generator remains SHIFT LAB's proven seeded v1 model in
++// public/physics.html. This adapter validates its UI/JSON contract; it does
++// NOT generate a second road with different centerline or heights.
++export const MAP_SCHEMA='shiftlab.road.v1';
++export const MAP_FIELDS=Object.freeze(['turnChance','hairpinChance','slopeChance','leftBias','upBias','maxGrade']);
++export const REFERENCE_MAP=Object.freeze({
++  seed:'SHIFT-2026-MOUNTAIN-07',turnChance:58,hairpinChance:20,
++  slopeChance:52,leftBias:50,upBias:50,maxGrade:9
++});
++
++export function normalizeMapConfig(raw,strict=false){
++  if(!raw||typeof raw!=='object'||Array.isArray(raw))throw Error('道路設定必須是物件');
++  const seed=typeof raw.seed==='string'?raw.seed.trim():'';
++  if(strict&&(!seed||seed.length>64))throw Error('地圖種子必須為 1–64 個字元');
++  const config={...REFERENCE_MAP,seed:seed.slice(0,64)||REFERENCE_MAP.seed};
++  for(const key of MAP_FIELDS){
++    const n=raw[key]===undefined?REFERENCE_MAP[key]:Number(raw[key]);
++    if(!Number.isFinite(n)||(strict&&(typeof raw[key]!=='number'||raw[key]===undefined)))
++      throw Error(key+' 必須是有限數值');
++    config[key]=Math.max(key==='maxGrade'?3:0,Math.min(key==='maxGrade'?12:100,Math.round(n)));
++  }
++  return config;
++}
++export function readMapDocument(doc){
++  if(!doc||doc.schema!==MAP_SCHEMA||doc.generator!==1)
++    throw Error('只接受 shiftlab.road.v1 / generator 1 設定');
++  return normalizeMapConfig(doc.config,true);
++}
++export function serializeMap(config){
++  return JSON.stringify({schema:MAP_SCHEMA,generator:1,config:normalizeMapConfig(config,true)},null,2);
++}
++export function sameMap(a,b){
++  if(!a||!b)return false;
++  return a.seed===b.seed&&MAP_FIELDS.every(key=>a[key]===b[key]);
++}
++export function makeMapSeed(cryptoSource=globalThis.crypto){
++  let n;
++  if(cryptoSource?.getRandomValues){
++    const buf=new Uint32Array(1);cryptoSource.getRandomValues(buf);n=buf[0];
++  }else n=(Date.now()^Math.floor(Math.random()*0x100000000))>>>0;
++  return 'ROAD-'+n.toString(16).toUpperCase().padStart(8,'0');
++}
++export function describeRoute(route){
++  const segments=route?.segments||[];
++  const length=route?.points?.at(-1)?.s||0;
++  return {seed:route?.config?.seed||'',distanceKm:Math.round(length/100)/10,
++    bends:segments.filter(x=>x.type!=='straight').length,
++    hairpins:segments.filter(x=>x.type.includes('hairpin')).length,
++    climbs:segments.filter(x=>x.gradeTarget>0).length,
++    descents:segments.filter(x=>x.gradeTarget<0).length};
++}
+--- a/desktop3d/src/road.mjs
++++ b/desktop3d/src/road.mjs
+@@ -17,6 +17,10 @@
+     this.surfaceMaterial = new THREE.MeshStandardMaterial({color:0x344149,roughness:.93,side:THREE.DoubleSide});
+     this.soilMaterial = new THREE.MeshStandardMaterial({color:0x405247,roughness:1});
+     this.railMaterial = new THREE.MeshStandardMaterial({color:0x95a9af,metalness:.4,roughness:.56});
++    this.markMaterial = new THREE.MeshStandardMaterial({color:0xe6d9aa,roughness:.89});
++    this.leafMaterial = new THREE.MeshStandardMaterial({color:0x326452,roughness:1});
++    this.trunkMaterial = new THREE.MeshStandardMaterial({color:0x6b5642,roughness:1});
++    this.shoulderMaterial = new THREE.MeshStandardMaterial({color:0x48545a,roughness:.97});
+   }
+   position(s, side) {
+     const p = this.physics.roadPointAt(Math.max(0,Math.min(this.physics.roadTotalDistance(),s)));
+@@ -45,10 +49,46 @@
+     this.groundHandles.add(collider.handle);
+     const geo=new THREE.BufferGeometry();
+     geo.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));
+-    geo.setIndex(indices);geo.computeVertexNormals();
+-    const mesh=new THREE.Mesh(geo,this.surfaceMaterial);mesh.receiveShadow=true;
++    // The Rapier triangles above stay byte-identical. Rendering only is grouped
++    // into THREE materials (3 draw groups per chunk, not 200+ per chunk).
++    const renderGroups=[[],[],[]];
++    for(let n=0;n<count;n++)for(let j=0;j<width.length-1;j++){
++      const group=j===0||j===7?1:j===1||j===6?2:0;
++      const offset=(n*(width.length-1)+j)*6;
++      for(let k=0;k<6;k++)renderGroups[group].push(indices[offset+k]);
++    }
++    geo.setIndex(renderGroups.flat());geo.computeVertexNormals();
++    let start=0;
++    for(let material=0;material<renderGroups.length;material++){
++      geo.addGroup(start,renderGroups[material].length,material);
++      start+=renderGroups[material].length;
++    }
++    const mesh=new THREE.Mesh(geo,[this.surfaceMaterial,this.soilMaterial,this.shoulderMaterial]);
++    mesh.receiveShadow=true;
+     this.scene.add(mesh);
+     const rails=[];
++    const decorations=[];
++    // The center line and verge foliage are chunk-owned. They are removed
++    // together with the same road collider on map regeneration or streaming.
++    for(let s=s0+9;s<end-4;s+=17){
++      const p=this.position(s,0),heading=this.physics.roadPointAt(s).heading;
++      const strip=new THREE.Mesh(new THREE.BoxGeometry(.11,.025,5),this.markMaterial);
++      strip.position.set(p.x,p.y+.055,p.z);strip.rotation.y=heading;
++      this.scene.add(strip);decorations.push(strip);
++    }
++    const hash=(Math.imul(index+17,1664525)^(this.physics.route.seedHash>>>0))>>>0;
++    for(let side of [-1,1])for(let k=0;k<2;k++){
++      const s=Math.min(end-5,s0+16+k*36+(hash%13));
++      const shift=side*(10+(hash%4));
++      const point=this.position(s,shift);
++      const tree=new THREE.Group();tree.position.set(point.x,point.y,point.z);
++      const height=2.3+((hash>>>(k*3))%8)*.2;
++      const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.11,.16,height*.42,5),this.trunkMaterial);
++      trunk.position.y=height*.21;
++      const crown=new THREE.Mesh(new THREE.ConeGeometry(height*.38,height*.84,7),this.leafMaterial);
++      crown.position.y=height*.77;tree.add(trunk,crown);
++      this.scene.add(tree);decorations.push(tree);
++    }
+     // Guardrails are true 3D colliders with CCD chassis contact. Segment length
+     // stays small enough for hairpin bends not to cut across the carriageway.
+     const steps=Math.ceil((end-s0)/5);
+@@ -74,7 +114,29 @@
+         rails.push(railMesh);
+       }
+     }
+-    return {collider,mesh,rails};
++    return {collider,mesh,rails,decorations};
++  }
++  disposeChunk(index,chunk){
++    this.groundHandles.delete(chunk.collider.handle);
++    this.world.removeCollider(chunk.collider,true);
++    this.scene.remove(chunk.mesh);chunk.mesh.geometry.dispose();
++    for(const rail of chunk.rails){
++      if(rail instanceof THREE.Object3D){
++        this.scene.remove(rail);rail.geometry.dispose();
++      }else{
++        this.railHandles.delete(rail.handle);this.world.removeCollider(rail,true);
++      }
++    }
++    for(const item of chunk.decorations||[]){
++      this.scene.remove(item);
++      item.traverse(mesh=>{if(mesh.geometry)mesh.geometry.dispose();});
++    }
++    this.chunks.delete(index);
++  }
++  clear(){
++    for(const [index,chunk] of [...this.chunks])this.disposeChunk(index,chunk);
++    // AcceptanceObstacles.dispose() must run before clear(); foreign ground
++    // handles (e.g. ramp) are never silently deleted by this RoadWorld.
+   }
+   ensure(s){
+     const here=Math.floor(Math.max(0,s)/100);
+@@ -87,17 +149,7 @@
+     }
+     for(const [index,chunk] of this.chunks){
+       if(index>=here-3&&index<=here+5)continue;
+-      this.groundHandles.delete(chunk.collider.handle);
+-      this.world.removeCollider(chunk.collider,true);
+-      this.scene.remove(chunk.mesh);chunk.mesh.geometry.dispose();
+-      for(const rail of chunk.rails){
+-        if(rail instanceof THREE.Object3D){
+-          this.scene.remove(rail);rail.geometry.dispose();
+-        }else{
+-          this.railHandles.delete(rail.handle);this.world.removeCollider(rail,true);
+-        }
+-      }
+-      this.chunks.delete(index);
++      this.disposeChunk(index,chunk);
+     }
+   }
+ }
+--- /dev/null
++++ b/desktop3d/tests/validate-procedural-map.mjs
+@@ -0,0 +1,21 @@
++import assert from 'node:assert/strict';
++import {REFERENCE_MAP,MAP_FIELDS,normalizeMapConfig,readMapDocument,serializeMap,sameMap,makeMapSeed,describeRoute} from '../src/procedural-map.mjs';
++const config=normalizeMapConfig({...REFERENCE_MAP,seed:'  TEST-ROAD  ',turnChance:123,maxGrade:-2});
++assert.equal(config.seed,'TEST-ROAD');
++assert.equal(config.turnChance,100);
++assert.equal(config.maxGrade,3);
++assert.equal(config.hairpinChance,REFERENCE_MAP.hairpinChance);
++assert.ok(sameMap(config,{...config}));
++assert.equal(sameMap(config,{...config,seed:'other'}),false);
++assert.deepEqual(readMapDocument(JSON.parse(serializeMap(config))),config);
++assert.throws(()=>readMapDocument({schema:'other',generator:1,config}),/只接受/);
++assert.throws(()=>readMapDocument({schema:'shiftlab.road.v1',generator:2,config}),/只接受/);
++assert.throws(()=>readMapDocument({schema:'shiftlab.road.v1',generator:1,config:{...config,seed:''}}),/種子/);
++assert.throws(()=>readMapDocument({schema:'shiftlab.road.v1',generator:1,config:{...config,turnChance:Infinity}}),/有限/);
++assert.throws(()=>readMapDocument({schema:'shiftlab.road.v1',generator:1,config:{...config,upBias:'50'}}),/有限/);
++assert.ok(MAP_FIELDS.length===6);
++assert.equal(makeMapSeed({getRandomValues(a){a[0]=0x12345678;}}),'ROAD-12345678');
++assert.deepEqual(describeRoute({config,points:[{s:0},{s:1234}],segments:[
++  {type:'straight',gradeTarget:0},{type:'hairpin-left',gradeTarget:4},{type:'right',gradeTarget:-3}
++]}),{seed:'TEST-ROAD',distanceKm:1.2,bends:2,hairpins:1,climbs:1,descents:1});
++console.log('PASS v1.8.9 map schema + normalization + seed and metrics');
+--- /dev/null
++++ b/desktop3d/tests/validate-road-reset.mjs
+@@ -0,0 +1,65 @@
++import assert from 'node:assert/strict';
++import fs from 'node:fs';
++
++// Run the ACTUAL RoadWorld JS against deterministic stand-ins for THREE and
++// Rapier, so it verifies collider handles, object disposal and geometry rebuild.
++// This is not a substitute for a real Rapier WASM browser test.
++class Object3D{
++  constructor(){this.children=[];this.position={set(){}};this.rotation={};this.quaternion={set(){}};}
++  add(...items){this.children.push(...items);}
++  traverse(callback){callback(this);for(const x of this.children)x.traverse(callback);}
++}
++class Group extends Object3D{}
++class Geometry{
++  constructor(){this.disposed=false;this.groups=[];}
++  dispose(){this.disposed=true;}
++  setAttribute(){}
++  setIndex(){}
++  computeVertexNormals(){}
++  addGroup(start,count,index){this.groups.push([start,count,index]);}
++}
++class Mesh extends Object3D{
++  constructor(geometry,material){super();this.geometry=geometry;this.material=material;}
++}
++class ColliderDesc{
++  static trimesh(v,i){return new ColliderDesc();}
++  static cuboid(x,y,z){return new ColliderDesc();}
++  setFriction(){return this;}setRestitution(){return this;}
++  setTranslation(){return this;}setRotation(){return this;}
++}
++const THREE={MeshStandardMaterial:class{},Mesh,Group,Object3D,BufferGeometry:Geometry,
++  Float32BufferAttribute:class{},BoxGeometry:Geometry,CylinderGeometry:Geometry,ConeGeometry:Geometry,DoubleSide:2};
++const raw=fs.readFileSync(new URL('../src/road.mjs',import.meta.url),'utf8');
++const rewritten=raw.replace("import * as THREE from 'three';",'').replace('export class RoadWorld','class RoadWorld');
++const RoadWorld=new Function('THREE',rewritten+';return RoadWorld;')(THREE);
++let nextHandle=1;
++const active=new Map(),removed=new Set(),created=new Set(),view=new Set();
++const world={createCollider(desc){const obj={handle:nextHandle++};active.set(obj.handle,obj);created.add(obj.handle);return obj;},
++  removeCollider(obj){assert.ok(active.has(obj.handle),'removed missing collider');active.delete(obj.handle);removed.add(obj.handle);}};
++const scene={add(obj){view.add(obj);},remove(obj){assert.ok(view.delete(obj),'removed unknown render object');}};
++const physics={route:{seedHash:123},roadTotalDistance(){return 2800;},
++  roadPointAt(s){return {s,x:this.route.seedHash/10+s*.03,y:0,z:s,heading:0,grade:0};},
++  roadCrossElevation(){return 0;},roadRailEnabled(){return true;}};
++const road=new RoadWorld({ColliderDesc},world,scene,physics);
++road.ensure(70);
++assert.ok(road.chunks.size>=3);
++assert.ok(road.groundHandles.size>=3);
++assert.ok(road.railHandles.size>20);
++assert.ok(view.size>0);
++const firstHandles=new Set(active.keys());
++road.clear();
++assert.equal(active.size,0,'orphan physical collider after clear');
++assert.equal(view.size,0,'orphan visual object after clear');
++assert.equal(road.groundHandles.size,0);
++assert.equal(road.railHandles.size,0);
++assert.equal(road.chunks.size,0);
++assert.ok([...firstHandles].every(h=>removed.has(h)));
++physics.route.seedHash=998;
++road.ensure(70);
++assert.ok(road.groundHandles.size>=3);
++assert.ok([...active.keys()].every(h=>!firstHandles.has(h)),'reused or leaked handles');
++road.clear();
++assert.equal(active.size,0);
++assert.equal(view.size,0);
++assert.ok(created.size>removed.size-1 && created.size===removed.size);
++console.log('PASS v1.8.9 road generation/rebuild clears every collider and visual chunk');
+--- a/index.html
++++ b/index.html
+@@ -1,9 +1,9 @@
+ <!doctype html>
+ <html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+-<title>SHIFT LAB v1.8.8 · 單一網頁入口</title>
++<title>SHIFT LAB v1.8.9 · 單一遊玩入口</title>
+ <style>body{font:16px/1.7 system-ui,'Microsoft JhengHei',sans-serif;background:#081622;color:#dcefee;max-width:660px;margin:12vh auto;padding:28px}a{color:#8fe9ca}h1{font-size:25px}</style></head>
+-<body><h1>SHIFT LAB v1.8.8</h1><p>本專案現在只有一個玩家操作介面：3D 網頁駕駛、車輛調校及碰撞驗收整合在同一頁。</p>
+-<p>如正在使用本機 Vite 服務，請開啟 <a href="./desktop3d/">整合式 3D 網頁</a>。
++<body><h1>SHIFT LAB v1.8.9</h1><p>本專案現在只有一個玩家操作介面：純遊戲畫面、統一設定、獨立物理測試及隨機地圖生成整合在同一網頁。</p>
++<p>如正在使用本機 Vite 服務，請開啟 <a href="./desktop3d/">3D 網頁遊戲</a>。
+ 部署到網站後，請使用 <code>desktop3d/dist/</code> 作為網站根目錄，進站後即可遊玩。</p>
+ <p id="file-advice">Windows 本機初次啟動可執行 <code>START_WEB_WINDOWS.cmd</code>（需安裝 Node.js），或於 desktop3d 目錄執行 npm install、npm run dev。</p>
+ <script>if(location.protocol==='http:'||location.protocol==='https:'){
+--- /dev/null
++++ b/tests/route_switch_probe.py
+@@ -0,0 +1,54 @@
++from pathlib import Path
++import re
++from playwright.sync_api import sync_playwright
++D=Path(__file__).resolve().parents[1]/'desktop3d'
++html=(D/'index.html').read_text().replace('src="./physics.html"','src="about:blank"').replace('<script type="module" src="./src/main.mjs"></script>','')
++helper='\n'.join((D/'src'/name).read_text().replace('export const','const').replace('export function','function') for name in ['steering-input.mjs','procedural-map.mjs','game-modes.mjs'])
++sc=(D/'src/scenarios.mjs').read_text().replace('export const','const').replace('export function','function')
++main=re.sub(r'^import .*?;\s*$', '', (D/'src/main.mjs').read_text(), flags=re.MULTILINE).replace('boot().catch(failure);','')
++extra='''
++window.__V189_ROUTE_PROBE__={
++  async init(){
++    d=document.getElementById('physics').contentWindow.__SHIFT_LAB_DEBUG__;
++    labReady=true;let p;
++    const self=this;
++    road={clear(){self.calls.push('clear');},ensure(s){self.calls.push('ensure:'+Math.floor(s));},
++      position(s,side){const q=d.roadPointAt(s);return {x:q.x,y:q.y,z:q.z}}};
++    obstacles={activeScenario:'free',barrierCenter:{z:104},dispose(){self.calls.push('dispose');},
++      configure(id){self.calls.push('scenario:'+id)}};
++    world={updateSceneQueries(){self.calls.push('updateQueries')}};
++    const fakeBody={mass(){return d.params.mass},translation(){return {x:0,y:2,z:0}},
++      linvel(){return {x:0,y:0,z:0}},angvel(){return {x:0,y:0,z:0}}};
++    bridge={rigidBody:fakeBody,collider:{},maxExternalForceN:0,maxExternalTorqueNm:0,
++      invalidWheelLoads:0,wheelCastHits:0,wheelCastMisses:0,
++      railHits:0,barrierHits:0,maxImpactImpulse:0,maxBarrierPenetration:0,
++      eventHistory:[],forceResetCount:0,collisionCount:0,contactMicrosteps:0,
++      teleport({roadPoint}){self.calls.push('teleport:'+Math.floor(roadPoint.s));}};
++    installEvents();
++    updateMapInfo();
++  },
++  calls:[],
++  regenerate(seed){applyMap({...REFERENCE_MAP,seed});return {...d.route.config};},
++  qa(){resetDriving('settle');return d.route.config.seed;},
++  free(){resetDriving('free');return d.route.config.seed;}
++};
++'''
++with sync_playwright() as pw:
++ b=pw.chromium.launch(headless=True,executable_path='/usr/bin/chromium',args=['--no-sandbox'])
++ page=b.new_page()
++ page.on('pageerror',lambda error: print('JSERR',error))
++ page.set_content(html,wait_until='load')
++ page.frame_locator('#physics')
++ f=page.frame(name='') if False else page.locator('#physics').element_handle().content_frame()
++ f.set_content((D/'public/physics.html').read_text(),wait_until='load')
++ page.evaluate("document.getElementById('screen-overlay').remove()")
++ page.add_script_tag(content=helper+'\n'+sc+'\n'+main+'\n'+extra)
++ page.evaluate('window.__V189_ROUTE_PROBE__.init()')
++ print('before',page.evaluate('window.__V189_ROUTE_PROBE__.calls'))
++ assert page.evaluate("window.__V189_ROUTE_PROBE__.regenerate('V189-CHOSEN').seed")=='V189-CHOSEN'
++ print('call history',page.evaluate('window.__V189_ROUTE_PROBE__.calls'))
++ assert page.evaluate('window.__V189_ROUTE_PROBE__.qa()')=='SHIFT-2026-MOUNTAIN-07'
++ assert page.evaluate('window.__V189_ROUTE_PROBE__.free()')=='V189-CHOSEN'
++ calls=page.evaluate('window.__V189_ROUTE_PROBE__.calls');assert calls.count('clear')==3 and calls.count('dispose')==3 and calls.count('updateQueries')==3,calls
++ print('PASS 3D-host map regenerate -> reference QA -> restored user route')
++ b.close()
+--- a/tests/test_v187.py
++++ b/tests/test_v187.py
+@@ -75,7 +75,7 @@
+ 
+     def test_version_and_start_scripts_exist(self):
+         package=json.loads((THREE/'package.json').read_text())
+-        self.assertEqual(package['version'],'1.8.8')
++        self.assertEqual(package['version'],'1.8.9')
+         self.assertIn('rapier3d-compat',str(package['dependencies']))
+         self.assertTrue((THREE/'START_WINDOWS.cmd').exists())
+         self.assertTrue((THREE/'START_UNIX.sh').exists())
+--- a/tests/test_v188.py
++++ b/tests/test_v188.py
+@@ -13,7 +13,7 @@
+         self.assertEqual((ROOT/'legacy/shiftlab-2d-reference.html').read_bytes(),(WEB/'public/physics.html').read_bytes())
+         if baseline.exists():
+             self.assertEqual((WEB/'public/physics.html').read_bytes(),(baseline/'desktop3d/public/physics.html').read_bytes())
+-            for file in ['chassis.mjs','road.mjs','obstacles.mjs','scenarios.mjs']:
++            for file in ['chassis.mjs','obstacles.mjs','scenarios.mjs']:
+                 self.assertEqual((WEB/'src'/file).read_bytes(),(baseline/'desktop3d/src'/file).read_bytes())
+ 
+     def test_visual_left_right_unit(self):
+@@ -25,7 +25,7 @@
+         root=(ROOT/'index.html').read_text()
+         game=(WEB/'index.html').read_text()
+         self.assertIn('desktop3d/',root)
+-        self.assertIn('3D 網頁',game)
++        self.assertIn('3D 自由駕駛',game)
+         self.assertIn('aria-hidden="true"',game)
+         self.assertIn('src="./physics.html"',game)
+         self.assertEqual(game.count('id="view"'),1)
+@@ -47,7 +47,7 @@
+ 
+     def test_web_dependency_contract(self):
+         pkg=json.loads((WEB/'package.json').read_text())
+-        self.assertEqual(pkg['version'],'1.8.8')
++        self.assertEqual(pkg['version'],'1.8.9')
+         self.assertEqual(pkg['dependencies']['three'],'0.180.0')
+         self.assertEqual(pkg['dependencies']['@dimforge/rapier3d-compat'],'0.18.2')
+         self.assertTrue((ROOT/'START_WEB_WINDOWS.cmd').is_file())
+--- a/tests/test_v188_interaction.py
++++ b/tests/test_v188_interaction.py
+@@ -24,7 +24,7 @@
+         html=html.replace('<script type="module" src="./src/main.mjs"></script>','')
+         self.page.set_content(html,wait_until='load')
+         self.page.eval_on_selector('#screen-overlay','el=>el.remove()')
+-        helper=(D/'src/steering-input.mjs').read_text().replace('export const','const').replace('export function','function')
++        helper='\n'.join((D/'src'/name).read_text().replace('export const','const').replace('export function','function') for name in ['steering-input.mjs','procedural-map.mjs','game-modes.mjs'])
+         main=(D/'src/main.mjs').read_text()
+         main=re.sub(r'^import .*?;\s*$', '', main,flags=re.MULTILINE)
+         main=main.replace('boot().catch(failure);','')
+@@ -60,6 +60,21 @@
+         self.assertEqual(self.page.evaluate('window.__V188_INPUT_TEST__.coreKeys()'),['w'])
+         self.page.keyboard.up('w')
+ 
++    def test_menu_settings_test_mode_block_driving_keys(self):
++        self.page.keyboard.press('F1')
++        self.assertFalse(self.page.locator('#settings-panel').is_hidden())
++        self.assertTrue(self.page.locator('#dashboard').is_hidden())
++        self.page.keyboard.down('a')
++        self.assertEqual(self.page.evaluate('window.__V188_INPUT_TEST__.coreKeys()'),[])
++        self.page.keyboard.up('a')
++        self.page.keyboard.press('F2')
++        self.assertFalse(self.page.locator('#tests-panel').is_hidden())
++        self.page.keyboard.press('Escape')
++        self.assertFalse(self.page.locator('#dashboard').is_hidden())
++        self.page.keyboard.down('a')
++        self.assertEqual(self.page.evaluate('window.__V188_INPUT_TEST__.coreKeys()'),['d'])
++        self.page.keyboard.up('a')
++
+     def test_standard_gamepad_and_optional_extra_inversion(self):
+         self.page.evaluate('''()=>{
+           Object.defineProperty(navigator,'getGamepads',{configurable:true,value:()=>[
+@@ -69,7 +84,7 @@
+         }''')
+         out=self.page.evaluate('window.__V188_INPUT_TEST__.controls()')
+         self.assertGreater(out['steer'],0) # visually LEFT => legacy +X
+-        self.page.locator('#pad-invert').check()
++        self.page.evaluate("document.getElementById('pad-invert').checked=true")
+         self.page.evaluate('window.__V188_INPUT_TEST__.readInputs(.1)')
+         out=self.page.evaluate('window.__V188_INPUT_TEST__.controls()')
+         self.assertLess(out['steer'],0)
+--- /dev/null
++++ b/tests/test_v189.py
+@@ -0,0 +1,94 @@
++"""v1.8.9 seeded-map and game-mode contracts, no external npm dependencies."""
++from pathlib import Path
++from playwright.sync_api import sync_playwright
++import unittest, subprocess, json
++ROOT=Path(__file__).resolve().parents[1]
++WEB=ROOT/'desktop3d'
++
++class V189Contracts(unittest.TestCase):
++    def test_generated_map_validation(self):
++        p=subprocess.run(['node',str(WEB/'tests/validate-procedural-map.mjs')],capture_output=True,text=True)
++        self.assertEqual(p.returncode,0,p.stderr)
++        self.assertIn('PASS v1.8.9',p.stdout)
++
++    def test_road_rebuild_clears_all_physics_and_visual_objects(self):
++        p=subprocess.run(['node',str(WEB/'tests/validate-road-reset.mjs')],capture_output=True,text=True)
++        self.assertEqual(p.returncode,0,p.stderr)
++        self.assertIn('PASS v1.8.9 road',p.stdout)
++
++    def test_physics_solver_and_qa_scenarios_unmodified(self):
++        base=Path('/mnt/data/SHIFT_LAB_V1.8.8_Unified_Web_Drive/desktop3d')
++        self.assertEqual((WEB/'public/physics.html').read_bytes(),(ROOT/'legacy/shiftlab-2d-reference.html').read_bytes())
++        if base.exists():
++            for name in ['chassis.mjs','scenarios.mjs','obstacles.mjs','steering-input.mjs']:
++                self.assertEqual((WEB/'src'/name).read_bytes(),(base/'src'/name).read_bytes())
++        code=(WEB/'src/main.mjs').read_text()
++        self.assertIn('ensureScenarioMap(id)',code)
++        self.assertIn('const desired=id===\'free\'?userMapConfig:REFERENCE_MAP',code)
++        self.assertIn('obstacles.dispose();',code)
++        self.assertIn('road.clear();',code)
++        self.assertIn('d.generateRoad(config)',code)
++        road=(WEB/'src/road.mjs').read_text()
++        self.assertIn('this.world.removeCollider(chunk.collider,true)',road)
++        self.assertIn('this.scene.remove(chunk.mesh)',road)
++        self.assertIn('this.groundHandles.delete(chunk.collider.handle)',road)
++
++    def test_game_is_one_canvas_with_separate_modes(self):
++        html=(WEB/'index.html').read_text()
++        self.assertEqual(html.count('id="view"'),1)
++        self.assertIn('id="dashboard"',html)
++        self.assertIn('id="dash-speed"',html)
++        self.assertIn('id="dash-rpm"',html)
++        self.assertIn('id="dash-gear"',html)
++        self.assertIn('id="settings-panel"',html)
++        self.assertIn('id="tests-panel"',html)
++        self.assertIn('id="map-seed"',html)
++        self.assertIn('id="map-generate"',html)
++        self.assertIn('id="map-random"',html)
++        self.assertIn('id="route-preview"',html)
++        self.assertIn('aria-hidden="true"',html)
++        self.assertIn('id="panel-overlay" hidden',html)
++        self.assertIn('id="tests-panel" class="panel" role="dialog" aria-label="車輛物理測試模式" hidden',html)
++
++    def test_full_host_route_switch_restores_player_seed(self):
++        p=subprocess.run(['python',str(ROOT/'tests/route_switch_probe.py')],capture_output=True,text=True,timeout=45)
++        self.assertEqual(p.returncode,0,p.stdout+p.stderr)
++        self.assertIn('PASS 3D-host map regenerate',p.stdout)
++
++    def test_all_scripts_parse(self):
++        sources=list((WEB/'src').glob('*.mjs'))+list((WEB/'tests').glob('*.mjs'))
++        for file in sources:
++            with self.subTest(name=file.name):
++                p=subprocess.run(['node','--check',str(file)],capture_output=True,text=True)
++                self.assertEqual(p.returncode,0,p.stderr)
++
++class V189SeededRouteBrowser(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        cls.pw=sync_playwright().start()
++        cls.browser=cls.pw.chromium.launch(headless=True,executable_path='/usr/bin/chromium',args=['--no-sandbox'])
++    @classmethod
++    def tearDownClass(cls):cls.browser.close();cls.pw.stop()
++
++    def test_original_seeded_generator_reproduces_route(self):
++        page=self.browser.new_page()
++        try:
++            page.set_content((WEB/'public/physics.html').read_text(),wait_until='load')
++            payload=page.evaluate('''()=>{
++              const d=window.__SHIFT_LAB_DEBUG__,config={...d.route.config,seed:'TEST-189',turnChance:80};
++              d.generateRoad(config);
++              const first=d.route.points.filter((p,i)=>i%180===0).map(p=>[p.s,p.x,p.y,p.z,p.heading]);
++              const length=d.roadTotalDistance();
++              d.generateRoad(config);
++              const second=d.route.points.filter((p,i)=>i%180===0).map(p=>[p.s,p.x,p.y,p.z,p.heading]);
++              d.generateRoad({...config,seed:'DIFFERENT-189'});
++              const third=d.route.points.filter((p,i)=>i%180===0).map(p=>[p.s,p.x,p.y,p.z,p.heading]);
++              return {same:JSON.stringify(first)===JSON.stringify(second),different:JSON.stringify(first)!==JSON.stringify(third),length,startingRoadStraight:d.route.segments[0].type==='straight'};
++            }''')
++            self.assertTrue(payload['same'])
++            self.assertTrue(payload['different'])
++            self.assertTrue(payload['startingRoadStraight'])
++            self.assertGreater(payload['length'],8000)
++        finally:page.close()
++
++if __name__=='__main__':unittest.main(verbosity=2)

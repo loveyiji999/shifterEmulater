@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-02",
+  "objective": "?????????????????????",
+  "goalStatus": "active",
+  "planVersion": "1.10",
+  "previousGoalTurnClassification": {
+    "classification": "progress",
+    "evidence": "Package 16 finished actual Rapier construction checks, native offline preview, complete QA, unchanged production and source checkpoint."
+  },
+  "workPackage": "17: local costed river construction routing with protected footprints; regional connected outlets and runtime water remain incomplete",
+  "checks": {
+    "node tests/validate-river-routing.mjs": "PASS final; 16 exhaustive simple-path oracles, direction-aware costs, deterministic routes, protected detour / specified boundary, no-data diagonal barriers, source ownership and self-crossing footprint rejection",
+    "node tests/validate-riverbed.mjs": "PASS; actual shared construction geometry, 776 terrain Rapier queries; max error 0.042mm; source hashes unchanged",
+    "node tests/build-riverbed-preview.mjs": "PASS; new output prefix preserves package 16 artifacts",
+    "node tests/validate-procedural-browser.mjs --riverbed-preview --preview-name=p2-river-routing --native-gpu": "PASS; Intel UHD 770; before/after same camera/target; zero runtime/HTTP errors; after screenshot visually inspected",
+    "npm.cmd run build": "PASS 42 modules; existing chunk-size warning; all 6 production files byte-identical",
+    "node tests/validate-procedural-browser.mjs --production": "PASS; settings, rebuilding, wheel contacts, no acceptance UI/API/modules",
+    "node tests/validate-procedural-browser.mjs": "PASS; four vehicles, manual/automatic, V1/V2 compatibility and V3 driving",
+    "npm.cmd run qa:all": "PASS terminal exit 0; streaming, vehicle, surface, terrain and routing, grading, materials, lighting, engineering, performance, scenarios, 48 V3 seeds x 96 sections, 70 actual Rapier lane checks, transmission/manual, health and PRND",
+    "sourceRoundtrip": "PASS 12 files",
+    "documentationLinks": "PASS",
+    "previousFrozenArtifacts": "PASS all package 16 frozen artifacts byte-identical; new routing preview has its own prefix"
+  },
+  "sources": {
+    "desktop3d/src/river-routing.mjs": "5dacc1024813fd3c8676324bf3a0dcd15a257571a91fbb85415eaeb3193e4f98",
+    "desktop3d/tests/validate-river-routing.mjs": "e0cde354b01b5eb48dfd579784beb1dfb422ae543949e9f7f1287118cfeb654e",
+    "desktop3d/tests/riverbed-fixture.mjs": "f201d2e40ddde10c7426b38cabe7b1943e44c16bdf675c58601e0d33d848309d",
+    "desktop3d/tests/build-riverbed-preview.mjs": "3d78cb436d715f0956b5fb6940f9d33c871dbfcf5726411f004e5b76690d7308",
+    "desktop3d/tests/validate-procedural-browser.mjs": "cee646468d48a9428de2f462538c97eddd046a7531b92fddb24de4a584e785d8",
+    "desktop3d/package.json": "08370a8098c8b42a0faedfc09d68955db928e614227e356be356231dcc60feb8",
+    "docs/P2_RIVER_ROUTING.md": "030d36a5720bcda6027763f83e81b373cbb59492324164469beec32e45d5faca",
+    "docs/DEVELOPMENT_PLAN.md": "918976dd17f4c2863c6a1363d88ed03a740f76ff1b8bbf8fce9a41447c7af84b",
+    "docs/DEVELOPMENT_PROGRESS.md": "3378a2f365c30e6c472fbbd4bb3219d5ed9c196915eb806fe780905a40b95c0e",
+    "docs/AGENT_KNOWLEDGE.md": "9a9a10137057a12750649579c46d676e4e9d61ead6819277398032ebccb4d258",
+    "docs/AGENT_VERIFICATION.md": "d751654c8ba09df25eb583f9d1272c955155cabd126cf4a68a578da5059359f3",
+    "docs/DATA_CATALOG.md": "573d95073868f230981da83bc1e74cf1e1753403f7d3fb76c138e0dd07abfea3"
+  },
+  "sourceArchive": "p2-river-routing-source-2026-11-02.zip",
+  "sourceArchiveSha256": "8583b66214d62d1763e20d574cb5847984de4c03b54678ce15a70b450c67e649",
+  "patch": "archive/patches/p2-river-routing-2026-11-02.patch",
+  "patchSha256": "176591d217e2c37c8564bfe25615390a6fd1c2c6947da17d8c693cff7dec83a2",
+  "productionHashes": {
+    "index.html": "3caae9129e7cb28e137143dddb55f4b6d8cef1df5bf5deeb7b4b8ef5604ac0b2",
+    "physics.html": "c491cfc1ca5af23367822f87dfd27c12e122b83bf362ff6073829c75f952edbd",
+    "road-generator-v2.js": "09d1d2602c50d3a89e32b8d00b91cba34edc71a52a9f40e75529d63c81c2615c",
+    "road-generator-v3.js": "d9d0c37bfa479bfcce098e5f86625eff36055fa04927f377b9b48cdc655a9668",
+    "assets/index-4eUkyMqd.js": "f2c77199513aad0a097cf2b22ff4b9b890c709f0308eadb3ec663030fd82fe98",
+    "assets/streaming.worker-BprFnv2s.js": "788a7c7f1174055f672789089afcf7a5c8ee082f6dfaa222714124c75827b152"
+  },
+  "artifacts": {
+    "p2-river-routing-results-2026-11-02.json": "ca56f4b15fba0012f80ae9f483b87429106ee78d4a4cb3afebc6f2bd3aa1c132",
+    "p2-river-routing-contact-results-2026-11-02.json": "1e9cfcbf95ca3d306c48879de9ca8b0ac9c27798aec321130d78442ebd4f1609",
+    "p2-river-routing-preview-2026-11-02.html": "ef1ed34538a2cbfdf62f7c14e8c5e706843712ba2494194f2b4495416547c11a",
+    "p2-river-routing-before-2026-11-02.png": "bfef8e48bdf2deff2cd16a865aa4e34f36511ad63bb1b6ed815fb1864c4a0f60",
+    "p2-river-routing-after-2026-11-02.png": "d8a03b4aa74573bb7e526493e1c51d4093e54c91e2e0ebaef9e3e46adcc901fc",
+    "p2-river-routing-preview-verification-2026-11-02.json": "0d8601b046f503db62f59954a046088c9b280ad3ee0c649a1fb9df2c41f70345"
+  },
+  "comparativeResults": {
+    "scope": "local construction routing with protected footprints; regional outlets / river network and runtime integration still incomplete",
+    "exhaustiveOracleCases": 16,
+    "previousResults": "p2-riverbed-results-2026-11-02.json",
+    "reports": [
+      {
+        "seed": "LEVEL-1",
+        "routing": {
+          "points": 20,
+          "length": 171.8822509939086,
+          "cost": 92834.41755487592,
+          "visited": 2377,
+          "outletStatus": "window-continuation-required"
+        },
+        "status": "geometry-candidate",
+        "issues": [],
+        "summary": {
+          "changedVertices": 5477,
+          "maxCut": 20.90858829021454,
+          "protectedVertices": 1219,
+          "wetMaskEdges": 0,
+          "minPathCoverage": 1,
+          "waterTriangles": 1323
+        },
+        "sourceHash": "5f729c367383c268845549cd9330d412e22e65dc763a726b90dfa9054174d3d5"
+      },
+      {
+        "seed": "LEVEL-2",
+        "routing": {
+          "points": 20,
+          "length": 175.19595949289337,
+          "cost": 92000.38739245363,
+          "visited": 3015,
+          "outletStatus": "window-continuation-required"
+        },
+        "status": "rejected",
+        "issues": [
+          "wet-mask-boundary"
+        ],
+        "summary": {
+          "changedVertices": 5517,
+          "maxCut": 20.820564776659012,
+          "protectedVertices": 4566,
+          "wetMaskEdges": 11,
+          "minPathCoverage": 1,
+          "waterTriangles": 1317
+        },
+        "sourceHash": "d64814224def5bf0b8dcb11edab05c64736c454fb410190c7041a22e0e472429"
+      },
+      {
+        "seed": "ROAD-38274CD4",
+        "routing": {
+          "points": 20,
+          "length": 161.9411254969543,
+          "cost": 79219.39300932766,
+          "visited": 2634,
+          "outletStatus": "window-continuation-required"
+        },
+        "status": "geometry-candidate",
+        "issues": [],
+        "summary": {
+          "changedVertices": 6384,
+          "maxCut": 22.200616359710693,
+          "protectedVertices": 518,
+          "wetMaskEdges": 0,
+          "minPathCoverage": 1,
+          "waterTriangles": 1631
+        },
+        "sourceHash": "659912fe1710719a1b61aae17106162ead3f54423f1d5b4049e61570f296f5b7"
+      }
+    ]
+  },
+  "notCompleted": [
+    "Actual player terrain-loading / collision stutter root cause; no manual capture found",
+    "Regional catchments, verified outlets and cross-window continuity",
+    "Natural river path smoothing / bank refinement; deep cuts remain",
+    "LEVEL-2 wet corridor boundary rejection",
+    "Surface rebake, scenery avoidance, Worker / runtime integration",
+    "P2 full environments / transitions / far views",
+    "P3 ten scenes and long-running quality / performance comparison",
+    "P4 tuning / transmission tools",
+    "P5 complete appearance creation"
+  ],
+  "qaAllLog": "p2-river-routing-qa-all-2026-11-02.log",
+  "qaAllLogSha256": "3ab026de584f75ef4c70e5b1ed68ef09ba32ec691618c0fc2291f1b87f54646b",
+  "completionAudit": {
+    "entireObjectiveAchieved": false,
+    "reason": "P2 regional water / runtime integration, remaining environments, complete P3 performance, P4 and P5 remain. Local routing gates do not prove a complete river network or resolve player stutter."
+  }
+}

@@ -1,0 +1,4 @@
+model,training_rmse_m_s2,holdout_rmse_m_s2,holdout_r2,holdout_rows
+zero_ay_baseline,,0.693404210546401,,1357
+no_lag_v2_steering,0.32918957230853846,0.4015427228373743,0.6637574631990385,1357
+lag_and_nonlinear_selected_on_training,0.32428675238643395,0.40488038256326403,0.6581444746624179,1357

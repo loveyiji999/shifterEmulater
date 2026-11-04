@@ -1,0 +1,146 @@
+{
+  "status": "REAL MEASUREMENTS, NOT SYNTHETIC",
+  "source": "https://github.com/MB-Team-THI/UAHL-RevStED/blob/main/OBD_Sample.csv",
+  "source_blob_sha": "84189261768649e0c8eb0d62d474631ff401f3ea",
+  "input_rows": 200,
+  "record_duration_s": 19.9,
+  "sample_hz": 10.0,
+  "original_hz": 50.0,
+  "speed_kmh_range": [
+    10.75,
+    34.9875
+  ],
+  "steering_wheel_deg_range": [
+    -456.009,
+    56.875
+  ],
+  "measured_yaw_deg_s_range": [
+    -35.84,
+    6.4
+  ],
+  "fitted_surrogate": {
+    "equation": "tau dr/dt = c*v*(steering_wheel_angle - steering_zero) - r",
+    "effective_yaw_gain_per_m": 0.025675154963018698,
+    "effective_time_constant_s": 0.11317488964212404,
+    "effective_steering_center_deg": 11.025295726260032,
+    "conditional_equivalent_ratio_if_wheelbase_2_75_and_unity_yaw_gain": 14.16296665629199,
+    "identifiability_warning": "Cannot infer physical steering gear ratio or real yaw inertia from this one record; equivalent ratio is illustrative only."
+  },
+  "fit_converged": true,
+  "fit_cost": 5.19106611656696,
+  "split": {
+    "train": "0 to <6.5s",
+    "holdout_turn_exit": "6.5 to <11s",
+    "holdout_quiet": "11 to 19.9s"
+  },
+  "metrics": {
+    "train_turn": {
+      "fitted_dynamic": {
+        "n": 65,
+        "rmse_deg_s": 0.404712566221088,
+        "mae_deg_s": 0.3255356117105688,
+        "bias_deg_s": -0.002605824169257708,
+        "max_abs_deg_s": 1.0611663096958068
+      },
+      "same_fit_static": {
+        "n": 65,
+        "rmse_deg_s": 1.07697528994086,
+        "mae_deg_s": 0.8550061473357066,
+        "bias_deg_s": 0.7271612353354313,
+        "max_abs_deg_s": 2.6083553293545485
+      },
+      "zero_yaw": {
+        "n": 65,
+        "rmse_deg_s": 25.14951328478423,
+        "mae_deg_s": 21.68123076923077,
+        "bias_deg_s": -19.908923076923077,
+        "max_abs_deg_s": 35.84
+      },
+      "hold_first_value": {
+        "n": 65,
+        "rmse_deg_s": 30.467888568887638,
+        "mae_deg_s": 26.30892307692308,
+        "bias_deg_s": -26.30892307692308,
+        "max_abs_deg_s": 42.24
+      }
+    },
+    "holdout_turn_exit": {
+      "fitted_dynamic": {
+        "n": 45,
+        "rmse_deg_s": 1.4633146230630618,
+        "mae_deg_s": 1.2849086799878533,
+        "bias_deg_s": 1.2820365682228367,
+        "max_abs_deg_s": 2.681995988524239
+      },
+      "same_fit_static": {
+        "n": 45,
+        "rmse_deg_s": 0.9312844593167432,
+        "mae_deg_s": 0.7417668364105257,
+        "bias_deg_s": 0.3774199626377039,
+        "max_abs_deg_s": 2.065902814388852
+      },
+      "zero_yaw": {
+        "n": 45,
+        "rmse_deg_s": 16.415303429016067,
+        "mae_deg_s": 12.145777777777777,
+        "bias_deg_s": -11.235555555555555,
+        "max_abs_deg_s": 34.56
+      },
+      "hold_first_value": {
+        "n": 45,
+        "rmse_deg_s": 26.215533308835564,
+        "mae_deg_s": 23.324444444444442,
+        "bias_deg_s": 23.324444444444442,
+        "max_abs_deg_s": 38.400000000000006
+      }
+    },
+    "holdout_quiet": {
+      "fitted_dynamic": {
+        "n": 90,
+        "rmse_deg_s": 1.1012488010093051,
+        "mae_deg_s": 1.0071391016047881,
+        "bias_deg_s": 1.006624000281303,
+        "max_abs_deg_s": 1.8160377626488016
+      },
+      "same_fit_static": {
+        "n": 90,
+        "rmse_deg_s": 1.1279527405541103,
+        "mae_deg_s": 1.0344714286328125,
+        "bias_deg_s": 1.0344714286328125,
+        "max_abs_deg_s": 1.8499589380265133
+      },
+      "zero_yaw": {
+        "n": 90,
+        "rmse_deg_s": 0.820709719964644,
+        "mae_deg_s": 0.5262222222222223,
+        "bias_deg_s": 0.5262222222222223,
+        "max_abs_deg_s": 1.28
+      },
+      "hold_first_value": {
+        "n": 90,
+        "rmse_deg_s": 0.9822604316348876,
+        "mae_deg_s": 0.7537777777777778,
+        "bias_deg_s": -0.7537777777777778,
+        "max_abs_deg_s": 1.28
+      }
+    }
+  },
+  "lateral_check": {
+    "ay_observed_range": [
+      -0.675,
+      2.325
+    ],
+    "inertial_approx_rmse_mps2_if_LatAcc_in_mps2": 0.26632298218696343,
+    "corr_measured_ay_and_negative_v_yaw": 0.9876202497147514
+  },
+  "evidence_limits": [
+    "Published example CSV contains values rounded to 3 decimals",
+    "Only 20 seconds from one driving trace, not cross-vehicle verification",
+    "Original logged steering is steering wheel SW_pos_obd, not road wheel angle",
+    "Yaw quantized in apparent 1.28 deg/s increments; delay below sample period is uncertain",
+    "Unknown axle/wheelbase, steering ratio and car mass; yaw inertia NOT identified",
+    "Mean of 4 wheel speeds used for speed, not speedometer; subject to wheel slip",
+    "10Hz decimated subset; not all 50Hz samples processed in this environment",
+    "No confirmed dataset redistribution license; preserve only derived output in commercial project"
+  ]
+}

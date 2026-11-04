@@ -1,0 +1,32 @@
+{
+  "verification_status": "AUTHENTIC SOURCE MEASUREMENTS ANALYZED VIA CONNECTED GITHUB (FULL 999 ROWS)",
+  "source": "https://github.com/MB-Team-THI/UAHL-RevStED/blob/main/ADMA_data_sample.csv",
+  "blob_sha": "2e7385074dc741dbda0a2036184923d1b4942462",
+  "raw_rows": 999,
+  "sample_hz": 100,
+  "observation_s": 9.98,
+  "gyro_column": "rate_body_hr.z (index 27)",
+  "heading_column": "ins_yaw (index 96)",
+  "time_column": "ins_time_msec (index 109)",
+  "validation_method": "centered +/-5-sample heading difference; least-squares slope + intercept on <6.5s; remaining samples held out",
+  "derived_rows": 989,
+  "train_rows": 645,
+  "holdout_rows": 344,
+  "fitted_sensor_slope": 0.9725106999509848,
+  "fitted_sensor_offset_deg_s": -0.01716340815959405,
+  "heading_rate_vs_gyro_corr": 0.9742772533578749,
+  "train_rmse_raw_deg_s": 0.09929100711052252,
+  "train_rmse_corrected_deg_s": 0.09577515354454354,
+  "holdout_rmse_raw_deg_s": 0.08510550429006164,
+  "holdout_rmse_corrected_deg_s": 0.07844328994131365,
+  "speed_value_range_unverified_units": [11.305, 12.775],
+  "sideslip_deg_range": [-0.9, -0.25],
+  "applied_to_chassis_physics": false,
+  "evidence_limits": [
+    "One 9.98s ADMA/INS recording; not an independent vehicle model-validation run",
+    "Comparing gyro to the derivative of heading measured by the same sensor system is not an independent ground truth",
+    "Yaw angle quantized to about 0.01 degree in published CSV; finite differences add differentiation noise",
+    "Small fitted correction is a diagnostic sensor agreement check; not tire stiffness, steering rack or yaw inertia",
+    "Raw CSV publication on GitHub does not clearly establish redistribution rights"
+  ]
+}

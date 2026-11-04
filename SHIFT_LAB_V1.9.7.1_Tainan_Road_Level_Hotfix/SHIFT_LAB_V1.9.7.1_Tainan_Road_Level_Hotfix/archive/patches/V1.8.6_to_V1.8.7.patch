@@ -1,0 +1,1473 @@
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -18,3 +18,10 @@
+ - Validated P1 six 500Hz source sessions' wheel-normal-load channels and found **0/6 runs passed** paired positive-load quality gate. No fitting from unverified Fy/Fz/Mz.
+ - V1.8.5 read-only in-game benchmark and developer-accessible source metadata; no drivetrain, tire, suspension, ESC, keyboard, gamepad or physics integrator changes.
+ - Reproducible Python tools, exact source hashes, licensing caveats, chart/QA updates.
++
++## v1.8.7 (2026-10-21) — Desktop 3D collision acceptance beta
++
++- Added real-3D-browser acceptance UI, static transverse barrier/ramp, deterministic collision presets, finite-state/impulse/penetration gates, full-suite button, CSV-free JSON export, and Playwright browser automation entrypoint.
++- Fixed missing gamepad mapping dropdowns in v1.8.6 Three.js host, included run helpers, updated relative static asset paths.
++- Zero changes to inherited four-wheel physics and standalone offline driver; v1.8.6 root `index.html` remains identical.
++- All 71 source/regression tests complete: 69 pass, 2 original-data skips; actual Vite/Rapier WASM browser test is blocked by offline npm registry and remains pending.
+--- a/README.md
++++ b/README.md
+@@ -1,16 +1,21 @@
+-# SHIFT//LAB V1.8.6 — desktop driving physics and experimental Three.js / Rapier bridge
++# SHIFT//LAB v1.8.7 — Desktop 3D Driving & Collision Acceptance
+ 
+-**This release adds actual gameplay-physics changes to V1.8.5.** ESC now intervenes during unwanted straight-line yaw and coordinates high-friction brake pressure on split-μ surfaces. The legacy 1.65-rad/s yaw clamp is removed, keyboard/gamepad steering is revised, configurable post-peak tire recovery is provided, and the standalone HTML uses impulse-based planar guardrail contacts.
++**Scope:** The `desktop3d/` browser lab is expanded into a scenario-based Three.js + Rapier 3D collision acceptance tool. The legacy root `index.html` driving simulator is retained byte-for-byte from v1.8.6. Mobile optimisation is deferred.
+ 
+-## Start the desktop offline game (fully self-contained)
++## Launch a real 3D browser scene
+ 
+-Open the top-level `index.html` in Chrome or Edge. No internet, package manager or local server is needed. The handling section has `均衡 / 靈敏 / 原始物理` tire limit tuning and an optional ESC switch (still OFF by default in the inherited test UI for comparison). If you want more forgiving driving, select ESC ON.
++Requirements: Desktop Chrome/Edge, WebGL2 support, Node.js 22+ (or 20.19+), npm access to the public registry **on first installation**.
+ 
+-## Optional Three.js / Rapier desktop preview (experimental)
++**Windows:** Double-click `desktop3d/START_WINDOWS.cmd`. When the server reports ready, open **http://127.0.0.1:5173/** in Chrome or Edge.
+ 
+-See [`V186_DESKTOP_IMPLEMENTATION.md`](V186_DESKTOP_IMPLEMENTATION.md). The Vite host in `desktop3d/` renders real WebGL geometry, streams procedural 3D road colliders and uses a dynamic CCD-enabled Rapier body. It steps the **same** in-page SHIFT LAB wheel, tire and manual drivetrain solver as a source of forces, applies those forces at four wheel-contact points, then imports Rapier pose and speed; it never integrates the vehicle twice.
++**macOS/Linux:**
+ 
+-Run from a network-enabled PC with Node 20.19+ or 22+:
++```sh
++cd desktop3d
++sh START_UNIX.sh
++```
++
++or manually:
+ 
+ ```sh
+ cd desktop3d
+@@ -18,58 +23,38 @@
+ npm run dev
+ ```
+ 
+-**Testing caveat:** Network access to npm is unavailable in this creation container; the 3D browser runtime and Vite production build were not exercised here. The new integration is a source-complete, syntax-checked experimental prototype, not an approved production 3D vehicle implementation. The offline standalone version *was* runtime tested in headless Chromium.
++Visit `http://127.0.0.1:5173/`. This is a genuine local web page. Do **not** double-click `desktop3d/index.html`: native ESM imports, WebGL and Rapier WASM require the Vite HTTP server (or a production build). After dependencies are installed, the server can run without reinstalling each time using `npm run dev`.
+ 
+-## QA
++## How to test
+ 
+-`sh tests/RUN_V186_QA.sh` — 61 tests: 59 passed, 2 source-data skips. See [`V186_DESKTOP_QA.md`](V186_DESKTOP_QA.md). The simulated split-μ full-braking scenario shows yaw-rate reduction from 1.070 to 0.359 rad/s with ESC ON after 1.2 seconds; this is not real-car validation.
++1. Select `正面碰撞` and click `執行此工況`: the car is seeded at 20 m/s before a fixed cross-road barrier.
++2. Choose `斜角擦撞`: the car is seeded near the right guardrail at 23 m/s with an initial steering heading offset.
++3. Choose `高速 CCD`: 42 m/s into the barrier with continuous collision detection enabled.
++4. Choose `坡道及離地` or `靜止穩定` to inspect vertical/suspension dynamics.
++5. Click `完整自動驗收` for deterministic scenarios. `PASS` requires the stated numerical gates; `FAIL` is explicitly displayed with its failed subchecks. Export JSON for offline review. `暫停` / `單步` help inspect contact poses. Use the camera selector for side/chase/top views.
+ 
+-## Inherited measured-data research
++Manual driving: W/S accelerate/brake, A/D steer, Shift full clutch, 1–6/R/0 gear, I ignition, Space pause, Backspace reset. Original manual-clutch stalling and shift-synchroniser logic is unchanged. Standard Xbox-style gamepad controls can be mapped from the panel; mapping selection does not bypass the real manual drivetrain.
+ 
+-All V1.8.5 BMW and Bucknell read-only research results, provenance, calibration scripts and quality gates are preserved. The addition of post-peak tire tuning does not imply real BMW tire coefficients or an empirical ESC fit. Do not use the simulated dynamic QA as real-car evidence.
++The numerical measurements come from Rapier contacts and the original four-wheel integration: contact events, positive normal solver impulses (N·s), contact penetration distances, rigid-body orientation, four wheel-contact states, speed, render FPS, and step-time cost. They are **simulator acceptance metrics, not real-vehicle safety predictions**.
+ 
+----
++## Publish to a static website
+ 
+-## Archived V1.8.5 readme
++After installing packages:
+ 
+-# SHIFT//LAB V1.8.5 — gasoline measurements and data-quality gates
+-
+-V1.8.5 preserves the stand-alone HTML driving simulator, with all four manual-car models, keyboard/gamepad driving, 480-Hz four-corner vehicle model and V1.8.4's Bucknell P1 research baseline. It adds a **read-only** evidence panel under **Vehicle setup → V1.8 reference calibration → V1.8.5 gasoline**. The physical integrator and default vehicle parameters are deliberately unchanged.
+-
+-## What we actually validated
+-
+-**BMW M235i gasoline**, [cloudpose repository](https://github.com/cloudpose/smartphone_driving_dataset): real CAN measurements, April 8, 2018, 4,708 rows / 341.985 seconds. Steering angle, speed, accelerator, RPM and longitudinal/lateral acceleration. Full dataset read directly from the repository through a connected GitHub file service. Source blob SHA1 `9fb7b829265b9e94a09bbc188740dd7d350b0245`. Data was *not* reproduced from charts, nor fabricated. We tested only an input-to-lateral-acceleration **surrogate**, not the SHIFT//LAB full-car model.
+-
+-Data processing: mph→m/s; g→m/s²; degrees→radians; reject speed ≤5m/s; use time 0–185s for training, 185–205s excluded, and 205–end for untouched holdout; 1,411 valid training rows, 1,357 holdout rows. Predeclared grid: 10 candidate steering delays × 6 speed saturation terms = 60. Calibrated linear gain and offset selected by **training data only**. Model `ay = intercept + k*v²*steering(t-lag)/(1+c*v²)`. Final holdout: zero prediction 0.69340; no-delay static v²×steer 0.40154; training-selected 0.10s lag/c=0.002 0.40488 m/s² RMSE. Complex model **does not generalize better**. We do not promote either coefficient to a real-world tire or EPS part number; steering angle is not confirmed as a measured road-wheel angle, and the recording has no independent yaw-rate channel.
+-
+-**Ford Fiesta Titanium**, [IO-VNBD](https://github.com/onyekpeu/IO-VNBD): researched and confirmed the source schema for steering, yaw, wheel speeds, engine rpm, gear, clutch and throttle. The repository's individual full CSVs are Git LFS pointer files. They could not be obtained as verified full measurements within the current execution session. The exact experimental engine fuel type and manual/automatic transmission variant also were not established. Therefore Ford is a **future full-vehicle-validation candidate**, **not** in the new measured fit metrics.
+-
+-**Bucknell P1**, original SHA256-verified measured 500Hz MAT recordings: additionally audited front wheel force sensor plausibility in six sessions. Both front normal-load channels cannot be confirmed as simultaneously valid; a labelled force sensor channel can have missing calibration, offsets or incompatible conventions. This prevents scientifically reliable four-corner tire-force estimation from those channels at present. Check `results/p1_force_channel_quality.json` and `results/p1_force_quality_gate.png`.
+-
+-## Quick start: run the offline game
+-
+-Open `index.html` in Chrome or Edge. No network and no Python needed. Open **車輛設定 → V1.8 公開資料參照校正 → V1.8.5 汽油車實測驗證**. The benchmark is read-only; the previous vehicle-data reference toggle remains OFF by default.
+-
+-## Reproduce the studies (optional, Python)
+-
+-```
+-python -m pip install numpy scipy matplotlib numba
+-python calibration/validate_bmw_m235i.py --download --out results/bmw_reproduced
+-python calibration/validate_p1_force_channels.py --source-dir /path/to/original_Bucknell_mat --out results/p1_force_reproduced.json
+-python calibration/plot_v185_evidence.py
+-P1_RAW_DIR=/path/to/original_Bucknell_mat sh tests/RUN_V185_QA.sh
++```sh
++cd desktop3d
++npm run build
++npm run preview
+ ```
+ 
+-The BMW downloader requires normal external network access, which was unavailable from the local artifact container. A connected GitHub service read and analyzed the entire original source in this creation session. **The supplied Python downloader was independently unit-tested, but was not run against the complete raw file in this artifact container**. To check from a local raw file: `--input dataset1_car.csv` instead of `--download`. Hashes and exact row count are verified before analysis; alterations fail.
++`desktop3d/dist/` will contain the site assets (including the preexisting `physics.html`) and can be hosted under a sub-path due to Vite's relative base. The development package does **not** contain an already built `dist` because npm downloads were blocked in the creation environment.
+ 
+-University P1 public `.mat` measurements used for tests were accessed and processed in the development environment, but are **not included** in the distributed ZIP. P1 is an electric research vehicle, and none of its coefficients are automatically applied to passenger-car profiles.
++## Tests
+ 
+-## Model limitations
++- `sh tests/RUN_V187_QA.sh`: inherited Python/Chromium physics tests, cross-file integrity and new scenario gate logic. These tests **do not run Rapier in WebGL**.
++- `cd desktop3d && npm run qa:scenarios`: zero-dependency validation of the scenario acceptance gate definitions.
++- With a Vite dev server running and Python Playwright installed: `python desktop3d/tests/browser_v187.py --url http://127.0.0.1:5173/`. This **does** run the actual WebGL/Rapier browser acceptance and writes a screenshot and machine-readable report to `desktop3d/tests/artifacts/`. It returns a failure code if launch or a criterion fails.
+ 
+-BMW vehicle is a gasoline road car, but its steering-column-to-front-wheel ratio, tires, precise axle loads and yaw inertia are not established in these measurements. It has no yaw sensor field. Even accurate fitted BMW input-to-ay behavior does **not** prove correct tire force, aligning torque, suspension, drivetrain or SHIFT//LAB full 6DOF response. The P1 channel plausibility failure similarly does **not** prove the P1 force sensors themselves are faulty—it only establishes that the available exported values cannot yet pass a defined quality gate without verification of calibration and channel mapping.
++**Development-environment status:** inherited and new logic tests: **71 total, 69 pass, 2 optional P1 source-data skips**. The `npm install` attempt returned DNS `EAI_AGAIN`. The production Vite bundle and real Three.js/Rapier 3D browser acceptance were **not executed here**. See [`V187_3D_QA.md`](V187_3D_QA.md).
+ 
+-No unverified source model parameters were inserted into SHIFT//LAB's dynamic model. Future work: retrieve full Ford Fiesta Git LFS ECU observations, verify exact model/engine and steering front-wheel ratio; obtain calibrated front tire contact force channels from Bucknell or independent tire rig; validate the *actual SHIFT//LAB four-corner solver* under comparable test-road conditions.
+-
+-## Source & license notes
+-
+-See `DATA_PROVENANCE.md`. GitHub public availability does not guarantee permission to redistribute raw measurements or use them commercially. Only derived statistics, scripts and charts are included, and source references and pinned hashes are provided.
++For the earlier standalone and actual-vehicle research notes see [`README_V186_ARCHIVE.md`](README_V186_ARCHIVE.md) and `V186_DESKTOP_IMPLEMENTATION.md`.
+--- /dev/null
++++ b/README_V186_ARCHIVE.md
+@@ -0,0 +1,75 @@
++# SHIFT//LAB V1.8.6 — desktop driving physics and experimental Three.js / Rapier bridge
++
++**This release adds actual gameplay-physics changes to V1.8.5.** ESC now intervenes during unwanted straight-line yaw and coordinates high-friction brake pressure on split-μ surfaces. The legacy 1.65-rad/s yaw clamp is removed, keyboard/gamepad steering is revised, configurable post-peak tire recovery is provided, and the standalone HTML uses impulse-based planar guardrail contacts.
++
++## Start the desktop offline game (fully self-contained)
++
++Open the top-level `index.html` in Chrome or Edge. No internet, package manager or local server is needed. The handling section has `均衡 / 靈敏 / 原始物理` tire limit tuning and an optional ESC switch (still OFF by default in the inherited test UI for comparison). If you want more forgiving driving, select ESC ON.
++
++## Optional Three.js / Rapier desktop preview (experimental)
++
++See [`V186_DESKTOP_IMPLEMENTATION.md`](V186_DESKTOP_IMPLEMENTATION.md). The Vite host in `desktop3d/` renders real WebGL geometry, streams procedural 3D road colliders and uses a dynamic CCD-enabled Rapier body. It steps the **same** in-page SHIFT LAB wheel, tire and manual drivetrain solver as a source of forces, applies those forces at four wheel-contact points, then imports Rapier pose and speed; it never integrates the vehicle twice.
++
++Run from a network-enabled PC with Node 20.19+ or 22+:
++
++```sh
++cd desktop3d
++npm install
++npm run dev
++```
++
++**Testing caveat:** Network access to npm is unavailable in this creation container; the 3D browser runtime and Vite production build were not exercised here. The new integration is a source-complete, syntax-checked experimental prototype, not an approved production 3D vehicle implementation. The offline standalone version *was* runtime tested in headless Chromium.
++
++## QA
++
++`sh tests/RUN_V186_QA.sh` — 61 tests: 59 passed, 2 source-data skips. See [`V186_DESKTOP_QA.md`](V186_DESKTOP_QA.md). The simulated split-μ full-braking scenario shows yaw-rate reduction from 1.070 to 0.359 rad/s with ESC ON after 1.2 seconds; this is not real-car validation.
++
++## Inherited measured-data research
++
++All V1.8.5 BMW and Bucknell read-only research results, provenance, calibration scripts and quality gates are preserved. The addition of post-peak tire tuning does not imply real BMW tire coefficients or an empirical ESC fit. Do not use the simulated dynamic QA as real-car evidence.
++
++---
++
++## Archived V1.8.5 readme
++
++# SHIFT//LAB V1.8.5 — gasoline measurements and data-quality gates
++
++V1.8.5 preserves the stand-alone HTML driving simulator, with all four manual-car models, keyboard/gamepad driving, 480-Hz four-corner vehicle model and V1.8.4's Bucknell P1 research baseline. It adds a **read-only** evidence panel under **Vehicle setup → V1.8 reference calibration → V1.8.5 gasoline**. The physical integrator and default vehicle parameters are deliberately unchanged.
++
++## What we actually validated
++
++**BMW M235i gasoline**, [cloudpose repository](https://github.com/cloudpose/smartphone_driving_dataset): real CAN measurements, April 8, 2018, 4,708 rows / 341.985 seconds. Steering angle, speed, accelerator, RPM and longitudinal/lateral acceleration. Full dataset read directly from the repository through a connected GitHub file service. Source blob SHA1 `9fb7b829265b9e94a09bbc188740dd7d350b0245`. Data was *not* reproduced from charts, nor fabricated. We tested only an input-to-lateral-acceleration **surrogate**, not the SHIFT//LAB full-car model.
++
++Data processing: mph→m/s; g→m/s²; degrees→radians; reject speed ≤5m/s; use time 0–185s for training, 185–205s excluded, and 205–end for untouched holdout; 1,411 valid training rows, 1,357 holdout rows. Predeclared grid: 10 candidate steering delays × 6 speed saturation terms = 60. Calibrated linear gain and offset selected by **training data only**. Model `ay = intercept + k*v²*steering(t-lag)/(1+c*v²)`. Final holdout: zero prediction 0.69340; no-delay static v²×steer 0.40154; training-selected 0.10s lag/c=0.002 0.40488 m/s² RMSE. Complex model **does not generalize better**. We do not promote either coefficient to a real-world tire or EPS part number; steering angle is not confirmed as a measured road-wheel angle, and the recording has no independent yaw-rate channel.
++
++**Ford Fiesta Titanium**, [IO-VNBD](https://github.com/onyekpeu/IO-VNBD): researched and confirmed the source schema for steering, yaw, wheel speeds, engine rpm, gear, clutch and throttle. The repository's individual full CSVs are Git LFS pointer files. They could not be obtained as verified full measurements within the current execution session. The exact experimental engine fuel type and manual/automatic transmission variant also were not established. Therefore Ford is a **future full-vehicle-validation candidate**, **not** in the new measured fit metrics.
++
++**Bucknell P1**, original SHA256-verified measured 500Hz MAT recordings: additionally audited front wheel force sensor plausibility in six sessions. Both front normal-load channels cannot be confirmed as simultaneously valid; a labelled force sensor channel can have missing calibration, offsets or incompatible conventions. This prevents scientifically reliable four-corner tire-force estimation from those channels at present. Check `results/p1_force_channel_quality.json` and `results/p1_force_quality_gate.png`.
++
++## Quick start: run the offline game
++
++Open `index.html` in Chrome or Edge. No network and no Python needed. Open **車輛設定 → V1.8 公開資料參照校正 → V1.8.5 汽油車實測驗證**. The benchmark is read-only; the previous vehicle-data reference toggle remains OFF by default.
++
++## Reproduce the studies (optional, Python)
++
++```
++python -m pip install numpy scipy matplotlib numba
++python calibration/validate_bmw_m235i.py --download --out results/bmw_reproduced
++python calibration/validate_p1_force_channels.py --source-dir /path/to/original_Bucknell_mat --out results/p1_force_reproduced.json
++python calibration/plot_v185_evidence.py
++P1_RAW_DIR=/path/to/original_Bucknell_mat sh tests/RUN_V185_QA.sh
++```
++
++The BMW downloader requires normal external network access, which was unavailable from the local artifact container. A connected GitHub service read and analyzed the entire original source in this creation session. **The supplied Python downloader was independently unit-tested, but was not run against the complete raw file in this artifact container**. To check from a local raw file: `--input dataset1_car.csv` instead of `--download`. Hashes and exact row count are verified before analysis; alterations fail.
++
++University P1 public `.mat` measurements used for tests were accessed and processed in the development environment, but are **not included** in the distributed ZIP. P1 is an electric research vehicle, and none of its coefficients are automatically applied to passenger-car profiles.
++
++## Model limitations
++
++BMW vehicle is a gasoline road car, but its steering-column-to-front-wheel ratio, tires, precise axle loads and yaw inertia are not established in these measurements. It has no yaw sensor field. Even accurate fitted BMW input-to-ay behavior does **not** prove correct tire force, aligning torque, suspension, drivetrain or SHIFT//LAB full 6DOF response. The P1 channel plausibility failure similarly does **not** prove the P1 force sensors themselves are faulty—it only establishes that the available exported values cannot yet pass a defined quality gate without verification of calibration and channel mapping.
++
++No unverified source model parameters were inserted into SHIFT//LAB's dynamic model. Future work: retrieve full Ford Fiesta Git LFS ECU observations, verify exact model/engine and steering front-wheel ratio; obtain calibrated front tire contact force channels from Bucknell or independent tire rig; validate the *actual SHIFT//LAB four-corner solver* under comparable test-road conditions.
++
++## Source & license notes
++
++See `DATA_PROVENANCE.md`. GitHub public availability does not guarantee permission to redistribute raw measurements or use them commercially. Only derived statistics, scripts and charts are included, and source references and pinned hashes are provided.
+--- /dev/null
++++ b/V187_3D_IMPLEMENTATION.md
+@@ -0,0 +1,43 @@
++# V1.8.7 — 3D Collision Acceptance Implementation
++
++## Changes from v1.8.6
++
++- Resolved fatal `null` control references in the v1.8.6 3D page: the new HTML now defines all four gamepad mapping selectors, gamepad selection, camera selection, scenario selection, and QA controls. The JavaScript startup path has explicit error handling.
++- Added five controlled simulation cases (plus manual free drive): settle, frontal barrier, guardrail glancing strike, high-speed CCD barrier, and ramp/vertical motion.
++- Added a full-width fixed transverse solid Rapier barrier with visible painted geometry, and a separate collision-mesh ramp. Both are built into the acceptance track and are not baked into the base tire model.
++- Contact metrics are sampled from Rapier `contactPair` manifolds using `contactImpulse(i)` and `contactDist(i)`. Rail and transverse-barrier episode counts are tracked separately. No hypothetical force/impulse has been added to the car based solely on test thresholds.
++- Added safe test-preset teleports with synchronized Rapier rigid-body pose/velocities, local route position and all four wheel angular speeds. This prevents the two solvers from fighting each other during test setup.
++- Preserved single-authority 6-DOF Rapier chassis. SHIFT LAB computes tires, wheel angular velocities, suspension contact spring/damping, manual engine/clutch/transmission, ABS, TCS, ESC. Per-corner forces go to Rapier with `addForceAtPoint`. `world.step()` remains a single call per 1/480-second microstep. Independent planar vehicle-pose integration is disabled when a 3D bridge is active.
++- Created a deterministic auto-QA interface accessible as `window.__SHIFT_LAB_3D_QA__` for browser automation; methods include `.snapshot()`, `.loadScenario(id)`, `.step(n)`, `.runScenario(id)`, `.runSuite()`, and `.report`.
++- Fixed-timestep progression uses 120Hz outer updates and four legacy microsteps. Simulated time is independent of render FPS. Rendering drop count and actual physics step duration are visible in HUD.
++- Added headless Playwright Chromium test entrypoint. This requires Vite/NPM packages; it deliberately fails on real WebGL/WASM runtime errors or failed numeric gates.
++- Added Windows/Unix launch helpers and a Vite relative base for deploying under another site's sub-path.
++
++## Coordinate & ownership contract
++
++- World convention: +X = lateral vehicle right, +Y = up, +Z = vehicle forward.
++- Vehicle's COM transforms, rotational velocity, and all rigid collision responses are owned by Rapier, not by Three.js meshes or the legacy planar kinematic integrator.
++- Four suspension probes cast into registered road/ramp colliders. Other obstacles are excluded from tire support raycasts to prevent the car from driving *on top of guardrails* as if they were asphalt.
++- Each tire's longitudinal and lateral force is applied at a separately rotated contact-patch lever arm. Road grade is included by Rapier gravity; the legacy bridge cancels the legacy planar grade-force contribution at the boundary to prevent double counting.
++- Test teleports are only activated by the 3D host UI and reset the original simulator before injecting initial speeds. Original manual drivetrain/stall behavior is unchanged during test simulation.
++
++## Scenario acceptance philosophy
++
++The test engine does not auto-adjust collision parameters until a green result appears. A case is PASS only if: values remain finite, rigid body stays bounded, no velocity explosion, plus specific assertions:
++
++- Frontal and high-speed barriers: barrier contact, positive solver impulse, no crossing beyond barrier, limited contact penetration.
++- Side-swipe: rail contact and positive contact impulse, no excessive penetration.
++- Static settle: vehicle does not drift/flip, wheels remain on the road.
++- Ramp: vertical movement occurs with tire/ground contact and no catastrophic flipping.
++
++Pass thresholds are *engineering heuristics* and should be revised after actual desktop runtime inspection. Failure is allowed and informative; it is not hidden.
++
++## Realism limitations
++
++Raycast suspension is not a four-unsprung-body constraint system. Static trimesh surfaces and a cuboid chassis hull are approximations; continuous collision detection reduces tunneling risk but does not guarantee robust high-energy car crashes. Real sensor data are not used to calibrate collision stiffness, barrier restitution, tire carcass, or structural deformation. No damage/crumple zones, wheel-body collision shapes, accurate off-road terrain dynamics, or asset pipeline exist yet.
++
++The historical root `index.html` remains a Canvas 2D offline driver. The 3D QA host is a separate browser app and not a finished production driving game. Networked multiplayer and smartphone optimization remain deferred.
++
++## Runtime QA blocker (must not be treated as success)
++
++In the current build container `npm install` failed with `EAI_AGAIN` resolving `registry.npmjs.org`; no downloaded Three.js, Vite, or Rapier WASM is available. Therefore actual Vite build, full 3D rendering, contact solve values and browser acceptance cannot be honestly asserted as passed in this environment. The `tests/browser_v187.py` script is included for running these missing checks on a connected desktop.
+--- /dev/null
++++ b/V187_3D_QA.md
+@@ -0,0 +1,37 @@
++# V1.8.7 3D QA status (2026-10-21)
++
++## Verified here
++
++| Check | Result | Evidence |
++| --- | --- | --- |
++| Legacy v1.8.3–v1.8.6 regressions | PASS (2 optional raw-P1 skips) | `tests/v187_inherited_v186_qa.log` |
++| All new v1.8.7 source and scenario tests | PASS | `tests/v187_qa.log` |
++| Total consolidated regression | **69 PASS / 2 SKIP / 0 FAIL (71 tests)** | `tests/v187_qa.log` |
++| ESM module parsing (`node --check`) | PASS | `test_v187.py` |
++| Scenario gate fail-safe logic | PASS | `npm run qa:scenarios` |
++| HTML IDs referenced by JS | PASS | `test_v187.py` |
++| Rapier one-step-per-microstep source contract | PASS | `test_v186.py`, `test_v187.py` |
++| Same v1.8.6 four-wheel solver bundled for standalone and 3D iframe | PASS | byte-for-byte equality test |
++
++## Blocked/not executed here
++
++| Gate | Status | Reason |
++| --- | --- | --- |
++| `cd desktop3d && npm install` | **BLOCKED** | DNS lookup of npm registry: `EAI_AGAIN` |
++| Vite build and local HTTP server | NOT RUN | Packages unavailable |
++| Three.js WebGL2 initial scene display | NOT RUN | Packages unavailable |
++| Rapier WASM initialisation and real 6-DOF dynamics | NOT RUN | Packages unavailable |
++| Real 3D barrier contacts and impulse/penetration results | NOT RUN | Packages unavailable |
++| 3D scripted full-suite criteria | NOT RUN | Packages unavailable |
++| Desktop gamepad hardware and browser performance | NOT RUN | No target PC/hardware connected |
++
++## Exact steps for missing release gates
++
++1. Install Node 22+, open a terminal in `desktop3d`, run `npm install`, `npm run dev`.
++2. Visit `http://127.0.0.1:5173/` in desktop Chrome. Ensure the WebGL loading overlay disappears and the status says 3D initialized.
++3. Run all five cases using `完整自動驗收`. Record every FAIL including the contact penetration and numerical growth data. Inspect whether object collisions visibly match measured impacts.
++4. Execute `python desktop3d/tests/browser_v187.py --url http://127.0.0.1:5173/` (requires Python Playwright installed and Chromium accessible). The resulting screenshot, JSON metrics, and exit code can be supplied for further corrections.
++5. Test keyboard/manual gearbox, gamepad axes/triggers and at least 10 minutes of continuous 3D driving on actual target desktop hardware.
++6. Build `npm run build` and load `dist/` through a local/hosted HTTP server. Validate WASM loads without dev server dependencies.
++
++The five simulation acceptance criteria are defined in `desktop3d/src/scenarios.mjs`. **Their passing unit tests verify test logic, not a successful physical collision.** Treat v1.8.7 as *code-complete engineering QA beta, runtime validation pending*.
+--- /dev/null
++++ b/desktop3d/START_UNIX.sh
+@@ -0,0 +1,8 @@
++#!/bin/sh
++set -eu
++cd "$(dirname "$0")"
++command -v node >/dev/null || { echo 'Node.js 22+ or 20.19+ required'; exit 1; }
++command -v npm >/dev/null || { echo 'npm required'; exit 1; }
++npm install --no-audit --no-fund
++printf 'Open http://127.0.0.1:5173/ in desktop Chrome or Edge.\n'
++npm run dev
+--- /dev/null
++++ b/desktop3d/START_WINDOWS.cmd
+@@ -0,0 +1,19 @@
++@echo off
++setlocal
++cd /d "%~dp0"
++where node >nul 2>nul
++if errorlevel 1 (
++  echo Node.js 22+ or 20.19+ is required. Install it first.
++  pause
++  exit /b 1
++)
++echo [SHIFT LAB v1.8.7] Installing desktop 3D dependencies...
++call npm install --no-audit --no-fund
++if errorlevel 1 (
++  echo npm install failed. Check network access to registry.npmjs.org.
++  pause
++  exit /b 1
++)
++echo Starting local browser server. Open http://127.0.0.1:5173/
++call npm run dev
++pause
+--- a/desktop3d/index.html
++++ b/desktop3d/index.html
+@@ -1,24 +1,73 @@
+-<!DOCTYPE html>
+-<html lang="zh-Hant"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+-<title>SHIFT//LAB v1.8.6 · Desktop Three.js / Rapier</title>
+-<style>
+-*{box-sizing:border-box}body{margin:0;background:#07121d;color:#e2eff1;font-family:system-ui,"Noto Sans TC",sans-serif;overflow:hidden}
+-#view{display:block;width:100vw;height:100vh}#panel{position:absolute;top:18px;left:18px;width:min(400px,calc(100vw - 36px));padding:17px 19px;background:#081d2fe8;border:1px solid #3c7181;border-radius:12px;backdrop-filter:blur(9px);max-height:calc(100vh - 36px);overflow:auto}h1{margin:0 0 8px;font-size:17px;letter-spacing:.05em}p{font-size:12px;line-height:1.7;color:#b2cbd5}#status{margin:7px 0 15px;color:#8edabd;font-size:12px}dl{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:0}dl div{border:1px solid #2c5064;background:#0b2836;border-radius:8px;padding:9px}dt{font-size:10px;color:#90b1c2}dd{margin:4px 0 0;font:700 16px ui-monospace,Consolas,monospace}button,select{border:1px solid #46778a;background:#17384c;color:white;padding:8px 9px;border-radius:6px;margin:3px 3px 3px 0;cursor:pointer}button:hover{background:#24556a}button:disabled{opacity:.45}.muted{opacity:.75}kbd{background:#153546;border:1px solid #426879;padding:1px 5px;border-radius:4px}#hint{font-size:11px;margin:8px 0 0}#alert{color:#ffd78b}#screen-overlay{position:fixed;inset:0;display:grid;place-items:center;background:#06101ceb;font-size:17px;z-index:20}#model-note{font-size:11px;color:#9fbbca}
+-</style></head>
+-<body><canvas id="view"></canvas>
+-<div id="panel">
+-  <h1>SHIFT//LAB · 桌面 3D 剛體預覽</h1>
+-  <div id="status">正在載入物理核心…</div>
+-  <div><button id="engine">啟動引擎 [I]</button><button id="reset">重置 [Backspace]</button></div>
+-  <div><label>排檔 <select id="gear"><option value="0">N · 空檔</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="-1">R · 倒車</option></select></label>
+-    <label>ESC <select id="esc"><option value="on">ON</option><option value="off">OFF</option></select></label>
+-    <label>輪胎 <select id="feel"><option value="balanced">均衡</option><option value="sport">靈敏</option><option value="raw">原始</option></select></label></div>
+-  <dl><div><dt>車速</dt><dd id="speed">0.0 km/h</dd></div><div><dt>引擎</dt><dd id="rpm">0 RPM</dd></div><div><dt>偏航</dt><dd id="yaw">0.0 °/s</dd></div><div><dt>車身</dt><dd id="attitude">0.0° / 0.0°</dd></div><div><dt>接地</dt><dd id="contacts">4 / 4</dd></div><div><dt>ESC</dt><dd id="esc-status">待命</dd></div></dl>
+-  <p id="hint">方向 <kbd>A</kbd>/<kbd>D</kbd>、加速 <kbd>W</kbd>、煞車 <kbd>S</kbd>、離合器 <kbd>Shift</kbd>。先按 <kbd>I</kbd> 發動，再長按 <kbd>Shift</kbd> 選入 1 檔，慢放離合器並加油。手柄的軸／踏板校正沿用原物理核心設定。</p>
+-  <p id="model-note">使用原始四輪輪胎／手排動力學計算受力，Rapier 對車身姿態、垂直懸吊與障礙物碰撞獨立負責；此為桌面整合測試場景，非手機版本或正式遊戲圖資引擎。</p>
+-  <p id="alert"></p>
+-</div>
+-<iframe id="physics" src="/physics.html" title="SHIFT LAB physics worker" aria-hidden="true" style="position:absolute;width:0;height:0;border:0;opacity:0;pointer-events:none"></iframe>
+-<div id="screen-overlay">正在啟動 WebGL 及 WASM 物理引擎…</div>
+-<script type="module" src="/src/main.mjs"></script>
+-</body></html>
++<!doctype html>
++<html lang="zh-Hant">
++<head>
++  <meta charset="UTF-8">
++  <meta name="viewport" content="width=device-width,initial-scale=1">
++  <meta name="theme-color" content="#081623">
++  <title>SHIFT//LAB v1.8.7 — 3D 駕駛與碰撞驗收</title>
++  <style>
++    :root{color-scheme:dark;--ink:#e6f3f2;--muted:#a6bfca;--line:#3b6376;--mint:#8ce7c9;--warn:#ffd395;--fail:#ff9b9c}
++    *{box-sizing:border-box}body{margin:0;background:#07141c;color:var(--ink);font:13px/1.55 system-ui,'Noto Sans TC','Microsoft JhengHei',sans-serif;overflow:hidden}
++    #view{display:block;width:100vw;height:100vh;touch-action:none}#left,#right{position:absolute;top:16px;bottom:16px;background:#091a2ce9;backdrop-filter:blur(13px);border:1px solid var(--line);box-shadow:0 14px 50px #00101a8f;border-radius:16px;overflow:auto;scrollbar-color:#3c6476 transparent}
++    #left{left:16px;width:345px;padding:17px 18px}#right{right:16px;width:330px;padding:16px 17px}h1{font-size:19px;margin:0;color:#f4fffd;line-height:1.3;letter-spacing:.035em}h2{font-size:13px;color:var(--mint);letter-spacing:.08em;margin:18px 0 9px}h3{font-size:12px;margin:14px 0 8px}
++    small,.desc{font-size:11px;color:var(--muted);line-height:1.7}.overline{color:var(--mint);font-size:10px;font-weight:850;letter-spacing:.22em;margin-bottom:6px}p{margin:8px 0 11px}.status{border:1px solid #326e65;background:#153e3a;border-radius:9px;margin:14px 0;padding:10px;color:#b9ffe2;font-size:12px}label{display:block;color:#cbdfe6;font-size:11px;margin:7px 0 4px}select,button{font:inherit;border:1px solid #477083;background:#173345;color:var(--ink);border-radius:7px;padding:8px 9px}select{width:100%;max-width:100%;cursor:pointer}button{cursor:pointer;font-weight:650}button:hover:not(:disabled){background:#28516a;border-color:#9dd7cf}button:disabled{opacity:.40;cursor:not-allowed}button.primary{background:#207960;border-color:#5acaac;color:#fff}button.secondary{background:#23465c}button:focus-visible,select:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
++    .btnrow{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.btnrow>*{flex:1;min-width:88px}.duo{display:grid;grid-template-columns:1fr 1fr;gap:8px}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.fields label{min-width:0}.segment{border-top:1px solid #315266;margin-top:15px;padding-top:4px}.metricgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.metric{border:1px solid #2d5465;border-radius:10px;padding:10px;background:#0c2936}.metric strong{display:block;font:700 18px/1.35 ui-monospace,Consolas,monospace;color:#f7fffe;overflow-wrap:anywhere}.metric span{display:block;color:#a9c5d0;font-size:10px;margin-bottom:4px}.metric.critical strong{color:#ffca94}
++    #qa-results{min-height:40px;margin-top:8px}#events{list-style:none;margin:7px 0;padding:0;max-height:170px;overflow:auto}#events li{padding:6px 0;border-bottom:1px solid #254656;color:#c8dce3;font:11px/1.5 ui-monospace,monospace}#suite-results{border-top:1px solid #2a5566;margin-top:12px;padding-top:9px}.result{margin:7px 0;padding:7px 8px;border:1px solid #31556a;border-radius:7px;font-size:11px}.pass{color:var(--mint)}.fail{color:var(--fail)}.pending{color:var(--warn)}.footnote{font-size:10px;color:var(--muted);border-top:1px solid #305267;padding-top:12px;margin-top:14px}
++    kbd{font:11px ui-monospace,monospace;border:1px solid #45677a;padding:1px 4px;border-radius:4px;background:#173143;color:#fff}#screen-overlay{position:absolute;inset:0;background:#051421e8;display:grid;place-items:center;z-index:12}#screen-overlay .message{background:#0e2639;padding:24px;border:1px solid #426877;border-radius:16px;max-width:560px;margin:15px;text-align:center;color:#e6f3f2}#screen-overlay .message strong{display:block;font-size:19px;margin-bottom:8px}#mini{position:absolute;left:380px;bottom:20px;background:#081f30d8;border:1px solid #3d6475;padding:9px 13px;border-radius:9px;color:#d8eff0;font:11px ui-monospace,Consolas,monospace;pointer-events:none}
++    @media(max-width:1100px){#left{width:310px}#right{width:288px}#mini{left:340px}}@media(max-width:780px){body{overflow:auto}#view{height:64vh;width:100vw}#left,#right{position:relative;inset:auto;width:auto;max-height:none;margin:10px 12px}#mini{position:static;margin:10px 12px}#screen-overlay{position:fixed}}
++  </style>
++</head>
++<body>
++<canvas id="view" aria-label="3D 車輛與護欄碰撞場景"></canvas>
++<section id="left" aria-label="駕駛及場景操作">
++  <div class="overline">SHIFT//LAB · DESKTOP QA</div>
++  <h1>v1.8.7<br>3D 駕駛與碰撞驗收</h1>
++  <p class="desc">沿用 v1.8.6 四輪動力學。Three.js 顯示畫面、Rapier 獨立處理剛體碰撞；測試場景使用可重現的初始條件。</p>
++  <div class="status" id="status" role="status">正在初始化 WebGL / Rapier WASM…</div>
++  <h2>驗收場景</h2>
++  <label for="scenario">測試工況</label><select id="scenario"><option value="free">自由試駕</option><option value="frontal">正面碰撞</option><option value="glancing">斜角擦撞</option><option value="fast">高速 CCD</option><option value="ramp">坡道及離地</option><option value="settle">靜止穩定</option></select>
++  <p class="desc" id="scenario-brief">自由試駕：完整手排操作與四輪物理。</p>
++  <div class="btnrow"><button class="primary" id="load-scenario">載入工況</button><button id="run-case">執行此工況</button></div>
++  <div class="btnrow"><button class="secondary" id="run-suite">完整自動驗收</button><button id="export-report">匯出 JSON 報告</button></div>
++  <div class="btnrow"><button id="pause">暫停</button><button id="step">單步 1/120 s</button><button id="reset">重置</button></div>
++  <p class="desc">按「載入工況」後可自行操控；「執行此工況」使用固定初速與中立操作重現相同碰撞。自動驗收只檢查程式定義的門檻，不代表實車安全認證。</p>
++  <div class="segment"><h2>駕駛控制</h2>
++    <div class="btnrow"><button id="engine">啟動引擎 [I]</button></div>
++    <div class="duo"><label>排檔<select id="gear"><option value="0">N 空檔</option><option value="1">1 檔</option><option value="2">2 檔</option><option value="3">3 檔</option><option value="4">4 檔</option><option value="5">5 檔</option><option value="6">6 檔</option><option value="-1">R 倒車</option></select></label><label>ESC<select id="esc"><option value="on">ON</option><option value="off">OFF</option></select></label></div>
++    <div class="duo"><label>輪胎極限手感<select id="feel"><option value="balanced">均衡</option><option value="sport">靈敏</option><option value="raw">原始</option></select></label><label>鏡頭<select id="camera-mode"><option value="chase">追尾</option><option value="side">側面</option><option value="top">俯視</option></select></label></div>
++    <p class="desc"><kbd>W</kbd> 加速、<kbd>S</kbd> 煞車、<kbd>A</kbd>/<kbd>D</kbd> 轉向、<kbd>Shift</kbd> 離合器、<kbd>1</kbd>–<kbd>6</kbd> 換檔、<kbd>R</kbd> 倒檔、<kbd>I</kbd> 引擎、<kbd>Space</kbd> 暫停、<kbd>Backspace</kbd> 重置。起步請先發動，踩離合器，選入 1 檔並平順鬆開離合器。</p>
++  </div>
++  <div class="segment"><h2>手柄映射</h2>
++    <label>裝置<select id="pad"><option value="off">不使用手柄</option><option value="auto" selected>自動使用第一個</option></select></label>
++    <div class="fields"><label>轉向軸<select id="pad-axis"></select></label><label>油門按鈕<select id="pad-gas"></select></label><label>煞車按鈕<select id="pad-brake"></select></label><label>離合器按鈕<select id="pad-clutch"></select></label></div>
++    <p class="desc" id="pad-status">未偵測到手柄。標準配置預設：左搖桿水平軸／右扳機油門／左扳機煞車。</p>
++  </div>
++  <div class="footnote">此頁為桌面版工程驗收環境。手機觸控與手機效能最佳化已排除；不含真實地圖、網路連線或事故安全測試。若 WebGL / WASM 無法載入，頁面會明確顯示錯誤，不會假裝測試已通過。</div>
++</section>
++<aside id="right" aria-label="物理監測與結果">
++  <div class="overline">LIVE TELEMETRY</div><h2 style="margin-top:2px">剛體狀態</h2>
++  <div class="metricgrid">
++    <div class="metric"><span>行駛速度</span><strong id="speed">0.0 km/h</strong></div>
++    <div class="metric"><span>引擎 RPM</span><strong id="rpm">0</strong></div>
++    <div class="metric"><span>偏航角速度</span><strong id="yaw">0 °/s</strong></div>
++    <div class="metric"><span>側傾 / 俯仰</span><strong id="attitude">0 / 0 °</strong></div>
++    <div class="metric"><span>輪胎接地</span><strong id="contacts">0 / 4</strong></div>
++    <div class="metric"><span>ESC</span><strong id="esc-status">待命</strong></div>
++    <div class="metric"><span>護欄 / 路障撞擊</span><strong id="rail-hits">0 / 0</strong></div>
++    <div class="metric"><span>最大接觸衝量</span><strong id="impact">0 N·s</strong></div>
++    <div class="metric"><span>最大碰撞穿透</span><strong id="penetration">0.000 m</strong></div>
++    <div class="metric"><span>物理耗時</span><strong id="physics-step">0.00 ms</strong></div>
++    <div class="metric"><span>畫面 FPS</span><strong id="fps">--</strong></div>
++    <div class="metric"><span>累計掉步</span><strong id="lost-steps">0</strong></div>
++  </div>
++  <h2>判定結果</h2><div id="qa-results" role="status">尚未執行自動驗收</div>
++  <div id="suite-results"></div>
++  <h2>接觸事件</h2><ul id="events"><li>尚無碰撞事件</li></ul>
++  <p class="desc" id="alert"></p>
++</aside>
++<div id="mini">Rapier 6DOF · 四輪接觸點受力 · 120Hz ×4 microsteps</div>
++<iframe id="physics" src="./physics.html" title="SHIFT LAB driving physics" aria-hidden="true" style="position:absolute;width:0;height:0;border:0;opacity:0;pointer-events:none"></iframe>
++<div id="screen-overlay"><div class="message"><strong>SHIFT//LAB 3D</strong><span id="overlay-message">正在啟動 WebGL 與 WASM 物理引擎…</span></div></div>
++<script type="module" src="./src/main.mjs"></script>
++</body>
++</html>
+--- a/desktop3d/package.json
++++ b/desktop3d/package.json
+@@ -1,18 +1,19 @@
+ {
+-  "name": "shift-lab-desktop-3d-bridge",
++  "name": "shift-lab-v187-desktop-3d-collision-qa",
++  "version": "1.8.7",
+   "private": true,
+-  "version": "1.8.6",
+   "type": "module",
+   "scripts": {
+-    "dev": "vite --host 127.0.0.1",
++    "dev": "vite --host 127.0.0.1 --port 5173",
+     "build": "vite build",
+-    "preview": "vite preview --host 127.0.0.1"
++    "preview": "vite preview --host 127.0.0.1 --port 4173",
++    "qa:scenarios": "node ./tests/validate-scenarios.mjs"
+   },
+   "dependencies": {
+-    "@dimforge/rapier3d-compat": "^0.18.0",
+-    "three": "^0.180.0"
++    "@dimforge/rapier3d-compat": "0.18.2",
++    "three": "0.180.0"
+   },
+   "devDependencies": {
+-    "vite": "^7.1.0"
++    "vite": "7.1.0"
+   }
+ }
+--- a/desktop3d/src/chassis.mjs
++++ b/desktop3d/src/chassis.mjs
+@@ -9,8 +9,13 @@
+     this.rigidBody=null;this.collider=null;
+     this.q=new THREE.Quaternion();this.euler=new THREE.Euler(0,0,0,'YXZ');
+     this.temp=new THREE.Vector3();
+-    this.collisionCount=0;
+-    this.lastContact=false;
++    this.collisionCount=0; // total rail and barrier episodes
++    this.railHits=0;this.barrierHits=0;
++    this.maxImpactImpulse=0;this.maxBarrierPenetration=0;
++    this.lastImpact={type:'',impulse:0,time:0};
++    this.lastContact=false;this.lastRail=false;this.lastBarrier=false;
++    this.lastWheelContacts=0;
++    this.eventHistory=[];
+   }
+   create(params){
+     if(this.rigidBody)this.world.removeRigidBody(this.rigidBody);
+@@ -33,7 +38,38 @@
+     b.setTranslation({x:roadPoint.x,y:roadPoint.y+params.cgHeight+.025,z:roadPoint.z},true);
+     b.setRotation({x:0,y:Math.sin(roadPoint.heading/2),z:0,w:Math.cos(roadPoint.heading/2)},true);
+     b.setLinvel({x:0,y:0,z:0},true);b.setAngvel({x:0,y:0,z:0},true);
+-    this.lastContact=false;this.sync();
++    this.resetImpactTelemetry();this.sync();
++  }
++  resetImpactTelemetry(){
++    this.collisionCount=0;this.railHits=0;this.barrierHits=0;
++    this.maxImpactImpulse=0;this.maxBarrierPenetration=0;
++    this.lastImpact={type:'',impulse:0,time:0};
++    this.lastContact=false;this.lastRail=false;this.lastBarrier=false;
++    this.eventHistory=[];
++  }
++  // Scenario/QA setup only. Set both Rapier pose and legacy route/wheel states,
++  // otherwise SHIFT LAB's road-projection guard or wheel slip would diverge.
++  teleport({roadPoint,side=0,angle=0,speed=0}){
++    const d=this.physics,P=d.params,b=this.rigidBody;
++    const heading=roadPoint.heading+angle;
++    const rightX=Math.cos(roadPoint.heading),rightZ=-Math.sin(roadPoint.heading);
++    const x=roadPoint.x+rightX*side,z=roadPoint.z+rightZ*side;
++    const y=this.road.position(roadPoint.s,side).y+P.cgHeight+.025;
++    b.setTranslation({x,y,z},true);
++    b.setRotation({x:0,y:Math.sin(heading/2),z:0,w:Math.cos(heading/2)},true);
++    b.setLinvel({x:Math.sin(heading)*speed,y:0,z:Math.cos(heading)*speed},true);
++    b.setAngvel({x:0,y:0,z:0},true);
++    if(typeof this.world.updateSceneQueries==='function')this.world.updateSceneQueries();
++    for(const id of d.WHEEL_IDS){
++      const wheel=d.wheelModel[id];wheel.omega=speed/P.wheelRadius;
++      wheel.absPressure=1;
++    }
++    d.state.drivenWheelOmega=speed/P.wheelRadius;
++    d.state.coastWheelOmega=speed/P.wheelRadius;
++    d.route.distance=roadPoint.s;
++    d.vehicleMotion.routeS=roadPoint.s;
++    d.vehicleMotion.offset=side;
++    this.resetImpactTelemetry();this.sync();
+   }
+   beforeForces(h){
+     const d=this.physics,P=d.params,b=this.rigidBody;
+@@ -73,6 +109,7 @@
+       }
+       maxTravel=Math.max(maxTravel,Math.abs(w.travel));
+     }
++    this.lastWheelContacts=contacts;
+     d.suspension.contacts=contacts;
+     d.suspension.maxTravel=maxTravel;
+   }
+@@ -101,13 +138,50 @@
+     this.world.timestep=h;this.world.step();
+     this.sync();
+     m.lateralAccel=totalFy/d.params.mass;
+-    let rail=false;
++    this.captureContacts(h);
++  }
++  captureContacts(h){
++    const m=this.physics.vehicleMotion;
++    let rail=false,barrier=false,impact=0,maxDepth=0;
+     this.world.contactPairsWith(this.collider,other=>{
+-      if(this.road.railHandles.has(other.handle))rail=true;
++      const isRail=this.road.railHandles.has(other.handle);
++      const isBarrier=this.road.barrierHandles.has(other.handle);
++      if(!isRail&&!isBarrier)return;
++      let localImpulse=0,localDepth=0,confirmed=false;
++      this.world.contactPair(this.collider,other,manifold=>{
++        const count=manifold.numContacts();
++        for(let i=0;i<count;i++){
++          const force=Math.abs(manifold.contactImpulse(i));
++          const depth=Math.max(0,-manifold.contactDist(i));
++          if(Number.isFinite(force))localImpulse+=force;
++          if(Number.isFinite(depth))localDepth=Math.max(localDepth,depth);
++          if(force>.0001||depth>.001)confirmed=true;
++        }
++      });
++      if(!confirmed)return;
++      rail ||=isRail;barrier ||=isBarrier;
++      impact+=localImpulse;
++      maxDepth=Math.max(maxDepth,localDepth);
+     });
+-    if(rail&&!this.lastContact){this.collisionCount++;m.guardrailHits++;}
+-    this.lastContact=rail;m.contact=rail;
+-    if(rail)m.contactCooldown=.28;
++    if(rail&&!this.lastRail){this.railHits++;m.guardrailHits++;}
++    if(barrier&&!this.lastBarrier)this.barrierHits++;
++    if((rail||barrier)&&!this.lastContact){
++      this.collisionCount++;
++      const type=barrier?'路障':'護欄';
++      this.lastImpact={type,impulse:impact,time:this.physics.state.time};
++      this.eventHistory.push({type,time:this.physics.state.time,
++        speed:Math.hypot(...Object.values(this.rigidBody.linvel())),impulse:impact});
++      if(this.eventHistory.length>30)this.eventHistory.shift();
++    }
++    if((rail||barrier)&&impact>this.lastImpact.impulse){
++      this.lastImpact={type:barrier?'路障':'護欄',impulse:impact,time:this.physics.state.time};
++    }
++    this.maxImpactImpulse=Math.max(this.maxImpactImpulse,impact);
++    this.maxBarrierPenetration=Math.max(this.maxBarrierPenetration,maxDepth);
++    this.lastRail=rail;this.lastBarrier=barrier;
++    this.lastContact=rail||barrier;
++    m.contact=rail||barrier;
++    if(m.contact)m.contactCooldown=.28;
+   }
+   sync(){
+     const d=this.physics,b=this.rigidBody,m=d.vehicleMotion,P=d.params;
+--- a/desktop3d/src/main.mjs
++++ b/desktop3d/src/main.mjs
+@@ -2,206 +2,414 @@
+ import RAPIER from '@dimforge/rapier3d-compat';
+ import {RoadWorld} from './road.mjs';
+ import {RapierChassisBridge} from './chassis.mjs';
++import {AcceptanceObstacles} from './obstacles.mjs';
++import {SCENARIOS,TEST_ORDER,gradeScenario} from './scenarios.mjs';
+ 
+-const el=id=>document.getElementById(id);
+-const canvas=el('view');
+-const overlay=el('screen-overlay');
+-const status=el('status');
+-const frame=el('physics');
+-const speedEl=el('speed');
+-let physics, world, bridge, road;
+-const keyMap={KeyW:'w',ArrowUp:'w',KeyS:'s',ArrowDown:'s',KeyA:'a',ArrowLeft:'a',KeyD:'d',ArrowRight:'d',ShiftLeft:'shift',ShiftRight:'shift'};
+-let chosenPad='auto';
+-let filteredSteer=0,lastPadIndex=null;
++const $=id=>document.getElementById(id);
++const canvas=$('view'),overlay=$('screen-overlay'),message=$('overlay-message');
++const frame=$('physics'),gearSelect=$('gear');
++const FIXED_DT=1/120;
++let d=null,road=null,bridge=null,obstacles=null,world=null,renderer=null,scene=null,camera=null,vehicle=null;
++let paused=false,locked=false,accumulator=0,prevFrame=performance.now(),lastHud=0,renderFPS=60,dropSteps=0;
++let chosenPad='auto',lastPadLabel='',lastPadIndex=null,steerFiltered=0,physicsMs=0;
++let scenarioId='free',lastResult=null,suiteResults=[],labReady=false;
+ const binding={axis:0,gas:7,brake:6,clutch:4};
+-for(const [id,key] of [['pad-axis','axis'],['pad-gas','gas'],['pad-brake','brake'],['pad-clutch','clutch']]){
+-  const select=el(id);
+-  for(let n=0;n<(key==='axis'?12:24);n++){
+-    if(n!==binding[key])select.add(new Option((key==='axis'?'A':'B')+n,String(n)));
+-  }
+-  select.value=String(binding[key]);
+-  select.addEventListener('change',()=>binding[key]=Number(select.value));
+-}
+-const gearBox=el('gear');
+-function error(e){
+-  overlay.textContent='3D 載入失敗：'+(e?.message||e);
+-  status.textContent='啟動失敗';console.error(e);
++const keys={KeyW:'w',ArrowUp:'w',KeyS:'s',ArrowDown:'s',KeyA:'a',ArrowLeft:'a',KeyD:'d',ArrowRight:'d',ShiftLeft:'shift',ShiftRight:'shift'};
++const trackedKeys=new Set();
++
++function failure(e){
++  labReady=false;console.error('v1.8.7 3D QA:',e);
++  $('status').textContent='載入或執行失敗';
++  message.textContent='無法啟動 3D 驗收：'+(e?.message||String(e))+'。請確認 npm install / npm run dev，並使用支援 WebGL2 的桌面瀏覽器。';
++  if(!overlay.isConnected)document.body.append(overlay);
++  overlay.hidden=false;
+ }
+ function waitIframe(){
+   return new Promise((resolve,reject)=>{
+-    if(frame.contentWindow?.__SHIFT_LAB_DEBUG__){resolve(frame.contentWindow.__SHIFT_LAB_DEBUG__);return;}
++    const current=frame.contentWindow?.__SHIFT_LAB_DEBUG__;
++    if(current){resolve(current);return;}
++    const timeout=setTimeout(()=>reject(new Error('原始四輪物理引擎載入逾時')),20000);
+     frame.addEventListener('load',()=>{
++      clearTimeout(timeout);
+       const api=frame.contentWindow?.__SHIFT_LAB_DEBUG__;
+-      if(api)resolve(api);else reject(new Error('原始物理核心尚未載入'));
++      api?resolve(api):reject(new Error('未取得物理核心 API；檢查 physics.html 是否載入'));
+     },{once:true});
+-    frame.addEventListener('error',()=>reject(new Error('無法讀取 /physics.html')),{once:true});
++    frame.addEventListener('error',()=>{clearTimeout(timeout);reject(new Error('讀取 ./physics.html 失敗'));},{once:true});
+   });
+ }
+-function makeVehicle(scene,d){
+-  const P=d.params,group=new THREE.Group();
+-  const paint=new THREE.MeshStandardMaterial({color:0x2bb398,metalness:.62,roughness:.35});
+-  const glass=new THREE.MeshStandardMaterial({color:0x153749,metalness:.2,roughness:.2});
+-  const carBody=new THREE.Mesh(new THREE.BoxGeometry(1.76,.44,P.wheelbase*1.4),paint);
+-  carBody.position.y=.03;carBody.castShadow=true;group.add(carBody);
+-  const roof=new THREE.Mesh(new THREE.BoxGeometry(1.36,.43,1.70),glass);
+-  roof.position.set(0,.43,-.08);roof.castShadow=true;group.add(roof);
+-  const lampMat=new THREE.MeshStandardMaterial({color:0xe8eff2,emissive:0xabb6bc});
+-  const tailMat=new THREE.MeshStandardMaterial({color:0xa62b22,emissive:0x791d14});
+-  for(const sign of [-1,1]){
+-    for(const forward of [-1,1]){
+-      const lamp=new THREE.Mesh(new THREE.BoxGeometry(.27,.12,.07),forward>0?lampMat:tailMat);
+-      lamp.position.set(sign*.61,.10,forward*P.wheelbase*.7);group.add(lamp);
+-    }
+-  }
+-  const wheels=[];
+-  for(const id of d.WHEEL_IDS){
+-    const p=d.wheelCoords(id),tire=new THREE.Mesh(
+-      new THREE.CylinderGeometry(P.wheelRadius,P.wheelRadius,.20,20),
+-      new THREE.MeshStandardMaterial({color:0x10181c,roughness:1}));
+-    const wheel=new THREE.Group();wheel.position.set(p.x,-P.cgHeight+P.wheelRadius,p.z);
+-    tire.rotation.z=Math.PI/2;wheel.add(tire);group.add(wheel);
+-    wheels.push({id,wheel,tire});
+-  }
+-  scene.add(group);
+-  return {group,wheels};
+-}
+-function handleShortcuts(event,down){
+-  const k=keyMap[event.code];
+-  if(k){event.preventDefault();if(dRef)down?dRef.inputKeys.add(k):dRef.inputKeys.delete(k);return;}
+-  if(!down||event.repeat||!dRef)return;
+-  if(event.code==='KeyI'){event.preventDefault();dRef.startEngine();}
+-  if(event.code==='Backspace'){event.preventDefault();resetVehicle();}
+-  if(event.code==='Digit0'||/^Digit[1-6]$/.test(event.code)){
+-    event.preventDefault();dRef.requestGear(Number(event.code.slice(-1)));
+-  }
+-  if(event.code==='KeyR'){event.preventDefault();dRef.requestGear(-1);}
+-}
+-let dRef=null;
+-window.addEventListener('keydown',e=>{
+-  if(['INPUT','SELECT','BUTTON'].includes(e.target.tagName))return;
+-  handleShortcuts(e,true);
+-});
+-window.addEventListener('keyup',e=>handleShortcuts(e,false));
+-window.addEventListener('blur',()=>{if(dRef)dRef.inputKeys.clear();});
+-function resetVehicle(){
+-  if(!dRef)return;
+-  dRef.reset();
+-  frame.contentWindow.document.getElementById('abs-enabled').checked=true;
+-  frame.contentWindow.document.getElementById('tcs-enabled').checked=true;
+-  dRef.setESCEnabled(el('esc').value==='on');
+-  dRef.setHandlingFeel(el('feel').value);
+-  dRef.hostControls.active=true;
+-  gearBox.value='0';
+-}
+-el('engine').addEventListener('click',()=>dRef?.startEngine());
+-el('reset').addEventListener('click',resetVehicle);
+-gearBox.addEventListener('change',()=>{
+-  if(!dRef)return;
+-  if(!dRef.requestGear(Number(gearBox.value)))gearBox.value=String(dRef.state.gear);
+-});
+-el('esc').addEventListener('change',()=>dRef?.setESCEnabled(el('esc').value==='on'));
+-el('feel').addEventListener('change',()=>dRef?.setHandlingFeel(el('feel').value));
+-const padSelect=document.createElement('select');padSelect.id='pad';
+-const padLabel=document.createElement('label');padLabel.textContent=' 手柄 ';padLabel.append(padSelect);
+-gearBox.parentElement.appendChild(padLabel);
+-padSelect.addEventListener('change',()=>chosenPad=padSelect.value);
+-let lastPadList='';
+-function readPad(){
++function selectOptions(){
++  for(const [id,key,max] of [['pad-axis','axis',12],['pad-gas','gas',24],['pad-brake','brake',24],['pad-clutch','clutch',24]]){
++    const select=$(id);
++    for(let i=0;i<max;i++)select.add(new Option((key==='axis'?'軸 ':'按鈕 ')+i,String(i)));
++    select.value=String(binding[key]);
++    select.addEventListener('change',()=>binding[key]=Number(select.value));
++  }
++}
++function readGamepad(){
+   const available=typeof navigator.getGamepads==='function'?
+     Array.from(navigator.getGamepads()||[]).filter(p=>p?.connected):[];
+   const label=available.map(p=>p.index+':'+p.id).join('|');
+-  if(label!==lastPadList){
+-    padSelect.replaceChildren();
+-    padSelect.add(new Option('不使用手柄','off'));
+-    padSelect.add(new Option('自動選擇第一個','auto'));
+-    for(const p of available)padSelect.add(new Option(p.id.slice(0,26),String(p.index)));
+-    padSelect.value=[...padSelect.options].some(o=>o.value===chosenPad)?chosenPad:'auto';
+-    lastPadList=label;
++  if(label!==lastPadLabel){
++    const select=$('pad');
++    select.replaceChildren(new Option('不使用手柄','off'),new Option('自動使用第一個','auto'));
++    for(const pad of available)select.add(new Option(pad.id.slice(0,32),String(pad.index)));
++    if(![...select.options].some(o=>o.value===chosenPad))chosenPad='auto';
++    select.value=chosenPad;
++    lastPadLabel=label;
+   }
+   if(chosenPad==='off')return null;
+-  return available.find(p=>String(p.index)===chosenPad)||
+-    (chosenPad==='auto'?available[0]:null)||null;
+-}
+-function inputFromPad(d,dt){
+-  const pad=readPad();
+-  if(!pad){filteredSteer=0;lastPadIndex=null;d.hostControls.steer=0;
+-    d.hostControls.throttle=0;d.hostControls.brake=0;d.hostControls.clutch=0;return;}
+-  if(lastPadIndex!==pad.index){filteredSteer=0;lastPadIndex=pad.index;}
++  return available.find(p=>String(p.index)===chosenPad)||(chosenPad==='auto'?available[0]:null)||null;
++}
++function readInputs(dt){
++  if(!d||locked)return;
++  const pad=readGamepad();
++  if(!pad){
++    lastPadIndex=null;steerFiltered=0;
++    Object.assign(d.hostControls,{steer:0,throttle:0,brake:0,clutch:0});
++    $('pad-status').textContent='未偵測到手柄；鍵盤仍可操作。';
++    return;
++  }
++  if(lastPadIndex!==pad.index){lastPadIndex=pad.index;steerFiltered=0;}
+   const raw=pad.axes?.[binding.axis]??0;
+   const steer=d.normalizedAdvancedAxis(raw,d.advancedSteering);
+-  const alpha=d.advancedSteering.padFilter>0?
+-    1-Math.exp(-dt/d.advancedSteering.padFilter):1;
+-  filteredSteer+=alpha*(steer-filteredSteer);
+-  if(Math.abs(filteredSteer)<.012&&Math.abs(steer)<.012)filteredSteer=0;
++  const alpha=d.advancedSteering.padFilter>0?1-Math.exp(-dt/d.advancedSteering.padFilter):1;
++  steerFiltered+=alpha*(steer-steerFiltered);
++  if(Math.abs(steerFiltered)<.012&&Math.abs(steer)<.012)steerFiltered=0;
+   const speed=Math.min(1,Math.abs(d.state.velocity)/38);
+-  d.hostControls.steer=filteredSteer*(1-.43*d.advancedSteering.padSpeed*speed);
++  d.hostControls.steer=steerFiltered*(1-.43*d.advancedSteering.padSpeed*speed);
+   d.hostControls.throttle=Math.max(0,pad.buttons?.[binding.gas]?.value||0);
+   d.hostControls.brake=Math.max(0,pad.buttons?.[binding.brake]?.value||0);
+   d.hostControls.clutch=pad.buttons?.[binding.clutch]?.pressed?1:0;
+-}
+-function updateUi(d,bridge){
+-  const m=d.vehicleMotion,s=d.state;
+-  speedEl.textContent=(s.velocity*3.6).toFixed(1)+' km/h';
+-  el('rpm').textContent=Math.round(s.engineOmega*60/(2*Math.PI))+' RPM';
+-  el('yaw').textContent=(m.yawRate*180/Math.PI).toFixed(1)+' °/s';
+-  el('attitude').textContent=(m.roll*180/Math.PI).toFixed(1)+'° / '+(m.pitch*180/Math.PI).toFixed(1)+'°';
+-  el('contacts').textContent=d.suspension.contacts+' / 4';
+-  el('esc-status').textContent=d.handling.escBrakeNm>5?
+-    d.handling.escWheel+' '+Math.round(d.handling.escBrakeNm)+' Nm':d.handling.phase;
+-  el('engine').textContent=s.engineOn?'引擎運轉中':'啟動引擎 [I]';
+-  gearBox.value=String(s.pendingGear??s.gear);
+-  el('alert').textContent=m.contact?'Rapier 護欄接觸 · 已啟用 CCD':'';
+-  status.textContent='Rapier 3D 剛體 · 四輪求解器 · 已啟動 | 護欄接觸 '+bridge.collisionCount+' 次';
+-}
+-async function main(){
+-  const d=await waitIframe();
+-  dRef=d;
++  $('pad-status').textContent='已連接：'+pad.id.slice(0,40)+' · axis '+binding.axis+
++    ' / gas '+binding.gas+' / brake '+binding.brake+' / clutch '+binding.clutch;
++}
++function makeCar(){
++  const P=d.params,group=new THREE.Group();
++  const bodyMaterial=new THREE.MeshStandardMaterial({color:0x1cb5a0,metalness:.45,roughness:.34});
++  const glass=new THREE.MeshStandardMaterial({color:0x173b51,metalness:.22,roughness:.24});
++  const body=new THREE.Mesh(new THREE.BoxGeometry(1.76,.42,P.wheelbase*1.48),bodyMaterial);
++  body.position.y=.015;body.castShadow=true;group.add(body);
++  const roof=new THREE.Mesh(new THREE.BoxGeometry(1.34,.45,1.60),glass);
++  roof.position.set(0,.43,-.16);roof.castShadow=true;group.add(roof);
++  const white=new THREE.MeshStandardMaterial({color:0xe2f4ff,emissive:0x576d75});
++  const red=new THREE.MeshStandardMaterial({color:0xde3739,emissive:0x441016});
++  for(const side of [-1,1])for(const front of [-1,1]){
++    const lamp=new THREE.Mesh(new THREE.BoxGeometry(.26,.10,.04),front>0?white:red);
++    lamp.position.set(side*.62,.05,front*P.wheelbase*.74);group.add(lamp);
++  }
++  const wheels=[];
++  for(const id of d.WHEEL_IDS){
++    const p=d.wheelCoords(id);
++    const pivot=new THREE.Group();pivot.position.set(p.x,-P.cgHeight+P.wheelRadius,p.z);
++    const cylinder=new THREE.Mesh(new THREE.CylinderGeometry(P.wheelRadius,P.wheelRadius,.22,20),
++      new THREE.MeshStandardMaterial({color:0x171d20,roughness:.99}));
++    cylinder.rotation.z=Math.PI/2;cylinder.castShadow=true;pivot.add(cylinder);
++    group.add(pivot);wheels.push({id,pivot,cylinder});
++  }
++  scene.add(group);return {group,wheels};
++}
++function placeMarkings(){
++  const material=new THREE.MeshStandardMaterial({color:0xe4dbb9,roughness:1});
++  for(let s=18;s<800;s+=15){
++    const p=d.roadPointAt(s),sample=road.position(s,0);
++    const strip=new THREE.Mesh(new THREE.BoxGeometry(.11,.023,4.2),material);
++    strip.position.set(sample.x,sample.y+.035,sample.z);
++    strip.rotation.y=p.heading;scene.add(strip);
++  }
++}
++function syncVisuals(dt){
++  const b=bridge.rigidBody,t=b.translation(),rot=b.rotation();
++  vehicle.group.position.set(t.x,t.y,t.z);
++  vehicle.group.quaternion.set(rot.x,rot.y,rot.z,rot.w);
++  for(const {id,pivot,cylinder} of vehicle.wheels){
++    pivot.rotation.y=d.wheelModel[id].steer;
++    cylinder.rotation.x-=d.wheelModel[id].omega*dt;
++  }
++  const heading=d.vehicleMotion.heading;
++  const fwd=new THREE.Vector3(Math.sin(heading),0,Math.cos(heading));
++  const right=new THREE.Vector3(Math.cos(heading),0,-Math.sin(heading));
++  const target=new THREE.Vector3(t.x,t.y+.4,t.z);
++  const cameraType=$('camera-mode').value;
++  const wish=target.clone();
++  if(cameraType==='side')wish.addScaledVector(right,11).add(new THREE.Vector3(0,3,0));
++  else if(cameraType==='top')wish.add(new THREE.Vector3(0,23,0)).addScaledVector(fwd,-.1);
++  else wish.addScaledVector(fwd,-10.5).add(new THREE.Vector3(0,4.0,0));
++  camera.position.lerp(wish,Math.max(.04,1-Math.exp(-dt*5)));
++  camera.up.set(0,1,0);
++  if(cameraType==='top')camera.up.set(0,0,1);
++  camera.lookAt(target.clone().addScaledVector(fwd,cameraType==='chase'?5:0));
++}
++function currentSnapshot(){
++  if(!labReady)return {ready:false,error:$('status').textContent};
++  const b=bridge.rigidBody,v=b.linvel(),t=b.translation();
++  return {ready:true,scenario:scenarioId,paused,step:d.state.time,
++    x:t.x,y:t.y,z:t.z,vx:v.x,vy:v.y,vz:v.z,
++    speed:Math.hypot(v.x,v.y,v.z),yaw:d.vehicleMotion.yawRate,
++    roll:d.vehicleMotion.roll,pitch:d.vehicleMotion.pitch,
++    contacts:d.suspension.contacts,railHits:bridge.railHits,
++    barrierHits:bridge.barrierHits,collisionCount:bridge.collisionCount,
++    impact:bridge.maxImpactImpulse,penetration:bridge.maxBarrierPenetration,
++    routeS:d.route.distance,physicsMs,frameDrops:dropSteps};
++}
++function htmlMetric(id,text){$(id).textContent=text;}
++function updateHud(force=false){
++  const now=performance.now();if(!force&&now-lastHud<90)return;
++  lastHud=now;
++  if(!labReady)return;
++  const a=currentSnapshot(),s=d.state,m=d.vehicleMotion;
++  htmlMetric('speed',(a.speed*3.6).toFixed(1)+' km/h');
++  htmlMetric('rpm',Math.round(s.engineOmega*60/(2*Math.PI)).toLocaleString('en-US'));
++  htmlMetric('yaw',(m.yawRate*180/Math.PI).toFixed(1)+' °/s');
++  htmlMetric('attitude',(m.roll*180/Math.PI).toFixed(1)+' / '+(m.pitch*180/Math.PI).toFixed(1)+'°');
++  htmlMetric('contacts',d.suspension.contacts+' / 4');
++  htmlMetric('esc-status',d.handling.escBrakeNm>5?
++    d.handling.escWheel+' '+Math.round(d.handling.escBrakeNm)+' Nm':d.handling.phase);
++  htmlMetric('rail-hits',bridge.railHits+' / '+bridge.barrierHits);
++  htmlMetric('impact',bridge.maxImpactImpulse.toFixed(0)+' N·s');
++  htmlMetric('penetration',bridge.maxBarrierPenetration.toFixed(3)+' m');
++  htmlMetric('physics-step',physicsMs.toFixed(2)+' ms');
++  htmlMetric('fps',renderFPS.toFixed(0));
++  htmlMetric('lost-steps',dropSteps.toString());
++  $('engine').textContent=s.engineOn?'引擎已啟動':'啟動引擎 [I]';
++  gearSelect.value=String(s.pendingGear??s.gear);
++  $('alert').textContent=m.contact?'目前存在路障／護欄接觸，Rapier CCD 已開啟':
++    d.suspension.contacts===0?'四輪離地：請觀察車身姿態及落地':'目前無路障／護欄碰撞';
++  const events=$('events');events.replaceChildren();
++  if(!bridge.eventHistory.length){const li=document.createElement('li');li.textContent='尚無碰撞事件';events.append(li);}
++  for(const event of [...bridge.eventHistory].reverse().slice(0,6)){
++    const li=document.createElement('li');li.textContent=event.time.toFixed(2)+' s · '+event.type+
++      ' · '+(event.speed*3.6).toFixed(1)+' km/h · '+event.impulse.toFixed(0)+' N·s';events.append(li);
++  }
++}
++function displayResult(target,result){
++  const root=$(target);root.replaceChildren();
++  if(!result)return;
++  const summary=document.createElement('div');
++  summary.className='result '+(result.pass?'pass':'fail');
++  summary.textContent=(result.pass?'PASS':'FAIL')+' · '+SCENARIOS[result.scenario].name+
++    ' · '+result.runtimeMs.toFixed(0)+' ms（運算時間）';root.append(summary);
++  for(const c of result.checks){
++    const line=document.createElement('div');line.className='result '+(c.passed?'pass':'fail');
++    line.textContent=(c.passed?'✓':'✕')+' '+c.label+'：'+(typeof c.value==='number'?Number(c.value.toFixed(4)):c.value);
++    root.append(line);
++  }
++}
++function renderSuite(){
++  const holder=$('suite-results');holder.replaceChildren();
++  if(!suiteResults.length)return;
++  const heading=document.createElement('h3');heading.textContent='完整驗收：'+suiteResults.filter(r=>r.pass).length+
++    ' / '+suiteResults.length+' 通過';holder.append(heading);
++  for(const result of suiteResults){
++    const item=document.createElement('div');item.className='result '+(result.pass?'pass':'fail');
++    item.textContent=(result.pass?'PASS':'FAIL')+' · '+SCENARIOS[result.scenario].name+
++      ' · '+result.checks.filter(c=>c.passed).length+'/'+result.checks.length+' 檢查';holder.append(item);
++  }
++}
++function resetDriving(id){
++  if(!d||!bridge||!road)return;
++  const setting=SCENARIOS[id]||SCENARIOS.free;
++  d.reset(); // This also resets Rapier pose via the single-authority bridge.
++  // Original physics stays untouched. Force presets live only on this host page.
++  frame.contentWindow.document.getElementById('abs-enabled').checked=true;
++  frame.contentWindow.document.getElementById('tcs-enabled').checked=true;
++  d.setESCEnabled($('esc').value==='on');
++  d.setHandlingFeel($('feel').value);
++  d.roadAppearance.guardrails='both';
++  d.hostControls.active=true;
++  Object.assign(d.hostControls,{steer:0,throttle:0,brake:0,clutch:0});
++  trackedKeys.clear();d.inputKeys.clear();
++  const point=d.roadPointAt(setting.spawnS);
++  road.ensure(point.s);
++  bridge.teleport({roadPoint:point,side:setting.side,angle:setting.angle,speed:setting.speed});
++  // The base physics projects back to the nearest route after each 120 Hz update.
++  d.vehicleMotion.routeS=point.s;
++  d.route.distance=point.s;
++  gearSelect.value='0';dropSteps=0;accumulator=0;
++  scenarioId=id;
++  $('scenario').value=id;
++  $('scenario-brief').textContent=setting.description;
++  $('status').textContent='就緒：'+setting.name+' · 四輪模型 / Rapier 剛體';
++  updateHud(true);
++}
++function stepOnce(){
++  road.ensure(d.route.distance);
++  const begin=performance.now();
++  d.advancePhysics(FIXED_DT);
++  physicsMs=performance.now()-begin;
++}
++function measureBaseline(){
++  const p=bridge.rigidBody.translation();
++  return {finite:true,nonFiniteSteps:0,maxPositionAbs:0,maxSpeed:0,
++    maxTiltDeg:0,maxWheelContacts:0,maxImpactImpulse:0,
++    barrierHits:0,railHits:0,maxBeyondBarrier:-1e9,
++    maxBarrierPenetration:0,minY:p.y,maxY:p.y,
++    x:p.x,z:p.z,travel:0,verticalExcursion:0,maxRouteS:d.route.distance,runtimeMs:0};
++}
++function observe(data,baseline){
++  const b=bridge.rigidBody,p=b.translation(),v=b.linvel(),w=b.angvel();
++  const vals=[p.x,p.y,p.z,v.x,v.y,v.z,w.x,w.y,w.z];
++  if(!vals.every(Number.isFinite)){data.finite=false;data.nonFiniteSteps++;return false;}
++  data.maxPositionAbs=Math.max(data.maxPositionAbs,...vals.slice(0,3).map(Math.abs));
++  data.maxSpeed=Math.max(data.maxSpeed,Math.hypot(v.x,v.y,v.z));
++  data.maxTiltDeg=Math.max(data.maxTiltDeg,
++    Math.hypot(d.vehicleMotion.roll,d.vehicleMotion.pitch)*180/Math.PI);
++  data.maxWheelContacts=Math.max(data.maxWheelContacts,d.suspension.contacts);
++  data.barrierHits=bridge.barrierHits;data.railHits=bridge.railHits;
++  data.maxImpactImpulse=Math.max(data.maxImpactImpulse,bridge.maxImpactImpulse);
++  data.maxBarrierPenetration=Math.max(data.maxBarrierPenetration,bridge.maxBarrierPenetration);
++  data.maxBeyondBarrier=Math.max(data.maxBeyondBarrier,p.z-obstacles.barrierCenter.z);
++  data.minY=Math.min(data.minY,p.y);data.maxY=Math.max(data.maxY,p.y);
++  data.verticalExcursion=data.maxY-data.minY;
++  data.travel=Math.hypot(p.x-baseline.x,p.z-baseline.z);
++  data.maxRouteS=Math.max(data.maxRouteS,d.route.distance);
++  return true;
++}
++function setBusy(value){
++  locked=value;for(const id of ['scenario','load-scenario','run-case','run-suite','reset','pause','step','gear','engine'])$(id).disabled=value;
++}
++async function runScenario(id,options={}){
++  if(!labReady)throw new Error('3D 引擎尚未就緒');
++  if(locked&&!options.fromSuite)throw new Error('已有測試進行中');
++  if(!options.fromSuite)setBusy(true);
++  const beforePaused=paused;paused=true;$('pause').textContent='繼續';
++  try{
++    resetDriving(id);
++    const setting=SCENARIOS[id];
++    if(!setting.duration)throw new Error('自由試駕沒有自動驗收腳本');
++    const data=measureBaseline(),start={x:data.x,z:data.z};
++    const startTime=performance.now();
++    // Deterministic stepping independent of render FPS. Simulated time is fixed.
++    for(let n=0,total=Math.round(setting.duration/FIXED_DT);n<total;n++){
++      stepOnce();
++      if(!observe(data,start))break;
++      if(n%20===19){updateHud(true);await new Promise(resolve=>requestAnimationFrame(resolve));}
++    }
++    data.runtimeMs=performance.now()-startTime;
++    const graded=gradeScenario(id,data);
++    const result={scenario:id,pass:graded.pass,checks:graded.checks,
++      metrics:{...data},runtimeMs:data.runtimeMs,
++      engine:'Rapier 0.18 + SHIFT LAB four-wheel, fixed 120 Hz / 4 microsteps',
++      events:bridge.eventHistory.map(e=>({...e}))};
++    lastResult=result;displayResult('qa-results',result);updateHud(true);
++    $('status').textContent=(result.pass?'PASS':'FAIL')+' · '+setting.name+' · '+graded.checks.filter(x=>x.passed).length+'/'+graded.checks.length;
++    return result;
++  }finally{
++    paused=true; // Leave contact pose on screen so the player can inspect it.
++    $('pause').textContent='繼續';
++    if(!options.fromSuite)setBusy(false);
++    if(!beforePaused)accumulator=0;
++  }
++}
++async function runSuite(){
++  if(locked||!labReady)return;
++  setBusy(true);suiteResults=[];renderSuite();
++  try{
++    for(const id of TEST_ORDER){
++      $('status').textContent='正在執行 '+SCENARIOS[id].name+' …';
++      const result=await runScenario(id,{fromSuite:true});
++      suiteResults.push(result);renderSuite();
++    }
++    $('status').textContent='3D 驗收完成：'+suiteResults.filter(r=>r.pass).length+'/'+suiteResults.length+' 通過';
++  }catch(e){failure(e);throw e;}
++  finally{setBusy(false);}
++  return suiteResults.map(r=>({...r}));
++}
++function exportReport(){
++  const bundle={version:'1.8.7',createdAt:new Date().toISOString(),
++    userAgent:navigator.userAgent,
++    physics:'Four-wheel SHIFT LAB v1.8.6 bridge / Rapier 3D 0.18',
++    suite:suiteResults.map(r=>({...r})),lastResult,
++    snapshot:currentSnapshot(),qaScope:'simulator only, not real-vehicle validation'};
++  const blob=new Blob([JSON.stringify(bundle,null,2)],{type:'application/json'});
++  const href=URL.createObjectURL(blob),link=document.createElement('a');
++  link.href=href;link.download='SHIFT_LAB_V187_3D_QA_'+new Date().toISOString().slice(0,10)+'.json';
++  link.click();setTimeout(()=>URL.revokeObjectURL(href),3000);
++}
++function installEvents(){
++  selectOptions();
++  $('pad').addEventListener('change',e=>chosenPad=e.target.value);
++  $('scenario').addEventListener('change',e=>$('scenario-brief').textContent=SCENARIOS[e.target.value].description);
++  $('load-scenario').addEventListener('click',()=>{if(locked)return;resetDriving($('scenario').value);paused=false;$('pause').textContent='暫停';});
++  $('reset').addEventListener('click',()=>{if(!locked)resetDriving(scenarioId);});
++  $('pause').addEventListener('click',()=>{if(locked)return;paused=!paused;accumulator=0;$('pause').textContent=paused?'繼續':'暫停';});
++  $('step').addEventListener('click',()=>{if(!locked&&paused){stepOnce();updateHud(true);}});
++  $('engine').addEventListener('click',()=>{if(!locked)d?.startEngine();});
++  gearSelect.addEventListener('change',()=>{if(!d||locked)return;
++    if(!d.requestGear(Number(gearSelect.value)))gearSelect.value=String(d.state.gear);});
++  $('esc').addEventListener('change',()=>d?.setESCEnabled($('esc').value==='on'));
++  $('feel').addEventListener('change',()=>d?.setHandlingFeel($('feel').value));
++  $('run-case').addEventListener('click',()=>runScenario($('scenario').value).catch(failure));
++  $('run-suite').addEventListener('click',()=>runSuite().catch(failure));
++  $('export-report').addEventListener('click',exportReport);
++  window.addEventListener('keydown',e=>{
++    if(['INPUT','SELECT','TEXTAREA'].includes(e.target?.tagName))return;
++    if(locked)return;
++    const key=keys[e.code];
++    if(key){e.preventDefault();trackedKeys.add(key);if(d)d.inputKeys.add(key);return;}
++    if(e.repeat)return;
++    if(e.code==='Space'){e.preventDefault();paused=!paused;accumulator=0;$('pause').textContent=paused?'繼續':'暫停';}
++    else if(e.code==='KeyI'){e.preventDefault();d?.startEngine();}
++    else if(e.code==='Backspace'){e.preventDefault();resetDriving(scenarioId);}
++    else if(/^Digit[1-6]$/.test(e.code)){e.preventDefault();d?.requestGear(Number(e.code.slice(-1)));}
++    else if(e.code==='Digit0'){e.preventDefault();d?.requestGear(0);}
++    else if(e.code==='KeyR'){e.preventDefault();d?.requestGear(-1);}
++  });
++  window.addEventListener('keyup',e=>{
++    const key=keys[e.code];if(key){e.preventDefault();trackedKeys.delete(key);if(d)d.inputKeys.delete(key);}
++  });
++  window.addEventListener('blur',()=>{trackedKeys.clear();if(d)d.inputKeys.clear();});
++}
++function render(now){
++  if(!labReady)return;
++  try{
++    const elapsed=Math.max(0,Math.min(.075,(now-prevFrame)/1000));prevFrame=now;
++    renderFPS+=(1-Math.exp(-elapsed*3))*((elapsed>0?1/elapsed:renderFPS)-renderFPS);
++    readInputs(elapsed);
++    if(!paused&&!locked){
++      accumulator+=elapsed;
++      let count=0;
++      while(accumulator>=FIXED_DT&&count<8){stepOnce();accumulator-=FIXED_DT;count++;}
++      if(accumulator>=FIXED_DT){dropSteps+=Math.floor(accumulator/FIXED_DT);accumulator=0;}
++    }else accumulator=0;
++    syncVisuals(elapsed);renderer.render(scene,camera);updateHud();
++    requestAnimationFrame(render);
++  }catch(e){failure(e);}
++}
++async function boot(){
++  installEvents();
++  d=await waitIframe();
+   d.setExternalClock(true);
+   await RAPIER.init();
+-  const scene=new THREE.Scene();scene.background=new THREE.Color(0x97baca);
+-  scene.fog=new THREE.Fog(0x97baca,190,640);
+-  scene.add(new THREE.HemisphereLight(0xf1f8ff,0x354431,1.9));
+-  const sun=new THREE.DirectionalLight(0xfff0d6,2.3);sun.position.set(-80,160,110);scene.add(sun);
+-  const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
++  if(!window.WebGL2RenderingContext)throw new Error('此瀏覽器不支援 WebGL2');
++  scene=new THREE.Scene();scene.background=new THREE.Color(0xa2c0cb);scene.fog=new THREE.Fog(0xa2c0cb,170,650);
++  scene.add(new THREE.HemisphereLight(0xe9faff,0x3e493b,2.2));
++  const sun=new THREE.DirectionalLight(0xfff1d7,2.45);sun.position.set(-40,125,80);scene.add(sun);
++  renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
++  renderer.outputColorSpace=THREE.SRGBColorSpace;
+   renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+-  renderer.outputColorSpace=THREE.SRGBColorSpace;
+-  const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,850);
+-  const resize=()=>{renderer.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();};
++  camera=new THREE.PerspectiveCamera(63,innerWidth/innerHeight,.1,900);
++  const resize=()=>{renderer.setSize(canvas.clientWidth,canvas.clientHeight,false);
++    camera.aspect=Math.max(1,canvas.clientWidth)/Math.max(1,canvas.clientHeight);camera.updateProjectionMatrix();};
+   window.addEventListener('resize',resize);resize();
+   world=new RAPIER.World({x:0,y:-9.81,z:0});
+-  road=new RoadWorld(RAPIER,world,scene,d);road.ensure(d.route.distance);
+-  bridge=new RapierChassisBridge(RAPIER,world,road,d);
+-  bridge.create(d.params);
+-  if(!d.setChassisBridge(bridge))throw Error('SHIFT LAB 拒絕 3D 剛體介面');
+-  const car=makeVehicle(scene,d);
+-  d.hostControls.active=true;
+-  resetVehicle();
++  world.maxCcdSubsteps=4;
++  road=new RoadWorld(RAPIER,world,scene,d);d.roadAppearance.guardrails='both';road.ensure(70);
++  obstacles=new AcceptanceObstacles(RAPIER,world,scene,road);placeMarkings();
++  bridge=new RapierChassisBridge(RAPIER,world,road,d);bridge.create(d.params);
++  if(!d.setChassisBridge(bridge))throw new Error('原始物理核心拒絕外部剛體橋接');
++  vehicle=makeCar();labReady=true;
++  resetDriving('free');
+   overlay.remove();
+-  let previous=performance.now(),accumulator=0;
+-  const desired=new THREE.Vector3(),at=new THREE.Vector3();
+-  function tick(now){
+-    const elapsed=Math.min(.05,(now-previous)/1000);previous=now;
+-    accumulator=Math.min(.075,accumulator+elapsed);
+-    inputFromPad(d,elapsed);
+-    let steps=0;
+-    const h=1/120;
+-    while(accumulator>=h && steps<7){
+-      road.ensure(d.route.distance);
+-      d.advancePhysics(h);
+-      accumulator-=h;steps++;
+-    }
+-    const pos=bridge.rigidBody.translation(),rot=bridge.rigidBody.rotation();
+-    car.group.position.set(pos.x,pos.y,pos.z);car.group.quaternion.set(rot.x,rot.y,rot.z,rot.w);
+-    for(const {id,wheel} of car.wheels)wheel.rotation.y=d.wheelModel[id].steer;
+-    const heading=d.vehicleMotion.heading;
+-    desired.set(pos.x-8*Math.sin(heading),pos.y+3.0,pos.z-8*Math.cos(heading));
+-    camera.position.lerp(desired,1-Math.exp(-elapsed*5.6));
+-    at.set(pos.x+6*Math.sin(heading),pos.y+.35,pos.z+6*Math.cos(heading));
+-    camera.lookAt(at);
+-    renderer.render(scene,camera);
+-    updateUi(d,bridge);
+-    requestAnimationFrame(tick);
+-  }
+-  requestAnimationFrame(tick);
+-}
+-main().catch(error);
++  prevFrame=performance.now();requestAnimationFrame(render);
++  window.__SHIFT_LAB_3D_QA__={
++    get ready(){return labReady;},get paused(){return paused;},snapshot:currentSnapshot,
++    loadScenario(id){if(!(id in SCENARIOS))throw Error('未知工況 '+id);if(locked)throw Error('正在執行自動驗收');
++      resetDriving(id);paused=true;return currentSnapshot();},
++    step(n=1){if(!labReady||locked)throw Error('busy/not ready');paused=true;
++      for(let i=0;i<Math.max(0,Math.min(10000,Math.trunc(n)));i++)stepOnce();updateHud(true);return currentSnapshot();},
++    runScenario,runSuite,gradeScenario,
++    get report(){return {lastResult,suiteResults:[...suiteResults]};}
++  };
++  $('status').textContent='3D 已初始化 · 可載入工況與進行碰撞驗收';
++}
++boot().catch(failure);
+--- /dev/null
++++ b/desktop3d/src/obstacles.mjs
+@@ -0,0 +1,66 @@
++import * as THREE from 'three';
++
++// The static objects below exist ONLY in the acceptance environment.
++// They are not baked into the v1.8.6 four-wheel solver or procedural route.
++export class AcceptanceObstacles{
++  constructor(RAPIER,world,scene,road){
++    this.RAPIER=RAPIER;this.world=world;this.scene=scene;this.road=road;
++    this.objects=[];this.barrierS=104;
++    this.makeBarrier();this.makeRamp();
++  }
++  add(collider,mesh,ground=false){
++    this.objects.push({collider,mesh,ground});this.scene.add(mesh);
++    this.road.obstacleHandles.add(collider.handle);
++    if(!ground)this.road.barrierHandles.add(collider.handle);
++    if(ground)this.road.groundHandles.add(collider.handle);
++  }
++  makeBarrier(){
++    const center=this.road.position(this.barrierS,0);
++    this.barrierCenter={x:center.x,y:center.y+.68,z:center.z};
++    this.barrierPoint=this.barrierCenter;
++    const collider=this.world.createCollider(this.RAPIER.ColliderDesc.cuboid(3.65,.72,.19)
++      .setTranslation(center.x,center.y+.68,center.z)
++      .setFriction(.64).setRestitution(.07));
++    const material=new THREE.MeshStandardMaterial({color:0xe7edf0,metalness:.16,roughness:.67});
++    const mesh=new THREE.Group();mesh.position.set(center.x,center.y+.68,center.z);
++    const block=new THREE.Mesh(new THREE.BoxGeometry(7.30,1.44,.38),material);
++    block.castShadow=true;block.receiveShadow=true;mesh.add(block);
++    const stripe=new THREE.MeshStandardMaterial({color:0xef6b4a,roughness:.86});
++    for(let i=0;i<13;i++){
++      const bar=new THREE.Mesh(new THREE.BoxGeometry(.34,1.46,.02),stripe);
++      bar.position.set(-3.3+i*.55,0,.204);bar.rotation.z=.32;mesh.add(bar);
++    }
++    this.add(collider,mesh);
++  }
++  makeRamp(){
++    const start=142,end=165,half=3.15;
++    // Thin triangle mesh: an intentionally modest speed bump/ramp, not a launch pad.
++    const stations=[start,149,156,end],rise=[.06,.80,.80,.06];
++    const vertices=[];for(let i=0;i<stations.length;i++)for(const side of [-half,half]){
++      const p=this.road.position(stations[i],side);
++      vertices.push(p.x,p.y+rise[i],p.z);
++    }
++    const triangles=[];for(let i=0;i<stations.length-1;i++){
++      const a=i*2,b=a+1,c=a+2,d=c+1;triangles.push(a,c,b,b,c,d);
++    }
++    const array=new Float32Array(vertices),index=new Uint32Array(triangles);
++    const collider=this.world.createCollider(this.RAPIER.ColliderDesc.trimesh(array,index)
++      .setFriction(.77).setRestitution(0));
++    const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',
++      new THREE.Float32BufferAttribute(vertices,3));geometry.setIndex(triangles);
++    geometry.computeVertexNormals();
++    const mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({color:0xbfa772,
++      roughness:.96,side:THREE.DoubleSide}));mesh.receiveShadow=true;
++    this.add(collider,mesh,true);
++  }
++  dispose(){
++    for(const o of this.objects){
++      this.road.obstacleHandles.delete(o.collider.handle);
++      this.road.barrierHandles.delete(o.collider.handle);
++      if(o.ground)this.road.groundHandles.delete(o.collider.handle);
++      this.world.removeCollider(o.collider,true);this.scene.remove(o.mesh);
++      o.mesh.traverse(mesh=>{if(mesh.geometry)mesh.geometry.dispose();});
++    }
++    this.objects=[];
++  }
++}
+--- a/desktop3d/src/road.mjs
++++ b/desktop3d/src/road.mjs
+@@ -12,6 +12,8 @@
+     this.chunks = new Map();
+     this.groundHandles = new Set();
+     this.railHandles = new Set();
++    this.obstacleHandles = new Set();
++    this.barrierHandles = new Set();
+     this.surfaceMaterial = new THREE.MeshStandardMaterial({color:0x344149,roughness:.93,side:THREE.DoubleSide});
+     this.soilMaterial = new THREE.MeshStandardMaterial({color:0x405247,roughness:1});
+     this.railMaterial = new THREE.MeshStandardMaterial({color:0x95a9af,metalness:.4,roughness:.56});
+--- /dev/null
++++ b/desktop3d/src/scenarios.mjs
+@@ -0,0 +1,41 @@
++// Deterministic desktop 3D acceptance scenarios. All distances in meters.
++// Uses the first 200 m of the original seeded, flat SHIFT LAB road.
++export const SCENARIOS=Object.freeze({
++  free:{name:'自由試駕',description:'完整手排操作與四輪物理；無測試初速。',spawnS:70,side:0,angle:0,speed:0,duration:0},
++  frontal:{name:'正面碰撞',description:'以約 72 km/h 正面撞擊橫向固定路障，觀察車速、反彈及穿透。',spawnS:60,side:0,angle:0,speed:20,duration:3.4,expect:'barrier'},
++  glancing:{name:'斜角擦撞',description:'以約 83 km/h、小角度向右接近護欄，觀察偏航及速度損失。',spawnS:74,side:2.65,angle:.14,speed:23,duration:2.2,expect:'rail'},
++  fast:{name:'高速 CCD',description:'以約 151 km/h 接近固定路障，檢查車體穿牆及物理穩定性。',spawnS:60,side:0,angle:0,speed:42,duration:2.1,expect:'barrier'},
++  ramp:{name:'坡道及離地',description:'以約 61 km/h 通過低矮坡道，觀察輪胎接地、升沉及落地。',spawnS:118,side:0,angle:0,speed:17,duration:3.5,expect:'ramp'},
++  settle:{name:'靜止穩定',description:'以靜止車身檢查懸吊、重力與數值發散。',spawnS:70,side:0,angle:0,speed:0,duration:3.0,expect:'settle'}
++});
++export const TEST_ORDER=Object.freeze(['settle','frontal','glancing','fast','ramp']);
++
++export function gradeScenario(id,data){
++  const tests=[];
++  const check=(label,passed,value)=>tests.push({label,passed:!!passed,value});
++  const s=SCENARIOS[id];
++  if(!s||!s.duration)return {pass:false,checks:[{label:'無效測試',passed:false}]};
++  check('模擬值皆為有限值',data.finite&&data.nonFiniteSteps===0,data.nonFiniteSteps);
++  check('3D 剛體未超出受控邊界',data.maxPositionAbs<100000,data.maxPositionAbs);
++  check('沒有明顯的數值速度爆衝',data.maxSpeed<=Math.max(16,s.speed+12),data.maxSpeed);
++  if(id==='settle'){
++    check('靜止車輛無明顯橫向漂移',data.travel<3.0,data.travel);
++    check('車身未翻覆',data.maxTiltDeg<38,data.maxTiltDeg);
++    check('有車輪接觸路面',data.maxWheelContacts>=2,data.maxWheelContacts);
++  }else if(s.expect==='barrier'){
++    check('確實產生路障碰撞',data.barrierHits>0,data.barrierHits);
++    check('路障有解算接觸衝量',data.maxImpactImpulse>0.1,data.maxImpactImpulse);
++    check('沒有直接穿過路障後方',data.maxBeyondBarrier<1.2,data.maxBeyondBarrier);
++    check('最深碰撞穿透不超過 0.45 m',data.maxBarrierPenetration<=.45,data.maxBarrierPenetration);
++  }else if(s.expect==='rail'){
++    check('確實碰到右側護欄',data.railHits>0,data.railHits);
++    check('撞擊有解算接觸衝量',data.maxImpactImpulse>0.1,data.maxImpactImpulse);
++    check('沒有極端穿透護欄',data.maxBarrierPenetration<=.45,data.maxBarrierPenetration);
++  }else if(s.expect==='ramp'){
++    check('車輛實際到達坡道最高點',data.maxRouteS>=156,data.maxRouteS);
++    check('輪胎接觸狀態持續更新',data.maxWheelContacts>=2,data.maxWheelContacts);
++    check('通過坡道期間產生垂直位移',data.verticalExcursion>.12,data.verticalExcursion);
++    check('沒有不合理翻覆',data.maxTiltDeg<90,data.maxTiltDeg);
++  }
++  return {pass:tests.every(t=>t.passed),checks:tests};
++}
+--- /dev/null
++++ b/desktop3d/tests/browser_v187.py
+@@ -0,0 +1,47 @@
++"""Actual Chromium+Rapier+WebGL smoke/acceptance check (requires npm install + npm run dev).
++
++Usage: python desktop3d/tests/browser_v187.py --url http://127.0.0.1:5173/
++
++Returns nonzero on launch/scene/QA failures. This is a REAL runtime browser test,
++unlike source-only checks. JSON and screenshot output are kept under desktop3d/tests/artifacts.
++"""
++import argparse,json,sys,time
++from pathlib import Path
++from playwright.sync_api import sync_playwright
++
++def main():
++    ap=argparse.ArgumentParser()
++    ap.add_argument('--url',default='http://127.0.0.1:5173/')
++    ap.add_argument('--browser',default='/usr/bin/chromium',help='Chromium executable, empty for Playwright bundled version')
++    ap.add_argument('--timeout',type=int,default=180000)
++    args=ap.parse_args()
++    out=Path(__file__).resolve().parent/'artifacts';out.mkdir(exist_ok=True)
++    errors=[]
++    with sync_playwright() as p:
++        options={'headless':True,'args':['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-webgl','--enable-unsafe-swiftshader']}
++        if args.browser and Path(args.browser).is_file():options['executable_path']=args.browser
++        browser=p.chromium.launch(**options)
++        page=browser.new_page(viewport={'width':1600,'height':920})
++        page.on('pageerror',lambda error:errors.append(str(error)))
++        try:
++            page.goto(args.url,wait_until='domcontentloaded',timeout=30000)
++            page.wait_for_function("window.__SHIFT_LAB_3D_QA__?.ready===true",timeout=30000)
++            report=page.evaluate('async()=>await window.__SHIFT_LAB_3D_QA__.runSuite()')
++            (out/'v187_browser_report.json').write_text(json.dumps(report,indent=2,ensure_ascii=False))
++            page.screenshot(path=str(out/'v187_browser_screenshot.png'),full_page=False)
++            for item in report:
++                print(('PASS' if item['pass'] else 'FAIL')+' '+item['scenario'],
++                      {k:round(v,3) if isinstance(v,float) else v for k,v in item['metrics'].items()
++                       if k in ['barrierHits','railHits','maxImpactImpulse','maxBarrierPenetration','maxBeyondBarrier','nonFiniteSteps']})
++            assert not errors,errors
++            assert len(report)==5,report
++            assert all(x['pass'] for x in report),[(x['scenario'],[c for c in x['checks'] if not c['passed']]) for x in report]
++            print('PASS: REAL WebGL / Rapier v1.8.7 browser acceptance')
++        except Exception as exc:
++            page.screenshot(path=str(out/'v187_browser_failure.png'))
++            (out/'v187_errors.json').write_text(json.dumps({'error':str(exc),'pageErrors':errors,
++                'status':page.locator('#status').inner_text() if page.locator('#status').count() else None},ensure_ascii=False,indent=2))
++            raise
++        finally:browser.close()
++
++if __name__=='__main__':main()
+--- /dev/null
++++ b/desktop3d/tests/validate-scenarios.mjs
+@@ -0,0 +1,25 @@
++import assert from 'node:assert/strict';
++import {SCENARIOS,TEST_ORDER,gradeScenario} from '../src/scenarios.mjs';
++assert.deepEqual(TEST_ORDER,['settle','frontal','glancing','fast','ramp']);
++for(const id of TEST_ORDER){
++  const c=SCENARIOS[id];assert.ok(c.duration>0&&Number.isFinite(c.speed));
++  assert.ok(c.spawnS>0&&c.spawnS<300);
++}
++const perfect={finite:true,nonFiniteSteps:0,maxPositionAbs:150,maxSpeed:21,maxTiltDeg:5,
++  maxWheelContacts:4,maxImpactImpulse:800,barrierHits:1,railHits:1,
++  maxBeyondBarrier:-.8,maxBarrierPenetration:.03,travel:1.5,verticalExcursion:.20,maxRouteS:170};
++for(const id of TEST_ORDER){
++  const metrics={...perfect,maxSpeed:Math.max(10,SCENARIOS[id].speed)};
++  if(id==='settle')metrics.maxSpeed=0;
++  const result=gradeScenario(id,metrics);
++  assert.ok(result.pass,`${id}: expected synthetic valid telemetry to pass: ${JSON.stringify(result)}`);
++  assert.ok(result.checks.length>=4);
++  assert.equal(gradeScenario(id,{...metrics,nonFiniteSteps:1}).pass,false);
++}
++assert.equal(gradeScenario('frontal',{...perfect,barrierHits:0}).pass,false);
++assert.equal(gradeScenario('glancing',{...perfect,railHits:0}).pass,false);
++assert.equal(gradeScenario('fast',{...perfect,maxBeyondBarrier:12}).pass,false);
++assert.equal(gradeScenario('ramp',{...perfect,verticalExcursion:0}).pass,false);
++assert.equal(gradeScenario('ramp',{...perfect,maxRouteS:145}).pass,false);
++assert.equal(gradeScenario('settle',{...perfect,travel:8}).pass,false);
++console.log('PASS scenario definitions and fail-safe QA gates (14 assertions+)');
+--- /dev/null
++++ b/desktop3d/vite.config.mjs
+@@ -0,0 +1,6 @@
++import {defineConfig} from 'vite';
++export default defineConfig({
++  base:'./', // Enables deployment below an arbitrary website sub-path.
++  server:{host:'127.0.0.1',port:5173,strictPort:true},
++  preview:{host:'127.0.0.1',port:4173,strictPort:true}
++});
+--- /dev/null
++++ b/tests/RUN_V187_QA.sh
+@@ -0,0 +1,4 @@
++#!/bin/sh
++set -eu
++cd "$(dirname "$0")/.."
++python -m unittest discover -s tests -p 'test_v18*.py' -v
+--- /dev/null
++++ b/tests/test_v187.py
+@@ -0,0 +1,86 @@
++"""Source-integrity and gate-behavior tests (NOT a Rapier/WASM browser runtime test)."""
++from __future__ import annotations
++import json,re,subprocess,unittest
++from pathlib import Path
++ROOT=Path(__file__).resolve().parents[1]
++THREE=ROOT/'desktop3d'
++
++class V187QA(unittest.TestCase):
++    def test_scenarios_fail_safe_when_telemetry_is_bad(self):
++        result=subprocess.run(['node',str(THREE/'tests/validate-scenarios.mjs')],capture_output=True,text=True)
++        self.assertEqual(result.returncode,0,result.stdout+'\n'+result.stderr)
++        self.assertIn('PASS scenario',result.stdout)
++
++    def test_module_syntax(self):
++        for js in [*list((THREE/'src').glob('*.mjs')),THREE/'vite.config.mjs']:
++            with self.subTest(js=js.name):
++                p=subprocess.run(['node','--check',str(js)],capture_output=True,text=True)
++                self.assertEqual(p.returncode,0,p.stderr)
++
++    def test_every_explicit_dom_selector_exists(self):
++        html=(THREE/'index.html').read_text()
++        js=(THREE/'src/main.mjs').read_text()
++        required=set(re.findall(r"\$\(\s*['\"]([^'\"]+)['\"]\s*\)",js))
++        present=set(re.findall(r'''\bid=['"]([^'"]+)['"]''',html))
++        self.assertGreater(len(required),15)
++        self.assertEqual(required-present,set())
++
++    def test_original_model_not_duplicated(self):
++        self.assertEqual((ROOT/'index.html').read_bytes(),(THREE/'public/physics.html').read_bytes())
++        js=(THREE/'src/chassis.mjs').read_text()
++        self.assertEqual(js.count('this.world.step()'),1)
++        self.assertIn('this.rigidBody.addForceAtPoint',js)
++        self.assertIn('world.timestep=h;this.world.step();',js)
++        self.assertIn('setCcdEnabled(true)',js)
++        self.assertNotIn('setNextKinematicTranslation',js)
++
++    def test_collider_labels_and_real_impulse_sampling(self):
++        road=(THREE/'src/road.mjs').read_text()
++        ch=(THREE/'src/chassis.mjs').read_text()
++        obstacles=(THREE/'src/obstacles.mjs').read_text()
++        self.assertIn('railHandles',road)
++        self.assertIn('barrierHandles',road)
++        self.assertIn('groundHandles',road)
++        self.assertIn('contactImpulse(i)',ch)
++        self.assertIn('contactDist(i)',ch)
++        self.assertIn('contactPair(this.collider,other',ch)
++        self.assertIn('setCcdEnabled(true)',ch)
++        self.assertIn('ColliderDesc.trimesh',obstacles)
++        self.assertIn('ColliderDesc.cuboid',obstacles)
++
++    def test_guardrail_chassis_uses_four_point_forces(self):
++        script=(THREE/'src/chassis.mjs').read_text()
++        self.assertIn('for(const id of d.WHEEL_IDS)',script)
++        self.assertIn('wheel.fxBody',script)
++        self.assertIn('wheel.fyBody',script)
++        self.assertNotIn('addTorque({x:0,y:yawMoment',script)
++
++    def test_qa_host_has_single_controlled_stepping_path(self):
++        main=(THREE/'src/main.mjs').read_text()
++        self.assertEqual(main.count('d.advancePhysics(FIXED_DT);'),1)
++        self.assertIn('const FIXED_DT=1/120;',main)
++        self.assertIn('await new Promise(resolve=>requestAnimationFrame(resolve))',main)
++        self.assertIn('maxBarrierPenetration',main)
++        self.assertIn('dropSteps',main)
++        self.assertIn('__SHIFT_LAB_3D_QA__',main)
++
++    def test_keyboard_works_after_clicking_control_buttons(self):
++        main=(THREE/'src/main.mjs').read_text()
++        self.assertIn("['INPUT','SELECT','TEXTAREA'].includes(e.target?.tagName)",main)
++        self.assertNotIn("['INPUT','BUTTON','SELECT','TEXTAREA'].includes(e.target?.tagName)",main)
++        self.assertIn("KeyW:'w'",main)
++        self.assertIn("ShiftLeft:'shift'",main)
++
++    def test_version_and_start_scripts_exist(self):
++        package=json.loads((THREE/'package.json').read_text())
++        self.assertEqual(package['version'],'1.8.7')
++        self.assertIn('rapier3d-compat',str(package['dependencies']))
++        self.assertTrue((THREE/'START_WINDOWS.cmd').exists())
++        self.assertTrue((THREE/'START_UNIX.sh').exists())
++        self.assertEqual((THREE/'vite.config.mjs').read_text().count("base:'./'"),1)
++
++    def test_old_python_tests_still_bundled(self):
++        for name in ['test_v183.py','test_v184.py','test_v185.py','test_v186.py']:
++            self.assertTrue((ROOT/'tests'/name).is_file())
++
++if __name__=='__main__':unittest.main(verbosity=2)

@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SHIFT LAB 手動效能擷取</title>
+<style>
+  :root{color-scheme:dark;font-family:system-ui,sans-serif;background:#101923;color:#e8f0f5}
+  body{max-width:650px;margin:10vh auto;padding:24px;line-height:1.8}
+  h1{font-size:26px}p{color:#bdd0dd}a{display:inline-block;padding:12px 20px;border-radius:8px;background:#a2efcc;color:#10241a;font-weight:bold;text-decoration:none}
+  small{display:block;margin-top:24px;color:#9ab0bf}
+</style>
+<h1>記錄實際遊戲的卡頓</h1>
+<p>請在原本遊戲的同一個分頁開啟本頁，避免同時執行兩份遊戲。</p>
+<p>開始後會回到遊戲，沿用已保存的地圖與車輛設定。請照常行駛，重現地形載入或碰撞時的卡頓。60 秒後會下載一份 JSON；也可以按 Esc 提早結束記錄。</p>
+<a href="../../?capture-performance=60">載入遊戲並開始記錄</a>
+<small>僅供開發版本機排查。記錄包含瀏覽器、畫面尺寸、地圖設定、幀時間與碰撞／載入耗時，不會上傳資料，也不會更改畫質或物理參數。這是帶有量測開銷的診斷，不是效能驗收。</small>
+</html>

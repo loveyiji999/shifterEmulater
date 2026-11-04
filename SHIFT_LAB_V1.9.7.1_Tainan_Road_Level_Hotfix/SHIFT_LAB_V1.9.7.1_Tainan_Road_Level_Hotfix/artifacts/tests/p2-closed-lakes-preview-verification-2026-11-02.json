@@ -1,0 +1,44 @@
+{
+  "before": {
+    "kind": "lake",
+    "seed": "ROAD-38274CD4",
+    "status": "geometry-candidate",
+    "issues": [],
+    "afterVisible": false,
+    "groundParts": 16,
+    "waterTriangles": 2741,
+    "camera": [
+      307.2000000000002,
+      327.9398530960082,
+      896
+    ],
+    "target": [
+      0,
+      1.5398530960083008,
+      512
+    ],
+    "device": "ANGLE (Intel, Intel(R) UHD Graphics 770 (0x00004680) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "geometries": 65
+  },
+  "after": {
+    "kind": "lake",
+    "seed": "ROAD-38274CD4",
+    "status": "geometry-candidate",
+    "issues": [],
+    "afterVisible": true,
+    "groundParts": 16,
+    "waterTriangles": 2741,
+    "camera": [
+      307.2000000000002,
+      327.9398530960082,
+      896
+    ],
+    "target": [
+      0,
+      1.5398530960083008,
+      512
+    ],
+    "device": "ANGLE (Intel, Intel(R) UHD Graphics 770 (0x00004680) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "geometries": 65
+  }
+}

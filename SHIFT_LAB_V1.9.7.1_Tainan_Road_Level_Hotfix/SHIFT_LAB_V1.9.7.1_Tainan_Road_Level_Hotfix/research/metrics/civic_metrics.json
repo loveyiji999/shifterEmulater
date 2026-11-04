@@ -1,0 +1,24 @@
+{
+  "verification_status": "ORIGINAL PUBLIC SEGMENT DATA INSPECTED VIA CONNECTED GITHUB",
+  "source": "https://github.com/OpenLKA/Acceleration_Dataset/blob/main/ICE/HONDA_CIVIC_segments.json",
+  "blob_sha": "cec380cf6599d93d1e560fb15b38c899c62fdb29",
+  "reported_vehicle": "Honda Civic (model/year/specifications unspecified in segment file)",
+  "segments": 63,
+  "interior_observations_with_segment_repetitions": 5969,
+  "derived_sample_rate_hz": 10.0,
+  "acceleration_vs_speed_gradient_correlation": 0.9866465361280896,
+  "acceleration_vs_speed_gradient_rmse_mps2": 0.10475251798881992,
+  "pedal_min_max_as_published": [0, 218],
+  "may_overlap_or_reuse_indices": true,
+  "pedal_units_not_homogeneous": true,
+  "raw_rerelease_permission_unresolved": true,
+  "applied_to_drivetrain_physics": false,
+  "evidence_limits": [
+    "Strong agreement between reported a and derivative of v is not independent accelerometer validation; a may already have been derived from v",
+    "Nominal readme raw sampling is 100 Hz, but published segment t arrays average about 0.1 second (10 Hz)",
+    "Some segment index ranges overlap and can contain contradictory speeds; no independent-driver split has been validated",
+    "Published pedal signal mixes scale conventions (0..218); cannot use it to fit accelerator-to-torque maps",
+    "Readme claims MIT but links its license to a non-repository placeholder; no stand-alone LICENSE in root was verified",
+    "Observed p90 acceleration by speed represents driver demand and route, not a guaranteed full-throttle performance limit"
+  ]
+}

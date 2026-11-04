@@ -1,0 +1,162 @@
+{
+  "before": {
+    "metadata": {
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+      "device": "ANGLE (Intel, Intel(R) UHD Graphics 770 (0x00004680) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "backend": "WebGL2",
+      "drawingBuffer": [
+        1440,
+        900
+      ],
+      "devicePixelRatio": 1,
+      "hardwareConcurrency": 20,
+      "deviceMemoryGiB": 32,
+      "map": {
+        "seed": "ROAD-38274CD4",
+        "turnChance": 0,
+        "hairpinChance": 0,
+        "slopeChance": 0,
+        "leftBias": 50,
+        "upBias": 50,
+        "maxGrade": 9,
+        "generator": 3
+      },
+      "scenery": {
+        "trees": 210,
+        "rocks": 51,
+        "batches": 27,
+        "colliders": 261
+      },
+      "pavementMaterial": "asphalt_dense",
+      "preset": "standard",
+      "warmupSeconds": 10,
+      "captureSeconds": 40
+    },
+    "frameMs": {
+      "p50": 16.69999999552965,
+      "p95": 19.5,
+      "p99": 20.700000002980232,
+      "max": 34.69999999552965
+    },
+    "physicsCpuMs": {
+      "p50": 3.5,
+      "p95": 5.600000001490116,
+      "p99": 12.099999994039536,
+      "max": 33.6000000089407
+    },
+    "streamCpuMs": {
+      "p50": 0.10000000149011612,
+      "p95": 0.30000000447034836,
+      "p99": 1.0999999940395355,
+      "max": 3
+    },
+    "renderSubmissionCpuMs": {
+      "p50": 0.5,
+      "p95": 0.7999999970197678,
+      "p99": 1,
+      "max": 6.899999998509884
+    },
+    "streaming": {
+      "mode": "worker",
+      "jobs": 26,
+      "discarded": 0,
+      "commits": 25,
+      "waits": 0,
+      "maxWorkerMs": 356.79999999701977,
+      "maxPrepareMs": 3.9000000059604645,
+      "maxActivateMs": 1.8999999985098839,
+      "maxUploadMs": 10.199999995529652,
+      "preparedMeshes": 221,
+      "error": null,
+      "pending": 0,
+      "prepared": 0,
+      "visualPending": 0,
+      "ready": false
+    },
+    "distanceM": 915.51904296875,
+    "droppedSteps": 1,
+    "framesOver25ms": 9,
+    "visibleUploadsAfterFirstSecond": 0
+  },
+  "after": {
+    "metadata": {
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+      "device": "ANGLE (Intel, Intel(R) UHD Graphics 770 (0x00004680) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "backend": "WebGL2",
+      "drawingBuffer": [
+        1440,
+        900
+      ],
+      "devicePixelRatio": 1,
+      "hardwareConcurrency": 20,
+      "deviceMemoryGiB": 32,
+      "map": {
+        "seed": "ROAD-38274CD4",
+        "turnChance": 0,
+        "hairpinChance": 0,
+        "slopeChance": 0,
+        "leftBias": 50,
+        "upBias": 50,
+        "maxGrade": 9,
+        "generator": 3
+      },
+      "scenery": {
+        "trees": 210,
+        "rocks": 51,
+        "batches": 27,
+        "colliders": 261
+      },
+      "pavementMaterial": "asphalt_dense",
+      "preset": "standard",
+      "warmupSeconds": 10,
+      "captureSeconds": 40
+    },
+    "frameMs": {
+      "p50": 16.600000001490116,
+      "p95": 19.400000005960464,
+      "p99": 21,
+      "max": 35.30000000447035
+    },
+    "physicsCpuMs": {
+      "p50": 3.6999999955296516,
+      "p95": 6.100000001490116,
+      "p99": 11.5,
+      "max": 34.29999999701977
+    },
+    "streamCpuMs": {
+      "p50": 0.10000000149011612,
+      "p95": 0.3999999985098839,
+      "p99": 1.1999999955296516,
+      "max": 3
+    },
+    "renderSubmissionCpuMs": {
+      "p50": 0.5,
+      "p95": 0.8000000044703484,
+      "p99": 1.1000000014901161,
+      "max": 6.899999998509884
+    },
+    "streaming": {
+      "mode": "worker",
+      "jobs": 26,
+      "discarded": 1,
+      "commits": 25,
+      "waits": 0,
+      "maxWorkerMs": 402.20000000298023,
+      "maxPrepareMs": 4.600000001490116,
+      "maxActivateMs": 1.6000000014901161,
+      "maxUploadMs": 8.200000002980232,
+      "preparedMeshes": 218,
+      "preparationYields": 25,
+      "error": null,
+      "pending": 0,
+      "prepared": 0,
+      "visualPending": 0,
+      "ready": false
+    },
+    "distanceM": 915.356201171875,
+    "droppedSteps": 1,
+    "framesOver25ms": 9,
+    "visibleUploadsAfterFirstSecond": 0
+  },
+  "conclusion": "Construction/GPU preparation stacking prevented; no measured overall frame time improvement. Flat controlled trace is not reproduction of full user map settings; awaiting exported config."
+}

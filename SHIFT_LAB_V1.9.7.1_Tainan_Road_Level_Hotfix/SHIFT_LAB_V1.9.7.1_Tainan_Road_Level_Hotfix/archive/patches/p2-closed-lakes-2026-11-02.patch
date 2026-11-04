@@ -1,0 +1,691 @@
+--- a/desktop3d/src/riverbed-proposal.mjs
++++ b/desktop3d/src/riverbed-proposal.mjs
+@@ -1,3 +1,4 @@
++import {buildConnectedWater} from './water-geometry.mjs';
+ // Construction proposal only. Authored dimensions are not hydraulic calibration.
+ // Unconnected window outlets cannot be published as a completed river network.
+ const key=p=>p.x+','+p.z;
+@@ -10,39 +11,6 @@
+     if(Math.max(...x)<Math.min(...y)-1e-7||Math.max(...y)<Math.min(...x)-1e-7)return false;
+   }
+   return true;
+-}
+-function interval(a,b,tri){
+-  const sign=Math.sign(cross(tri[0],tri[1],tri[2]));if(!sign)return null;
+-  let low=0,high=1;
+-  for(let i=0;i<3;i++){
+-    const p=tri[i],q=tri[(i+1)%3],u=cross(p,q,a)*sign,v=cross(p,q,b)*sign;
+-    if(u<0&&v<0)return null;
+-    if(u<0)low=Math.max(low,u/(u-v));if(v<0)high=Math.min(high,u/(u-v));
+-  }
+-  return high>=low?[low,high]:null;
+-}
+-// A dry shoreline touching a path is not a flowing connection. The tolerance
+-// suppresses Float32 zero-depth contacts; it is not hydraulic calibration.
+-const WET_DEPTH=1e-5;
+-function wetSpan(a,b,tri,depths){
+-  const span=interval(a,b,tri);if(!span)return null;
+-  const [lo,hi]=span,den=cross(tri[0],tri[1],tri[2]);
+-  const depth=t=>{const p={x:a.x+(b.x-a.x)*t,z:a.z+(b.z-a.z)*t};
+-    return cross(tri[1],tri[2],p)/den*depths[0]+cross(tri[2],tri[0],p)/den*depths[1]+cross(tri[0],tri[1],p)/den*depths[2]-WET_DEPTH;};
+-  const u=depth(lo),v=depth(hi);if(u<=0&&v<=0)return null;
+-  return [u<0?lo+(hi-lo)*u/(u-v):lo,v<0?lo+(hi-lo)*u/(u-v):hi];
+-}
+-function clip(polygon,field){
+-  const out=[];
+-  for(let i=0;i<polygon.length;i++){
+-    const p=polygon[i],q=polygon[(i+1)%polygon.length],u=p[field],v=q[field];
+-    if(u>=0)out.push(p);
+-    if(u<0&&v>0||u>0&&v<0){const [a,b]=p.x<q.x||p.x===q.x&&p.z<=q.z?[p,q]:[q,p],t=a[field]/(a[field]-b[field]),hit={};
+-      for(const name of Object.keys(p))hit[name]=a[name]+(b[name]-a[name])*t;
+-      hit[field]=0;out.push(hit);
+-    }
+-  }
+-  return out;
+ }
+ const point=(vertices,i)=>({x:vertices[i*3],y:vertices[i*3+1],z:vertices[i*3+2]});
+ const face=(mesh,offset)=>[0,1,2].map(k=>point(mesh.vertices,mesh.indices[offset+k]));
+@@ -120,7 +88,7 @@
+   const protectedVertices=new Set();
+   for(const mesh of sources)for(let i=0;i<mesh.indices.length;i+=3){const tri=face(mesh,i);
+     if(protectedPolygons.some(p=>intersects(tri,p)))for(const p of tri)protectedVertices.add(key(p));}
+-  let changedVertices=0,maxCut=0,wetMaskEdges=0;const normalSums=new Map(),modified=new Set(),normalAffected=new Set(),issues=[];
++  let changedVertices=0,maxCut=0;const normalSums=new Map(),modified=new Set(),normalAffected=new Set(),issues=[];
+   const ground=sources.map(source=>{
+     const vertices=source.vertices.slice();
+     for(let i=0;i<vertices.length;i+=3){const p={x:vertices[i],z:vertices[i+2]},q=at(plan,p.x,p.z);
+@@ -145,106 +113,13 @@
+       else{const normal=normalSums.get(k)||[0,1,0],length=Math.hypot(...normal)||1;mesh.normals.set(normal.map(v=>v/length),i*3);}
+     }
+   }
+-  let candidateCount=0;
+-  const candidates=ground.map(mesh=>{
+-    const vertices=[],indices=[],uv=[],depths=[],flows=[],normals=[],sourceFaces=[];
+-    for(let i=0;i<mesh.indices.length;i+=3){
+-      let polygon=face(mesh,i).map(p=>{const q=at(plan,p.x,p.z);return {x:p.x,z:p.z,ground:p.y,water:q.waterY,
+-        depth:q.waterY-p.y,margin:plan.halfWidth+plan.bankWidth-q.distance,fx:q.flowX,fz:q.flowZ};});
+-      const oldMask=clip(clip(polygon,'margin'),'depth');
+-      if(oldMask.some(p=>Math.abs(p.margin)<1e-6&&p.depth>.001))wetMaskEdges++;
+-      polygon=clip(polygon,'depth');
+-      for(let k=1;k+1<polygon.length;k++){
+-        const tri=[polygon[0],polygon[k],polygon[k+1]].map(p=>({...p,x:Math.fround(p.x),z:Math.fround(p.z),water:Math.fround(p.water)}));
+-        if(Math.abs(cross(...tri))<1e-8||tri.every(p=>p.depth<=WET_DEPTH))continue;
+-        if(++candidateCount>200000)throw Error('Riverbed water topology budget exceeded');
+-        const [a,b,c]=tri,ab=[b.x-a.x,b.water-a.water,b.z-a.z],ac=[c.x-a.x,c.water-a.water,c.z-a.z];
+-        const normal=[ab[1]*ac[2]-ab[2]*ac[1],ab[2]*ac[0]-ab[0]*ac[2],ab[0]*ac[1]-ab[1]*ac[0]],L=Math.hypot(...normal)||1;
+-        for(const p of tri){indices.push(vertices.length/3);vertices.push(p.x,p.water,p.z);uv.push(p.x/8,p.z/8);depths.push(Math.max(0,p.depth));
+-          const flowLength=Math.hypot(p.fx,p.fz)||1;flows.push(p.fx/flowLength,p.fz/flowLength);normals.push(...normal.map(v=>v/L));}
+-        sourceFaces.push(i/3);
+-      }
+-    }
+-    return {tx:mesh.tx,tz:mesh.tz,vertices:new Float32Array(vertices),indices:Uint32Array.from(indices),
+-      normals:new Float32Array(normals),uv:new Float32Array(uv),depths:new Float32Array(depths),flows:new Float32Array(flows),sourceFaces:Uint32Array.from(sourceFaces)};
+-  });
+-  // Water follows actual wet ground triangles beyond the excavation corridor.
+-  // Keep only components connected through a positive-depth edge to the path;
+-  // a separate low basin must not become water merely because the plane is high.
+-  const edgeKey=(a,b)=>{const x=a.x+','+a.y+','+a.z,y=b.x+','+b.y+','+b.z;return x<y?x+'|'+y:y+'|'+x;};
+-  const entries=candidates.flatMap((mesh,part)=>Array.from({length:mesh.indices.length/3},(_,index)=>({part,index})));
+-  const parent=Int32Array.from(entries,(_,i)=>i),edges=new Map(),seeds=[];
+-  const root=i=>{while(parent[i]!==i){parent[i]=parent[parent[i]];i=parent[i];}return i;};
+-  for(let id=0;id<entries.length;id++){
+-    const {part,index}=entries[id],mesh=candidates[part],tri=face(mesh,index*3),depths=mesh.depths.subarray(index*3,index*3+3);
+-    if(plan.segments.some(s=>{const span=wetSpan(s.a,s.b,tri,depths);return span&&span[1]-span[0]>1e-9;}))seeds.push(id);
+-    for(let e=0;e<3;e++){
+-      const n=(e+1)%3;if(Math.max(mesh.depths[index*3+e],mesh.depths[index*3+n])<=WET_DEPTH)continue;
+-      const k=edgeKey(tri[e],tri[n]),previous=edges.get(k);
+-      if(previous===undefined)edges.set(k,id);
+-      else{const a=root(id),b=root(previous);parent[Math.max(a,b)]=Math.min(a,b);}
+-    }
+-  }
+-  const connected=new Set(seeds.map(root)),kept=new Set(),keptFaces=new Set(),keptByPart=candidates.map(()=>new Set());
+-  for(let id=0;id<entries.length;id++)if(connected.has(root(id))){
+-    kept.add(id);const {part,index}=entries[id];keptByPart[part].add(index);keptFaces.add(part+':'+candidates[part].sourceFaces[index]);
+-  }
+-  const discardedWaterTriangles=entries.length-kept.size;let outsideCorridorTriangles=0;
+-  const water=candidates.map((mesh,part)=>{
+-    const vertices=[],indices=[],normals=[],uv=[],depths=[],flows=[],sourceFaces=[];
+-    for(let index=0;index<mesh.sourceFaces.length;index++){
+-      if(!keptByPart[part].has(index))continue;
+-      const tri=face(mesh,index*3);
+-      if(tri.some(p=>at(plan,p.x,p.z).distance>plan.halfWidth+plan.bankWidth+1e-6))outsideCorridorTriangles++;
+-      const base=vertices.length/3;indices.push(base,base+1,base+2);
+-      vertices.push(...mesh.vertices.subarray(index*9,index*9+9));normals.push(...mesh.normals.subarray(index*9,index*9+9));
+-      uv.push(...mesh.uv.subarray(index*6,index*6+6));flows.push(...mesh.flows.subarray(index*6,index*6+6));
+-      depths.push(...mesh.depths.subarray(index*3,index*3+3));sourceFaces.push(mesh.sourceFaces[index]);
+-    }
+-    return {tx:mesh.tx,tz:mesh.tz,vertices:Float32Array.from(vertices),indices:Uint32Array.from(indices),
+-      normals:Float32Array.from(normals),uv:Float32Array.from(uv),depths:Float32Array.from(depths),flows:Float32Array.from(flows),sourceFaces:Uint32Array.from(sourceFaces)};
+-  });
+-  // A source edge used by one ground face is a real domain boundary or hole.
+-  // Wet edges are allowed only at the explicitly unresolved terminal corridor.
+-  const groundEdges=new Map();
+-  for(let part=0;part<ground.length;part++)for(let i=0;i<ground[part].indices.length;i+=3){
+-    const tri=face(ground[part],i);
+-    for(let e=0;e<3;e++){
+-      const a=tri[e],b=tri[(e+1)%3];if(a.x===b.x&&a.z===b.z)continue;
+-      const k=edgeKey(a,b),entry=groundEdges.get(k);
+-      if(entry)entry.count++;else groundEdges.set(k,{a,b,part,face:i/3,count:1});
+-    }
+-  }
+-  const bounds={minX:Infinity,maxX:-Infinity,minZ:Infinity,maxZ:-Infinity};
+-  for(const mesh of ground)for(let i=0;i<mesh.vertices.length;i+=3){
+-    bounds.minX=Math.min(bounds.minX,mesh.vertices[i]);bounds.maxX=Math.max(bounds.maxX,mesh.vertices[i]);
+-    bounds.minZ=Math.min(bounds.minZ,mesh.vertices[i+2]);bounds.maxZ=Math.max(bounds.maxZ,mesh.vertices[i+2]);
+-  }
+-  let openWaterEdges=0,terminalWaterEdges=0,openOuterEdges=0,openInteriorEdges=0;
+-  for(const {a,b,part,face:sourceFace,count} of groundEdges.values()){
+-    if(count!==1||!keptFaces.has(part+':'+sourceFace))continue;
+-    const u=at(plan,a.x,a.z).waterY-a.y,v=at(plan,b.x,b.z).waterY-b.y;
+-    if(Math.max(u,v)<=WET_DEPTH)continue;
+-    const t=u>0&&v>0?.5:((u>0?0:u/(u-v))+(v>0?1:u/(u-v)))/2;
+-    const q=at(plan,a.x+(b.x-a.x)*t,a.z+(b.z-a.z)*t);
+-    if(q.terminal&&q.distance<=plan.halfWidth+plan.bankWidth+1e-6)terminalWaterEdges++;
+-    else{
+-      openWaterEdges++;
+-      if([bounds.minX,bounds.maxX].some(x=>a.x===x&&b.x===x)||[bounds.minZ,bounds.maxZ].some(z=>a.z===z&&b.z===z))openOuterEdges++;
+-      else openInteriorEdges++;
+-    }
+-  }
+-  const waterTriangles=water.flatMap(mesh=>Array.from({length:mesh.indices.length/3},(_,i)=>({tri:face(mesh,i*3),depths:mesh.depths.subarray(i*3,i*3+3)})));
+-  const coverage=plan.segments.map(s=>{
+-    const spans=waterTriangles.map(({tri,depths})=>wetSpan(s.a,s.b,tri,depths)).filter(Boolean).sort((a,b)=>a[0]-b[0]);
+-    let covered=0,end=0;for(const [a,b] of spans)if(b>end){covered+=b-Math.max(a,end);end=b;}
+-    return covered;
+-  });
++  const result=buildConnectedWater(ground,{sample:(x,z)=>at(plan,x,z),seedSegments:plan.segments,
++    corridorWidth:plan.halfWidth+plan.bankWidth,allowBoundary:p=>{const q=at(plan,p.x,p.z);return q.terminal&&q.distance<=plan.halfWidth+plan.bankWidth+1e-6;}});
++  const {water,coverage}=result,{openWaterEdges}=result.summary;
+   if(maxCut>plan.maxCut)issues.push('excavation-limit');
+   if(openWaterEdges)issues.push('open-water-boundary');
+   if(coverage.some(value=>value<.99999))issues.push('incomplete-water-path');
+   return {schema:'shiftlab.riverbed-proposal.v1',status:issues.length?'rejected':'geometry-candidate',issues,
+     outletStatus:plan.outletStatus,requiresSurfaceRebake:true,ground,water,
+-    summary:{changedVertices,maxCut,protectedVertices:protectedVertices.size,wetMaskEdges,openWaterEdges,openOuterEdges,openInteriorEdges,terminalWaterEdges,discardedWaterTriangles,outsideCorridorTriangles,minPathCoverage:Math.min(...coverage),
+-      waterTriangles:waterTriangles.length},coverage};
++    summary:{changedVertices,maxCut,protectedVertices:protectedVertices.size,...result.summary},coverage};
+ }
+--- /dev/null
++++ b/desktop3d/src/water-geometry.mjs
+@@ -0,0 +1,139 @@
++// Shared Float32 water clipping and positive-depth connectivity. This module
++// does not edit terrain, create colliders or simulate hydraulic flow.
++const cross=(a,b,p)=>(b.x-a.x)*(p.z-a.z)-(b.z-a.z)*(p.x-a.x);
++function interval(a,b,tri){
++  const sign=Math.sign(cross(tri[0],tri[1],tri[2]));if(!sign)return null;
++  let low=0,high=1;
++  for(let i=0;i<3;i++){
++    const p=tri[i],q=tri[(i+1)%3],u=cross(p,q,a)*sign,v=cross(p,q,b)*sign;
++    if(u<0&&v<0)return null;
++    if(u<0)low=Math.max(low,u/(u-v));if(v<0)high=Math.min(high,u/(u-v));
++  }
++  return high>=low?[low,high]:null;
++}
++// A dry shoreline touching a path is not a flowing connection. The tolerance
++// suppresses Float32 zero-depth contacts; it is not hydraulic calibration.
++const WET_DEPTH=1e-5;
++function wetSpan(a,b,tri,depths){
++  const span=interval(a,b,tri);if(!span)return null;
++  const [lo,hi]=span,den=cross(tri[0],tri[1],tri[2]);
++  const depth=t=>{const p={x:a.x+(b.x-a.x)*t,z:a.z+(b.z-a.z)*t};
++    return cross(tri[1],tri[2],p)/den*depths[0]+cross(tri[2],tri[0],p)/den*depths[1]+cross(tri[0],tri[1],p)/den*depths[2]-WET_DEPTH;};
++  const u=depth(lo),v=depth(hi);if(u<=0&&v<=0)return null;
++  return [u<0?lo+(hi-lo)*u/(u-v):lo,v<0?lo+(hi-lo)*u/(u-v):hi];
++}
++function clip(polygon,field){
++  const out=[];
++  for(let i=0;i<polygon.length;i++){
++    const p=polygon[i],q=polygon[(i+1)%polygon.length],u=p[field],v=q[field];
++    if(u>=0)out.push(p);
++    if(u<0&&v>0||u>0&&v<0){const [a,b]=p.x<q.x||p.x===q.x&&p.z<=q.z?[p,q]:[q,p],t=a[field]/(a[field]-b[field]),hit={};
++      for(const name of Object.keys(p))hit[name]=a[name]+(b[name]-a[name])*t;
++      hit[field]=0;out.push(hit);
++    }
++  }
++  return out;
++}
++const point=(vertices,i)=>({x:vertices[i*3],y:vertices[i*3+1],z:vertices[i*3+2]});
++const face=(mesh,offset)=>[0,1,2].map(k=>point(mesh.vertices,mesh.indices[offset+k]));
++
++export function buildConnectedWater(ground,{sample,seedSegments=[],seedPoints=[],corridorWidth=null,allowBoundary=()=>false}){
++  let wetMaskEdges=0;
++  let candidateCount=0;
++  const candidates=ground.map(mesh=>{
++    const vertices=[],indices=[],uv=[],depths=[],flows=[],normals=[],sourceFaces=[];
++    for(let i=0;i<mesh.indices.length;i+=3){
++      let polygon=face(mesh,i).map(p=>{const q=sample(p.x,p.z);return {x:p.x,z:p.z,ground:p.y,water:q.waterY,
++        depth:q.waterY-p.y,margin:corridorWidth===null?1:corridorWidth-q.distance,fx:q.flowX,fz:q.flowZ};});
++      if(corridorWidth!==null){const oldMask=clip(clip(polygon,'margin'),'depth');
++        if(oldMask.some(p=>Math.abs(p.margin)<1e-6&&p.depth>.001))wetMaskEdges++;}
++      polygon=clip(polygon,'depth');
++      for(let k=1;k+1<polygon.length;k++){
++        const tri=[polygon[0],polygon[k],polygon[k+1]].map(p=>({...p,x:Math.fround(p.x),z:Math.fround(p.z),water:Math.fround(p.water)}));
++        if(Math.abs(cross(...tri))<1e-8||tri.every(p=>p.depth<=WET_DEPTH))continue;
++        if(++candidateCount>200000)throw Error('Riverbed water topology budget exceeded');
++        const [a,b,c]=tri,ab=[b.x-a.x,b.water-a.water,b.z-a.z],ac=[c.x-a.x,c.water-a.water,c.z-a.z];
++        const normal=[ab[1]*ac[2]-ab[2]*ac[1],ab[2]*ac[0]-ab[0]*ac[2],ab[0]*ac[1]-ab[1]*ac[0]],L=Math.hypot(...normal)||1;
++        for(const p of tri){indices.push(vertices.length/3);vertices.push(p.x,p.water,p.z);uv.push(p.x/8,p.z/8);depths.push(Math.max(0,p.depth));
++          const flowLength=Math.hypot(p.fx,p.fz)||1;flows.push(p.fx/flowLength,p.fz/flowLength);normals.push(...normal.map(v=>v/L));}
++        sourceFaces.push(i/3);
++      }
++    }
++    return {tx:mesh.tx,tz:mesh.tz,vertices:new Float32Array(vertices),indices:Uint32Array.from(indices),
++      normals:new Float32Array(normals),uv:new Float32Array(uv),depths:new Float32Array(depths),flows:new Float32Array(flows),sourceFaces:Uint32Array.from(sourceFaces)};
++  });
++  // Water follows actual wet ground triangles beyond the excavation corridor.
++  // Keep only components connected through a positive-depth edge to the path;
++  // a separate low basin must not become water merely because the plane is high.
++  const edgeKey=(a,b)=>{const x=a.x+','+a.y+','+a.z,y=b.x+','+b.y+','+b.z;return x<y?x+'|'+y:y+'|'+x;};
++  const entries=candidates.flatMap((mesh,part)=>Array.from({length:mesh.indices.length/3},(_,index)=>({part,index})));
++  const parent=Int32Array.from(entries,(_,i)=>i),edges=new Map(),seeds=[];
++  const root=i=>{while(parent[i]!==i){parent[i]=parent[parent[i]];i=parent[i];}return i;};
++  for(let id=0;id<entries.length;id++){
++    const {part,index}=entries[id],mesh=candidates[part],tri=face(mesh,index*3),depths=mesh.depths.subarray(index*3,index*3+3);
++    if(seedSegments.some(s=>{const span=wetSpan(s.a,s.b,tri,depths);return span&&span[1]-span[0]>1e-9;})||seedPoints.some(p=>wetSpan(p,p,tri,depths)))seeds.push(id);
++    for(let e=0;e<3;e++){
++      const n=(e+1)%3;if(Math.max(mesh.depths[index*3+e],mesh.depths[index*3+n])<=WET_DEPTH)continue;
++      const k=edgeKey(tri[e],tri[n]),previous=edges.get(k);
++      if(previous===undefined)edges.set(k,id);
++      else{const a=root(id),b=root(previous);parent[Math.max(a,b)]=Math.min(a,b);}
++    }
++  }
++  const connected=new Set(seeds.map(root)),kept=new Set(),keptFaces=new Set(),keptByPart=candidates.map(()=>new Set());
++  for(let id=0;id<entries.length;id++)if(connected.has(root(id))){
++    kept.add(id);const {part,index}=entries[id];keptByPart[part].add(index);keptFaces.add(part+':'+candidates[part].sourceFaces[index]);
++  }
++  const discardedWaterTriangles=entries.length-kept.size;let outsideCorridorTriangles=0;
++  const water=candidates.map((mesh,part)=>{
++    const vertices=[],indices=[],normals=[],uv=[],depths=[],flows=[],sourceFaces=[];
++    for(let index=0;index<mesh.sourceFaces.length;index++){
++      if(!keptByPart[part].has(index))continue;
++      const tri=face(mesh,index*3);
++      if(corridorWidth!==null&&tri.some(p=>sample(p.x,p.z).distance>corridorWidth+1e-6))outsideCorridorTriangles++;
++      const base=vertices.length/3;indices.push(base,base+1,base+2);
++      vertices.push(...mesh.vertices.subarray(index*9,index*9+9));normals.push(...mesh.normals.subarray(index*9,index*9+9));
++      uv.push(...mesh.uv.subarray(index*6,index*6+6));flows.push(...mesh.flows.subarray(index*6,index*6+6));
++      depths.push(...mesh.depths.subarray(index*3,index*3+3));sourceFaces.push(mesh.sourceFaces[index]);
++    }
++    return {tx:mesh.tx,tz:mesh.tz,vertices:Float32Array.from(vertices),indices:Uint32Array.from(indices),
++      normals:Float32Array.from(normals),uv:Float32Array.from(uv),depths:Float32Array.from(depths),flows:Float32Array.from(flows),sourceFaces:Uint32Array.from(sourceFaces)};
++  });
++  // A source edge used by one ground face is a real domain boundary or hole.
++  // Wet edges are allowed only at the explicitly unresolved terminal corridor.
++  const groundEdges=new Map();
++  for(let part=0;part<ground.length;part++)for(let i=0;i<ground[part].indices.length;i+=3){
++    const tri=face(ground[part],i);
++    if(Math.abs(cross(...tri))<1e-8)continue;
++    for(let e=0;e<3;e++){
++      const a=tri[e],b=tri[(e+1)%3];if(a.x===b.x&&a.z===b.z)continue;
++      const k=edgeKey(a,b),entry=groundEdges.get(k);
++      if(entry)entry.count++;else groundEdges.set(k,{a,b,part,face:i/3,count:1});
++    }
++  }
++  const bounds={minX:Infinity,maxX:-Infinity,minZ:Infinity,maxZ:-Infinity};
++  for(const mesh of ground)for(let i=0;i<mesh.vertices.length;i+=3){
++    bounds.minX=Math.min(bounds.minX,mesh.vertices[i]);bounds.maxX=Math.max(bounds.maxX,mesh.vertices[i]);
++    bounds.minZ=Math.min(bounds.minZ,mesh.vertices[i+2]);bounds.maxZ=Math.max(bounds.maxZ,mesh.vertices[i+2]);
++  }
++  let openWaterEdges=0,terminalWaterEdges=0,openOuterEdges=0,openInteriorEdges=0;
++  for(const {a,b,part,face:sourceFace,count} of groundEdges.values()){
++    if(count!==1||!keptFaces.has(part+':'+sourceFace))continue;
++    const u=sample(a.x,a.z).waterY-a.y,v=sample(b.x,b.z).waterY-b.y;
++    if(Math.max(u,v)<=WET_DEPTH)continue;
++    const t=u>0&&v>0?.5:((u>0?0:u/(u-v))+(v>0?1:u/(u-v)))/2;
++    if(allowBoundary({x:a.x+(b.x-a.x)*t,z:a.z+(b.z-a.z)*t}))terminalWaterEdges++;
++    else{
++      openWaterEdges++;
++      if([bounds.minX,bounds.maxX].some(x=>a.x===x&&b.x===x)||[bounds.minZ,bounds.maxZ].some(z=>a.z===z&&b.z===z))openOuterEdges++;
++      else openInteriorEdges++;
++    }
++  }
++  const waterTriangles=water.flatMap(mesh=>Array.from({length:mesh.indices.length/3},(_,i)=>({tri:face(mesh,i*3),depths:mesh.depths.subarray(i*3,i*3+3)})));
++  const coverage=seedSegments.map(s=>{
++    const spans=waterTriangles.map(({tri,depths})=>wetSpan(s.a,s.b,tri,depths)).filter(Boolean).sort((a,b)=>a[0]-b[0]);
++    let covered=0,end=0;for(const [a,b] of spans)if(b>end){covered+=b-Math.max(a,end);end=b;}
++    return covered;
++  });
++  return {water,coverage,summary:{wetMaskEdges,openWaterEdges,openOuterEdges,openInteriorEdges,terminalWaterEdges,
++    discardedWaterTriangles,outsideCorridorTriangles,minPathCoverage:coverage.length?Math.min(...coverage):null,waterTriangles:waterTriangles.length}};
++}
+--- /dev/null
++++ b/desktop3d/src/closed-lake.mjs
+@@ -0,0 +1,65 @@
++import {buildConnectedWater} from './water-geometry.mjs';
++
++const cross=(a,b,p)=>(b.x-a.x)*(p.z-a.z)-(b.z-a.z)*(p.x-a.x);
++function inputs(input,sourceX,sourceZ){
++  if(!Array.isArray(input)||!input.length||input.length>16||![sourceX,sourceZ].every(v=>Number.isFinite(v)&&Math.abs(v)<=1e7))
++    throw Error('Invalid closed lake inputs');
++  const sources=input.slice().sort((a,b)=>a.tx-b.tx||a.tz-b.tz),ids=new Set(),heights=new Map();let triangles=0,vertices=0;
++  for(const m of sources){
++    const id=m.tx+','+m.tz;
++    if(!Number.isInteger(m.tx)||!Number.isInteger(m.tz)||ids.has(id)||!(m.vertices instanceof Float32Array)||
++      !(m.indices instanceof Uint32Array)||m.vertices.length%3||m.indices.length%3||
++      !m.vertices.every(v=>Number.isFinite(v)&&Math.abs(v)<=1e7)||!m.indices.every(i=>i<m.vertices.length/3))throw Error('Invalid lake terrain buffers');
++    ids.add(id);triangles+=m.indices.length/3;vertices+=m.vertices.length/3;
++    if(triangles>250000||vertices>1000000)throw Error('Lake terrain budget exceeded');
++    for(let i=0;i<m.vertices.length;i+=3){const key=m.vertices[i]+','+m.vertices[i+2],y=m.vertices[i+1];
++      if(heights.has(key)&&heights.get(key)!==y)throw Error('Lake terrain seam or multiple height layers');heights.set(key,y);}
++  }
++  const source={x:Math.fround(sourceX),z:Math.fround(sourceZ)};let groundY=null;
++  for(const m of sources)for(let i=0;i<m.indices.length;i+=3){
++    const t=[0,1,2].map(k=>{const j=m.indices[i+k]*3;return {x:m.vertices[j],y:m.vertices[j+1],z:m.vertices[j+2]};}),d=cross(t[0],t[1],t[2]);
++    if(Math.abs(d)<1e-10)continue;
++    const a=cross(t[1],t[2],source)/d,b=cross(t[2],t[0],source)/d,c=1-a-b;
++    if(Math.min(a,b,c)<-1e-9)continue;
++    const y=a*t[0].y+b*t[1].y+c*t[2].y;groundY=groundY===null?y:Math.max(groundY,y);
++  }
++  return {sources,source:{...source,groundY}};
++}
++function atLevel({sources,source},waterY){
++  waterY=Math.fround(waterY);
++  const result=buildConnectedWater(sources,{sample:()=>({waterY,flowX:0,flowZ:0}),seedPoints:[source]}),issues=[];
++  if(source.groundY===null)issues.push('missing-lake-source');
++  if(!result.summary.waterTriangles)issues.push('no-connected-water');
++  if(result.summary.openWaterEdges)issues.push('open-water-boundary');
++  let maxDepth=0;for(const mesh of result.water)for(const depth of mesh.depths)maxDepth=Math.max(maxDepth,depth);
++  return {schema:'shiftlab.closed-lake.v1',status:issues.length?'rejected':'geometry-candidate',issues,source,waterY,
++    water:result.water,groundChanged:false,requiresWaterContactModel:true,
++    summary:{...result.summary,maxDepth,sourceDepth:source.groundY===null?null:waterY-source.groundY}};
++}
++
++export function buildClosedLake(input,{sourceX,sourceZ,waterY}){
++  if(!Number.isFinite(waterY)||Math.abs(waterY)>1e7)throw Error('Invalid lake water level');
++  return atLevel(inputs(input,sourceX,sourceZ),waterY);
++}
++
++// Select a closed body below an authored / sampled upper level. The selected
++// level is a static scene choice, not a rainfall or equilibrium simulation.
++export function findClosedLake(input,{sourceX,sourceZ,maxWaterY,minDepth=.2,iterations=8}){
++  if(!Number.isFinite(maxWaterY)||Math.abs(maxWaterY)>1e7||!Number.isFinite(minDepth)||minDepth<.05||minDepth>4||
++    !Number.isInteger(iterations)||iterations<1||iterations>12)throw Error('Invalid lake level search');
++  const prepared=inputs(input,sourceX,sourceZ),ground=prepared.source.groundY;
++  if(ground===null)return {...atLevel(prepared,maxWaterY),search:{status:'missing-source',attempts:1}};
++  const low=Math.fround(ground+minDepth),high=Math.fround(maxWaterY);
++  if(low<=ground||high<low)return {...atLevel(prepared,ground),search:{status:'insufficient-depth',attempts:1}};
++  let best=atLevel(prepared,low),attempts=1;
++  if(best.status!=='geometry-candidate')return {...best,search:{status:'no-closed-body',attempts}};
++  const upper=atLevel(prepared,high);attempts++;
++  if(upper.status==='geometry-candidate')return {...upper,search:{status:'upper-level-closed',attempts,maxWaterY:high}};
++  let accepted=low,rejected=high;
++  for(let i=0;i<iterations;i++){
++    const mid=Math.fround((accepted+rejected)/2);if(mid===accepted||mid===rejected)break;
++    const candidate=atLevel(prepared,mid);attempts++;
++    if(candidate.status==='geometry-candidate'){best=candidate;accepted=mid;}else rejected=mid;
++  }
++  return {...best,search:{status:'boundary-limited',attempts,maxWaterY:high,firstRejectedWaterY:rejected}};
++}
+--- a/desktop3d/src/terrain-geometry.mjs
++++ b/desktop3d/src/terrain-geometry.mjs
+@@ -238,10 +238,10 @@
+         const tri=[center,stitched[i],stitched[(i+1)%stitched.length]];if(Math.abs(area(tri))<1e-7)continue;
+         if(area(tri)>0)tri.reverse(); // +Y normal in XZ plane
+         for(const p of tri){
+-          const key=p.x.toPrecision(15)+','+p.z.toPrecision(15);
++          const x=Math.fround(p.x),z=Math.fround(p.z),key=p.x.toPrecision(15)+','+p.z.toPrecision(15);
+           if(!heightCache.has(key)){
+-            const dx=(this.height(p.x+.25,p.z)-this.height(p.x-.25,p.z))/.5;
+-            const dz=(this.height(p.x,p.z+.25)-this.height(p.x,p.z-.25))/.5,L=Math.hypot(dx,1,dz);
++            const dx=(this.height(x+.25,z)-this.height(x-.25,z))/.5;
++            const dz=(this.height(x,z+.25)-this.height(x,z-.25))/.5,L=Math.hypot(dx,1,dz);
+             heightCache.set(key,{y:this.height(p.x,p.z),normal:[-dx/L,1/L,-dz/L]});
+           }
+           const sample=heightCache.get(key);
+@@ -259,6 +259,14 @@
+         for(const polygon of polygons)emit(polygon);
+       }
+     }
+-    return {...conform(vertices,normals,uv),tx,tz};
+-  }
+-}
++    const data=conform(vertices,normals,uv),canonical=new Map();
++    // Preserve the sampled surface. Only vertices collapsed to the same final
++    // Float32 XZ share the lowest existing height; do not resample across layers.
++    for(let i=0;i<data.vertices.length;i+=3){
++      const key=data.vertices[i]+','+data.vertices[i+2],y=data.vertices[i+1];
++      canonical.set(key,Math.min(canonical.get(key)??Infinity,y));
++    }
++    for(let i=0;i<data.vertices.length;i+=3)data.vertices[i+1]=canonical.get(data.vertices[i]+','+data.vertices[i+2]);
++    return {...data,tx,tz};
++  }
++}
+--- /dev/null
++++ b/desktop3d/tests/lake-fixture.mjs
+@@ -0,0 +1,28 @@
++import {createHash} from 'node:crypto';
++import {TerrainWorld} from '../src/terrain-world.mjs';
++import {sampleDrainageGrid,analyzeDrainage} from '../src/terrain-drainage.mjs';
++import {findClosedLake} from '../src/closed-lake.mjs';
++import {buildRoadChunkV3} from '../src/road-geometry-v3.mjs';
++import {fixture,base} from './road-v3-fixture.mjs';
++
++export function lakeFixture(seed){
++  const core=fixture({...base,seed},48),feature=core.route.v3State.features.find(f=>['bridge','suspension'].includes(f.kind)),
++    center=core.roadPointAt((feature.start+feature.end)/2),terrain=new TerrainWorld({physics:core});
++  try{
++    const originX=Math.floor(center.x/128)*128-256,originZ=Math.floor(center.z/128)*128-256,
++      grid=sampleDrainageGrid(terrain,{width:65,height:65,originX,originZ}),analysis=analyzeDrainage(grid),
++      source=Math.round((center.z-originZ)/8)*65+Math.round((center.x-originX)/8),
++      meshes=Array.from(terrain.data.values()).filter(m=>m.tx>=originX/128&&m.tx<originX/128+4&&m.tz>=originZ/128&&m.tz<originZ/128+4);
++    const fingerprint=()=>{const h=createHash('sha256');for(const m of meshes)h.update(m.vertices).update(m.indices);return h.digest('hex');};
++    const sourceHash=fingerprint(),proposal=findClosedLake(meshes,{sourceX:grid.originX+source%65*8,
++      sourceZ:grid.originZ+Math.floor(source/65)*8,maxWaterY:analysis.spillElevation[source]-.25});
++    if(fingerprint()!==sourceHash)throw Error('Lake proposal mutated source terrain');
++    const bridgeMeshes=[];
++    for(let index=Math.floor(feature.start/100);index<=Math.floor(feature.end/100);index++){
++      const data=buildRoadChunkV3(core,index,{surfaceAt:(x,z)=>terrain.surfaceAt(x,z),groundFootprint:(p,h,x,z)=>terrain.footprint(p,h,x,z)});
++      for(const [kind,part] of Object.entries(data.meshes))if(!['earth','mark'].includes(kind)&&part.indices.length)
++        bridgeMeshes.push({kind,vertices:part.vertices,indices:part.indices});
++    }
++    return {seed,center,feature,meshes,bridgeMeshes,proposal,sourceHash,spillY:analysis.spillElevation[source]};
++  }finally{terrain.clear();terrain.depthMaterial.dispose();}
++}
+--- /dev/null
++++ b/desktop3d/tests/validate-closed-lake.mjs
+@@ -0,0 +1,80 @@
++import assert from 'node:assert/strict';
++import {writeFileSync} from 'node:fs';
++import {createHash} from 'node:crypto';
++import RAPIER from '@dimforge/rapier3d-compat';
++import {buildClosedLake,findClosedLake} from '../src/closed-lake.mjs';
++import {lakeFixture} from './lake-fixture.mjs';
++import {rayContactDistance} from '../src/ray-contact.mjs';
++await RAPIER.init();
++function bowl(tx=0,centerX=32){
++  const vertices=[],indices=[];
++  for(let z=0;z<=16;z++)for(let x=0;x<=16;x++){const wx=tx*64+x*4,wz=z*4;vertices.push(wx,-5+Math.hypot(wx-centerX,wz-32)*.25,wz);}
++  for(let z=0;z<16;z++)for(let x=0;x<16;x++){const i=z*17+x;indices.push(i,i+17,i+1,i+1,i+17,i+18);}
++  return {tx,tz:0,vertices:Float32Array.from(vertices),indices:Uint32Array.from(indices)};
++}
++const hash=meshes=>{const h=createHash('sha256');for(const m of meshes)h.update(m.vertices).update(m.indices);return h.digest('hex');};
++const source=bowl(),before=hash([source]),closed=buildClosedLake([source],{sourceX:32,sourceZ:32,waterY:-1});
++assert.equal(closed.status,'geometry-candidate');assert.equal(closed.summary.openWaterEdges,0);assert.equal(closed.summary.terminalWaterEdges,0);
++assert.equal(closed.summary.maxDepth,4);assert.equal(closed.groundChanged,false);assert.equal(before,hash([source]));
++for(const m of closed.water){assert.ok(m.flows.every(v=>v===0));for(let i=1;i<m.vertices.length;i+=3)assert.equal(m.vertices[i],closed.waterY);}
++const pair=[bowl(0,64),bowl(1,64)],joined=buildClosedLake(pair,{sourceX:64,sourceZ:32,waterY:-1});
++assert.equal(joined.status,'geometry-candidate');assert.ok(joined.water.every(m=>m.indices.length));
++assert.deepEqual(joined,buildClosedLake(pair.slice().reverse(),{sourceX:64,sourceZ:32,waterY:-1}));
++const edge=m=>new Set(Array.from({length:m.vertices.length/3},(_,i)=>m.vertices[i*3]===64?Array.from(m.vertices.subarray(i*3,i*3+3)).join(','):null).filter(Boolean));
++assert.deepEqual(edge(joined.water[0]),edge(joined.water[1]));
++const opened=buildClosedLake([source],{sourceX:32,sourceZ:32,waterY:4});
++assert.equal(opened.status,'rejected');assert.ok(opened.issues.includes('open-water-boundary'));
++const hole={...source,vertices:source.vertices.slice(),indices:source.indices.slice()};
++const faces=Array.from({length:hole.indices.length/3},(_,i)=>Array.from(hole.indices.subarray(i*3,i*3+3))),
++  missing=faces.findIndex(t=>t.every(i=>hole.vertices[i*3]>=36&&hole.vertices[i*3]<=40&&hole.vertices[i*3+2]>=32&&hole.vertices[i*3+2]<=36)),
++  [a,b,c]=faces.splice(missing,1)[0];
++faces.push([a,b,a],[b,c,b],[c,a,c]);hole.indices=Uint32Array.from(faces.flat());
++const maskedHole=buildClosedLake([hole],{sourceX:32,sourceZ:32,waterY:-1});
++assert.equal(maskedHole.status,'rejected');assert.ok(maskedHole.summary.openInteriorEdges>=3,'zero-area faces cannot conceal a wet hole');
++const selected=findClosedLake([source],{sourceX:32,sourceZ:32,maxWaterY:10});
++assert.equal(selected.status,'geometry-candidate');assert.equal(selected.search.status,'boundary-limited');
++assert.ok(selected.waterY>2.9&&selected.waterY<=3.00001,'selected level remains below the analytic lowest outer rim');
++assert.equal(buildClosedLake([source],{sourceX:32,sourceZ:32,waterY:selected.waterY+.1}).status,'rejected');
++assert.equal(findClosedLake([source],{sourceX:32,sourceZ:32,maxWaterY:-5}).status,'rejected');
++assert.equal(buildClosedLake([source],{sourceX:-20,sourceZ:-20,waterY:0}).status,'rejected');
++assert.throws(()=>buildClosedLake([source],{sourceX:32,sourceZ:32,waterY:NaN}),/level/);
++assert.throws(()=>findClosedLake([source],{sourceX:32,sourceZ:32,maxWaterY:0,iterations:100}),/search/);
++assert.throws(()=>buildClosedLake([source,source],{sourceX:32,sourceZ:32,waterY:0}),/buffers/);
++
++function contacts(meshes,lake,limit=250){
++  const world=new RAPIER.World({x:0,y:0,z:0});let queries=0,maxError=0;
++  try{
++    for(const m of meshes)world.createCollider(RAPIER.ColliderDesc.trimesh(m.vertices,m.indices));world.step();
++    for(let part=0;part<lake.water.length;part++){
++      const water=lake.water[part],m=meshes.find(m=>m.tx===water.tx&&m.tz===water.tz),step=Math.max(1,Math.floor(water.sourceFaces.length/limit));
++      for(let f=0;f<water.sourceFaces.length;f+=step){
++        const x=Math.fround((water.vertices[f*9]+water.vertices[f*9+3]+water.vertices[f*9+6])/3),
++          z=Math.fround((water.vertices[f*9+2]+water.vertices[f*9+5]+water.vertices[f*9+8])/3),
++          tri=Array.from(m.indices.subarray(water.sourceFaces[f]*3,water.sourceFaces[f]*3+3),i=>({x:m.vertices[i*3],y:m.vertices[i*3+1],z:m.vertices[i*3+2]})),
++          [a,b,c]=tri,den=(b.z-c.z)*(a.x-c.x)+(c.x-b.x)*(a.z-c.z),
++          u=((b.z-c.z)*(x-c.x)+(c.x-b.x)*(z-c.z))/den,v=((c.z-a.z)*(x-c.x)+(a.x-c.x)*(z-c.z))/den,
++          expected=u*a.y+v*b.y+(1-u-v)*c.y,origin=Math.fround(lake.waterY+2),
++          hit=world.castRayAndGetNormal(new RAPIER.Ray({x,y:origin,z},{x:0,y:-1,z:0}),128,true),distance=rayContactDistance(hit,128);
++        assert.notEqual(distance,null);assert.ok(lake.waterY>=expected-.0001);
++        maxError=Math.max(maxError,Math.abs(origin-distance-expected));queries++;
++      }
++    }
++    assert.ok(queries>0);assert.ok(maxError<.0002,'unchanged actual ground below lake: '+maxError);
++    assert.equal(world.colliders.len(),meshes.length,'lake adds no wheel-support collider');return {queries,maxError};
++  }finally{world.free();}
++}
++const syntheticContacts=contacts(pair,joined),reports=[];
++for(const seed of ['LEVEL-1','LEVEL-2','ROAD-38274CD4']){
++  const f=lakeFixture(seed),p=f.proposal;
++  const canonical=new Map();
++  for(const m of f.meshes)for(let i=0;i<m.vertices.length;i+=3){
++    const key=m.vertices[i]+','+m.vertices[i+2],sample=[m.vertices[i+1],...m.normals.subarray(i,i+3)];
++    if(canonical.has(key))assert.deepEqual(sample,canonical.get(key),'same Float32 XZ shares height and normal: '+seed+' '+key);
++    else canonical.set(key,sample);
++  }
++  assert.equal(p.status,'geometry-candidate',seed);assert.equal(p.summary.openWaterEdges,0);assert.equal(p.summary.terminalWaterEdges,0);
++  assert.equal(hash(f.meshes),f.sourceHash);assert.ok(p.waterY<f.spillY);
++  reports.push({seed,waterY:p.waterY,spillY:f.spillY,source:p.source,summary:p.summary,search:p.search,sourceHash:f.sourceHash,contacts:contacts(f.meshes,p,40)});
++}
++writeFileSync(new URL('../../artifacts/tests/p2-closed-lakes-latest.json',import.meta.url),JSON.stringify({scope:'closed static lake geometry; no regional river outlet, water contact forces or runtime integration',syntheticContacts,reports},null,2)+'\n');
++console.log('PASS closed lakes: unchanged terrain, analytic rim level search, no terminal openings, Float32 tile seams, source ownership, actual ground support: '+JSON.stringify(reports));
+--- a/desktop3d/tests/build-riverbed-preview.mjs
++++ b/desktop3d/tests/build-riverbed-preview.mjs
+@@ -1,19 +1,21 @@
+ import {build} from 'esbuild';
+ import {writeFile} from 'node:fs/promises';
+ import {riverbedFixture} from './riverbed-fixture.mjs';
++import {lakeFixture} from './lake-fixture.mjs';
+ 
+ const previewName=process.argv.find(arg=>arg.startsWith('--preview-name='))?.slice(15)||'p2-river-routing';
+ if(!/^p2-[a-z-]+$/.test(previewName))throw Error('Invalid preview name');
+-const fixture=riverbedFixture('ROAD-38274CD4'),proposal=fixture.proposal;
++const lake=process.argv.includes('--lake'),fixture=(lake?lakeFixture:riverbedFixture)('ROAD-38274CD4'),proposal=fixture.proposal;
++const ground=lake?fixture.meshes.slice().sort((a,b)=>a.tx-b.tx||a.tz-b.tz):proposal.ground;
+ const encode=(values,Type)=>Buffer.from(new Type(values).buffer).toString('base64');
+ const buffers=meshes=>meshes.map(m=>({kind:m.kind,tx:m.tx,tz:m.tz,vertices:encode(m.vertices,Float32Array),indices:encode(m.indices,Uint32Array),normals:m.normals?encode(m.normals,Float32Array):null}));
+-const data={seed:fixture.seed,status:proposal.status,issues:proposal.issues,summary:proposal.summary,
+-  before:buffers(fixture.meshes.slice().sort((a,b)=>a.tx-b.tx||a.tz-b.tz)),ground:buffers(proposal.ground),water:buffers(proposal.water),bridge:buffers(fixture.bridgeMeshes)};
++const data={kind:lake?'lake':'riverbed',seed:fixture.seed,status:proposal.status,issues:proposal.issues,summary:proposal.summary,
++  before:buffers(fixture.meshes.slice().sort((a,b)=>a.tx-b.tx||a.tz-b.tz)),ground:buffers(ground),water:buffers(proposal.water),bridge:buffers(fixture.bridgeMeshes)};
+ const result=await build({entryPoints:[new URL('./riverbed-preview.mjs',import.meta.url).pathname.replace(/^\/([A-Za-z]:)/,'$1')],bundle:true,format:'iife',write:false,minify:true});
+ const script=result.outputFiles[0].text.replace(/<\/script/gi,'<\\/script'),json=JSON.stringify(data).replace(/</g,'\\u003c');
+-const html=`<!doctype html><html lang="zh-Hant"><meta charset="utf-8"><title>P2 河床施工候選預覽</title>
++const html=`<!doctype html><html lang="zh-Hant"><meta charset="utf-8"><title>${lake?'P2 封閉湖面候選預覽':'P2 河床施工候選預覽'}</title>
+ <style>body{margin:0;overflow:hidden;font-family:system-ui;background:#a2c0cb}aside{position:absolute;top:14px;left:14px;max-width:650px;background:#102032e8;color:#e8f0f5;padding:16px;border-radius:8px;line-height:1.6}h1{font-size:18px;margin:0 0 8px}p{font-size:12px;margin:6px 0}button{padding:8px 12px;margin-right:8px;cursor:pointer}canvas{display:block}</style>
+-<aside><h1>P2 河床施工候選預覽 · 尚未接入遊戲</h1><p id="status"></p><button id="before">原地形</button><button id="after">河床候選</button><p>褐色：挖方區；藍色：裁切水面，不作輪胎承載面。拖曳旋轉、滾輪縮放。</p><p>這是局部施工幾何，出口、水理、材質重烘焙與遊戲串流整合仍待完成。</p></aside>
++<aside><h1>${lake?'P2 封閉湖面候選預覽':'P2 河床施工候選預覽'} · 尚未接入遊戲</h1><p id="status"></p><button id="before">原地形</button><button id="after">${lake?'封閉湖面':'河床候選'}</button><p>${lake?'地形保持原狀；藍色：封閉湖面，不作輪胎承載面。':'褐色：挖方區；藍色：裁切水面，不作輪胎承載面。'}拖曳旋轉、滾輪縮放。</p><p>${lake?'這是靜態湖面候選，水體接觸、材質與遊戲串流整合仍待完成；河網另行開發。':'這是局部施工幾何，出口、水理、材質重烘焙與遊戲串流整合仍待完成。'}</p></aside>
+ <script id="riverbed-data" type="application/json">${json}</script><script>${script}</script></html>`;
+ await writeFile(new URL('../../artifacts/tests/'+previewName+'-preview-2026-11-02.html',import.meta.url),html);
+ console.log('PASS self-contained offline riverbed preview generated: '+JSON.stringify({status:proposal.status,issues:proposal.issues,...proposal.summary,bytes:Buffer.byteLength(html)}));
+--- a/desktop3d/tests/riverbed-preview.mjs
++++ b/desktop3d/tests/riverbed-preview.mjs
+@@ -32,12 +32,12 @@
+ camera.position.copy(center).add(new THREE.Vector3(distance*.8,distance*.85,distance));
+ const controls=new OrbitControls(camera,renderer.domElement);controls.target.copy(center);controls.update();lighting.update(center);
+ const status=document.getElementById('status');
+-status.textContent=data.seed+' · '+(data.status==='geometry-candidate'?'局部幾何候選；出口尚待接續':'未通過施工檢查：'+data.issues.join(' / '));
++status.textContent=data.seed+' · '+(data.status==='geometry-candidate'?(data.kind==='lake'?'封閉靜態湖面候選；水體接觸與串流待整合':'局部幾何候選；出口尚待接續'):'未通過施工檢查：'+data.issues.join(' / '));
+ function showAfter(value){before.visible=!value;after.visible=value;renderer.render(scene,camera);}
+ document.getElementById('before').onclick=()=>showAfter(false);document.getElementById('after').onclick=()=>showAfter(true);
+ window.addEventListener('resize',()=>{renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();});
+ const gl=renderer.getContext(),ext=gl.getExtension('WEBGL_debug_renderer_info');
+-window.__SHIFT_LAB_RIVERBED_PREVIEW__={ready:true,showAfter,snapshot:()=>({seed:data.seed,status:data.status,issues:data.issues,
++window.__SHIFT_LAB_RIVERBED_PREVIEW__={ready:true,showAfter,snapshot:()=>({kind:data.kind||'riverbed',seed:data.seed,status:data.status,issues:data.issues,
+   afterVisible:after.visible,groundParts:data.ground.length,waterTriangles:data.summary.waterTriangles,
+   camera:camera.position.toArray(),target:controls.target.toArray(),device:ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER),geometries:renderer.info.memory.geometries})};
+ showAfter(true);
+--- a/desktop3d/package.json
++++ b/desktop3d/package.json
+@@ -18,7 +18,7 @@
+     "qa:all": "npm run qa:streaming && npm run qa:vehicle && npm run qa:surface && npm run qa:terrain && npm run qa:grading && npm run qa:materials && npm run qa:lighting && npm run qa:engineering && npm run qa:performance && npm run qa:scenarios && npm run qa:map && npm run qa:transmission && npm run qa:manual && npm run qa:health && npm run qa:prnd",
+     "qa:performance": "node ./tests/validate-performance-capture.mjs && node ./tests/validate-manual-performance.mjs",
+     "qa:surface": "node ./tests/validate-surface-map.mjs && node ./tests/validate-pavement.mjs",
+-    "qa:terrain": "node ./tests/validate-terrain.mjs && node ./tests/validate-terrain-surface.mjs && node ./tests/validate-scenery.mjs && node ./tests/validate-drainage.mjs && node ./tests/validate-riverbed.mjs && node ./tests/validate-river-routing.mjs",
++    "qa:terrain": "node ./tests/validate-terrain.mjs && node ./tests/validate-terrain-surface.mjs && node ./tests/validate-scenery.mjs && node ./tests/validate-drainage.mjs && node ./tests/validate-riverbed.mjs && node ./tests/validate-river-routing.mjs && node ./tests/validate-closed-lake.mjs",
+     "qa:grading": "node ./tests/validate-terrain-grading.mjs",
+     "qa:lighting": "node ./tests/validate-tunnel-lighting.mjs",
+     "qa:materials": "node ./tests/validate-surface-materials.mjs",
+--- /dev/null
++++ b/docs/P2_CLOSED_LAKES.md
+@@ -0,0 +1,46 @@
++# P2 封閉湖面候選與 Float32 地形一致性
++
++日期：2026-11-02。接續[水面與岸線](P2_RIVER_INUNDATION.md)，本包新增不挖地形的靜態封閉湖面，並修正地形重複頂點的精度一致性。湖面仍為外部開發候選；河網、下游出口、水體接觸、材質與串流整合持續保留，不能用湖面取代原河流開發範圍。
++
++## 為何區分封閉水體
++
++實際512m地域檢查中，LEVEL-1與ROAD-38274CD4的橋下來源沒有低於預定水位的外框候選點；LEVEL-2有76個，但來源床高直線外推與沿地形下降的試作都未通過施工／濕邊檢查。這支持保留封閉窪地作湖面候選，不支持把任意局部邊界當作河流下游出口。
++
++`src/water-geometry.mjs`統一河道與湖面的Float32裁切、正水深連通、共邊、未知濕邊界及資源限制。使用封存原模組與目前模組在相同地形上比較，三個種子的完整河床proposal逐項相同，沒有另開道路生成器或第二套水面幾何。
++
++`src/closed-lake.mjs`產生水平靜態水面，只保留與指定來源相連的濕三角面；所有水流向量為0。湖面不允許任何未解析開口，包括河道原有的待接續端點，零面積地形面也不能遮掩缺面邊界。水位先取取樣溢出面以下0.25m，再以實際三角面確認封閉；必要時在來源以上約0.2m至上限間搜尋較低的封閉水位，最多8次細分。這是作者設定的靜態場景選擇，不是降雨、蒸發、蓄水或水理平衡模擬。
++
++候選不修改地面，也不建立承載碰撞體，明確標記`groundChanged=false`及`requiresWaterContactModel=true`。無河道路徑時`minPathCoverage=null`，避免把湖面誤當成已驗證的河道連通。
++
++## 三個實際地域
++
++每案使用V3原種子及48段道路，65×65的8m取樣格；實際水面裁切域為4×4個128m地形分塊。取樣溢出面只是水位上限建議，最後以實際地形三角面的閉合檢查決定。
++
++| 種子 | 實際水位Y | 最大深度 | 湖面三角面 | 未解析濕邊 |
++| --- | --- | --- | --- | --- |
++| LEVEL-1 | -2.365m | 15.700m | 1810 | 0 |
++| LEVEL-2 | -2.346m | 15.719m | 1810 | 0 |
++| ROAD-38274CD4 | -1.671m | 16.762m | 2741 | 0 |
++
++三案均為局部封閉湖面幾何候選，沒有端點豁免；ROAD的取樣上限未能直接封閉，經水位搜尋後通過。這不表示原LEVEL-2河道已修好：河床與湖面使用不同水位／來源語義，河道未知濕邊仍須處理。
++
++三種子合計857次實際Rapier地面射線，最大高度誤差約0.0034mm。湖面與地形的來源面索引、水平水位、跨塊共邊、0流速、來源不變與閉合限制均有測試；另以解析盆地核對水位搜尋、開放外框、缺失來源及無效輸入。
++
++## 地形一致性修正
++
++擴大取樣域後發現，原裁切頂點在轉成相同Float32 XZ後，仍可能保留不同高度。最後做法保留原取樣位置與三角剖分，僅把相同最終XZ的重複頂點統一至其中既有的最低高度，法線以Float32座標統一取樣。
++
++三種子共48塊、295062個頂點的原／新比較證明：XZ、索引與UV相同；LEVEL-1／LEVEL-2高度完全相同，ROAD只有16個重複頂點改動，最大約0.0017mm。法線最大分量差約0.0000123。沒有重設道路、物理頻率或車型參數。
++
++曾試作直接在Float32位置重取所有高度，但原高度函數在少數層級邊界有不連續，造成最大1.2m跳變，因此未採用。試作來源及比較結果保留為attempt紀錄；最終比較檔才代表目前程式。此一致性修正會進入正式遊戲的共用地形管線，湖面模組本身尚未進入遊戲。
++
++## 驗證與產物
++
++- `node tests/validate-closed-lake.mjs`：解析盆地、封閉水位、實際地形、跨塊水面及48塊Float32高度／法線一致性。
++- `npm.cmd run qa:all`、`npm.cmd run build`：最終結果記於本包verification JSON；完整回歸須使用`qa-final`紀錄，較早的試作回歸不作最終版本證據。其後新增零面積面邊界檢查，已另以最終`qa:terrain`重跑全部水面呼叫者通過。
++- 一般、`--production`及`--road-v3`瀏覽器回歸；54組立體道路通行的接地率最低100%，最大高度誤差約0.120m。
++- `node tests/build-riverbed-preview.mjs --lake --preview-name=p2-closed-lakes`產生[離線封閉湖面預覽](../artifacts/tests/p2-closed-lakes-preview-2026-11-02.html)。原生GPU命令為`node tests/validate-procedural-browser.mjs --riverbed-preview --preview-name=p2-closed-lakes --native-gpu`；已確認Intel UHD 770、相同前後鏡位及零執行／HTTP錯誤，施工後畫面已人工查看。
++
++預覽中其他道路的地形裁切孔並未補繪完整道路，這是固定橋梁的外部檢視，不能當成完整遊戲場景。湖面目前仍用檢視色彩，材質與水體接觸未完成。並行QA期間不採用幀時間作性能成績，使用者實際卡頓也未因此定位。
++
++原始結果與比較位於`artifacts/tests/p2-closed-lakes-*`；patch及來源檢查點分別集中於`archive/patches/`與`artifacts/tests/`。P2河網與水體接觸／串流、其他場景銜接，P3完整畫質性能及P4／P5均未完成。
+--- a/docs/DEVELOPMENT_PLAN.md
++++ b/docs/DEVELOPMENT_PLAN.md
+@@ -1,6 +1,6 @@
+ # SHIFT LAB 車輛與環境整合開發規劃書
+ 
+-版本：1.11　更新：2026-11-02（Asia/Taipei）；初版：2026-10-28
++版本：1.12　更新：2026-11-02（Asia/Taipei）；初版：2026-10-28
+ 
+ 適用專案：`SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/`。
+ 
+@@ -247,7 +247,7 @@
+ 
+ ## 下一個可執行工作包
+ 
+-P2第一包的連續地表、土路接觸及結構／洞口已整合，實作及邊界見[P2連續地表](P2_CONTINUOUS_TERRAIN.md)。下列工作包保留完整目標；結構基礎接地與洞口後續成果見[P2結構整合](P2_ENGINEERING.md)。橋端整形、PBR與光照後續成果見[P2材質與整形](P2_PBR_AND_GRADING.md)。已依使用者最新要求恢復分階段開發；混凝土與碎石已加入遊戲路面選擇及接觸驗證，詳見[P2可行駛路面](P2_DRIVABLE_PAVEMENTS.md)。第十包的基本樹木／岩石與土色變化見[P2造景](P2_SCENERY.md)。第十一包的土／碎石／裸岩混合與同源接觸見[P2地形混合](P2_TERRAIN_BLEND.md)。第十二包的局部天空光、洞內燈光與側緣銜接見[P2洞內外光照](P2_TUNNEL_LIGHTING.md)。第十三包的十類路面發布與40組制動見[P2十類路面](P2_TEN_PAVEMENTS.md)。第十五包的局部排水分析及實際谷底修整需求見[P2排水拓樸](P2_DRAINAGE_FOUNDATION.md)，第十六包新增[河床施工候選與離線預覽](P2_RIVERBED_PROPOSALS.md)，三種子有兩個被施工門檻拒絕，另一個仍無全域出口；第十七包的[局部尋路](P2_RIVER_ROUTING.md)改善受保護地形與開挖成本選路，LEVEL-1通過局部檢查，LEVEL-2仍拒絕；第十八包的[相連水面與岸線](P2_RIVER_INUNDATION.md)排除孤立水面並檢查未知濕邊界，LEVEL-2仍拒絕；地域出口、自然形態與遊戲整合未完成。水系、外側入口造景及遠景品質仍保留原目標。
++P2第一包的連續地表、土路接觸及結構／洞口已整合，實作及邊界見[P2連續地表](P2_CONTINUOUS_TERRAIN.md)。下列工作包保留完整目標；結構基礎接地與洞口後續成果見[P2結構整合](P2_ENGINEERING.md)。橋端整形、PBR與光照後續成果見[P2材質與整形](P2_PBR_AND_GRADING.md)。已依使用者最新要求恢復分階段開發；混凝土與碎石已加入遊戲路面選擇及接觸驗證，詳見[P2可行駛路面](P2_DRIVABLE_PAVEMENTS.md)。第十包的基本樹木／岩石與土色變化見[P2造景](P2_SCENERY.md)。第十一包的土／碎石／裸岩混合與同源接觸見[P2地形混合](P2_TERRAIN_BLEND.md)。第十二包的局部天空光、洞內燈光與側緣銜接見[P2洞內外光照](P2_TUNNEL_LIGHTING.md)。第十三包的十類路面發布與40組制動見[P2十類路面](P2_TEN_PAVEMENTS.md)。第十五包的局部排水分析及實際谷底修整需求見[P2排水拓樸](P2_DRAINAGE_FOUNDATION.md)，第十六包新增[河床施工候選與離線預覽](P2_RIVERBED_PROPOSALS.md)，三種子有兩個被施工門檻拒絕，另一個仍無全域出口；第十七包的[局部尋路](P2_RIVER_ROUTING.md)改善受保護地形與開挖成本選路，LEVEL-1通過局部檢查，LEVEL-2仍拒絕；第十八包的[相連水面與岸線](P2_RIVER_INUNDATION.md)排除孤立水面並檢查未知濕邊界，LEVEL-2仍拒絕；第十九包新增[封閉湖面候選與Float32一致性](P2_CLOSED_LAKES.md)，湖體不挖地形，三地域實際岸線閉合；河網、地域出口、水體接觸、材質與遊戲整合未完成。水系、外側入口造景及遠景品質仍保留原目標。
+ 
+ 目前優先取得實際玩家長幀／碰撞／串流記錄並依證據處理卡頓；等待記錄期間繼續水系施工、自然河網／出口與外側入口地形銜接；下方保留已實作地形工作的驗收定義，不表示重新開發另一套地圖。
+ 
+--- a/docs/DEVELOPMENT_PROGRESS.md
++++ b/docs/DEVELOPMENT_PROGRESS.md
+@@ -1,3 +1,7 @@
++# 第十九工作包 P2封閉湖面與地形精度
++
++2026-11-02新增不挖地形的封閉湖面候選，共用河道水面幾何；三地域的實際濕邊界皆閉合，857次Rapier地面查詢最大誤差約0.0034mm。另修正Float32重複XZ高度：48塊比較中只有ROAD的16個頂點高度微調，最大約0.0017mm，XZ／索引／UV保持。法線統一於Float32位置取樣。詳見[P2封閉湖面](P2_CLOSED_LAKES.md)。地形修正會進遊戲，湖面仍是外部候選；河網、水體接觸、材質與Worker整合尚待完成，P2–P5及玩家卡頓完整目標保留。下方保留歷史。
++
+ # 第十八工作包 P2相連水面與實際岸線
+ 
+ 2026-11-02改以實際濕三角面建立與河道相連的水面，排除孤立窪地及零深度岸線誤連；跨塊、缺面與未知濕邊界測試通過。LEVEL-2仍拒絕，已識別52條外框濕邊及61條內部濕邊。三種子772次實際地面射線最大誤差約0.012mm，原／新地面頂點、索引、法線與UV完全相同。詳見[P2水面與岸線](P2_RIVER_INUNDATION.md)。水系尚未接入遊戲，地域出口、自然形態、岸坡與串流待完成；卡頓與P2–P5完整目標保留。下方保留歷史。
+--- a/docs/AGENT_KNOWLEDGE.md
++++ b/docs/AGENT_KNOWLEDGE.md
+@@ -1,3 +1,7 @@
++# 第十九工作包 P2封閉湖面與地形精度
++
++2026-11-02新增不挖地形的封閉湖面候選，共用河道水面幾何；三地域的實際濕邊界皆閉合，857次Rapier地面查詢最大誤差約0.0034mm。另修正Float32重複XZ高度：48塊比較中只有ROAD的16個頂點高度微調，最大約0.0017mm，XZ／索引／UV保持。法線統一於Float32位置取樣。詳見[P2封閉湖面](P2_CLOSED_LAKES.md)。地形修正會進遊戲，湖面仍是外部候選；河網、水體接觸、材質與Worker整合尚待完成，P2–P5及玩家卡頓完整目標保留。下方保留歷史。
++
+ # 第十八工作包 P2相連水面與實際岸線
+ 
+ 2026-11-02改以實際濕三角面建立與河道相連的水面，排除孤立窪地及零深度岸線誤連；跨塊、缺面與未知濕邊界測試通過。LEVEL-2仍拒絕，已識別52條外框濕邊及61條內部濕邊。三種子772次實際地面射線最大誤差約0.012mm，原／新地面頂點、索引、法線與UV完全相同。詳見[P2水面與岸線](P2_RIVER_INUNDATION.md)。水系尚未接入遊戲，地域出口、自然形態、岸坡與串流待完成；卡頓與P2–P5完整目標保留。下方保留歷史。
+--- a/docs/AGENT_VERIFICATION.md
++++ b/docs/AGENT_VERIFICATION.md
+@@ -1,3 +1,7 @@
++# 第十九工作包 P2封閉湖面與地形精度
++
++2026-11-02新增不挖地形的封閉湖面候選，共用河道水面幾何；三地域的實際濕邊界皆閉合，857次Rapier地面查詢最大誤差約0.0034mm。另修正Float32重複XZ高度：48塊比較中只有ROAD的16個頂點高度微調，最大約0.0017mm，XZ／索引／UV保持。法線統一於Float32位置取樣。詳見[P2封閉湖面](P2_CLOSED_LAKES.md)。地形修正會進遊戲，湖面仍是外部候選；河網、水體接觸、材質與Worker整合尚待完成，P2–P5及玩家卡頓完整目標保留。下方保留歷史。
++
+ # 第十八工作包 P2相連水面與實際岸線
+ 
+ 2026-11-02改以實際濕三角面建立與河道相連的水面，排除孤立窪地及零深度岸線誤連；跨塊、缺面與未知濕邊界測試通過。LEVEL-2仍拒絕，已識別52條外框濕邊及61條內部濕邊。三種子772次實際地面射線最大誤差約0.012mm，原／新地面頂點、索引、法線與UV完全相同。詳見[P2水面與岸線](P2_RIVER_INUNDATION.md)。水系尚未接入遊戲，地域出口、自然形態、岸坡與串流待完成；卡頓與P2–P5完整目標保留。下方保留歷史。
+--- a/docs/DATA_CATALOG.md
++++ b/docs/DATA_CATALOG.md
+@@ -36,6 +36,8 @@
+ `desktop3d/src/river-routing.mjs`以地形、保護足跡與作者設定開挖成本搜尋局部河床路線，可指定邊界接續點；邊界不是已驗證出口。僅接入外部施工fixture，未供遊戲直接載入。規格與固定比較結果見[局部河床尋路](P2_RIVER_ROUTING.md)。
+ 
+ 河床候選水面現依正水深共邊連通與實際地形岸線裁切，保留原走廊診斷並另記外框／內部未解析濕邊；不把孤立窪地或零深度接觸視為連通水域。固定資料與限制見[相連水面與岸線](P2_RIVER_INUNDATION.md)。
++
++`desktop3d/src/water-geometry.mjs`共用水面裁切／連通；`closed-lake.mjs`輸出不修改地形的封閉水平湖面及作者設定水位搜尋，尚未進入遊戲。`terrain-geometry.mjs`另修正Float32重複XZ高度／法線一致性，該修正會影響共用遊戲地形。來源與驗證見[封閉湖面](P2_CLOSED_LAKES.md)。
+ 
+ ## 車輛研究與校準資料
+ 

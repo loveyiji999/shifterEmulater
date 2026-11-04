@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-29",
+  "scope": "user requested terrain performance repair; overall P0-P5 remains paused",
+  "sourceHashes": {
+    "desktop3d/src/road.mjs": "bf1471e8b997bd82ae0ae66a890cce3e9025aa74c7572f06e0a0cfcc85fee1ce",
+    "desktop3d/src/terrain-world.mjs": "18981cbf677795e11fca16af4a29e2220d0b709ab0e30c05e0a82c15d5df311e",
+    "desktop3d/src/main.mjs": "46a47949c04cb0e48445ac2671908d2d02dc85ebb63587dc82f5b8b652bbbe27",
+    "desktop3d/src/geometry-streamer.mjs": "59a712fdb814d868f9a6f1475e15c68f97670752b670d433abf5db69713453a9",
+    "desktop3d/src/streaming.worker.mjs": "dd4f799ec49c065425a1eb2bc524925494dc747b3a2d28f8a55753070ac15b12",
+    "desktop3d/src/streaming-geometry.mjs": "807b9d183aa76cf5fd07d59d9a09f69c4f57be6dda06c2ee4d19cd3b967ef837",
+    "desktop3d/src/road-snapshot.mjs": "46550c19336b7e61cda970caf1157dc113c0a0410330e3ca28a952e02602eddb",
+    "desktop3d/src/chassis.mjs": "249539c37109de8359530819a045e70b6f1f2c0f48fde6b56f33eec8d641ac80",
+    "desktop3d/src/terrain-geometry.mjs": "6fc832cbc9ef705e435c4b061299ee8c8e6ae3faa300146184a08c945a4d8da5",
+    "desktop3d/src/road-geometry-v3.mjs": "277f9b10df691e559d8d6b5e614415959686578002fbbb8cb24d2566781c299a",
+    "desktop3d/src/surface-map.mjs": "32988d70efcde2d07bcabca52cdce235693ec9c17a8bd48d90a52845a85a65ce",
+    "desktop3d/src/surface-uv.mjs": "135e118b4d0f5bfc9adcb33a246573322083e417c600a90144faec3d0cf9af1c",
+    "desktop3d/tests/game-driver.mjs": "6a3ff158e5d7d081c34587aa248f7fbe95e2ee46d06cc116ec039cf203b745f6",
+    "desktop3d/tests/streaming-profile.mjs": "34c9e6e8323dc054efbfff556548e604475fb0db981bd0d5b8e7292c25df7fc7",
+    "desktop3d/tests/geometry-worker-node.mjs": "58334715f7e95ca65697fa9edd40be93823bd26432242a38dbba15a16105817e",
+    "desktop3d/tests/validate-streaming.mjs": "ca0c06f354580e2ec0c77b847f9c9aeb47a904a44aa1654280b405292135d8f3",
+    "desktop3d/tests/performance-baseline.mjs": "010f09ce001f0d0fe42219f4780962c0965a2400220c03f931af489ff40221c7",
+    "desktop3d/tests/validate-performance-capture.mjs": "22cab26ca734ddb110a5d50f4656b84cd091d39cc275a9c48772ddad7687c88e",
+    "desktop3d/tests/validate-procedural-browser.mjs": "743d35bde3404b62bcb110d2ac448af0741af6423e28e6b2608cdfe536402b7d",
+    "desktop3d/package.json": "6af60d7c22d340736386539f213b0e06582b620c38b042b3ced0ace67106f2f4",
+    "desktop3d/package-lock.json": "f6acb5b69f34e0a9351be7f55f28914c490c01bee2ee9ca302435edad545ec86",
+    "desktop3d/public/physics.html": "c491cfc1ca5af23367822f87dfd27c12e122b83bf362ff6073829c75f952edbd",
+    "desktop3d/public/road-generator-v3.js": "d9d0c37bfa479bfcce098e5f86625eff36055fa04927f377b9b48cdc655a9668",
+    "docs/PERFORMANCE_TERRAIN_STREAMING.md": "f08b55bdcf76a58955831ccce8c9f86097522675745d8ec9c0c6a458b01aef93",
+    "docs/DEVELOPMENT_PROGRESS.md": "6aab34bfc77d8de918e303df022110e6ff78a5668c4e143c333906c183c84408",
+    "docs/AGENT_KNOWLEDGE.md": "4a4e8a0d6520cfd9eca5df8d8a9f2a9b1e966944b858e25393395123c373ef1b",
+    "docs/AGENT_VERIFICATION.md": "7f75086de82e2caa20f2e7679feed20ce32c14b02782c9cc2ee251727ad018d7",
+    "docs/DATA_CATALOG.md": "328adb0a1fa11a469befba1e6178de360cef2265a4dda393c4ce637263ece6f0"
+  },
+  "archiveSha256": "9e7c6e4237c282d53c436f39459952f29290f589a03521977e3a04bc4ea82c5b",
+  "checks": [
+    {
+      "command": "npm.cmd run qa:all",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-streaming.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --road-v3",
+      "result": "PASS"
+    },
+    {
+      "command": "npm.cmd run build",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --production",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --streaming-performance --native-gpu --before --warm",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --streaming-performance --native-gpu --warm",
+      "result": "PASS"
+    }
+  ],
+  "limitations": [
+    "single-seed 25s native GPU comparison",
+    "initial loading and explicit map changes remain synchronous",
+    "physical reset transients remain; not all stutters eliminated",
+    "existing bundle-size warning"
+  ],
+  "initialFailures": "Production fixed-delay contact checks read stale wet contacts twice; bounded actual-contact polling passed without changing game behavior. Test-only syntax, preload range and fixed wait assumptions corrected; final targeted test passed."
+}

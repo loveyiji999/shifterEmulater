@@ -1,0 +1,20 @@
+{
+  "materialIds": [
+    "asphalt_dense",
+    "asphalt_open",
+    "concrete",
+    "concrete_paver",
+    "clay_paver",
+    "natural_stone",
+    "gravel",
+    "earth",
+    "timber",
+    "steel"
+  ],
+  "materials": 10,
+  "textures": 30,
+  "estimatedTextureBytes": 10485760,
+  "shadow": true,
+  "environment": true,
+  "toneMapping": 4
+}

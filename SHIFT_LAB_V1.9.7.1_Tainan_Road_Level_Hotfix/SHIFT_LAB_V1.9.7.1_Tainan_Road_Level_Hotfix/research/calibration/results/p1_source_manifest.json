@@ -1,0 +1,110 @@
+{
+  "craig_2018-07-19_aa": {
+    "official_google_drive_id": "13qPsFBZNxTDEerLMi4Nvin99GFaHVuZA",
+    "original_filename": "craig_2018-07-19_aa.mat.bin",
+    "sha256": "058e7b9fa5a3b4fadf1c53e8102cf5bfab02310e67841ccbc3d89b2e66f8b246",
+    "samples": 71476,
+    "sample_rate_hz": 500,
+    "duration_s": 142.95000000000002,
+    "description": "\\nStraight line in both directions",
+    "signal_columns_0_based": {
+      "INS_yaw_rate_rad_s": 12,
+      "INS_lateral_acceleration_m_s2": 15,
+      "SSest_vx_m_s": 70,
+      "SSest_vy_m_s": 73,
+      "SSest_ay_cg_m_s2": 75,
+      "SSest_sideslip_rad": 76,
+      "PostProc_ackermann_steer_rad": 100
+    }
+  },
+  "craig_2018-07-19_ab": {
+    "official_google_drive_id": "13vyUJg81hSoyXy64LlMjua5b-vRXdySX",
+    "original_filename": "craig_2018-07-19_ab.mat.bin",
+    "sha256": "6bbf38bcc10ec3d644da192deb5f6beed710e7f3ce9dd215882f98d567cff1c5",
+    "samples": 65338,
+    "sample_rate_hz": 500,
+    "duration_s": 130.674,
+    "description": "\\nLeft-hand ramp steer 10 m/s",
+    "signal_columns_0_based": {
+      "INS_yaw_rate_rad_s": 12,
+      "INS_lateral_acceleration_m_s2": 15,
+      "SSest_vx_m_s": 70,
+      "SSest_vy_m_s": 73,
+      "SSest_ay_cg_m_s2": 75,
+      "SSest_sideslip_rad": 76,
+      "PostProc_ackermann_steer_rad": 100
+    }
+  },
+  "craig_2018-07-19_ac": {
+    "official_google_drive_id": "140ZQTollQzml8vgOf9ILIvp5dkBJ5tXi",
+    "original_filename": "craig_2018-07-19_ac.mat.bin",
+    "sha256": "0b6d49bad94180b8f3069410cebe033580da0b7a9cccafd8b6a920ff47cd83b4",
+    "samples": 69340,
+    "sample_rate_hz": 500,
+    "duration_s": 138.678,
+    "description": "\\nRight-hand ramp steer 10 m/s",
+    "signal_columns_0_based": {
+      "INS_yaw_rate_rad_s": 12,
+      "INS_lateral_acceleration_m_s2": 15,
+      "SSest_vx_m_s": 70,
+      "SSest_vy_m_s": 73,
+      "SSest_ay_cg_m_s2": 75,
+      "SSest_sideslip_rad": 76,
+      "PostProc_ackermann_steer_rad": 100
+    }
+  },
+  "craig_2018-07-19_ad": {
+    "official_google_drive_id": "1410LpN49BwGf5eOzPSy0GboUcFCa9tSW",
+    "original_filename": "craig_2018-07-19_ad.mat.bin",
+    "sha256": "49c3434f5c99f603f25f17331ad2de471c3e727c3e0735bb74104c525149c56c",
+    "samples": 89491,
+    "sample_rate_hz": 500,
+    "duration_s": 178.98,
+    "description": "\\nLap around PSU test track counter-clockwise 10 m/s",
+    "signal_columns_0_based": {
+      "INS_yaw_rate_rad_s": 12,
+      "INS_lateral_acceleration_m_s2": 15,
+      "SSest_vx_m_s": 70,
+      "SSest_vy_m_s": 73,
+      "SSest_ay_cg_m_s2": 75,
+      "SSest_sideslip_rad": 76,
+      "PostProc_ackermann_steer_rad": 100
+    }
+  },
+  "craig_2018-07-19_ai": {
+    "official_google_drive_id": "14OrYZJFVZfU0z8ezJ9XfXrzY6cntvJAZ",
+    "original_filename": "craig_2018-07-19_ai.mat.bin",
+    "sha256": "1a9c7058c0b121b5ac75313847f83cd954e7cfb01c0a2a3d2920cfd062912a5a",
+    "samples": 59488,
+    "sample_rate_hz": 500,
+    "duration_s": 118.974,
+    "description": "\\n5 degree step steers to the left at various speeds",
+    "signal_columns_0_based": {
+      "INS_yaw_rate_rad_s": 12,
+      "INS_lateral_acceleration_m_s2": 15,
+      "SSest_vx_m_s": 70,
+      "SSest_vy_m_s": 73,
+      "SSest_ay_cg_m_s2": 75,
+      "SSest_sideslip_rad": 76,
+      "PostProc_ackermann_steer_rad": 100
+    }
+  },
+  "craig_2018-07-19_ak": {
+    "official_google_drive_id": "14TYHCBtFXyMi9q_DjfGyQ6OCfbJREEL5",
+    "original_filename": "craig_2018-07-19_ak.mat.bin",
+    "sha256": "0f845618162acf0036a5c9e3ffe466aaddf014d421778473ead5c1b9dd47ecbe",
+    "samples": 64905,
+    "sample_rate_hz": 500,
+    "duration_s": 129.808,
+    "description": "\\n100 ft circle constant radius increasing speed counter-clockwise",
+    "signal_columns_0_based": {
+      "INS_yaw_rate_rad_s": 12,
+      "INS_lateral_acceleration_m_s2": 15,
+      "SSest_vx_m_s": 70,
+      "SSest_vy_m_s": 73,
+      "SSest_ay_cg_m_s2": 75,
+      "SSest_sideslip_rad": 76,
+      "PostProc_ackermann_steer_rad": 100
+    }
+  }
+}

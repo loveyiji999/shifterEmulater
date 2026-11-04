@@ -1,0 +1,55 @@
+{
+  "dataset_name": "cloudpose BMW M235i gasoline CAN 2018-04-08",
+  "source": "https://github.com/cloudpose/smartphone_driving_dataset",
+  "source_csv": "https://github.com/cloudpose/smartphone_driving_dataset/blob/master/dataset1_car.csv",
+  "git_blob_sha1": "9fb7b829265b9e94a09bbc188740dd7d350b0245",
+  "records": 4708,
+  "duration_s": 341.985119,
+  "vehicle": "BMW M235i gasoline, transmission variant unknown",
+  "train_time_s": [
+    0,
+    185
+  ],
+  "purged_gap_s": [
+    185,
+    205
+  ],
+  "holdout_time_s": [
+    205,
+    341.985119
+  ],
+  "train_n": 1411,
+  "holdout_n": 1357,
+  "holdout_corner_n": 294,
+  "speed_filter_m_s": 5,
+  "candidate_models": 60,
+  "signal_units": {
+    "speed": "mph to m/s",
+    "steering": "degrees to radians; wheel vs steering column unverified",
+    "lateral_accel": "g to m/s2"
+  },
+  "static_baseline": {
+    "lag_s": 0,
+    "saturation_s2_m2": 0,
+    "k": -0.019362361664321336,
+    "intercept_m_s2": -0.0925951671383776,
+    "training_rmse_m_s2": 0.32918957230853846,
+    "holdout_rmse_m_s2": 0.4015427228373743,
+    "holdout_r2": 0.6637574631990385
+  },
+  "selected_on_training": {
+    "lag_s": 0.1,
+    "saturation_s2_m2": 0.002,
+    "k": -0.023525565656735237,
+    "intercept_m_s2": -0.06394952698990486,
+    "training_rmse_m_s2": 0.32428675238643395,
+    "holdout_rmse_m_s2": 0.40488038256326403,
+    "holdout_r2": 0.6581444746624179
+  },
+  "zero_lateral_holdout_rmse_m_s2": 0.693404210546401,
+  "selected_beats_static_on_holdout": false,
+  "direct_yaw_rate_signal": false,
+  "raw_data_license_confirmed": false,
+  "gameplay_auto_transfer_allowed": false,
+  "validated_scope": "Gasoline car measured steering/speed to lateral-acceleration surrogate only; not full 4-wheel dynamics"
+}

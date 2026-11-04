@@ -1,0 +1,23 @@
+{
+  "scope": "fixed-camera flat-road image diagnostic, not GPU performance or general image quality scoring",
+  "roi": [
+    850,
+    580,
+    950,
+    650
+  ],
+  "metrics": {
+    "off": {
+      "mean": 50.307,
+      "std": 1.967204579382316
+    },
+    "baseline": {
+      "mean": 43.08971428571429,
+      "std": 4.315878646324065
+    },
+    "tuned": {
+      "mean": 50.307,
+      "std": 1.967204579382316
+    }
+  }
+}

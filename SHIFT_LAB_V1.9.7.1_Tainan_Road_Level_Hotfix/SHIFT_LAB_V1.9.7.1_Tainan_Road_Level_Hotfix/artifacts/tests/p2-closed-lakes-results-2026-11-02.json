@@ -1,0 +1,109 @@
+{
+  "scope": "closed static lake geometry; no regional river outlet, water contact forces or runtime integration",
+  "syntheticContacts": {
+    "queries": 134,
+    "maxError": 3.0321132271637907e-7
+  },
+  "reports": [
+    {
+      "seed": "LEVEL-1",
+      "waterY": -2.3651065826416016,
+      "spillY": -2.1151065826416016,
+      "source": {
+        "x": 0,
+        "z": 168,
+        "groundY": -18.065000534057617
+      },
+      "summary": {
+        "wetMaskEdges": 0,
+        "openWaterEdges": 0,
+        "openOuterEdges": 0,
+        "openInteriorEdges": 0,
+        "terminalWaterEdges": 0,
+        "discardedWaterTriangles": 6847,
+        "outsideCorridorTriangles": 0,
+        "minPathCoverage": null,
+        "waterTriangles": 1810,
+        "maxDepth": 15.699893951416016,
+        "sourceDepth": 15.699893951416016
+      },
+      "search": {
+        "status": "upper-level-closed",
+        "attempts": 2,
+        "maxWaterY": -2.3651065826416016
+      },
+      "sourceHash": "8125ba5f432e065268bea03d1d838b4559f0acd942af8bf24f1e65e37ea9cd6a",
+      "contacts": {
+        "queries": 269,
+        "maxError": 0.0000018022295975583802
+      }
+    },
+    {
+      "seed": "LEVEL-2",
+      "waterY": -2.3460586071014404,
+      "spillY": -2.0960586071014404,
+      "source": {
+        "x": 0,
+        "z": 168,
+        "groundY": -18.065000534057617
+      },
+      "summary": {
+        "wetMaskEdges": 0,
+        "openWaterEdges": 0,
+        "openOuterEdges": 0,
+        "openInteriorEdges": 0,
+        "terminalWaterEdges": 0,
+        "discardedWaterTriangles": 28119,
+        "outsideCorridorTriangles": 0,
+        "minPathCoverage": null,
+        "waterTriangles": 1810,
+        "maxDepth": 15.718941688537598,
+        "sourceDepth": 15.718941926956177
+      },
+      "search": {
+        "status": "upper-level-closed",
+        "attempts": 2,
+        "maxWaterY": -2.3460586071014404
+      },
+      "sourceHash": "66edffee705217ecda945004962c316b195022c0de4a9bf0a23e87dd1b88704f",
+      "contacts": {
+        "queries": 269,
+        "maxError": 0.0000025174853348630677
+      }
+    },
+    {
+      "seed": "ROAD-38274CD4",
+      "waterY": -1.670725703239441,
+      "spillY": -1.2917075157165527,
+      "source": {
+        "x": 0,
+        "z": 544,
+        "groundY": -18.256038665771484
+      },
+      "summary": {
+        "wetMaskEdges": 0,
+        "openWaterEdges": 0,
+        "openOuterEdges": 0,
+        "openInteriorEdges": 0,
+        "terminalWaterEdges": 0,
+        "discardedWaterTriangles": 10101,
+        "outsideCorridorTriangles": 0,
+        "minPathCoverage": null,
+        "waterTriangles": 2741,
+        "maxDepth": 16.761632919311523,
+        "sourceDepth": 16.585312962532043
+      },
+      "search": {
+        "status": "boundary-limited",
+        "attempts": 10,
+        "maxWaterY": -1.5417075157165527,
+        "firstRejectedWaterY": -1.6062166690826416
+      },
+      "sourceHash": "f7d3adac06460be1dbf105aa9c04b330ee822a59f7f8649152afe67f85ce0bb5",
+      "contacts": {
+        "queries": 319,
+        "maxError": 0.0000033986046545919635
+      }
+    }
+  ]
+}

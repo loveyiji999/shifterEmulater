@@ -1,0 +1,62 @@
+{
+  "schema": "shiftlab.phase-gate.verification.v1",
+  "recordedAt": "2026-10-29T00:03:15.595402+00:00",
+  "phase": "P0",
+  "status": "foundation_gate_passed",
+  "goalStatus": "active",
+  "scope": "shared contracts, actual material boundaries, four presets and prior native baseline; P2-P5 incomplete",
+  "checks": {
+    "qa:all": "PASS",
+    "qa:surface": "PASS actual Rapier and core helpers",
+    "browser": "PASS four presets and v1/v2/v3",
+    "diagnostics": "PASS 52 cases",
+    "surface braking": "PASS actual tire force and stopping order with global dry",
+    "V3 driving": "PASS 54",
+    "acceptance": "PASS 5/5",
+    "build": "PASS 24 modules",
+    "production": "PASS four conditions and test module isolation",
+    "documents": "PASS references"
+  },
+  "localBraking": [
+    {
+      "condition": "dry",
+      "distanceM": 12.365852355957031,
+      "seconds": 2.291666666666661
+    },
+    {
+      "condition": "wet",
+      "distanceM": 15.634937286376953,
+      "seconds": 2.9833333333333254
+    },
+    {
+      "condition": "snow",
+      "distanceM": 29.54511260986328,
+      "seconds": 5.6833333333334055
+    },
+    {
+      "condition": "ice",
+      "distanceM": 62.39452362060547,
+      "seconds": 11.991666666666626
+    }
+  ],
+  "sourceHashes": {
+    "desktop3d/src/surface-map.mjs": "8f7cf26042394fc741e8938fba04100ba82e2a4d6c466ff65fbfbe8f6d40964b",
+    "desktop3d/src/surface-definition.mjs": "0ae4824f81ae2e808992feaf7cf48b9c8ebc7d5f7813df68dd6868b18a261d01",
+    "desktop3d/src/road.mjs": "2722bd0b5bdc070adee1bf59a64d8f6f628370051e406493f7fde4bce5a78992",
+    "desktop3d/src/chassis.mjs": "249539c37109de8359530819a045e70b6f1f2c0f48fde6b56f33eec8d641ac80",
+    "desktop3d/public/physics.html": "c491cfc1ca5af23367822f87dfd27c12e122b83bf362ff6073829c75f952edbd",
+    "desktop3d/tests/validate-surface-map.mjs": "28e2a25665cd409373eb66093b47aa21b2f910467b2edf8a50168e9a45b86d0d",
+    "desktop3d/tests/surface-driver.mjs": "f8ba5ad3fbbd11c1651257de02049fcfd9f831aa03ed1278f774a458901e5d6e",
+    "desktop3d/tests/game-driver.mjs": "19cd82dd5f253a8008bad2bad61540eac5c971c48350a710458525e25de1981c",
+    "desktop3d/tests/validate-procedural-browser.mjs": "63dc1b50a19225e2afff3c84a14ce90a1faadac51668b0f6a56c475bd15f7f4d",
+    "desktop3d/tests/vehicle-diagnostics/main.mjs": "f9916be55a6302f85e791dfbc353c7a7b6083c7049ebf8c3467a028bba696cf1",
+    "desktop3d/tests/vehicle-diagnostics/index.html": "7e7fff99ddbd0e47d675bd36a22ec55e117b562078be9f59718fff27e3b8e2bd"
+  },
+  "pending": [
+    "P2 continuous terrain and cut/fill",
+    "P2 newly calibrated materials, lighting and scenery",
+    "P3 ten environment scenarios and final quality selection",
+    "P4 tuning tools and atomic application",
+    "P5 appearance creation and asset import/save/reload"
+  ]
+}

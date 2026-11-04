@@ -1,0 +1,546 @@
+{
+  "pass": true,
+  "cases": 54,
+  "reports": [
+    {
+      "seed": "LEVEL-1",
+      "kind": "crossing",
+      "reverse": false,
+      "endDistance": 2.420712874146144,
+      "contacts": 1,
+      "heightError": 0.020337669256212942,
+      "collisions": 0,
+      "travel": 34.9639011098556
+    },
+    {
+      "seed": "LEVEL-1",
+      "kind": "crossing",
+      "reverse": true,
+      "endDistance": 2.4537544001988882,
+      "contacts": 1,
+      "heightError": 0.020512970087048776,
+      "collisions": 0,
+      "travel": 34.92351271108185
+    },
+    {
+      "seed": "LEVEL-1",
+      "kind": "crossing",
+      "reverse": false,
+      "endDistance": 2.481099099626903,
+      "contacts": 1,
+      "heightError": 0.11965620793460552,
+      "collisions": 0,
+      "travel": 36.23919441125215
+    },
+    {
+      "seed": "LEVEL-1",
+      "kind": "crossing",
+      "reverse": true,
+      "endDistance": 2.435609436343682,
+      "contacts": 1,
+      "heightError": 0.11350819536070667,
+      "collisions": 0,
+      "travel": 36.27835476073315
+    },
+    {
+      "seed": "LEVEL-1",
+      "kind": "crossing",
+      "reverse": false,
+      "endDistance": 2.4516806956179003,
+      "contacts": 1,
+      "heightError": 0.1062612418922606,
+      "collisions": 0,
+      "travel": 36.16797375947704
+    },
+    {
+      "seed": "LEVEL-1",
+      "kind": "crossing",
+      "reverse": true,
+      "endDistance": 2.4375076225689973,
+      "contacts": 1,
+      "heightError": 0.11293118058033769,
+      "collisions": 0,
+      "travel": 36.18557650462813
+    },
+    {
+      "seed": "LEVEL-1",
+      "kind": "crossing",
+      "reverse": false,
+      "endDistance": 2.4644129775660777,
+      "contacts": 1,
+      "heightError": 0.06687428719127442,
+      "collisions": 0,
+      "travel": 35.53635090814048
+    },
+    {
+      "seed": "LEVEL-1",
+      "kind": "crossing",
+      "reverse": true,
+      "endDistance": 2.448555359561779,
+      "contacts": 1,
+      "heightError": 0.06662421555082321,
+      "collisions": 0,
+      "travel": 35.55229211902559
+    },
+    {
+      "seed": "LEVEL-1",
+      "kind": "suspension",
+      "reverse": false,
+      "endDistance": 2.439058724147637,
+      "contacts": 1,
+      "heightError": 0.06672280073165893,
+      "collisions": 0,
+      "travel": 33.560952496060935
+    },
+    {
+      "seed": "LEVEL-1",
+      "kind": "suspension",
+      "reverse": false,
+      "endDistance": 2.4396156680158496,
+      "contacts": 1,
+      "heightError": 0.06684630155563354,
+      "collisions": 0,
+      "travel": 33.56039555944889
+    },
+    {
+      "seed": "LEVEL-1",
+      "kind": "suspension",
+      "reverse": false,
+      "endDistance": 2.43793720705052,
+      "contacts": 1,
+      "heightError": 0.06684630155563354,
+      "collisions": 0,
+      "travel": 33.562074026087004
+    },
+    {
+      "seed": "LEVEL-1",
+      "kind": "tunnel",
+      "reverse": false,
+      "endDistance": 2.4519467519724705,
+      "contacts": 1,
+      "heightError": 0.06822299595278736,
+      "collisions": 0,
+      "travel": 33.37476840987577
+    },
+    {
+      "seed": "LEVEL-1",
+      "kind": "tunnel",
+      "reverse": false,
+      "endDistance": 2.4730019578469973,
+      "contacts": 1,
+      "heightError": 0.02720122510257217,
+      "collisions": 0,
+      "travel": 32.83742617110281
+    },
+    {
+      "seed": "LEVEL-1",
+      "kind": "tunnel",
+      "reverse": false,
+      "endDistance": 2.4134737465555895,
+      "contacts": 1,
+      "heightError": 0.04816458243695876,
+      "collisions": 0,
+      "travel": 33.44147559897342
+    },
+    {
+      "seed": "LEVEL-1",
+      "kind": "suspension",
+      "reverse": false,
+      "endDistance": 2.422770186888994,
+      "contacts": 1,
+      "heightError": 0.06674614625939923,
+      "collisions": 0,
+      "travel": 33.57734360673641
+    },
+    {
+      "seed": "LEVEL-1",
+      "kind": "suspension",
+      "reverse": false,
+      "endDistance": 2.4754282364304094,
+      "contacts": 1,
+      "heightError": 0.06748893881429452,
+      "collisions": 0,
+      "travel": 33.52479151900182
+    },
+    {
+      "seed": "LEVEL-1",
+      "kind": "suspension",
+      "reverse": false,
+      "endDistance": 2.4908382650352148,
+      "contacts": 1,
+      "heightError": 0.06685168293683375,
+      "collisions": 0,
+      "travel": 33.50958601244902
+    },
+    {
+      "seed": "LEVEL-0",
+      "kind": "crossing",
+      "reverse": false,
+      "endDistance": 2.4729452530491227,
+      "contacts": 1,
+      "heightError": 0.10789309744087716,
+      "collisions": 0,
+      "travel": 35.70214525191779
+    },
+    {
+      "seed": "LEVEL-0",
+      "kind": "crossing",
+      "reverse": true,
+      "endDistance": 2.4517380725689915,
+      "contacts": 1,
+      "heightError": 0.07444584284324463,
+      "collisions": 0,
+      "travel": 35.719878973695906
+    },
+    {
+      "seed": "LEVEL-0",
+      "kind": "crossing",
+      "reverse": false,
+      "endDistance": 2.4825974912393534,
+      "contacts": 1,
+      "heightError": 0.08341281114383547,
+      "collisions": 0,
+      "travel": 35.71373492712809
+    },
+    {
+      "seed": "LEVEL-0",
+      "kind": "crossing",
+      "reverse": true,
+      "endDistance": 2.484279292939275,
+      "contacts": 1,
+      "heightError": 0.07932345567508547,
+      "collisions": 0,
+      "travel": 35.71078356467285
+    },
+    {
+      "seed": "LEVEL-0",
+      "kind": "crossing",
+      "reverse": false,
+      "endDistance": 2.4218267569919054,
+      "contacts": 1,
+      "heightError": 0.09688711163844999,
+      "collisions": 0,
+      "travel": 35.80062807464994
+    },
+    {
+      "seed": "LEVEL-0",
+      "kind": "crossing",
+      "reverse": true,
+      "endDistance": 2.452357574327705,
+      "contacts": 1,
+      "heightError": 0.07545147264120344,
+      "collisions": 0,
+      "travel": 35.76549337128786
+    },
+    {
+      "seed": "LEVEL-0",
+      "kind": "crossing",
+      "reverse": false,
+      "endDistance": 2.477199185719718,
+      "contacts": 1,
+      "heightError": 0.0725307624699576,
+      "collisions": 0,
+      "travel": 35.57011993591913
+    },
+    {
+      "seed": "LEVEL-0",
+      "kind": "crossing",
+      "reverse": true,
+      "endDistance": 2.4924142259514532,
+      "contacts": 1,
+      "heightError": 0.06803963629488918,
+      "collisions": 0,
+      "travel": 35.55450248876632
+    },
+    {
+      "seed": "LEVEL-0",
+      "kind": "suspension",
+      "reverse": false,
+      "endDistance": 2.439058724147637,
+      "contacts": 1,
+      "heightError": 0.06672280073165893,
+      "collisions": 0,
+      "travel": 33.560952496060935
+    },
+    {
+      "seed": "LEVEL-0",
+      "kind": "suspension",
+      "reverse": false,
+      "endDistance": 2.4396156680158496,
+      "contacts": 1,
+      "heightError": 0.06684630155563354,
+      "collisions": 0,
+      "travel": 33.56039555944889
+    },
+    {
+      "seed": "LEVEL-0",
+      "kind": "suspension",
+      "reverse": false,
+      "endDistance": 2.43793720705052,
+      "contacts": 1,
+      "heightError": 0.06684630155563354,
+      "collisions": 0,
+      "travel": 33.562074026087004
+    },
+    {
+      "seed": "LEVEL-0",
+      "kind": "tunnel",
+      "reverse": false,
+      "endDistance": 2.4890360671356575,
+      "contacts": 1,
+      "heightError": 0.06944448664135705,
+      "collisions": 0,
+      "travel": 33.54501520546628
+    },
+    {
+      "seed": "LEVEL-0",
+      "kind": "tunnel",
+      "reverse": false,
+      "endDistance": 2.470659106572052,
+      "contacts": 1,
+      "heightError": 0.0678938824466806,
+      "collisions": 0,
+      "travel": 33.546646754148036
+    },
+    {
+      "seed": "LEVEL-0",
+      "kind": "tunnel",
+      "reverse": false,
+      "endDistance": 2.469657996130955,
+      "contacts": 1,
+      "heightError": 0.06668131334727234,
+      "collisions": 0,
+      "travel": 33.53095703186959
+    },
+    {
+      "seed": "LEVEL-0",
+      "kind": "tunnel",
+      "reverse": false,
+      "endDistance": 2.4601865420637563,
+      "contacts": 1,
+      "heightError": 0.069046961609599,
+      "collisions": 0,
+      "travel": 33.56828149051535
+    },
+    {
+      "seed": "LEVEL-0",
+      "kind": "tunnel",
+      "reverse": false,
+      "endDistance": 2.4967518643017956,
+      "contacts": 1,
+      "heightError": 0.06841442853582236,
+      "collisions": 0,
+      "travel": 33.517714370523755
+    },
+    {
+      "seed": "LEVEL-0",
+      "kind": "tunnel",
+      "reverse": false,
+      "endDistance": 2.4197620392944628,
+      "contacts": 1,
+      "heightError": 0.06690353400089832,
+      "collisions": 0,
+      "travel": 33.58064453667036
+    },
+    {
+      "seed": "JUNCTION-4",
+      "kind": "crossing",
+      "reverse": false,
+      "endDistance": 2.443758287153526,
+      "contacts": 1,
+      "heightError": 0.11172377109527587,
+      "collisions": 0,
+      "travel": 36.11876122347975
+    },
+    {
+      "seed": "JUNCTION-4",
+      "kind": "crossing",
+      "reverse": true,
+      "endDistance": 2.4152744789349896,
+      "contacts": 1,
+      "heightError": 0.101255943775177,
+      "collisions": 0,
+      "travel": 36.13942109716076
+    },
+    {
+      "seed": "JUNCTION-4",
+      "kind": "crossing",
+      "reverse": false,
+      "endDistance": 2.4990327419323557,
+      "contacts": 1,
+      "heightError": 0.06397222518920898,
+      "collisions": 0,
+      "travel": 35.46918820840136
+    },
+    {
+      "seed": "JUNCTION-4",
+      "kind": "crossing",
+      "reverse": true,
+      "endDistance": 2.496704000491423,
+      "contacts": 1,
+      "heightError": 0.06461118698120116,
+      "collisions": 0,
+      "travel": 35.4714146470738
+    },
+    {
+      "seed": "JUNCTION-4",
+      "kind": "crossing",
+      "reverse": false,
+      "endDistance": 2.4441030276614173,
+      "contacts": 1,
+      "heightError": 0.06576638460159301,
+      "collisions": 0,
+      "travel": 35.66462428500339
+    },
+    {
+      "seed": "JUNCTION-4",
+      "kind": "crossing",
+      "reverse": true,
+      "endDistance": 2.4852281065847235,
+      "contacts": 1,
+      "heightError": 0.09144698619842528,
+      "collisions": 0,
+      "travel": 35.63025897962457
+    },
+    {
+      "seed": "JUNCTION-4",
+      "kind": "crossing",
+      "reverse": false,
+      "endDistance": 2.456790696573576,
+      "contacts": 1,
+      "heightError": 0.0667230987548828,
+      "collisions": 0,
+      "travel": 35.54403971247314
+    },
+    {
+      "seed": "JUNCTION-4",
+      "kind": "crossing",
+      "reverse": true,
+      "endDistance": 2.451337201583998,
+      "contacts": 1,
+      "heightError": 0.0667230987548828,
+      "collisions": 0,
+      "travel": 35.54927978625767
+    },
+    {
+      "seed": "JUNCTION-4",
+      "kind": "tunnel",
+      "reverse": false,
+      "endDistance": 2.4510608328188086,
+      "contacts": 1,
+      "heightError": 0.06507163286209106,
+      "collisions": 0,
+      "travel": 33.48403907399691
+    },
+    {
+      "seed": "JUNCTION-4",
+      "kind": "tunnel",
+      "reverse": false,
+      "endDistance": 2.4198919869598168,
+      "contacts": 1,
+      "heightError": 0.01773195505142211,
+      "collisions": 0,
+      "travel": 33.00548234290303
+    },
+    {
+      "seed": "JUNCTION-4",
+      "kind": "tunnel",
+      "reverse": false,
+      "endDistance": 2.4560699898950333,
+      "contacts": 1,
+      "heightError": 0.05602889299392699,
+      "collisions": 0,
+      "travel": 33.4662410604861
+    },
+    {
+      "seed": "JUNCTION-4",
+      "kind": "tunnel",
+      "reverse": false,
+      "endDistance": 2.4139936317235207,
+      "contacts": 1,
+      "heightError": 0.06415765523910522,
+      "collisions": 0,
+      "travel": 33.487582464518255
+    },
+    {
+      "seed": "JUNCTION-4",
+      "kind": "tunnel",
+      "reverse": false,
+      "endDistance": 2.481521987253691,
+      "contacts": 1,
+      "heightError": 0.021563479900360116,
+      "collisions": 0,
+      "travel": 32.88780017077188
+    },
+    {
+      "seed": "JUNCTION-4",
+      "kind": "tunnel",
+      "reverse": false,
+      "endDistance": 2.4161706811583463,
+      "contacts": 1,
+      "heightError": 0.05089317798614501,
+      "collisions": 0,
+      "travel": 33.468573411096024
+    },
+    {
+      "seed": "JUNCTION-4",
+      "kind": "tunnel",
+      "reverse": false,
+      "endDistance": 2.4369947365501243,
+      "contacts": 1,
+      "heightError": 0.0655675435066223,
+      "collisions": 0,
+      "travel": 33.5584451803398
+    },
+    {
+      "seed": "JUNCTION-4",
+      "kind": "tunnel",
+      "reverse": false,
+      "endDistance": 2.4301960561647666,
+      "contacts": 1,
+      "heightError": 0.07213788270950316,
+      "collisions": 0,
+      "travel": 33.64445934010569
+    },
+    {
+      "seed": "JUNCTION-4",
+      "kind": "tunnel",
+      "reverse": false,
+      "endDistance": 2.48619674324374,
+      "contacts": 1,
+      "heightError": 0.07112931251525878,
+      "collisions": 0,
+      "travel": 33.56002032052075
+    },
+    {
+      "seed": "JUNCTION-4",
+      "kind": "junction-through",
+      "reverse": false,
+      "endDistance": 2.4535199655065463,
+      "contacts": 1,
+      "heightError": 0.024811079502105704,
+      "collisions": 0,
+      "travel": 41.433117012925926
+    },
+    {
+      "seed": "JUNCTION-4",
+      "kind": "junction-through",
+      "reverse": false,
+      "endDistance": 2.4877459813093554,
+      "contacts": 1,
+      "heightError": 0.024934580326080313,
+      "collisions": 0,
+      "travel": 41.5122528083661
+    },
+    {
+      "seed": "JUNCTION-4",
+      "kind": "junction-turn",
+      "reverse": false,
+      "endDistance": 2.481461396683084,
+      "contacts": 1,
+      "heightError": 0.02493565320968627,
+      "collisions": 0,
+      "travel": 54.60324785382971
+    }
+  ]
+}

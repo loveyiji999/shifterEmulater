@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SHIFT LAB · 種子地圖與車輛駕駛</title>
+<style>body{font:16px/1.7 system-ui,'Microsoft JhengHei',sans-serif;background:#081622;color:#dcefee;max-width:660px;margin:12vh auto;padding:28px}a{color:#8fe9ca}h1{font-size:25px}</style></head>
+<body><h1>SHIFT LAB</h1><p>種子生成道路、車輛設定、四輪物理與駕駛操作整合在同一網頁。</p>
+<p>如正在使用本機 Vite 服務，請開啟 <a href="./desktop3d/">3D 網頁遊戲</a>。
+部署到網站後，請使用 <code>desktop3d/dist/</code> 作為網站根目錄，進站後即可遊玩。</p>
+<p id="file-advice">Windows 本機初次啟動可執行 <code>START_WEB_WINDOWS.cmd</code>（需安裝 Node.js），或於 desktop3d 目錄執行 npm install、npm run dev。</p>
+<script>if(location.protocol==='http:'||location.protocol==='https:'){
+  // This repository landing page is not the game; its only public view is 3D.
+  // A Vite dev server started in desktop3d already serves the 3D page as /.
+  if(location.pathname.endsWith('/index.html')||location.pathname.endsWith('/')){
+    const path=location.pathname.endsWith('index.html')?location.pathname.slice(0,-10):location.pathname;
+    if(!path.includes('/desktop3d/'))location.replace(path+'desktop3d/');
+  }
+}</script></body></html>

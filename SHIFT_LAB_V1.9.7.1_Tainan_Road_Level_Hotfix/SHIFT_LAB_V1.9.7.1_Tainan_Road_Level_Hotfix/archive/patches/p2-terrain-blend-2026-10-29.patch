@@ -1,0 +1,548 @@
+--- a/desktop3d/src/surface-materials.mjs
++++ b/desktop3d/src/surface-materials.mjs
+@@ -44,6 +44,9 @@
+       if(d<nearest){nearest=d;tint=hash((ix+24)%24,(iy+24)%24,61);}
+     }
+     h=Math.max(0,1-nearest*1.5);shade=.55+tint*.35+h*.1;
++  }else if(id==='exposed_rock'){
++    const strata=Math.sin(2*Math.PI*(v*7+Math.sin(u*2*Math.PI)*.3));
++    h=macro*.3+grain*.12+strata*.1;shade=.62+macro*.2+grain*.1+strata*.05;rough=.85+fine*.15;
+   }else if(id==='earth'){
+     const streak=Math.sin(u*Math.PI*20+Math.sin(v*Math.PI*4)*.4);
+     h=grain*.2+macro*.15+streak*.03;shade=.72+macro*.18+grain*.1;
+@@ -58,7 +61,7 @@
+   return {h,shade,rough};
+ }
+ export function buildSurfaceMaps(id,size=256){
+-  const style=MATERIAL_STYLES[id];
++  const style=id==='exposed_rock'?{meters:4,relief:.0015}:MATERIAL_STYLES[id];
+   if(!style||!Number.isInteger(size)||size<16||size>1024||(size&(size-1)))throw Error('Invalid surface texture request');
+   const height=new Float32Array(size*size),color=new Uint8Array(size*size*4),roughness=new Uint8Array(size*size*4),normal=new Uint8Array(size*size*4);
+   for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+--- a/desktop3d/src/terrain-world.mjs
++++ b/desktop3d/src/terrain-world.mjs
+@@ -1,3 +1,5 @@
++import {terrainWeights} from './terrain-surface.mjs';
++import {TerrainMaterial} from './terrain-material.mjs';
+ import {SceneryPlanner,buildScenery,terrainColors} from './scenery-geometry.mjs';
+ import {SceneryWorld} from './scenery-world.mjs';
+ import {partitionColliderMesh} from './collider-partition.mjs';
+@@ -7,7 +9,7 @@
+ // Chunk-owned, reachable terrain. Rendering and compact collision partitions
+ // preserve the same Float32 triangles; quality cannot replace near-field support.
+ export class TerrainWorld {
+-  constructor(road){this.road=road;this.tiles=new Map();this.field=null;this.data=new Map();this.planner=null;this.scenery=null;
++  constructor(road){this.road=road;this.tiles=new Map();this.field=null;this.data=new Map();this.planner=null;this.scenery=null;this.material=null;
+     this.depthMaterial=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,polygonOffset:true,
+       polygonOffsetFactor:2,polygonOffsetUnits:4});}
+   clear(){
+@@ -23,7 +25,7 @@
+   dataFor(tx,tz){
+     const key=tx+','+tz;
+     if(!this.data.has(key)){
+-      const data=this.field.buildTile(tx,tz);data.colors=terrainColors(data,this.road.physics.route.seedHash);data.queryBuckets=new Map();
++      const data=this.field.buildTile(tx,tz);data.colors=terrainColors(data,this.road.physics.route.seedHash);data.weights=terrainWeights(data,this.road.physics.route.seedHash);data.queryBuckets=new Map();
+       for(let n=0;n<data.indices.length;n+=3){
+         const a=data.indices[n]*3,b=data.indices[n+1]*3,c=data.indices[n+2]*3,v=data.vertices;
+         for(let x=Math.floor(Math.min(v[a],v[b],v[c])/16);x<=Math.floor(Math.max(v[a],v[b],v[c])/16);x++)
+@@ -130,8 +132,10 @@
+       geometry.setAttribute('uv',new THREE.BufferAttribute(data.uv,2));
+       geometry.setAttribute('normal',new THREE.BufferAttribute(data.normals,3));
+       geometry.setAttribute('color',new THREE.BufferAttribute(data.colors||terrainColors(data,road.physics.route.seedHash),3));
++      geometry.setAttribute('terrainWeights',new THREE.BufferAttribute(data.weights||terrainWeights(data,road.physics.route.seedHash),3));
+       geometry.setIndex(new THREE.BufferAttribute(data.indices,1));
+-      mesh=new THREE.Mesh(geometry,road.soilMaterial);mesh.receiveShadow=true;mesh.castShadow=true;
++      if(!this.material)this.material=new TerrainMaterial(road.materialLibrary,road.surfaceMap);
++      this.material.setCondition(road.surfaceMap);mesh=new THREE.Mesh(geometry,this.material);mesh.receiveShadow=true;mesh.castShadow=true;
+       mesh.visible=!staged;
+       mesh.customDepthMaterial=this.depthMaterial;
+       mesh.userData.terrainTile={tx,tz};
+@@ -140,7 +144,8 @@
+         if(staged)descriptor.setEnabled(false);
+         const collider=road.world.createCollider(descriptor);colliders.push(collider);
+         road.surfaceMap.bind(collider,{kind:'terrain',layerId:`terrain:${tx}:${tz}`,renderFaces:piece.faces,
+-          faces:Array(piece.indices.length/3).fill('earth.'+road.surfaceMap.condition)});
++          terrain:{vertices:data.vertices,indices:data.indices,weights:geometry.attributes.terrainWeights.array},
++          faces:Array(piece.indices.length/3).fill('terrain-mix')});
+         road.groundHandles.add(collider.handle);
+       }
+       if(!this.scenery)this.scenery=new SceneryWorld(road);
+--- a/desktop3d/src/streaming-geometry.mjs
++++ b/desktop3d/src/streaming-geometry.mjs
+@@ -33,7 +33,7 @@
+       for(const mesh of Object.values(scenery.meshes))for(const array of Object.values(mesh))own(array);
+       for(const piece of scenery.collisions){own(piece.vertices);own(piece.indices);own(piece.renderFaces);}
+       // Cached source arrays stay in the worker. Transfer only owned copies.
+-      terrain.push({tx,tz,scenery,colors:own(source.colors.slice()),collision:collision(source.vertices,source.indices,16),vertices:own(source.vertices.slice()),indices:own(source.indices.slice()),
++      terrain.push({tx,tz,scenery,colors:own(source.colors.slice()),weights:own(source.weights.slice()),collision:collision(source.vertices,source.indices,16),vertices:own(source.vertices.slice()),indices:own(source.indices.slice()),
+         normals:own(source.normals.slice()),uv:own(source.uv.slice()),queryBuckets:source.queryBuckets});
+     }
+     while(this.terrain.data.size>32)this.terrain.data.delete(this.terrain.data.keys().next().value);
+--- a/desktop3d/src/surface-map.mjs
++++ b/desktop3d/src/surface-map.mjs
+@@ -1,3 +1,4 @@
++import {TERRAIN_MATERIALS,terrainWeightsAt} from './terrain-surface.mjs';
+ import {readDesignData,requireKeys,requireText,inRange,designFingerprint} from './design-data.mjs';
+ import {readSurfaceDefinition,requireDrivableSurface} from './surface-definition.mjs';
+ 
+@@ -37,6 +38,13 @@
+         pbr:{color:values.color[index],roughness:values.rough[index],metalness:0,uvMeters:values.meters},
+         contact:{tireMu:values.mu[index],rollingCoefficient:values.rolling[index],colliderFriction:.65},
+         evidence:{basis:'project-illustrative',source:'P2 authored pavement gameplay assumptions; tests/validate-pavement.mjs and actual stopping experiment; not field calibration',status:'verified-gameplay'}});
++      trusted.set(profile.id,designFingerprint(profile));this.profiles.set(profile.id,requireDrivableSurface(profile,trusted));
++    }
++    for(const condition of LEGACY_SURFACE_CONDITIONS){
++      const original=this.profiles.get('gravel.'+condition);
++      const profile=readSurfaceDefinition({...original,id:'terrain_gravel.'+condition,
++        contact:{...original.contact,colliderFriction:.7},
++        evidence:{basis:'project-illustrative',source:'P2 fixed terrain gravel blend; same tire/rolling assumptions as gravel pavement, ground body friction .7; not field calibration',status:'verified-gameplay'}});
+       trusted.set(profile.id,designFingerprint(profile));this.profiles.set(profile.id,requireDrivableSurface(profile,trusted));
+     }
+     for(const [i,condition] of LEGACY_SURFACE_CONDITIONS.entries()){
+@@ -94,11 +102,20 @@
+   }
+   bind(collider,binding){this.bindings.set(collider.handle,binding);}
+   unbind(collider){this.bindings.delete(collider.handle);}
+-  contact(hit){
++  contact(hit,point=null){
+     const binding=this.bindings.get(hit.collider.handle);if(!binding)return null; // frozen legacy/foreign fixtures
+     const face=hit.featureId,count=binding.faces.length;
+     if(!Number.isInteger(face)||face<0||face>=count*2)throw Error('Registered ground hit lacks a valid triangle feature');
+     const localFace=face%count,faceIndex=binding.renderFaces?.[localFace]??localFace,key=binding.faces[localFace];
++    if(binding.terrain){
++      const weights=terrainWeightsAt(binding.terrain,faceIndex,point),condition=this.condition;
++      const profiles=['earth','terrain_gravel','natural_stone'].map(id=>this.profile(id+'.'+condition));
++      const weighted=key=>profiles.reduce((value,p,i)=>value+p.contact[key]*weights[i],0);
++      return {profileId:'terrain-mix.'+condition,sourceProfileIds:profiles.map(p=>p.id),material:'terrain_mix',
++        components:TERRAIN_MATERIALS.map((material,i)=>({material,profileId:profiles[i].id,weight:weights[i]})),
++        condition,tireMu:weighted('tireMu'),rollingCoefficient:weighted('rollingCoefficient'),colliderFriction:.7,
++        layerId:binding.layerId,faceIndex,colliderHandle:hit.collider.handle,renderKind:'terrain',scope:'project-illustrative-terrain-blend'};
++    }
+     const profile=this.profile(binding.kind==='rock'?'natural_stone.'+this.condition:binding.kind==='terrain'?'earth.'+this.condition:key==='global'?(binding.kind==='asphalt'?this.pavementMaterial:'asphalt_dense')+'.'+this.condition:key);
+     const legacy=profile.material==='asphalt_dense',registered=binding.kind==='asphalt'||binding.kind==='rock';
+     const rolling=legacy?(this.core.params?.rollingCoeff??profile.contact.rollingCoefficient):profile.contact.rollingCoefficient;
+--- a/desktop3d/src/chassis.mjs
++++ b/desktop3d/src/chassis.mjs
+@@ -182,7 +182,7 @@
+         continue;
+       }
+       this.wheelCastHits++;
+-      if(this.road.surfaceAtHit)w.contactSurface=this.road.surfaceAtHit(hit);
++      if(this.road.surfaceAtHit)w.contactSurface=this.road.surfaceAtHit(hit,{x:origin.x+down.x*distance,y:origin.y+down.y*distance,z:origin.z+down.z*distance});
+       const compression=rest-distance;
+       const r=new THREE.Vector3(mount.x,mount.y,mount.z);
+       const turn=new THREE.Vector3(omega.x,omega.y,omega.z).cross(r);
+--- a/desktop3d/src/road.mjs
++++ b/desktop3d/src/road.mjs
+@@ -40,7 +40,7 @@
+       y:p.y+this.physics.roadCrossElevation(p,side),
+       z:p.z-Math.sin(p.heading)*side};
+   }
+-  surfaceAtHit(hit){return this.surfaceMap.contact(hit);}
++  surfaceAtHit(hit,point=null){return this.surfaceMap.contact(hit,point);}
+   surfaceMaterialFor(key){
+     if(key==='global')return this.surfaceMaterial;
+     if(!this.localSurfaceMaterials.has(key)){
+@@ -77,7 +77,7 @@
+     this.soilMaterial.color.set(soil.color);this.soilMaterial.roughness=soil.roughness;
+     const colors=!['snow','ice'].includes(condition);
+     if(this.soilMaterial.vertexColors!==colors){this.soilMaterial.vertexColors=colors;this.soilMaterial.needsUpdate=true;}
+-    this.terrain.scenery?.setCondition(condition);
++    this.terrain.scenery?.setCondition(condition);this.terrain.material?.setCondition(this.surfaceMap);
+     this.lastSurfaceCondition=condition;
+   }
+   setSurfaceZones(input){
+--- a/desktop3d/src/main.mjs
++++ b/desktop3d/src/main.mjs
+@@ -664,7 +664,7 @@
+   if(import.meta.env.DEV){
+     const {installGameDriver}=await import('../tests/game-driver.mjs');
+     installGameDriver({getContext:()=>({core:d,bridge,road,labReady,paused,locked,autoRange,
+-      renderer,vehicle,visualVehicleId,gameModes,userMapConfig,physicsMs,dropSteps,trackedKeys}),
++      renderer,camera,vehicle,visualVehicleId,gameModes,userMapConfig,physicsMs,dropSteps,trackedKeys}),
+       stepOnce,updateHud,applyMap,openGameMode,selectAutomaticRange,frameView:()=>{syncVisuals(10);renderer.render(scene,camera);},
+       driveProcedural:enterProceduralDriving,setPause});
+   }
+--- a/desktop3d/tests/validate-streaming.mjs
++++ b/desktop3d/tests/validate-streaming.mjs
+@@ -30,10 +30,10 @@
+     }
+     assert.deepEqual(data.components,expected.components);
+   }
+-  for(const key of ['vertices','indices','normals','uv','colors'])assert.deepEqual(result.terrain[0][key],sampler.dataFor(0,0)[key]);
++  for(const key of ['vertices','indices','normals','uv','colors','weights'])assert.deepEqual(result.terrain[0][key],sampler.dataFor(0,0)[key]);
+   const repeat=once(worker,'message');worker.postMessage({id:2,epoch:1,revision:snapshot.state.revision,roads:[],terrain:[[0,0]]});
+   const repeated=(await repeat)[0];
+-  for(const key of ['vertices','colors','scenery'])assert.deepEqual(repeated.terrain[0][key],result.terrain[0][key],'transfer must preserve deterministic cached source data: '+key);sampler.clear();
++  for(const key of ['vertices','colors','weights','scenery'])assert.deepEqual(repeated.terrain[0][key],result.terrain[0][key],'transfer must preserve deterministic cached source data: '+key);sampler.clear();
+ }finally{await worker.terminate();}
+ 
+ await RAPIER.init();const flat=fixture({...base,turnChance:0,hairpinChance:0,slopeChance:0},12);
+--- a/desktop3d/tests/validate-terrain.mjs
++++ b/desktop3d/tests/validate-terrain.mjs
+@@ -63,9 +63,9 @@
+   undefined,undefined,undefined,undefined,c=>road.groundHandles.has(c.handle));
+ for(const x of [-110,-40,-6.01,6.01,40,110]){
+   const h=ray(x,60,70);assert.ok(h,'terrain must exist outside corridor');
+-  const contact=road.surfaceAtHit(h);assert.equal(contact.material,'earth');
+-  assert.equal(contact.tireMu,.62);assert.equal(contact.rollingCoefficient,.035);
+-  assert.equal(contact.scope,'project-illustrative-ground');
++  const contact=road.surfaceAtHit(h,{x,z:70});assert.equal(contact.material,'terrain_mix');
++  for(const key of ['tireMu','rollingCoefficient'])assert.ok(Math.abs(contact[key]-contact.components.reduce((n,c)=>n+c.weight*road.surfaceMap.profile(c.profileId).contact[key],0))<1e-12);
++  assert.equal(contact.scope,'project-illustrative-terrain-blend');
+   assert.ok(h.normal.y>0,'terrain winding must point upward');
+ }
+ const roadHit=ray(0,10,70,11);assert.equal(road.surfaceAtHit(roadHit).material,'asphalt_dense');
+@@ -77,7 +77,8 @@
+ for(const [condition,mu,rolling] of [['wet',.38,.045],['snow',.28,.03],['ice',.12,.02]]){
+   core.state.surface=condition;road.ensure(70);
+   const contact=road.surfaceAtHit(ray(40,60,70));
+-  assert.equal(contact.condition,condition);assert.equal(contact.tireMu,mu);assert.equal(contact.rollingCoefficient,rolling);
++  assert.equal(contact.condition,condition);
++  for(const key of ['tireMu','rollingCoefficient'])assert.ok(Math.abs(contact[key]-contact.components.reduce((n,c)=>n+c.weight*road.surfaceMap.profile(c.profileId).contact[key],0))<1e-12);
+ }
+ const oldTiles=new Map(road.terrain.tiles),oldObjects=new Set(scene.children),oldCount=world.colliders.len();
+ const create=world.createCollider;let count=0;
+--- a/desktop3d/tests/surface-driver.mjs
++++ b/desktop3d/tests/surface-driver.mjs
+@@ -1,6 +1,6 @@
+ // DEV-only physical stopping experiment; the game imports this via its test
+ // driver only. Set up using public controls and original gearbox requests.
+-export function driveSurfaceBraking({getContext,stepOnce,setPause},condition,terrain=false,pavement='asphalt_dense'){
++export function driveSurfaceBraking({getContext,stepOnce,setPause},condition,terrain=false,pavement='asphalt_dense',{maxSteps=1800,speed=12}={}){
+   const {core:d,road,bridge}=getContext();
+   if(!['dry','wet','snow','ice'].includes(condition)||d.route.config.generator!==3||
+     d.route.config.turnChance||d.route.config.slopeChance)throw Error('Flat V3 surface fixture required');
+@@ -17,13 +17,13 @@
+     target={...target,x:10};road.ensure(40,target);road.world.step();
+     const hit=road.world.castRayAndGetNormal(new road.rapier.Ray({x:10,y:100,z:point.z},{x:0,y:-1,z:0}),200,true,
+       undefined,undefined,undefined,undefined,c=>road.groundHandles.has(c.handle));
+-    if(!hit||road.surfaceAtHit(hit)?.material!=='earth')throw Error('Actual terrain support required');
++    if(!hit||!['earth','terrain_mix'].includes(road.surfaceAtHit(hit)?.material))throw Error('Actual terrain support required');
+     target.y=100-hit.timeOfImpact;target.surfaceNormal=hit.normal;
+   }
+-  road.ensure(40,target);bridge.teleport({roadPoint:target,speed:12});
++  road.ensure(40,target);bridge.teleport({roadPoint:target,speed});
+   const start=bridge.rigidBody.translation(),samples=[];
+   let stopped=false,steps=0;
+-  for(;steps<1800;steps++){
++  for(;steps<maxSteps;steps++){
+     stepOnce();
+     const v=bridge.rigidBody.linvel(),p=bridge.rigidBody.translation();
+     if(steps%12===0)samples.push({time:d.state.time,x:p.x,z:p.z,speed:Math.hypot(v.x,v.y,v.z),
+--- a/desktop3d/tests/game-driver.mjs
++++ b/desktop3d/tests/game-driver.mjs
+@@ -1,3 +1,4 @@
++import {inspectTerrainBlend} from './terrain-blend-driver.mjs';
+ import {inspectScenery,driveRockContact} from './scenery-driver.mjs';
+ import {driveRoadV3Check} from './road-v3-driver.mjs';
+ import {isAutomaticMode} from '../src/automatic-transmission.mjs';
+@@ -51,6 +52,7 @@
+     focus:document.activeElement?.id||document.activeElement?.tagName||'none'};
+ }
+   window.__SHIFT_LAB_3D_QA__={
++    inspectTerrainBlend:(overview=false)=>inspectTerrainBlend(getContext(),overview),
+     inspectScenery:()=>inspectScenery(getContext()),
+     driveRockContact:()=>driveRockContact({getContext,stepOnce,setPause}),
+     startStreamingTrace(options){
+@@ -61,7 +63,7 @@
+     },
+     configurePBRPreview:options=>configurePBRPreview(getContext(),options),
+     driveSurfaceBraking:(condition,material='asphalt_dense')=>driveSurfaceBraking({getContext,stepOnce,setPause},condition,false,material),
+-    driveTerrainBraking:()=>driveSurfaceBraking({getContext,stepOnce,setPause},'dry',true),
++    driveTerrainBraking:(condition='dry',options={})=>driveSurfaceBraking({getContext,stepOnce,setPause},condition,true,'asphalt_dense',{maxSteps:5400,...options}),
+     startBaseline(options){
+       if(baseline.status==='running')throw Error('Baseline already running');
+       const context=getContext();
+--- a/desktop3d/tests/validate-procedural-browser.mjs
++++ b/desktop3d/tests/validate-procedural-browser.mjs
+@@ -227,6 +227,38 @@
+     assert.deepEqual(httpErrors,[]);assert.deepEqual(cdp.errors,[]);
+     console.log('PASS engineering overview capture with actual vehicle support');return;
+   }
++  if(process.argv.includes('--terrain-blend')){
++    await evaluate("(()=>{const q=window.__SHIFT_LAB_3D_QA__;q.applyMap({...q.map,generator:3,seed:'LEVEL-1',turnChance:70,hairpinChance:35,slopeChance:30});q.step(12);q.frameView();})()");
++    const results=[];
++    for(const condition of ['dry','wet','snow','ice']){
++      await evaluate(`(()=>{const el=document.getElementById('road-surface');el.value=${JSON.stringify(condition)};el.dispatchEvent(new Event('change'));window.__SHIFT_LAB_3D_QA__.step(12);window.__SHIFT_LAB_3D_QA__.frameView();})()`);
++      const {image,...result}=await evaluate('window.__SHIFT_LAB_3D_QA__.inspectTerrainBlend(true)');
++      assert.equal(result.condition,condition);assert.ok(result.queries>50);
++      assert.ok(result.maxHeightError<.0001);assert.ok(result.maxWeightError<.00001);
++      assert.ok(result.ranges[1][1]>.1,'actual gravel patches required');
++      if(results.length)assert.deepEqual(result.ranges,results[0].ranges,'weather must not move material boundaries');
++      results.push(result);
++      await fs.writeFile(path.join(root,'../artifacts/tests/p2-terrain-blend-'+condition+'-2026-10-29.png'),Buffer.from(image.split(',')[1],'base64'));
++    }
++    await fs.writeFile(path.join(root,'../artifacts/tests/p2-terrain-blend-browser-2026-10-29.json'),JSON.stringify(results,null,2)+'\n');
++    await evaluate("(()=>{const q=window.__SHIFT_LAB_3D_QA__;q.applyMap({...q.map,seed:'TERRAIN-CONTACT-V1',turnChance:0,hairpinChance:0,slopeChance:0});})()");
++    const braking=[];
++    for(const condition of ['dry','wet','snow','ice']){
++      await evaluate(`(()=>{const el=document.getElementById('road-surface');el.value=${JSON.stringify(condition)};el.dispatchEvent(new Event('change'));window.__SHIFT_LAB_3D_QA__.step(12);})()`);
++      const result=await evaluate(`window.__SHIFT_LAB_3D_QA__.driveTerrainBraking(${JSON.stringify(condition)},{speed:6,maxSteps:3600})`);
++      await fs.writeFile(path.join(root,'../artifacts/tests/p2-terrain-blend-braking-'+condition+'-2026-10-29.json'),JSON.stringify(result,null,2)+'\n');
++      assert.ok(result.distance>1&&result.distance<100,JSON.stringify({condition,distance:result.distance}));
++      if(condition==='ice')assert.ok(result.stopped||result.samples.at(-1).speed<.2,'bounded ice braking must reduce 6 m/s to under .2 m/s; residual creep remains reported');
++      else assert.ok(result.stopped,condition+' must actually stop');assert.equal(result.invalidWheelLoads,0);assert.equal(result.collisions,0,'braking must not be stopped by an obstacle');
++      const contacts=result.samples.flatMap(s=>s.wheelSurface).filter(Boolean);
++      assert.ok(contacts.length>20&&contacts.every(s=>s.material==='terrain_mix'&&s.condition===condition));
++      assert.ok(result.samples.some(s=>s.contacts===4&&s.wheelFx.some(fx=>fx< -20)));
++      braking.push(result);
++    }
++    await fs.writeFile(path.join(root,'../artifacts/tests/p2-terrain-blend-braking-2026-10-29.json'),JSON.stringify(braking,null,2)+'\n');
++    assert.deepEqual(cdp.errors,[]);assert.deepEqual(httpErrors,[]);
++    console.log('PASS live three-layer terrain shader links, actual visual/Rapier masks and four conditions: '+JSON.stringify({queries:results[0].queries,error:results[0].maxWeightError,ranges:results[0].ranges}));return;
++  }
+   if(process.argv.includes('--terrain-contact')){
+     await evaluate(`(()=>{const q=window.__SHIFT_LAB_3D_QA__;q.applyMap({...q.map,generator:3,
+       seed:'TERRAIN-CONTACT-V1',turnChance:0,hairpinChance:0,slopeChance:0});
+@@ -236,7 +268,7 @@
+     assert.ok(result.stopped&&result.distance>1&&result.distance<150,JSON.stringify({stopped:result.stopped,distance:result.distance,last:result.samples.at(-1)}));
+     assert.equal(result.invalidWheelLoads,0);assert.equal(result.collisions,0);
+     const contacts=result.samples.flatMap(s=>s.wheelSurface).filter(Boolean);
+-    assert.ok(contacts.length>20&&contacts.every(s=>s.material==='earth'&&s.tireMu===.62&&s.rollingCoefficient===.035));
++    assert.ok(contacts.length>20&&contacts.every(s=>s.material==='terrain_mix'&&s.components.length===3&&s.tireMu>=.12&&s.tireMu<=.9&&s.rollingCoefficient>=.015&&s.rollingCoefficient<=.045));
+     assert.ok(result.samples.some(s=>s.contacts===4&&s.wheelFx.some(fx=>fx< -100)),'actual soil tire force and four-wheel support required');
+     assert.deepEqual(httpErrors,[]);assert.deepEqual(cdp.errors,[]);
+     await fs.writeFile(path.join(root,'../artifacts/tests/terrain-contact-2026-10-29.json'),JSON.stringify(result,null,2)+'\n');
+@@ -279,7 +311,7 @@
+         assert.equal(result.collisions,0);assert.equal(result.invalidWheelLoads,0);
+         const contacts=result.samples.flatMap(s=>s.wheelSurface).filter(Boolean);
+         assert.ok(contacts.length>20&&contacts.every(s=>s.material===material&&s.condition===condition));
+-        assert.ok(result.samples.some(s=>s.contacts===4&&s.wheelFx.some(fx=>fx< -100)));
++        assert.ok(result.samples.some(s=>s.contacts===4&&s.wheelFx.some(fx=>fx< -20)));
+         group.push(result);results.push(result);
+         if(condition==='dry'&&process.argv.includes('--screenshot')){
+           await evaluate('window.__SHIFT_LAB_3D_QA__.frameView()');
+@@ -499,10 +531,10 @@
+     assert.ok(!requests.some(value=>/\/tests\/|scenarios\.mjs|obstacles\.mjs/.test(value)),
+       'Production requested development/acceptance modules');
+     const files=await fs.readdir(path.join(root,'dist'),{recursive:true});
+-    assert.ok(!files.some(value=>/acceptance|game-driver|scenarios|obstacles|vehicle-diagnostics|performance-baseline|surface-driver|pbr-preview|material-gallery|streaming-profile|scenery-driver/.test(value)));
++    assert.ok(!files.some(value=>/acceptance|game-driver|scenarios|obstacles|vehicle-diagnostics|performance-baseline|surface-driver|pbr-preview|material-gallery|streaming-profile|scenery-driver|terrain-blend-driver/.test(value)));
+     for(const file of files.filter(value=>/\.(?:js|html)$/.test(value))){
+       const source=await fs.readFile(path.join(root,'dist',file),'utf8');
+-      assert.ok(!/AcceptanceObstacles|__SHIFT_LAB_3D_QA__|__SHIFT_LAB_ACCEPTANCE__|__SHIFT_LAB_VEHICLE_DIAGNOSTICS__|collectPerformanceBaseline|collectStreamingProfile|startStreamingTrace|inspectScenery|driveRockContact|shiftlab.performance.baseline.v1|driveSurfaceBraking|runSuite|qa-results|tests-panel/.test(source),file);
++      assert.ok(!/AcceptanceObstacles|__SHIFT_LAB_3D_QA__|__SHIFT_LAB_ACCEPTANCE__|__SHIFT_LAB_VEHICLE_DIAGNOSTICS__|collectPerformanceBaseline|collectStreamingProfile|startStreamingTrace|inspectScenery|inspectTerrainBlend|driveRockContact|shiftlab.performance.baseline.v1|driveSurfaceBraking|runSuite|qa-results|tests-panel/.test(source),file);
+     }
+     assert.deepEqual(httpErrors,[]);assert.deepEqual(cdp.errors,[]);
+     if(process.argv.includes('--screenshot')||process.argv.includes('--vehicle-screenshot')){
+--- a/desktop3d/package.json
++++ b/desktop3d/package.json
+@@ -18,7 +18,7 @@
+     "qa:all": "npm run qa:streaming && npm run qa:vehicle && npm run qa:surface && npm run qa:terrain && npm run qa:grading && npm run qa:materials && npm run qa:engineering && npm run qa:performance && npm run qa:scenarios && npm run qa:map && npm run qa:transmission && npm run qa:manual && npm run qa:health && npm run qa:prnd",
+     "qa:performance": "node ./tests/validate-performance-capture.mjs",
+     "qa:surface": "node ./tests/validate-surface-map.mjs && node ./tests/validate-pavement.mjs",
+-    "qa:terrain": "node ./tests/validate-terrain.mjs && node ./tests/validate-scenery.mjs",
++    "qa:terrain": "node ./tests/validate-terrain.mjs && node ./tests/validate-terrain-surface.mjs && node ./tests/validate-scenery.mjs",
+     "qa:grading": "node ./tests/validate-terrain-grading.mjs",
+     "qa:materials": "node ./tests/validate-surface-materials.mjs",
+     "qa:engineering": "node ./tests/validate-road-engineering.mjs",
+--- /dev/null
++++ b/desktop3d/src/terrain-surface.mjs
+@@ -0,0 +1,39 @@
++// Authored terrain distribution, independent of the V3 road RNG. These are
++// surface fractions, not extra geometry or an erosion simulation.
++export const TERRAIN_MATERIALS=Object.freeze(['earth','gravel','natural_stone']);
++const clamp=x=>Math.max(0,Math.min(1,x));
++const smooth=(a,b,x)=>{const t=clamp((x-a)/(b-a));return t*t*(3-2*t);};
++function noise(x,z,seed){
++  x/=53;z/=53;const ix=Math.floor(x),iz=Math.floor(z),u=smooth(0,1,x-ix),v=smooth(0,1,z-iz);
++  const h=(a,b)=>{let n=Math.imul(a,374761393)^Math.imul(b,668265263)^seed^1921;
++    n=Math.imul(n^(n>>>13),1274126177);return ((n^(n>>>16))>>>0)/4294967295;};
++  return (h(ix,iz)*(1-u)+h(ix+1,iz)*u)*(1-v)+(h(ix,iz+1)*(1-u)+h(ix+1,iz+1)*u)*v;
++}
++export function terrainWeights(data,seed){
++  const out=new Float32Array(data.vertices.length);
++  for(let i=0;i<out.length;i+=3){
++    const rock=smooth(.92,.65,data.normals[i+1]);
++    const gravel=smooth(.48,.78,noise(data.vertices[i],data.vertices[i+2],seed))*(1-rock);
++    out[i]=1-rock-gravel;out[i+1]=gravel;out[i+2]=rock;
++  }
++  return out;
++}
++// Interpolate the SAME Float32 vertex mask used by the GPU, on the actual
++// collider's original render face. No world-height/material projection.
++export function terrainWeightsAt(data,face,point=null){
++  const ids=[0,1,2].map(k=>data.indices[face*3+k]*3);
++  let bary=[1/3,1/3,1/3];
++  if(point){
++    const [i,j,k]=ids,v=data.vertices,ax=v[i],az=v[i+2],bx=v[j],bz=v[j+2],cx=v[k],cz=v[k+2];
++    const den=(bz-cz)*(ax-cx)+(cx-bx)*(az-cz);
++    if(Math.abs(den)>1e-12){
++      const a=((bz-cz)*(point.x-cx)+(cx-bx)*(point.z-cz))/den;
++      const b=((cz-az)*(point.x-cx)+(ax-cx)*(point.z-cz))/den;
++      bary=[clamp(a),clamp(b),clamp(1-a-b)];
++      const sum=bary.reduce((a,b)=>a+b,0);bary=bary.map(x=>x/sum);
++    }
++  }
++  const weights=[0,0,0];
++  for(let k=0;k<3;k++)for(let m=0;m<3;m++)weights[m]+=data.weights[ids[k]+m]*bary[k];
++  const sum=weights.reduce((a,b)=>a+b,0);return weights.map(x=>x/sum);
++}
+--- /dev/null
++++ b/desktop3d/src/terrain-material.mjs
+@@ -0,0 +1,58 @@
++import * as THREE from 'three';
++import {TERRAIN_MATERIALS} from './terrain-surface.mjs';
++
++export class TerrainMaterial extends THREE.MeshStandardMaterial {
++  constructor(library,surfaces){
++    const earth=library.textures('earth');
++    super({color:0xffffff,roughness:1,vertexColors:true,side:THREE.DoubleSide,
++      map:earth.color,normalMap:earth.normal,roughnessMap:earth.roughness});
++    const gravel=library.textures('gravel'),rock=library.textures('exposed_rock');
++    this.name='terrain-three-layer';this.userData.surfaceMaterials=[...TERRAIN_MATERIALS];
++    this.uniforms={terrainGravelMap:{value:gravel.color},terrainGravelNormal:{value:gravel.normal},terrainGravelRough:{value:gravel.roughness},
++      terrainRockMap:{value:rock.color},terrainRockNormal:{value:rock.normal},terrainRockRough:{value:rock.roughness},
++      terrainTints:{value:TERRAIN_MATERIALS.map(()=>new THREE.Color())},terrainRough:{value:new THREE.Vector3()},terrainMacro:{value:1}};
++    this.onBeforeCompile=shader=>{
++      Object.assign(shader.uniforms,this.uniforms);
++      shader.vertexShader='attribute vec3 terrainWeights;varying vec3 vTerrainWeights;varying vec2 vTerrainUv;varying vec3 vTerrainPosition;varying vec3 vTerrainNormal;\n'+shader.vertexShader;
++      shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvTerrainWeights=terrainWeights;vTerrainUv=uv;vTerrainPosition=position;vTerrainNormal=normal;');
++      shader.fragmentShader=`varying vec3 vTerrainWeights;varying vec2 vTerrainUv;varying vec3 vTerrainPosition;varying vec3 vTerrainNormal;
++uniform sampler2D terrainGravelMap,terrainGravelNormal,terrainGravelRough;
++uniform sampler2D terrainRockMap,terrainRockNormal,terrainRockRough;
++uniform vec3 terrainTints[3];uniform vec3 terrainRough;uniform float terrainMacro;
++`+shader.fragmentShader;
++      shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>',`
++vec3 tw=max(vTerrainWeights,vec3(0.0));tw/=max(dot(tw,vec3(1.0)),.000001);
++vec2 guv=vTerrainUv/2.0;
++vec3 terrainN=normalize(vTerrainNormal),tri=pow(abs(terrainN),vec3(4.0));tri/=max(dot(tri,vec3(1.0)),.000001);
++vec2 rx=vTerrainPosition.yz/4.0,ry=vTerrainPosition.xz/4.0,rz=vTerrainPosition.xy/4.0;
++vec3 rockColor=texture2D(terrainRockMap,rx).rgb*tri.x+texture2D(terrainRockMap,ry).rgb*tri.y+texture2D(terrainRockMap,rz).rgb*tri.z;
++diffuseColor.rgb*=texture2D(map,vMapUv).rgb*terrainTints[0]*tw.x
++  +texture2D(terrainGravelMap,guv).rgb*terrainTints[1]*tw.y
++  +rockColor*terrainTints[2]*tw.z;`);
++      shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>','diffuseColor.rgb*=mix(vec3(1.0),vColor,terrainMacro);');
++      shader.fragmentShader=shader.fragmentShader.replace('#include <roughnessmap_fragment>',`
++float roughnessFactor=texture2D(roughnessMap,vRoughnessMapUv).g*terrainRough.x*tw.x
++  +texture2D(terrainGravelRough,guv).g*terrainRough.y*tw.y
++  +(texture2D(terrainRockRough,rx).g*tri.x+texture2D(terrainRockRough,ry).g*tri.y+texture2D(terrainRockRough,rz).g*tri.z)*terrainRough.z*tw.z;`);
++      shader.fragmentShader=shader.fragmentShader.replace('#include <normal_fragment_maps>',`
++vec3 mapN=(texture2D(normalMap,vNormalMapUv).xyz*2.0-1.0)*tw.x
++  +(texture2D(terrainGravelNormal,guv).xyz*2.0-1.0)*tw.y;
++mapN.xy*=normalScale;
++vec3 nx=texture2D(terrainRockNormal,rx).xyz*2.0-1.0,ny=texture2D(terrainRockNormal,ry).xyz*2.0-1.0,nz=texture2D(terrainRockNormal,rz).xyz*2.0-1.0;
++nx.xy*=normalScale;ny.xy*=normalScale;nz.xy*=normalScale;
++vec3 rockN=normalize(vec3(abs(nx.z)*terrainN.x,nx.x+terrainN.y,nx.y+terrainN.z)*tri.x
++  +vec3(ny.x+terrainN.x,abs(ny.z)*terrainN.y,ny.y+terrainN.z)*tri.y
++  +vec3(nz.x+terrainN.x,nz.y+terrainN.y,abs(nz.z)*terrainN.z)*tri.z);
++vec3 rockView=normalize((viewMatrix*vec4(rockN,0.0)).xyz)*faceDirection;
++normal=normalize(tbn*mapN+rockView*tw.z);`);
++    };
++    this.setCondition(surfaces);
++  }
++  customProgramCacheKey(){return 'terrain-three-layer-v1';}
++  setCondition(surfaces){
++    const profiles=TERRAIN_MATERIALS.map(id=>surfaces.profile(id+'.'+surfaces.condition));
++    profiles.forEach((p,i)=>this.uniforms.terrainTints.value[i].set(p.pbr.color));
++    this.uniforms.terrainRough.value.fromArray(profiles.map(p=>p.pbr.roughness));
++    this.uniforms.terrainMacro.value=['snow','ice'].includes(surfaces.condition)?0:1;
++  }
++}
+--- /dev/null
++++ b/desktop3d/tests/validate-terrain-surface.mjs
+@@ -0,0 +1,64 @@
++import assert from 'node:assert/strict';
++import {readFileSync} from 'node:fs';
++import * as THREE from 'three';
++import RAPIER from '@dimforge/rapier3d-compat';
++import {terrainWeights,terrainWeightsAt} from '../src/terrain-surface.mjs';
++import {RoadWorld} from '../src/road.mjs';
++import {RapierChassisBridge} from '../src/chassis.mjs';
++import {fixture,base} from './road-v3-fixture.mjs';
++import {vehicleParams} from './vehicle-core-fixture.mjs';
++import {inspectTerrainBlend} from './terrain-blend-driver.mjs';
++
++const triangle={vertices:new Float32Array([0,0,0,0,0,10,10,0,0]),indices:new Uint32Array([0,1,2]),weights:new Float32Array([1,0,0,0,1,0,0,0,1])};
++assert.deepEqual(terrainWeightsAt(triangle,0,{x:5,z:3}),[.2,.3,.5]);
++for(const [point,expected] of [[{x:0,z:0},[1,0,0]],[{x:0,z:10},[0,1,0]],[{x:10,z:0},[0,0,1]]])assert.deepEqual(terrainWeightsAt(triangle,0,point),expected);
++await RAPIER.init();
++const core=fixture(base,48);core.params=vehicleParams('standard');core.state={surface:'dry'};
++const before=JSON.stringify(core.route.v3State),world=new RAPIER.World({x:0,y:0,z:0}),scene=new THREE.Scene();
++const road=new RoadWorld(RAPIER,world,scene,core);let bridge=null,queries=0,maxError=0,maximumRock=0,maximumGravel=0;
++try{
++  for(const station of [70,...core.route.v3State.features.filter(f=>f.kind==='suspension').slice(0,1).map(f=>(f.start+f.end)/2)]){
++    road.ensure(station);world.step();
++    let previous=null;
++    for(const condition of ['dry','wet','snow','ice']){
++      core.state.surface=condition;road.syncSurfaceCondition();
++      const result=inspectTerrainBlend({road,renderer:{getContext:()=>({}),info:{programs:[]}}});
++      queries+=result.queries;maxError=Math.max(maxError,result.maxWeightError);
++      maximumRock=Math.max(maximumRock,result.ranges[2][1]);maximumGravel=Math.max(maximumGravel,result.ranges[1][1]);
++      if(previous)assert.deepEqual(result.ranges,previous.ranges);previous=result;
++      assert.ok(result.maxHeightError<1e-4&&result.maxWeightError<1e-5);
++      for(const sample of result.samples){
++        assert.equal(sample.condition,condition);
++        for(const key of ['tireMu','rollingCoefficient'])assert.ok(Math.abs(sample[key]-sample.components.reduce((sum,c)=>sum+c.weight*road.surfaceMap.profile(c.profileId).contact[key],0))<1e-12);
++      }
++      const profiles=['earth','terrain_gravel','natural_stone'].map(id=>road.surfaceMap.profile(id+'.'+condition));
++      profiles.forEach((p,i)=>assert.ok(Math.abs(road.terrain.material.uniforms.terrainRough.value.getComponent(i)-p.pbr.roughness)<1e-12));
++    }
++    const tile=road.terrain.tiles.values().next().value,g=tile.mesh.geometry;
++    const data={vertices:g.attributes.position.array,indices:g.index.array,normals:g.attributes.normal.array};
++    assert.deepEqual(g.attributes.terrainWeights.array,terrainWeights(data,core.route.seedHash));
++    assert.notDeepEqual(g.attributes.terrainWeights.array,terrainWeights(data,core.route.seedHash+1));
++  }
++  assert.ok(maximumRock>.5&&maximumGravel>.5,'real road valleys must expose rock and gravel');
++  road.ensure(70);world.step();core.state.surface='dry';road.syncSurfaceCondition();
++  const a=road.terrain.dataFor(0,0),b=road.terrain.dataFor(1,0);
++  const edge=d=>{const m=new Map();for(let i=0;i<d.vertices.length;i+=3)if(d.vertices[i]===128)m.set(d.vertices[i+2],Array.from(d.weights.slice(i,i+3)));return m;};
++  const ea=edge(a),eb=edge(b);for(const [z,w] of ea)assert.deepEqual(eb.get(z),w,'shared Float32 material seam');
++  const P=core.params,ids=['FL','FR','RL','RR'];core.WHEEL_IDS=ids;core.suspension={};
++  core.wheelModel=Object.fromEntries(ids.map(id=>[id,{front:id[0]==='F',left:id[1]==='L',omega:0,steer:0}]));core.wheelModel.splitMu='same';
++  core.wheelCoords=id=>({x:(id[1]==='L'?-1:1)*(id[0]==='F'?P.trackFront:P.trackRear)/2,z:id[0]==='F'?P.wheelbase*(1-P.frontStaticLoad):-P.wheelbase*P.frontStaticLoad});
++  bridge=new RapierChassisBridge(RAPIER,world,road,core);bridge.create(P);
++  const target=inspectTerrainBlend({road,renderer:{getContext:()=>({}),info:{programs:[]}}}).samples.find(s=>s.components[1].weight>.15&&s.components[1].weight<.85);assert.ok(target,'mixed wheel footprint required');
++  const x=target.x,z=target.z,hit=world.castRayAndGetNormal(new RAPIER.Ray({x,y:60,z},{x:0,y:-1,z:0}),100,true,undefined,undefined,undefined,undefined,c=>road.surfaceMap.bindings.get(c.handle)?.terrain);
++  assert.ok(hit);const corner=core.wheelCoords('FL');bridge.rigidBody.setTranslation({x:x-corner.x,y:60-hit.timeOfImpact+P.cgHeight,z:z-corner.z},true);world.step();
++  const source=readFileSync(new URL('../public/physics.html',import.meta.url),'utf8');
++  const helpers=source.slice(source.indexOf('function contactSurfaceAverage('),source.indexOf('function wheelAlignment('));
++  const tireMu=new Function('P','wheelModel',`let chassisBridge={};const WHEEL_IDS=['FL','FR','RL','RR'];${helpers};return ()=>wheelSurfaceMu('FL',1.02);`)(P,core.wheelModel);
++  for(const condition of ['dry','wet','snow','ice']){
++    core.state.surface=condition;bridge.beforeForces(1/480);const c=core.wheelModel.FL.contactSurface;
++    assert.equal(c.material,'terrain_mix');assert.ok(c.components[1].weight>.1);assert.ok(core.wheelModel.FL.normal>0);
++    assert.equal(tireMu(),c.tireMu,'actual wheel contact reaches original tire helper');
++  }
++  assert.equal(JSON.stringify(core.route.v3State),before,'material generation must not advance road RNG');
++  console.log('PASS real terrain blend: '+JSON.stringify({queries,maxError,maximumRock,maximumGravel})+'; exact Three barycentric mask, four weather profiles, original tire helper, seams, seed isolation and shared geometry');
++}finally{bridge?.dispose();road.clear();road.assertClean();assert.equal(world.colliders.len(),0);assert.equal(scene.children.length,0);world.free();}
+--- /dev/null
++++ b/desktop3d/tests/terrain-blend-driver.mjs
+@@ -0,0 +1,36 @@
++import * as THREE from 'three';
++// DEV-only inspection of the live gameplay geometry/material, not a replica.
++export function inspectTerrainBlend({road,renderer,camera},overview=false){
++  road.scene.updateMatrixWorld(true);
++  let queries=0,maxHeightError=0,maxWeightError=0;const ranges=[[1,0],[1,0],[1,0]],samples=[];
++  for(const tile of road.terrain.tiles.values()){
++    const mesh=tile.mesh,g=mesh.geometry,weights=g.attributes.terrainWeights;
++    if(!weights||mesh.material.name!=='terrain-three-layer')throw Error('Live terrain blend missing');
++    for(let i=0;i<weights.count;i++)for(let c=0;c<3;c++){
++      const w=weights.array[i*3+c];ranges[c][0]=Math.min(ranges[c][0],w);ranges[c][1]=Math.max(ranges[c][1],w);
++    }
++    for(let f=0;f<g.index.count/3;f+=Math.max(1,Math.floor(g.index.count/3/12))){
++      const ids=[0,1,2].map(k=>g.index.getX(f*3+k)),p=new THREE.Vector3();
++      ids.forEach((id,k)=>p.addScaledVector(new THREE.Vector3().fromBufferAttribute(g.attributes.position,id),[.2,.3,.5][k]));
++      const origin=p.clone().add(new THREE.Vector3(0,2,0)),down=new THREE.Vector3(0,-1,0);
++      const visual=new THREE.Raycaster(origin,down,0,4).intersectObject(mesh)[0];
++      const hit=road.world.castRayAndGetNormal(new road.rapier.Ray(origin,down),4,true,undefined,undefined,undefined,undefined,
++        c=>tile.colliders.some(v=>v.handle===c.handle));
++      if(!visual||!hit)throw Error('Terrain surface query missing');
++      const contact=road.surfaceAtHit(hit,visual.point),face=visual.face,bc=visual.barycoord;
++      const expected=[0,1,2].map(c=>weights.array[face.a*3+c]*bc.x+weights.array[face.b*3+c]*bc.y+weights.array[face.c*3+c]*bc.z);
++      maxWeightError=Math.max(maxWeightError,...expected.map((v,i)=>Math.abs(v-contact.components[i].weight)));
++      maxHeightError=Math.max(maxHeightError,Math.abs(hit.timeOfImpact-visual.distance));
++      samples.push({x:p.x,z:p.z,face:contact.faceIndex,layerId:contact.layerId,components:contact.components,tireMu:contact.tireMu,
++        rollingCoefficient:contact.rollingCoefficient,condition:contact.condition});queries++;
++    }
++  }
++  if(overview){
++    const p=road.physics.roadPointAt(70);camera.position.set(p.x+65,p.y+50,p.z+100);camera.lookAt(p.x+20,p.y,p.z+55);
++    renderer.render(road.scene,camera);
++  }
++  const gl=renderer.getContext();
++  for(const program of renderer.info.programs)if(!gl.getProgramParameter(program.program,gl.LINK_STATUS))throw Error('Shader program failed to link');
++  return {queries,maxHeightError,maxWeightError,ranges,samples,condition:road.surfaceMap.condition,
++    material:road.terrain.material.name,textures:road.materialLibrary.stats().textures,image:overview?renderer.domElement.toDataURL('image/png'):undefined};
++}

@@ -1,0 +1,5812 @@
+{
+  "condition": "dry",
+  "pavement": "asphalt_dense",
+  "globalSurfaceCondition": "dry",
+  "stopped": true,
+  "steps": 428,
+  "distance": 9.440465315640584,
+  "elapsedSeconds": 3.57499999999999,
+  "samples": [
+    {
+      "time": 0.008333333333333333,
+      "x": 10,
+      "z": 40.04996871948242,
+      "speed": 5.989570759175573,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.33584579397894604
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.664154206021054
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6864154206021054,
+          "rollingCoefficient": 0.028358457939789465,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 224,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.3738534213117687
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6261465786882312
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.682614657868823,
+          "rollingCoefficient": 0.028738534213117686,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 224,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.28787047296103263
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.7121295270389673
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6912129527038966,
+          "rollingCoefficient": 0.027878704729610328,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 216,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.32275113469722744
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6772488653027726
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6877248865302773,
+          "rollingCoefficient": 0.028227511346972278,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 223,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -1031.0867589587847,
+        -1032.181336984868,
+        -36.04030728444072,
+        -33.045020886185576
+      ],
+      "wheelCapacity": [
+        1722.0005053835193,
+        1723.1014504186403,
+        1972.834362039331,
+        1700.3744576053425
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 0.10833333333333332,
+      "x": 10.000304222106934,
+      "z": 40.63755416870117,
+      "speed": 5.75488780603197,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.3442349911600756
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6557650088399243
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6855765008839924,
+          "rollingCoefficient": 0.028442349911600755,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 229,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.3808142499737323
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6191857500262676
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6819185750026266,
+          "rollingCoefficient": 0.028808142499737323,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 224,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.2998183777843269
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.7001816222156731
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6900181622215673,
+          "rollingCoefficient": 0.027998183777843272,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 223,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.3362609008299492
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6637390991700508
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6863739099170051,
+          "rollingCoefficient": 0.02836260900829949,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 222,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -671.1458920067228,
+        -671.0310215335941,
+        -558.1949238494213,
+        -553.9486371321775
+      ],
+      "wheelCapacity": [
+        1130.1023369475622,
+        1158.1564163308085,
+        726.020451641031,
+        700.00731585776
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 0.20833333333333331,
+      "x": 10.000833511352539,
+      "z": 41.20138931274414,
+      "speed": 5.549431107718806,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.3524221072427781
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.647577892757222
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6847577892757222,
+          "rollingCoefficient": 0.02852422107242779,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 229,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.3874683639208186
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6125316360791814
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6812531636079181,
+          "rollingCoefficient": 0.028874683639208188,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 224,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.31197277643515947
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6880272235648406
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6888027223564841,
+          "rollingCoefficient": 0.0281197277643516,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 222,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.3497406930777804
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6502593069222197
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.685025930692222,
+          "rollingCoefficient": 0.028497406930777805,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 222,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -586.8188851008708,
+        -575.556320784504,
+        -249.1297890691305,
+        -281.3973964716322
+      ],
+      "wheelCapacity": [
+        1322.147283597862,
+        1302.6233661799938,
+        684.684719386426,
+        782.0673536407954
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 0.30833333333333346,
+      "x": 10.00104808807373,
+      "z": 41.747886657714844,
+      "speed": 5.387216297335036,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.3604632707636291
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.639536729236371
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6839536729236371,
+          "rollingCoefficient": 0.028604632707636295,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 229,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.39445618297013385
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6055438170298661
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6805543817029867,
+          "rollingCoefficient": 0.028944561829701343,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 225,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.32353792294128453
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6764620770587154
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6876462077058715,
+          "rollingCoefficient": 0.028235379229412844,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 224,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.36129806249659635
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6387019375034036
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6838701937503403,
+          "rollingCoefficient": 0.028612980624965964,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 224,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -649.2466560935362,
+        -625.3587990792246,
+        -353.93050333359156,
+        -386.80414112042723
+      ],
+      "wheelCapacity": [
+        1403.3302314659927,
+        1384.0275732460566,
+        769.2627732994401,
+        872.8982129909595
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 0.40833333333333377,
+      "x": 10.000914573669434,
+      "z": 42.27735900878906,
+      "speed": 5.207151374943597,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.36831790619850757
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6316820938014924
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6831682093801492,
+          "rollingCoefficient": 0.02868317906198508,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 229,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4019433226051057
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5980566773948942
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6798056677394892,
+          "rollingCoefficient": 0.029019433226051057,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 225,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.32990655411427094
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.670093445885729
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6870093445885729,
+          "rollingCoefficient": 0.028299065541142712,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 224,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.36765911530202205
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6323408846979779
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6832340884697978,
+          "rollingCoefficient": 0.028676591153020223,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 224,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -663.44967578538,
+        -637.6624199661873,
+        -377.3019965490736,
+        -386.8930115724258
+      ],
+      "wheelCapacity": [
+        1390.8458301888893,
+        1409.2075219854821,
+        785.7733866160386,
+        865.5444375625244
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 0.508333333333334,
+      "x": 10.000731468200684,
+      "z": 42.78908157348633,
+      "speed": 5.02812295445063,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.37430738865412655
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6256926113458734
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6825692611345873,
+          "rollingCoefficient": 0.028743073886541265,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 228,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4092446290062011
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5907553709937989
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.67907553709938,
+          "rollingCoefficient": 0.029092446290062017,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 225,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.3361418650737825
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6638581349262174
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6863858134926216,
+          "rollingCoefficient": 0.028361418650737824,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 224,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.3738898318657654
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6261101681342345
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6826110168134234,
+          "rollingCoefficient": 0.02873889831865765,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 224,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -655.9033034661089,
+        -629.3982920380761,
+        -377.01391918597994,
+        -384.81736610630185
+      ],
+      "wheelCapacity": [
+        1329.2576923157144,
+        1354.6040300981092,
+        812.8205746215459,
+        845.4159230046635
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 0.6083333333333336,
+      "x": 10.000662803649902,
+      "z": 43.28269577026367,
+      "speed": 4.844260173114417,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.38000229765497223
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6199977023450277
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6819997702345028,
+          "rollingCoefficient": 0.028800022976549725,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 228,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4163166781791352
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5836833218208649
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6783683321820866,
+          "rollingCoefficient": 0.029163166781791358,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 225,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.34345453820934324
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6565454617906568
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6856545461790657,
+          "rollingCoefficient": 0.028434545382093432,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 229,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.3799497696675345
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6200502303324654
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6820050230332465,
+          "rollingCoefficient": 0.028799497696675346,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 224,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -652.4369187377242,
+        -627.7072393703671,
+        -376.4809468354118,
+        -380.79352819683373
+      ],
+      "wheelCapacity": [
+        1257.6290768568385,
+        1298.574174818123,
+        850.4699286074688,
+        800.6958062819722
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 0.7083333333333333,
+      "x": 10.000662803649902,
+      "z": 43.757568359375,
+      "speed": 4.654132496835448,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.3854659763935526
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6145340236064474
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6814534023606447,
+          "rollingCoefficient": 0.02885465976393553,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 228,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4231017855042313
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5768982144957687
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6776898214495768,
+          "rollingCoefficient": 0.029231017855042316,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 225,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.3505764724653531
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6494235275346469
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6849423527534647,
+          "rollingCoefficient": 0.028505764724653535,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 229,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.3857716412820374
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6142283587179624
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6814228358717962,
+          "rollingCoefficient": 0.028857716412820374,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 224,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -652.1746969267299,
+        -629.5233144370746,
+        -373.22584364802066,
+        -378.3102264285618
+      ],
+      "wheelCapacity": [
+        1193.6202918409917,
+        1278.1168312552234,
+        854.4073734338962,
+        744.330156665821
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 0.8083333333333329,
+      "x": 10.000662803649902,
+      "z": 44.21323776245117,
+      "speed": 4.461075716283596,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.3906871912436696
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6093128087563303
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6809312808756329,
+          "rollingCoefficient": 0.028906871912436696,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 228,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.429633612867754
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.570366387132246
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6770366387132245,
+          "rollingCoefficient": 0.02929633612867754,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 232,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.3573811171657502
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6426188828342498
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.684261888283425,
+          "rollingCoefficient": 0.028573811171657505,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 229,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.3913292352980624
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6086707647019376
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6808670764701937,
+          "rollingCoefficient": 0.028913292352980628,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 224,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -601.3872322952626,
+        -626.8407512134016,
+        -373.6173385814301,
+        -374.3094037590782
+      ],
+      "wheelCapacity": [
+        1150.314732464112,
+        1259.1844417044351,
+        856.8898230813921,
+        700.956305592013
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 0.9083333333333325,
+      "x": 10.000662803649902,
+      "z": 44.649696350097656,
+      "speed": 4.26934347856941,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.396151042105695
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.603848957894305
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6803848957894305,
+          "rollingCoefficient": 0.028961510421056956,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 225,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4360506288629109
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5639493711370891
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6763949371137088,
+          "rollingCoefficient": 0.029360506288629108,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 232,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.3638543390267639
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6361456609732361
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6836145660973236,
+          "rollingCoefficient": 0.02863854339026764,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 229,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.3974912230418135
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6025087769581864
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6802508776958185,
+          "rollingCoefficient": 0.028974912230418134,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 225,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -610.097183118952,
+        -596.8481198269545,
+        -368.9233360315418,
+        -365.3917134475465
+      ],
+      "wheelCapacity": [
+        1175.9190571857118,
+        1189.446791215888,
+        829.3797483908576,
+        751.5391974652823
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 1.0083333333333322,
+      "x": 10.00087833404541,
+      "z": 45.067256927490234,
+      "speed": 4.0838255822214276,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.401982696153897
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5980173038461032
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6798017303846104,
+          "rollingCoefficient": 0.029019826961538975,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 225,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.44211776305409695
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5578822369459031
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6757882236945902,
+          "rollingCoefficient": 0.029421177630540973,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 232,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.3697285761764816
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6302714238235184
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6830271423823518,
+          "rollingCoefficient": 0.028697285761764814,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 228,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4033249478574627
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5966750521425374
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6796675052142538,
+          "rollingCoefficient": 0.02903324947857463,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 225,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -555.0118782236938,
+        -581.2763631807452,
+        -367.2287792310011,
+        -365.474649557029
+      ],
+      "wheelCapacity": [
+        1245.7289887993966,
+        1179.3523617058397,
+        773.2521768643087,
+        801.9385260375916
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 1.1083333333333318,
+      "x": 10.00139331817627,
+      "z": 45.466590881347656,
+      "speed": 3.9055655857688354,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4075276394553733
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5924723605446267
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6792472360544627,
+          "rollingCoefficient": 0.029075276394553734,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 225,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.44787478708538003
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5521252129146199
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6752125212914619,
+          "rollingCoefficient": 0.029478747870853802,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 232,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.3741883872851696
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6258116127148303
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6825811612714829,
+          "rollingCoefficient": 0.028741883872851696,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 228,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4088581721769695
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5911418278230306
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6791141827823031,
+          "rollingCoefficient": 0.029088581721769702,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 225,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -561.4320790194299,
+        -538.0202736971306,
+        -345.43480079340736,
+        -366.0672326243882
+      ],
+      "wheelCapacity": [
+        1304.5110899794088,
+        1177.76218797398,
+        719.0508179256625,
+        859.2377744814729
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 1.2083333333333315,
+      "x": 10.002219200134277,
+      "z": 45.84854507446289,
+      "speed": 3.7363200645468946,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4129310616411122
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5870689383588877
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6787068938358887,
+          "rollingCoefficient": 0.029129310616411122,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 232,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.453447650491558
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.546552349508442
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6746552349508442,
+          "rollingCoefficient": 0.029534476504915582,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.37845429259831637
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6215457074016837
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6821545707401684,
+          "rollingCoefficient": 0.02878454292598317,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 228,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.41415290986053355
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5858470901394663
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6785847090139465,
+          "rollingCoefficient": 0.02914152909860533,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 225,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -546.1320454491074,
+        -526.9035815763044,
+        -321.26621189521194,
+        -364.06036091327593
+      ],
+      "wheelCapacity": [
+        1291.6665594954209,
+        1258.2619151231993,
+        693.7190399596681,
+        905.4745092785753
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 1.3083333333333311,
+      "x": 10.003024101257324,
+      "z": 46.213924407958984,
+      "speed": 3.572981724175368,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.41831147787674494
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5816885221232552
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6781688522123256,
+          "rollingCoefficient": 0.029183114778767456,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 232,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4588867671982122
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5411132328017879
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6741113232801789,
+          "rollingCoefficient": 0.029588867671982128,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.3826053896146765
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6173946103853236
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6817394610385323,
+          "rollingCoefficient": 0.028826053896146772,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 228,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4193011353701165
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5806988646298835
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6780698864629884,
+          "rollingCoefficient": 0.029193011353701167,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 225,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -545.8567951014405,
+        -520.2313447990979,
+        -300.7925019289809,
+        -360.06293921465283
+      ],
+      "wheelCapacity": [
+        1241.1133802475708,
+        1274.2449652363764,
+        716.8036898192329,
+        894.9049875638331
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 1.4083333333333308,
+      "x": 10.00317668914795,
+      "z": 46.56315612792969,
+      "speed": 3.412535923397498,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.42359210586575075
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5764078941342493
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6776407894134249,
+          "rollingCoefficient": 0.02923592105865751,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4641716698159859
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5358283301840141
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6735828330184014,
+          "rollingCoefficient": 0.029641716698159862,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.386643492319032
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.613356507680968
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6813356507680968,
+          "rollingCoefficient": 0.028866434923190323,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 228,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.42430237903793855
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5756976209620615
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6775697620962061,
+          "rollingCoefficient": 0.029243023790379387,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 225,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -556.2321151729429,
+        -522.4396507608172,
+        -297.1274825924778,
+        -360.1908194063335
+      ],
+      "wheelCapacity": [
+        1306.494350741234,
+        1254.4365055936116,
+        747.7971981558679,
+        863.4937739738652
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 1.5083333333333304,
+      "x": 10.002535820007324,
+      "z": 46.896427154541016,
+      "speed": 3.2544275217306806,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.42864607340017996
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5713539265998201
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.677135392659982,
+          "rollingCoefficient": 0.029286460734001804,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4692178074311154
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5307821925688846
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6730782192568885,
+          "rollingCoefficient": 0.029692178074311158,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.3905041139325141
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.609495886067486
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6809495886067486,
+          "rollingCoefficient": 0.028905041139325145,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 228,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4291154655948909
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.570884534405109
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6770884534405108,
+          "rollingCoefficient": 0.029291154655948906,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 232,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -557.8106636307489,
+        -478.3931191987601,
+        -295.4360085856477,
+        -338.9826636971663
+      ],
+      "wheelCapacity": [
+        1337.062208044368,
+        1218.759253410459,
+        758.8629620339216,
+        838.9720994780564
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 1.60833333333333,
+      "x": 10.001785278320312,
+      "z": 47.21428680419922,
+      "speed": 3.1049881324208837,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.42946511927547026
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5705348807245297
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.677053488072453,
+          "rollingCoefficient": 0.029294651192754706,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 233,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.47007096109535246
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5299290389046476
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6729929038904647,
+          "rollingCoefficient": 0.02970070961095353,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 233,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.39430357155526213
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.6056964284447379
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6805696428444739,
+          "rollingCoefficient": 0.028943035715552623,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 225,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.43383488500826756
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5661651149917324
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6766165114991731,
+          "rollingCoefficient": 0.029338348850082678,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 232,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -484.84214506202255,
+        -458.4556920150526,
+        -298.06135850180203,
+        -308.5276311971516
+      ],
+      "wheelCapacity": [
+        1256.4968905729393,
+        1138.903971585473,
+        771.3936779433332,
+        785.137587372398
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 1.7083333333333297,
+      "x": 10.00180435180664,
+      "z": 47.51755142211914,
+      "speed": 2.9622950294814503,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4300941571606724
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5699058428393277
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6769905842839328,
+          "rollingCoefficient": 0.029300941571606728,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 233,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.47070032982536125
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5292996701746387
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6729299670174639,
+          "rollingCoefficient": 0.029707003298253612,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 233,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.39859629133612695
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.601403708663873
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6801403708663872,
+          "rollingCoefficient": 0.028985962913361273,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 225,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.438302933072168
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5616970669278321
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6761697066927832,
+          "rollingCoefficient": 0.029383029330721684,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 232,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -437.49489247080965,
+        -413.88922504582,
+        -298.9238693324272,
+        -283.3034672556357
+      ],
+      "wheelCapacity": [
+        1207.6361878386142,
+        1148.0583991669384,
+        798.1729725719965,
+        767.4265923472473
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 1.8083333333333294,
+      "x": 10.00281810760498,
+      "z": 47.80679702758789,
+      "speed": 2.8239584514821434,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4306583048241945
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5693416951758055
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6769341695175805,
+          "rollingCoefficient": 0.029306583048241946,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 233,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4712642762345004
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5287357237654996
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.67287357237655,
+          "rollingCoefficient": 0.029712642762345007,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 233,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.40265456974837854
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5973454302516215
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6797345430251621,
+          "rollingCoefficient": 0.029026545697483787,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 225,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4425274458425453
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5574725541574548
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6757472554157455,
+          "rollingCoefficient": 0.02942527445842546,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 232,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -436.9361734038386,
+        -413.2341887632193,
+        -298.7686754934518,
+        -282.2443264413732
+      ],
+      "wheelCapacity": [
+        1185.2940511859128,
+        1207.6206679958768,
+        816.2209606157242,
+        763.4595356986829
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 1.908333333333329,
+      "x": 10.00428295135498,
+      "z": 48.08090591430664,
+      "speed": 2.6343890548234725,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.43117752756624106
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5688224724337589
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6768822472433759,
+          "rollingCoefficient": 0.029311775275662415,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 233,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4717841619808376
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5282158380191624
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6728215838019163,
+          "rollingCoefficient": 0.02971784161980838,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 233,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.40647459919001855
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5935254008099815
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6793525400809981,
+          "rollingCoefficient": 0.02906474599190019,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 225,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4464967769728341
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5535032230271659
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6753503223027166,
+          "rollingCoefficient": 0.02946496776972834,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 232,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -1002.5091501677629,
+        -1043.0471848892755,
+        -643.6217911199512,
+        -577.8509712202394
+      ],
+      "wheelCapacity": [
+        1187.3504726092913,
+        1289.6795081423672,
+        814.6935172588585,
+        743.3009093282463
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 2.008333333333329,
+      "x": 10.005537033081055,
+      "z": 48.328216552734375,
+      "speed": 2.3090159533391645,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.43218559175446225
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5678144082455377
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6767814408245538,
+          "rollingCoefficient": 0.029321855917544624,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 238,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.472246019118431
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.527753980881569
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6727753980881569,
+          "rollingCoefficient": 0.02972246019118431,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 233,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4098844476471628
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5901155523528372
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6790115552352837,
+          "rollingCoefficient": 0.02909884447647163,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 225,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4500485534058138
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5499514465941863
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6749951446594187,
+          "rollingCoefficient": 0.02950048553405814,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -1213.0460801073682,
+        -1348.9287347336908,
+        -763.9844823318534,
+        -702.9797287200321
+      ],
+      "wheelCapacity": [
+        1239.2136745377588,
+        1377.7287971895068,
+        778.392869592136,
+        718.857809977244
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 2.1083333333333285,
+      "x": 10.006403923034668,
+      "z": 48.542476654052734,
+      "speed": 1.9822316722863282,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4331536724992833
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5668463275007167
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6766846327500717,
+          "rollingCoefficient": 0.029331536724992835,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 238,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4726584632323078
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5273415367676921
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6727341536767691,
+          "rollingCoefficient": 0.02972658463232308,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 233,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4129134510166088
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5870865489833912
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6787086548983391,
+          "rollingCoefficient": 0.02912913451016609,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 232,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4531430152169317
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5468569847830683
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6746856984783068,
+          "rollingCoefficient": 0.029531430152169316,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -1195.9314263509696,
+        -1319.4246053394008,
+        -692.7229447571526,
+        -696.4603272524927
+      ],
+      "wheelCapacity": [
+        1265.2650541802639,
+        1395.7501265075325,
+        729.0441974902535,
+        735.213582014748
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 2.208333333333328,
+      "x": 10.006793975830078,
+      "z": 48.725059509277344,
+      "speed": 1.67506239948639,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4340170265672898
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5659829734327102
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.676598297343271,
+          "rollingCoefficient": 0.0293401702656729,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 238,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4730465560338682
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5269534439661319
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6726953443966133,
+          "rollingCoefficient": 0.029730465560338686,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 233,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.41556797587831995
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.58443202412168
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.678443202412168,
+          "rollingCoefficient": 0.0291556797587832,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 232,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4558276831847835
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5441723168152165
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6744172316815216,
+          "rollingCoefficient": 0.02955827683184784,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -1135.460731671814,
+        -1207.4486007941691,
+        -643.902004137642,
+        -678.1888203870537
+      ],
+      "wheelCapacity": [
+        1274.2213094486833,
+        1354.6960976625166,
+        716.2263984290453,
+        758.2312927657706
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 2.308333333333328,
+      "x": 10.006834983825684,
+      "z": 48.878089904785156,
+      "speed": 1.3913945974746638,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4347699289011598
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5652300710988402
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.676523007109884,
+          "rollingCoefficient": 0.029347699289011597,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 238,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.47340025598781427
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5265997440121857
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6726599744012185,
+          "rollingCoefficient": 0.029734002559878143,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 233,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4178472226571479
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5821527773428521
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6782152777342851,
+          "rollingCoefficient": 0.02917847222657148,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 232,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.45813433425247924
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5418656657475208
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6741865665747521,
+          "rollingCoefficient": 0.029581343342524796,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -1042.7520019685226,
+        -1061.3110332924498,
+        -596.7854212380504,
+        -640.7997646137405
+      ],
+      "wheelCapacity": [
+        1277.436671161557,
+        1297.6492292479663,
+        721.1389392397402,
+        779.2896291846018
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 2.4083333333333274,
+      "x": 10.00670337677002,
+      "z": 49.00410079956055,
+      "speed": 1.134872001031482,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4353976172213665
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5646023827786335
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6764602382778633,
+          "rollingCoefficient": 0.029353976172213667,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 238,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4737000551375593
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5262999448624407
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.672629994486244,
+          "rollingCoefficient": 0.029737000551375594,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 233,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.41975882263093484
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5802411773690652
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6780241177369065,
+          "rollingCoefficient": 0.02919758822630935,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.46007167712366426
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5399283228763357
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6739928322876336,
+          "rollingCoefficient": 0.029600716771236643,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -927.4128163937364,
+        -910.0913875646761,
+        -537.1983149730654,
+        -584.7654201458023
+      ],
+      "wheelCapacity": [
+        1280.134839195398,
+        1249.9856721701462,
+        726.644510169927,
+        796.8508306469067
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 2.508333333333327,
+      "x": 10.006754875183105,
+      "z": 49.10593032836914,
+      "speed": 0.908021535265859,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4359034446762118
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5640965553237882
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6764096555323789,
+          "rollingCoefficient": 0.02935903444676212,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 238,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.47394204565097253
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5260579543490276
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6726057954349028,
+          "rollingCoefficient": 0.029739420456509732,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 233,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4213317430854592
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5786682569145408
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6778668256914541,
+          "rollingCoefficient": 0.029213317430854594,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.46164916280025053
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5383508371997494
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6738350837199749,
+          "rollingCoefficient": 0.029616491628002506,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -796.0695430442521,
+        -767.8342213801772,
+        -478.2895197976801,
+        -512.7951639220407
+      ],
+      "wheelCapacity": [
+        1279.3603148303423,
+        1225.4415373777815,
+        746.669125479685,
+        809.2037186656537
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 2.6083333333333267,
+      "x": 10.007040977478027,
+      "z": 49.18668746948242,
+      "speed": 0.7136407415080598,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.43629620019231924
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5637037998076807
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6763703799807681,
+          "rollingCoefficient": 0.029362962001923194,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 238,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.47412501900506254
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5258749809949376
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6725874980994938,
+          "rollingCoefficient": 0.02974125019005063,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 233,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4225602669270571
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5774397330729429
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6777439733072943,
+          "rollingCoefficient": 0.029225602669270573,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.46288012168304216
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5371198783169578
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6737119878316957,
+          "rollingCoefficient": 0.02962880121683042,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -658.5272386210164,
+        -633.9338469616977,
+        -403.1770314805188,
+        -433.4337724960569
+      ],
+      "wheelCapacity": [
+        1271.8061460968465,
+        1217.88420733629,
+        747.5023534172366,
+        819.4145379906004
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 2.7083333333333264,
+      "x": 10.007548332214355,
+      "z": 49.24967956542969,
+      "speed": 0.5525666510014573,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.43660141396744473
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5633985860325552
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6763398586032554,
+          "rollingCoefficient": 0.02936601413967445,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 238,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4742652303251605
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5257347696748396
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.672573476967484,
+          "rollingCoefficient": 0.02974265230325161,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 233,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.42350048850395894
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5764995114960411
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6776499511496041,
+          "rollingCoefficient": 0.029235004885039592,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.46381736489411673
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5361826351058833
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6736182635105883,
+          "rollingCoefficient": 0.02963817364894117,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -526.949549415189,
+        -508.10379440661916,
+        -330.52597581233897,
+        -356.0091718768461
+      ],
+      "wheelCapacity": [
+        1260.6967734413377,
+        1213.883057845969,
+        747.0346491091956,
+        831.4362476282706
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 2.808333333333326,
+      "x": 10.008211135864258,
+      "z": 49.29816818237305,
+      "speed": 0.42300712051771194,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4368409086715943
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5631590913284057
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6763159091328406,
+          "rollingCoefficient": 0.029368409086715945,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 238,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4743769480030176
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5256230519969823
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6725623051996982,
+          "rollingCoefficient": 0.029743769480030175,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 233,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4242201051041736
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5757798948958264
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6775779894895826,
+          "rollingCoefficient": 0.029242201051041736,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.46453135837312054
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5354686416268795
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6735468641626879,
+          "rollingCoefficient": 0.029645313583731205,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -409.09667955774984,
+        -396.09850201623897,
+        -265.987716070708,
+        -285.62333437963287
+      ],
+      "wheelCapacity": [
+        1249.9612124287587,
+        1208.2561781914605,
+        750.8403145157877,
+        844.0082593400141
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 2.9083333333333257,
+      "x": 10.008943557739258,
+      "z": 49.33515548706055,
+      "speed": 0.3217914918265816,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.43702759204607383
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5629724079539262
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6762972407953927,
+          "rollingCoefficient": 0.029370275920460744,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 238,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.47446635892088934
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5255336410791106
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.672553364107911,
+          "rollingCoefficient": 0.029744663589208895,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 233,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.42477703892818175
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5752229610718183
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6775222961071818,
+          "rollingCoefficient": 0.02924777038928182,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.46508479360516114
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5349152063948389
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6734915206394839,
+          "rollingCoefficient": 0.029650847936051616,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -309.2829021911937,
+        -302.44856794119266,
+        -210.63821641767765,
+        -224.95198238351975
+      ],
+      "wheelCapacity": [
+        1241.623273462868,
+        1201.420440216686,
+        757.3120149607106,
+        854.9964766794841
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 3.0083333333333253,
+      "x": 10.009586334228516,
+      "z": 49.363285064697266,
+      "speed": 0.24507093495059576,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.43716952277138416
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5628304772286159
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6762830477228616,
+          "rollingCoefficient": 0.029371695227713844,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 238,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4745347885238537
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5254652114761462
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6725465211476146,
+          "rollingCoefficient": 0.029745347885238537,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 233,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.42520969677689513
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5747903032231049
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6774790303223104,
+          "rollingCoefficient": 0.029252096967768954,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.465517687624875
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.534482312375125
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6734482312375125,
+          "rollingCoefficient": 0.029655176876248752,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -229.6564281464349,
+        -227.61223512083822,
+        -165.3415666142451,
+        -174.76967059993052
+      ],
+      "wheelCapacity": [
+        1235.9779630636951,
+        1195.0220859465085,
+        763.756334068792,
+        863.3566328267303
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 3.108333333333325,
+      "x": 10.010135650634766,
+      "z": 49.384796142578125,
+      "speed": 0.18861269559455376,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.43727910309108275
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5627208969089172
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6762720896908917,
+          "rollingCoefficient": 0.02937279103091083,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 238,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.47458860678955905
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.525411393210441
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6725411393210441,
+          "rollingCoefficient": 0.02974588606789559,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 233,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4255463166602789
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.574453683339721
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6774453683339721,
+          "rollingCoefficient": 0.02925546316660279,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.46585596344717983
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5341440365528202
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.673414403655282,
+          "rollingCoefficient": 0.029658559634471802,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -169.7741317845681,
+        -169.59017523467782,
+        -130.42708810666335,
+        -134.67598195222
+      ],
+      "wheelCapacity": [
+        1232.646984162187,
+        1189.729402108591,
+        768.9824397398701,
+        868.9983125558379
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 3.2083333333333246,
+      "x": 10.010684967041016,
+      "z": 49.4015007019043,
+      "speed": 0.1481298962390426,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.43737018771590114
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5626298122840988
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6762629812284098,
+          "rollingCoefficient": 0.029373701877159014,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 238,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.47463677735451754
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5253632226454824
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6725363222645482,
+          "rollingCoefficient": 0.029746367773545175,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 233,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4258110889338708
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5741889110661292
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6774188911066129,
+          "rollingCoefficient": 0.02925811088933871,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.466120736942899
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.533879263057101
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6733879263057101,
+          "rollingCoefficient": 0.029661207369428993,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -126.518531274943,
+        -126.03710920640108,
+        -104.74218981605613,
+        -103.9156366717274
+      ],
+      "wheelCapacity": [
+        1231.0088045828388,
+        1185.4612564475206,
+        772.9603518833597,
+        872.4390102904455
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 3.3083333333333242,
+      "x": 10.011234283447266,
+      "z": 49.414794921875,
+      "speed": 0.11969533689987163,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.43744939988356485
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5625506001164352
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6762550600116435,
+          "rollingCoefficient": 0.02937449399883565,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 238,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.474682096246142
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.525317903753858
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6725317903753858,
+          "rollingCoefficient": 0.02974682096246142,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 233,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.42602237697778417
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5739776230222158
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6773977623022216,
+          "rollingCoefficient": 0.02926022376977784,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4663295612218281
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5336704387781719
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6733670438778172,
+          "rollingCoefficient": 0.029663295612218282,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -95.5676519595273,
+        -94.77826014186893,
+        -86.12942686009883,
+        -81.52315080846078
+      ],
+      "wheelCapacity": [
+        1230.2123482759841,
+        1182.2380182726854,
+        775.7983683276129,
+        874.5854705005027
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 3.408333333333324,
+      "x": 10.011783599853516,
+      "z": 49.42570495605469,
+      "speed": 0.10001837584718971,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.43751848117297043
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5624815188270296
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.676248151882703,
+          "rollingCoefficient": 0.029375184811729706,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 238,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.47472360252110274
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5252763974788973
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6725276397478898,
+          "rollingCoefficient": 0.02974723602521103,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 233,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.42619606040072927
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5738039395992707
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.677380393959927,
+          "rollingCoefficient": 0.029261960604007292,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.46649982763380543
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5335001723661946
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6733500172366196,
+          "rollingCoefficient": 0.02966499827633806,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -73.26599006214694,
+        -73.34801181411633,
+        -72.58888640449125,
+        -66.03913353561937
+      ],
+      "wheelCapacity": [
+        1229.3949457478784,
+        1180.2678333392905,
+        777.4367906251929,
+        876.3264172321745
+      ],
+      "contacts": 4
+    },
+    {
+      "time": 3.5083333333333235,
+      "x": 10.012506484985352,
+      "z": 49.4349479675293,
+      "speed": 0.08650793527607492,
+      "wheelSurface": [
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.437581738084998
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5624182619150021
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6762418261915002,
+          "rollingCoefficient": 0.029375817380849985,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 238,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.4747641129486065
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5252358870513936
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6725235887051394,
+          "rollingCoefficient": 0.02974764112948607,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 233,
+          "colliderHandle": 6.9495362155476e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.42634882642942823
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5736511735705717
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6773651173570572,
+          "rollingCoefficient": 0.029263488264294285,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        },
+        {
+          "profileId": "terrain-mix.dry",
+          "sourceProfileIds": [
+            "earth.dry",
+            "terrain_gravel.dry",
+            "natural_stone.dry"
+          ],
+          "material": "terrain_mix",
+          "components": [
+            {
+              "material": "earth",
+              "profileId": "earth.dry",
+              "weight": 0.46664995801877435
+            },
+            {
+              "material": "gravel",
+              "profileId": "terrain_gravel.dry",
+              "weight": 0.5333500419812256
+            },
+            {
+              "material": "natural_stone",
+              "profileId": "natural_stone.dry",
+              "weight": 0
+            }
+          ],
+          "condition": "dry",
+          "tireMu": 0.6733350041981225,
+          "rollingCoefficient": 0.029666499580187744,
+          "colliderFriction": 0.7,
+          "layerId": "terrain:0:0",
+          "faceIndex": 231,
+          "colliderHandle": 6.949536215547e-311,
+          "renderKind": "terrain",
+          "scope": "project-illustrative-terrain-blend"
+        }
+      ],
+      "wheelFx": [
+        -57.33862691708494,
+        -58.955211577369326,
+        -62.84106179398624,
+        -55.587453477018336
+      ],
+      "wheelCapacity": [
+        1228.1709324077117,
+        1179.466823117995,
+        777.973744464221,
+        878.0486308934596
+      ],
+      "contacts": 4
+    }
+  ],
+  "collisions": 0,
+  "invalidWheelLoads": 0,
+  "fixedHz": 120,
+  "microstepHz": 480,
+  "scope": "project illustrative soil gameplay experiment; not field calibration"
+}

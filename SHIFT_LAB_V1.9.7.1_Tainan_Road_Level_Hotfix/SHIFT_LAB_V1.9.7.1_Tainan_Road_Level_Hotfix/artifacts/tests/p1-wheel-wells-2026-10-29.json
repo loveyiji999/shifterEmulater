@@ -1,0 +1,95 @@
+{
+  "schema": "shiftlab.wheel-wells.verification.v1",
+  "recordedAt": "2026-11-01T23:59:13.524Z",
+  "layoutRevision": 3,
+  "reports": [
+    {
+      "id": "standard",
+      "calibrated": false,
+      "poses": 572,
+      "queries": 22880,
+      "minClearanceM": 0.020003080368041992,
+      "requiredClearanceM": 0.02,
+      "analyticCertificate": true,
+      "batchedRenderMatchesColliders": true
+    },
+    {
+      "id": "city",
+      "calibrated": false,
+      "poses": 572,
+      "queries": 22880,
+      "minClearanceM": 0.020075201988220215,
+      "requiredClearanceM": 0.02,
+      "analyticCertificate": true,
+      "batchedRenderMatchesColliders": true
+    },
+    {
+      "id": "turbo",
+      "calibrated": false,
+      "poses": 572,
+      "queries": 22880,
+      "minClearanceM": 0.020022308453917503,
+      "requiredClearanceM": 0.02,
+      "analyticCertificate": true,
+      "batchedRenderMatchesColliders": true
+    },
+    {
+      "id": "diesel",
+      "calibrated": false,
+      "poses": 572,
+      "queries": 22880,
+      "minClearanceM": 0.020177002996206284,
+      "requiredClearanceM": 0.02,
+      "analyticCertificate": true,
+      "batchedRenderMatchesColliders": true
+    },
+    {
+      "id": "standard",
+      "calibrated": true,
+      "poses": 572,
+      "queries": 22880,
+      "minClearanceM": 0.020000338554382324,
+      "requiredClearanceM": 0.02,
+      "analyticCertificate": true,
+      "batchedRenderMatchesColliders": true
+    },
+    {
+      "id": "city",
+      "calibrated": true,
+      "poses": 572,
+      "queries": 22880,
+      "minClearanceM": 0.02005612850189209,
+      "requiredClearanceM": 0.02,
+      "analyticCertificate": true,
+      "batchedRenderMatchesColliders": true
+    },
+    {
+      "id": "turbo",
+      "calibrated": true,
+      "poses": 572,
+      "queries": 22880,
+      "minClearanceM": 0.020000100135803223,
+      "requiredClearanceM": 0.02,
+      "analyticCertificate": true,
+      "batchedRenderMatchesColliders": true
+    },
+    {
+      "id": "diesel",
+      "calibrated": true,
+      "poses": 572,
+      "queries": 22880,
+      "minClearanceM": 0.020162679255008698,
+      "requiredClearanceM": 0.02,
+      "analyticCertificate": true,
+      "batchedRenderMatchesColliders": true
+    }
+  ],
+  "scope": "rigid tire/rim enclosing cylinder and conservative vertical-sweep certificate; not deforming tire or new tire collision physics",
+  "sourceHashes": {
+    "src/vehicle-layout.mjs": "1c5dd5b952c2152570ea800c6d67f1979de3e2f50b456c65e0320ae88047d15a",
+    "src/vehicle-visual.mjs": "6e13e4595886cc58206d8b9d4d5b0a14cbd001ecc7703d38f00a918959158c74",
+    "src/vehicle-definition.mjs": "38dfc32c7e82070720ff8fe1908dc164721a02b42cb2c25f249e7eeaa11f0902",
+    "src/chassis.mjs": "808412a9443a18f0a6ee466e4bde2efe114511822d22af92f0419fd1c9e41a65",
+    "tests/validate-wheel-wells.mjs": "fffd692f38dfdcf9daf8167ce7d9ef80e28619dacb5279f7d3d50ebdc46c6483"
+  }
+}

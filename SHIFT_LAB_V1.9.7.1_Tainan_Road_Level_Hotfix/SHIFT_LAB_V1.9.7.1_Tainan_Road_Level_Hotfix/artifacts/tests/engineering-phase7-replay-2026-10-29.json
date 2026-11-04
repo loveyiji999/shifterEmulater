@@ -1,0 +1,12 @@
+{
+  "scope": "prior engineering work package replayed from its saved source; not a current PBR test",
+  "sourceSnapshot": "p2-engineering-source-2026-10-29.zip",
+  "sourceSnapshotSHA256": "2201f3e34edef2fe6f6f8adced220d14fd74cf878c77f5dde169595a3d910f27",
+  "foundations": 248,
+  "groundQueries": 5587,
+  "portalChecks": 14,
+  "restoredFiles": [
+    "p2-engineering-2026-10-29.json",
+    "engineering-portal-2026-10-29.png"
+  ]
+}

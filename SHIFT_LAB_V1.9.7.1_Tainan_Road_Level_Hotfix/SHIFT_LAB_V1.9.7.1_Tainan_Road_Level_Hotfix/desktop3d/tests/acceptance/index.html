@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SHIFT LAB · 獨立物理驗收工具</title>
+<style>
+:root{color-scheme:dark;font:15px/1.65 system-ui,sans-serif;background:#081522;color:#e6f4f6}
+body{max-width:960px;margin:40px auto;padding:0 24px}h1{font-size:26px}
+button,select{font:inherit;padding:8px 14px;margin:4px;background:#173548;color:inherit;border:1px solid #446a7b;border-radius:8px}
+button{cursor:pointer}button:disabled{opacity:.45;cursor:wait}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#102b3b;padding:16px;border-radius:10px}
+.pass{color:#79eac5}.fail{color:#ff9898}iframe{width:0;height:0;border:0;position:absolute}
+</style>
+</head>
+<body>
+<h1>獨立物理驗收工具</h1>
+<p>使用固定參考道路與 standard 車型執行原五項驗收，不讀取玩家的車型與地圖設定。</p>
+<p id="status" role="status">正在初始化物理核心…</p>
+<select id="scenario" aria-label="驗收工況"></select>
+<button id="run-case" disabled>執行選定工況</button>
+<button id="run-suite" disabled>執行五項驗收</button>
+<button id="export-report" disabled>匯出 JSON 報告</button>
+<ol id="results"></ol>
+<pre id="metrics">尚未執行。</pre>
+<iframe id="physics" src="../../physics.html" title="物理計算核心" aria-hidden="true" tabindex="-1"></iframe>
+<script type="module" src="./main.mjs"></script>
+</body>
+</html>

@@ -1,0 +1,185 @@
+{
+  "objective": "進行按階段的開發直到完成建置書所要求之成果",
+  "goalStatus": "active; P2 still partial; P3/P4/P5 not complete",
+  "previousGoalTurnClassification": "progress",
+  "previousTurnEvidence": "P2 tunnel lighting implementation, geometry corrections, actual native and full QA evidence",
+  "source": {
+    "desktop3d/src/pavement-definition.mjs": "489cef270ce42e68d75eee0c164b5017c7a7fa29a20265fa2df8d4c9bc8a342b",
+    "desktop3d/src/surface-map.mjs": "e1e87c2b3f315346495e2b7516936525f1e84e92cc61d6b53d51c0a7607e0f15",
+    "desktop3d/src/road.mjs": "3e53a0287cec7eb59dbaba99239db01ee3e1624fe600c7b5a29218955f3f80e8",
+    "desktop3d/src/surface-materials.mjs": "856548f9e18767415844b874091d3dfc315fdb11260f0844dc341336a73f1925",
+    "desktop3d/src/surface-definition.mjs": "e53b8a843ced5db2cb733ec09a38b8a314d015a14ced4571cf55df906a132845",
+    "desktop3d/src/main.mjs": "a5c20bd420a6f57c35a6cdc48c3ac54e9708dcb9d8d83daf6f939751fb67ba27",
+    "desktop3d/src/chassis.mjs": "808412a9443a18f0a6ee466e4bde2efe114511822d22af92f0419fd1c9e41a65",
+    "desktop3d/src/road-geometry-v3.mjs": "b4fb7856a844c16f82c1e989a85998a57d8fad7991983ab409302c8553288ec3",
+    "desktop3d/src/terrain-material.mjs": "d15a60683f6ef712adc32ccb81ab7855aeea3ed9f3ed1c9402f144928534d40b",
+    "desktop3d/src/tunnel-lighting.mjs": "12dfcc835ca3b6bea04cc51cda0a9d761b4951e8ebdfd6becf8a91fa18aa8708",
+    "desktop3d/index.html": "598d7da6c7108df0c27f01e39538edf16d52856c6632bdd0b85cc1b7f0f46ca1",
+    "desktop3d/package.json": "f75fee45c75f1cdc7b9f8cd795c49fe29ceba827fcc9e753ad6817ffb7765bab",
+    "desktop3d/package-lock.json": "f6acb5b69f34e0a9351be7f55f28914c490c01bee2ee9ca302435edad545ec86",
+    "desktop3d/public/physics.html": "c491cfc1ca5af23367822f87dfd27c12e122b83bf362ff6073829c75f952edbd",
+    "desktop3d/public/road-generator-v3.js": "d9d0c37bfa479bfcce098e5f86625eff36055fa04927f377b9b48cdc655a9668",
+    "desktop3d/tests/validate-pavement.mjs": "0e0c5a20ab6d0902e1e2a4b2615f4f0c4708a45c6e66a7ea28adf1269f656a12",
+    "desktop3d/tests/validate-surface-map.mjs": "c7d85e5cd7b32abf054c38f350316a306bcff2f667e14fae6f31dfe1d7df49b6",
+    "desktop3d/tests/surface-driver.mjs": "1d524ded3a7d20f48e6e3747cf078e66ce34e0193f4386690120c2b3db78bfba",
+    "desktop3d/tests/game-driver.mjs": "b022bc09a7b61831ae49d5bd2e56fbdfe3ded78af85454c8139b0dad407b9715",
+    "desktop3d/tests/validate-procedural-browser.mjs": "d51b195ae8abe45af30b207b65add78e71672200eab602a932f64204b7e22939",
+    "docs/P2_TEN_PAVEMENTS.md": "75f8b5cff0d4a76bd24e4fe959a5812d877cbcd48f304f9a4be2e90e43c9ff3a",
+    "docs/DEVELOPMENT_PLAN.md": "d576c13d3169f37101a6317b634c5705d8ae63e50193f49c33d27152924e2021",
+    "docs/DEVELOPMENT_PROGRESS.md": "abce035440a6c2aa8d0f9987cff7271f6b3910a27760f7a176147ef7f9edf6ba",
+    "docs/AGENT_KNOWLEDGE.md": "ecc17dad8b97428c64238b1863ecfc3282338d0db5772cea3372840371e3ad1b",
+    "docs/AGENT_VERIFICATION.md": "acb0d1e2a4fdfc8c7180e35d596972d6a1b9d887cbbc15fcc1ce8f1e0e0c983a",
+    "docs/DATA_CATALOG.md": "0da8a87247e4713fff59fef89ddce903e798845fe0e99862c008cde8283d40ac",
+    "artifacts/tests/p2-ten-pavements-original-surface-map.mjs": "9f9e159c45dc16d8e2d4f734f11b8f299daf46153b33ee49a0f0f3c41949588f"
+  },
+  "archive": "p2-ten-pavements-source-2026-10-30.zip",
+  "archiveSha256": "c4de25aaf99d9d3b5780e5cd9dd85e2f53a39a6e5359e8b67a068236f6153344",
+  "unchanged": [
+    "src/main.mjs",
+    "src/chassis.mjs",
+    "public/physics.html",
+    "public/road-generator-v3.js",
+    "package-lock.json",
+    "package.json",
+    "src/surface-materials.mjs",
+    "src/surface-definition.mjs"
+  ],
+  "checks": [
+    {
+      "command": "node tests/validate-pavement.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-surface-map.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-terrain-surface.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "npm.cmd run qa:surface",
+      "result": "PASS"
+    },
+    {
+      "command": "npm.cmd run qa:materials",
+      "result": "PASS"
+    },
+    {
+      "command": "npm.cmd run qa:streaming",
+      "result": "PASS"
+    },
+    {
+      "command": "npm.cmd run build",
+      "result": "PASS"
+    },
+    {
+      "command": "npm.cmd run qa:all",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --all-pavements --screenshot",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --production",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs (initial general mode)",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --road-v3",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --reveal-performance --native-gpu --warm --pavement=steel --capture-label=p2-ten-pavements-steel",
+      "result": "PASS"
+    },
+    {
+      "command": "Node old/new SurfaceMap: all 24 original trusted profiles deep-equal, final count 52",
+      "result": "PASS"
+    },
+    {
+      "command": "Python JSON: all 12 prior stopping distances and steps exactly equal",
+      "result": "PASS"
+    }
+  ],
+  "evidence": {
+    "pavementChoices": 10,
+    "trustedRoadProfiles": 40,
+    "terrainAndBoulderProfiles": 12,
+    "actualBrakingCases": 40,
+    "priorBrakingExactMatches": 12,
+    "native": {
+      "file": "p2-ten-pavements-steel-performance-2026-10-30.json",
+      "metadata": {
+        "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+        "device": "ANGLE (Intel, Intel(R) UHD Graphics 770 (0x00004680) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "backend": "WebGL2",
+        "drawingBuffer": [
+          1440,
+          900
+        ],
+        "devicePixelRatio": 1,
+        "hardwareConcurrency": 20,
+        "deviceMemoryGiB": 32,
+        "map": {
+          "seed": "STREAM-TIMING-V1",
+          "turnChance": 0,
+          "hairpinChance": 0,
+          "slopeChance": 0,
+          "leftBias": 50,
+          "upBias": 50,
+          "maxGrade": 9,
+          "generator": 3
+        },
+        "scenery": {
+          "trees": 235,
+          "rocks": 29,
+          "batches": 27,
+          "colliders": 264
+        },
+        "pavementMaterial": "steel",
+        "preset": "standard",
+        "warmupSeconds": 10,
+        "captureSeconds": 40
+      },
+      "frameMs": {
+        "p50": 16.799999997019768,
+        "p95": 18.899999998509884,
+        "p99": 19.600000001490116,
+        "max": 49
+      },
+      "gpuRenderMs": {
+        "p50": 12.105625,
+        "p95": 13.192916,
+        "p99": 13.879791,
+        "max": 15.166354
+      },
+      "streamCpuMs": {
+        "p50": 0.09999999403953552,
+        "p95": 0.30000000447034836,
+        "p99": 1,
+        "max": 3.2999999970197678
+      },
+      "simulationRatio": 1.001340675803795,
+      "drops": 1,
+      "waits": 0
+    }
+  },
+  "resolvedSetupIssues": [
+    "Steel rejection assertion was obsolete after publishing steel; replaced with unknown ID test",
+    "First test-editor script had a quoting error and did not mutate source; default general browser regression passed, not counted as all-pavement coverage",
+    "First complete 40-case run hit a stale gravel expectation in V3 restore; corrected to selected steel and full run passed"
+  ],
+  "remaining": [
+    "P2 water systems and exterior portal/terrain/far-field quality",
+    "Puddled/muddy fluid and deformation mechanisms not published",
+    "Original terrain-ice residual creep remains; flat-road stopping does not resolve it",
+    "P3 ten scenes/cold-warm triples/600-second/native highest-quality audit remains",
+    "P4 full tuning/transmission editing and P5 vehicle creation tools remain"
+  ],
+  "artifactSummary": "p2-ten-pavements-results-2026-10-30.json"
+}

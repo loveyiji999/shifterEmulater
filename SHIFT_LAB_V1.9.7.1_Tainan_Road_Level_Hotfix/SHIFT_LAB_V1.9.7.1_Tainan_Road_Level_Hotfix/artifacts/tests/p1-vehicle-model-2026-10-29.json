@@ -1,0 +1,93 @@
+{
+  "schema": "shiftlab.reference-vehicle.verification.v1",
+  "recordedAt": "2026-11-01T23:59:12.755Z",
+  "layoutRevision": 3,
+  "scope": "reference procedural model geometry and actual Rapier; not full vehicle creator or P3 performance",
+  "bodyHullToleranceM": 0.001,
+  "decorativeLampOverhangM": 0.01,
+  "wheelSurfaceToleranceM": 0.015,
+  "checks": [
+    "body/cabin actual bounds",
+    "unchanged mass/inertia/COM",
+    "independent steering and axle spin",
+    "pause invariance",
+    "overhead ray and 20 m/s roof collision",
+    "atomic body allocation rollback",
+    "480 Hz phase integration including airborne wheels",
+    "unique shared resource disposal"
+  ],
+  "reports": [
+    {
+      "id": "standard",
+      "calibrated": false,
+      "maxHullErrorM": 2.0329837702171005e-8,
+      "massKg": 1280,
+      "roofContact": true,
+      "colliders": 40
+    },
+    {
+      "id": "city",
+      "calibrated": false,
+      "maxHullErrorM": 2.8016661546281796e-8,
+      "massKg": 1130,
+      "roofContact": true,
+      "colliders": 40
+    },
+    {
+      "id": "turbo",
+      "calibrated": false,
+      "maxHullErrorM": 7.0029815280037155e-9,
+      "massKg": 1440,
+      "roofContact": true,
+      "colliders": 40
+    },
+    {
+      "id": "diesel",
+      "calibrated": false,
+      "maxHullErrorM": 1.4305114759416426e-8,
+      "massKg": 1880,
+      "roofContact": true,
+      "colliders": 40
+    },
+    {
+      "id": "standard",
+      "calibrated": true,
+      "maxHullErrorM": 1.4305114759416426e-8,
+      "massKg": 1258.800048828125,
+      "roofContact": true,
+      "colliders": 40
+    },
+    {
+      "id": "city",
+      "calibrated": true,
+      "maxHullErrorM": 2.0500550701463283e-8,
+      "massKg": 1123.5,
+      "roofContact": true,
+      "colliders": 40
+    },
+    {
+      "id": "turbo",
+      "calibrated": true,
+      "maxHullErrorM": 1.692864248781234e-8,
+      "massKg": 1394.800048828125,
+      "roofContact": true,
+      "colliders": 40
+    },
+    {
+      "id": "diesel",
+      "calibrated": true,
+      "maxHullErrorM": 1.766554147408783e-8,
+      "massKg": 1925.2000732421875,
+      "roofContact": true,
+      "colliders": 40
+    }
+  ],
+  "sourceHashes": {
+    "src/vehicle-layout.mjs": "1c5dd5b952c2152570ea800c6d67f1979de3e2f50b456c65e0320ae88047d15a",
+    "src/vehicle-visual.mjs": "6e13e4595886cc58206d8b9d4d5b0a14cbd001ecc7703d38f00a918959158c74",
+    "src/vehicle-definition.mjs": "38dfc32c7e82070720ff8fe1908dc164721a02b42cb2c25f249e7eeaa11f0902",
+    "src/chassis.mjs": "808412a9443a18f0a6ee466e4bde2efe114511822d22af92f0419fd1c9e41a65",
+    "public/physics.html": "c491cfc1ca5af23367822f87dfd27c12e122b83bf362ff6073829c75f952edbd",
+    "tests/validate-vehicle-model.mjs": "6b3b6fdd2e8e63adc3bf035e946f953d0fe04eba1229392ac5eefd741ee81536"
+  }
+}

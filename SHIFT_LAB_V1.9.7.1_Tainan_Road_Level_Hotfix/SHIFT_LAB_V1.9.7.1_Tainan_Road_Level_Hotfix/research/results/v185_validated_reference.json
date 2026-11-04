@@ -1,0 +1,29 @@
+{
+  "bmw_gasoline": {
+    "vehicle": "BMW M235i gasoline, transmission variant unknown",
+    "n": 4708,
+    "duration_s": 341.985119,
+    "training_best_holdout_rmse": 0.40488,
+    "static_holdout_rmse": 0.40154,
+    "zero_holdout_rmse": 0.6934,
+    "is_shiftlab_integrator_validation": false,
+    "automaticallyAppliedToFourWheelSimulator": false,
+    "sourceGitBlobSHA1": "9fb7b829265b9e94a09bbc188740dd7d350b0245"
+  },
+  "ford_manual_dataset": {
+    "vehicle": "Ford Fiesta Titanium; gasoline vs diesel and exact gearbox variant unverified",
+    "source": "https://github.com/onyekpeu/IO-VNBD",
+    "paper": "https://doi.org/10.1016/j.dib.2021.106885",
+    "measurements_confirmed": "steering,yaw,4 wheel speeds,engine RPM,gear,clutch,pedal",
+    "lfs_original_obtained": false,
+    "automaticallyAppliedToFourWheelSimulator": false
+  },
+  "p1_force_channel_audit": {
+    "numberOfRuns": 6,
+    "approvedSessions": 0,
+    "channels": "P1 MAT column offsets 127/135 force group; source labels checked",
+    "reason": "front-right reported normal force around zero and negative during driving; channel calibration unclear",
+    "raw_forceFitApproved": false,
+    "automaticallyAppliedToFourWheelSimulator": false
+  }
+}

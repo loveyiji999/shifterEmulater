@@ -1,0 +1,62 @@
+{
+  "version": "SHIFT//LAB v1.8.3",
+  "selection_policy": "Independently traceable measurements or published research estimates; fail closed on absent inputs and license uncertainty",
+  "sources": [
+    {
+      "id": "adma-ins",
+      "rank": "primary instrumented real measurements",
+      "name": "THI ReV-StED ADMA sample",
+      "url": "https://github.com/MB-Team-THI/UAHL-RevStED",
+      "doi": "10.5281/zenodo.15270060",
+      "used": true,
+      "commercial_raw_data_rights": "unconfirmed",
+      "scope": "sensor rate/heading consistency; not vehicle physics"
+    },
+    {
+      "id": "civic-can",
+      "rank": "experimental, sensor lineage unclear",
+      "name": "OpenLKA Honda Civic acceleration segments",
+      "url": "https://github.com/OpenLKA/Acceleration_Dataset",
+      "used": true,
+      "commercial_raw_data_rights": "README asserts MIT but license target is a placeholder; review required",
+      "scope": "observed acceleration by speed; pedal and duplicates excluded from parameter identification"
+    },
+    {
+      "id": "bucknell-p1",
+      "rank": "university reference, parameters fitted/estimated",
+      "name": "Bucknell University P1 experimental vehicle",
+      "url": "https://www.projects.bucknell.edu/Beal_Automotive/",
+      "used": true,
+      "commercial_raw_data_rights": "no explicit raw measurement license verified",
+      "scope": "mass, axle geometry, yaw inertia and axle cornering stiffness independent theoretical benchmark"
+    },
+    {
+      "id": "bucknell-p1-raw-runs",
+      "rank": "primary full-scale experimental vehicle time-series; raw data not retrieved",
+      "name": "Bucknell P1 Garage measured driving maneuvers MATLAB data library",
+      "url": "https://www.projects.bucknell.edu/Beal_Automotive/",
+      "used": false,
+      "commercial_raw_data_rights": "not established for MATLAB .mat logs; link from university site",
+      "scope": "Best next source for real measured steering, yaw, lateral acceleration, wheel forces, steering torques and tire aligning moment; post-2018 force transducers; investigate 2018-07-19, 2018-08-16, 2019-06-12 logs."
+    },
+    {
+      "id": "mendeley-kontos",
+      "rank": "licensed, full raw dataset pending download",
+      "name": "Experimental Sensor Data from Vehicles for Dynamic Vehicle Modeling",
+      "url": "https://data.mendeley.com/datasets/x7n6jnjh36/3",
+      "doi": "10.17632/x7n6jnjh36.3",
+      "used": false,
+      "commercial_raw_data_rights": "CC BY 4.0 subject to attribution",
+      "scope": "future true vehicle time-series cross-vehicle holdout"
+    },
+    {
+      "id": "tum-avs",
+      "rank": "analysis-code-only; example synthetic",
+      "name": "TUM-AVS VehicleDynamicsPerformanceAnalysis",
+      "url": "https://github.com/TUM-AVS/VehicleDynamicsPerformanceAnalysis/",
+      "used": false,
+      "commercial_raw_data_rights": "Apache-2.0 for software only",
+      "scope": "potential reference QA workflow; example explicitly synthetic"
+    }
+  ]
+}

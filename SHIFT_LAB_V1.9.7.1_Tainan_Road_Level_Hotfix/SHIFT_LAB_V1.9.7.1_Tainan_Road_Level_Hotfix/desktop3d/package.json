@@ -1,0 +1,44 @@
+{
+  "name": "shift-lab-v1971-tainan-road-level-hotfix",
+  "version": "1.9.7.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5173",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 4173",
+    "qa:scenarios": "node ./tests/validate-scenarios.mjs && node ./tests/validate-ray-contact.mjs && node ./tests/validate-force-lifecycle.mjs && node ./tests/validate-steering.mjs && node ./tests/validate-procedural-map.mjs && node ./tests/validate-road-reset.mjs",
+    "qa:steering": "node ./tests/validate-steering.mjs",
+    "dev:open": "node ./scripts/serve-and-open.mjs",
+    "qa:map": "node ./tests/validate-procedural-map.mjs && node ./tests/validate-road-v3.mjs && node ./tests/validate-road-structures.mjs",
+    "qa:map:stress": "node ./tests/validate-road-v3.mjs --stress",
+    "qa:transmission": "node ./tests/validate-auto-transmission.mjs",
+    "qa:manual": "node ./tests/validate-manual-gear.mjs",
+    "qa:streaming": "node ./tests/validate-collider-partition.mjs && node ./tests/validate-geometry-upload.mjs && node ./tests/validate-streaming.mjs",
+    "qa:all": "npm run qa:streaming && npm run qa:vehicle && npm run qa:surface && npm run qa:terrain && npm run qa:grading && npm run qa:materials && npm run qa:lighting && npm run qa:engineering && npm run qa:performance && npm run qa:scenarios && npm run qa:map && npm run qa:transmission && npm run qa:manual && npm run qa:health && npm run qa:prnd",
+    "qa:performance": "node ./tests/validate-performance-capture.mjs && node ./tests/validate-manual-performance.mjs",
+    "qa:surface": "node ./tests/validate-surface-map.mjs && node ./tests/validate-pavement.mjs",
+    "qa:terrain": "node ./tests/validate-terrain.mjs && node ./tests/validate-terrain-surface.mjs && node ./tests/validate-scenery.mjs && node ./tests/validate-drainage.mjs && node ./tests/validate-riverbed.mjs && node ./tests/validate-river-routing.mjs && node ./tests/validate-closed-lake.mjs",
+    "qa:grading": "node ./tests/validate-terrain-grading.mjs",
+    "qa:lighting": "node ./tests/validate-tunnel-lighting.mjs",
+    "qa:materials": "node ./tests/validate-surface-materials.mjs",
+    "qa:engineering": "node ./tests/validate-road-engineering.mjs",
+    "qa:engineering:ccd": "node ./tests/validate-foundation-ccd.mjs",
+    "qa:vehicle": "node ./tests/validate-vehicle-definition.mjs && node ./tests/validate-design-contracts.mjs && node ./tests/validate-wheel-visuals.mjs && node ./tests/validate-vehicle-model.mjs && node ./tests/validate-wheel-wells.mjs && node ./tests/validate-bump-stops.mjs",
+    "qa:health": "node ./tests/validate-physics-health.mjs",
+    "qa:prnd": "node ./tests/validate-automatic-range.mjs",
+    "qa:browser": "node ./tests/validate-procedural-browser.mjs",
+    "qa:production": "npm run build && node ./tests/validate-procedural-browser.mjs --production",
+    "qa:acceptance": "node ./tests/validate-procedural-browser.mjs --acceptance",
+    "qa:map:compatibility": "node ./tests/validate-road-v2.mjs",
+    "qa:map:driving": "node ./tests/validate-procedural-browser.mjs --road-v3"
+  },
+  "dependencies": {
+    "@dimforge/rapier3d-compat": "0.18.2",
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "vite": "7.1.0"
+  },
+  "description": "SHIFT LAB: seeded procedural roads, vehicle design, four-wheel physics and manual/automatic driving"
+}

@@ -1,0 +1,45 @@
+{
+  "schema": "shiftlab.performance.target.v1",
+  "status": "P0-baseline-target-not-P3-final-quality",
+  "device": {
+    "cpu": "Intel Core i5-13500",
+    "gpu": "Intel UHD Graphics 770",
+    "driver": "31.0.101.5081",
+    "physicalMemoryBytes": 33934594048
+  },
+  "viewport": {
+    "width": 1440,
+    "height": 900,
+    "deviceScaleFactor": 1
+  },
+  "backend": "native WebGL2 via ANGLE D3D11; software rejected",
+  "scenario": {
+    "seed": "P0-NATIVE-BASELINE-V1",
+    "preset": "standard",
+    "mode": "stationary free driving",
+    "turnChance": 0,
+    "hairpinChance": 0,
+    "slopeChance": 0
+  },
+  "procedure": {
+    "warmupSeconds": 10,
+    "captureSeconds": 60,
+    "repetitions": 3,
+    "cache": "warm scene; cold startup not measured"
+  },
+  "gates": {
+    "frameP95Ms": 20,
+    "frameP99Ms": 33.34,
+    "simulationRatioMin": 0.98,
+    "droppedSteps": 0
+  },
+  "memoryGateBytes": null,
+  "gpuTimeGateMs": null,
+  "unresolved": [
+    "P3 ten environment scenarios",
+    "cold load",
+    "memory estimation and gate",
+    "long-session resource plateau",
+    "quality presets comparison"
+  ]
+}

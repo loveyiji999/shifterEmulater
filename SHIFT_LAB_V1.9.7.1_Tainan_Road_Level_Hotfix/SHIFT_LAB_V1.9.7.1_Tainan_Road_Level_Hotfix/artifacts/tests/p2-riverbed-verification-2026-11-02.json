@@ -1,0 +1,161 @@
+{
+  "date": "2026-11-02",
+  "objective": "進行按階段的開發直到完成建置書所要求之成果",
+  "goalStatus": "active",
+  "planVersion": "1.9",
+  "previousGoalTurnClassification": {
+    "classification": "progress",
+    "evidence": "Corrected the unchanged-normal-neighborhood fixture; actual riverbed Rapier checks and qa:performance passed. Player trace is still missing."
+  },
+  "workPackage": "16: local riverbed construction proposals and offline preview; NOT integrated river network",
+  "checks": {
+    "node tests/validate-riverbed.mjs": "PASS; source ownership, canonical bed/water seams, protected triangles, preserved unmodified shading, invalid/rejected proposals, 769 actual Rapier ground samples",
+    "node tests/build-riverbed-preview.mjs": "PASS; self-contained offline HTML",
+    "node tests/validate-procedural-browser.mjs --riverbed-preview --native-gpu": "PASS; Intel UHD 770; same before/after camera and lighting, zero runtime/HTTP errors; screenshots visually inspected",
+    "npm.cmd run qa:all": "PASS exit 0; all scripts including terrain/riverbed, engineering, 48 V3 seeds x 96 sections, 70 real lane checks, transmission, health and PRND",
+    "npm.cmd run build": "PASS; existing chunk-size warning; 42 modules; all 6 dist files byte-identical to previous package",
+    "node tests/validate-procedural-browser.mjs --production": "PASS; settings, seeded rebuild, wheel contact and isolated diagnostics",
+    "node tests/validate-procedural-browser.mjs": "PASS; four presets, manual/automatic, V1/V2 compatibility and V3 driving",
+    "sourceRoundtrip": "PASS 13 files",
+    "documentationLinks": "PASS"
+  },
+  "sources": {
+    "desktop3d/src/riverbed-proposal.mjs": "6618c583777e029411e6dff6fac4c45735ef09954bcaa2ff64ce8ae3c333f788",
+    "desktop3d/tests/validate-riverbed.mjs": "7ca04bfc30e9909249341625a80fcfcca06327ad93e6ef9a97506161b21bc083",
+    "desktop3d/tests/riverbed-fixture.mjs": "8dc815b2ac8efe1985c342ca772d6f5f137dd024a40daa5bc78809bb3521f874",
+    "desktop3d/tests/riverbed-preview.mjs": "e24eb963a4c78aedf78e38366003ea93943fbb39747b1c5663284d684dc23fb6",
+    "desktop3d/tests/build-riverbed-preview.mjs": "0e00b6582f8710e04d315d230b9779952d398f9d6a9dd9e9b6fe15faf0437588",
+    "desktop3d/tests/validate-procedural-browser.mjs": "887c8816b3c647be7a475833b2470b7f263b2b2c1919bedcc9420d549a0d0efb",
+    "desktop3d/package.json": "8c16ec04ac914587e7291959f08bddc41087fbd9e317eb44d8d5f421bd54a044",
+    "docs/P2_RIVERBED_PROPOSALS.md": "0fe26eb32327ce57ebf53d89c4a642d492c5ecc248d56e277b730a6f512fcb90",
+    "docs/DEVELOPMENT_PLAN.md": "4ab6c1a7987d86b051e03111ed2be2159444adb4515f2b89f6cb75e3c4147f98",
+    "docs/DEVELOPMENT_PROGRESS.md": "5af1e0da41d7c8b9fb54bcc3dba0c6886b088eaa2c271462425842af8730dee3",
+    "docs/AGENT_KNOWLEDGE.md": "9a781a983d3bc9ac5805d9c04fc9a416fb58a45b81d548b68f62c4b4117d3d79",
+    "docs/AGENT_VERIFICATION.md": "7df2a9736c748f572e4625181fbfe924cab289d8d7bc87871b4ed78415bd7cfe",
+    "docs/DATA_CATALOG.md": "ec29f80b55ecb5e28be8eeb8ad419ed8baf031c041cf45f44b81ecc7fad2a754"
+  },
+  "sourceArchive": "p2-riverbed-source-2026-11-02.zip",
+  "sourceArchiveSha256": "58b02a1f037a88422efa5b6faceaac422dcca3a67a0c24053735e7714341f98e",
+  "patch": "archive/patches/p2-riverbed-2026-11-02.patch",
+  "patchSha256": "1d324391a9fcbec6d5157f92f10d238783440e0f9d7694684d7d53b33c4c1023",
+  "productionHashes": {
+    "index.html": "3caae9129e7cb28e137143dddb55f4b6d8cef1df5bf5deeb7b4b8ef5604ac0b2",
+    "physics.html": "c491cfc1ca5af23367822f87dfd27c12e122b83bf362ff6073829c75f952edbd",
+    "road-generator-v2.js": "09d1d2602c50d3a89e32b8d00b91cba34edc71a52a9f40e75529d63c81c2615c",
+    "road-generator-v3.js": "d9d0c37bfa479bfcce098e5f86625eff36055fa04927f377b9b48cdc655a9668",
+    "assets/index-4eUkyMqd.js": "f2c77199513aad0a097cf2b22ff4b9b890c709f0308eadb3ec663030fd82fe98",
+    "assets/streaming.worker-BprFnv2s.js": "788a7c7f1174055f672789089afcf7a5c8ee082f6dfaa222714124c75827b152"
+  },
+  "results": {
+    "scope": "actual-terrain construction proposals; not connected river network, game integration or hydraulic simulation",
+    "syntheticContacts": {
+      "queries": 210,
+      "maxError": 2.6198955538347946e-07
+    },
+    "reports": [
+      {
+        "seed": "LEVEL-1",
+        "pathPoints": 29,
+        "foundations": 8,
+        "roadProtections": 14,
+        "status": "rejected",
+        "issues": [
+          "excavation-limit",
+          "incomplete-water-path"
+        ],
+        "outletStatus": "window-continuation-required",
+        "summary": {
+          "changedVertices": 8377,
+          "maxCut": 38.45382118225098,
+          "protectedVertices": 1219,
+          "wetMaskEdges": 0,
+          "minPathCoverage": 0,
+          "waterTriangles": 2367
+        },
+        "contacts": {
+          "queries": 258,
+          "maxError": 5.370378676872178e-06
+        },
+        "sourceHash": "5f729c367383c268845549cd9330d412e22e65dc763a726b90dfa9054174d3d5"
+      },
+      {
+        "seed": "LEVEL-2",
+        "pathPoints": 31,
+        "foundations": 8,
+        "roadProtections": 40,
+        "status": "rejected",
+        "issues": [
+          "excavation-limit",
+          "wet-mask-boundary",
+          "incomplete-water-path"
+        ],
+        "outletStatus": "window-continuation-required",
+        "summary": {
+          "changedVertices": 6241,
+          "maxCut": 33.00558280944824,
+          "protectedVertices": 4566,
+          "wetMaskEdges": 241,
+          "minPathCoverage": 0,
+          "waterTriangles": 3650
+        },
+        "contacts": {
+          "queries": 250,
+          "maxError": 6.9936116631197365e-06
+        },
+        "sourceHash": "d64814224def5bf0b8dcb11edab05c64736c454fb410190c7041a22e0e472429"
+      },
+      {
+        "seed": "ROAD-38274CD4",
+        "pathPoints": 17,
+        "foundations": 8,
+        "roadProtections": 5,
+        "status": "geometry-candidate",
+        "issues": [],
+        "outletStatus": "window-continuation-required",
+        "summary": {
+          "changedVertices": 5493,
+          "maxCut": 21.360037207603455,
+          "protectedVertices": 518,
+          "wetMaskEdges": 0,
+          "minPathCoverage": 1,
+          "waterTriangles": 1415
+        },
+        "contacts": {
+          "queries": 261,
+          "maxError": 3.371621351178078e-05
+        },
+        "sourceHash": "659912fe1710719a1b61aae17106162ead3f54423f1d5b4049e61570f296f5b7"
+      }
+    ]
+  },
+  "artifacts": {
+    "p2-riverbed-results-2026-11-02.json": "704b71e66070307d086c0e1207a4aeb0525bfd77ea07fdb7ac63ad5792abef00",
+    "p2-riverbed-preview-2026-11-02.html": "9df96fe55b65f4f1062606e4101c03c2504e8753a8bb35473e4e37e659958c1c",
+    "p2-riverbed-before-2026-11-02.png": "bfef8e48bdf2deff2cd16a865aa4e34f36511ad63bb1b6ed815fb1864c4a0f60",
+    "p2-riverbed-after-2026-11-02.png": "67d84d6fec3e3ceeaa2988de43cd66b42c51c86dae7daa4aca21f5d5d9c72d04",
+    "p2-riverbed-preview-verification-2026-11-02.json": "91359770d89d52335fa66d6b363a425fdf8db2ee4c8757550b8e74e5a8d0b026"
+  },
+  "notCompleted": [
+    "Actual player terrain/collision stutter diagnosis awaits manual capture",
+    "Regional drainage and verified outlets",
+    "Natural routing and excessive-cut avoidance",
+    "Refined banks and boundary normals",
+    "Surface rebake, scenery avoidance, Worker/streaming integration",
+    "P2 complete environments and transitions",
+    "P3 ten scenes, quality comparison and 600-second long runs",
+    "P4 full tuning/transmission tools",
+    "P5 complete appearance creation"
+  ],
+  "qaAllLog": "p2-riverbed-qa-all-2026-11-02.log",
+  "qaAllLogSha256": "29bb3f139f3f9450f5859a019171f13c71d9b67e3a15be4fc96e1e58e473520d",
+  "completionAudit": {
+    "completedThisPackage": [
+      "Local riverbed construction candidate and rejection gates",
+      "Protected geometry, seam and actual ground-contact checks",
+      "Offline native-GPU before/after preview",
+      "Full regression, unchanged production output and source checkpoint"
+    ],
+    "entireObjectiveAchieved": false,
+    "reason": "Regional water network and runtime integration, complete P2/P3/P4/P5 deliverables remain; see notCompleted. No goal completion claimed."
+  }
+}

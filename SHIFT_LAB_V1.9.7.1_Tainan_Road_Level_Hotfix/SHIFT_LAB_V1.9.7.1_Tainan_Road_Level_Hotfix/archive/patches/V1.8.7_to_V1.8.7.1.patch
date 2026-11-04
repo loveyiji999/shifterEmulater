@@ -1,0 +1,554 @@
+--- a/desktop3d/index.html
++++ b/desktop3d/index.html
+@@ -4,7 +4,7 @@
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width,initial-scale=1">
+   <meta name="theme-color" content="#081623">
+-  <title>SHIFT//LAB v1.8.7 — 3D 駕駛與碰撞驗收</title>
++  <title>SHIFT//LAB v1.8.7.1 — 3D 修復與碰撞驗收</title>
+   <style>
+     :root{color-scheme:dark;--ink:#e6f3f2;--muted:#a6bfca;--line:#3b6376;--mint:#8ce7c9;--warn:#ffd395;--fail:#ff9b9c}
+     *{box-sizing:border-box}body{margin:0;background:#07141c;color:var(--ink);font:13px/1.55 system-ui,'Noto Sans TC','Microsoft JhengHei',sans-serif;overflow:hidden}
+@@ -18,21 +18,24 @@
+   </style>
+ </head>
+ <body>
+-<canvas id="view" aria-label="3D 車輛與護欄碰撞場景"></canvas>
++<canvas id="view" tabindex="0" aria-label="3D 車輛與護欄碰撞場景"></canvas>
+ <section id="left" aria-label="駕駛及場景操作">
+   <div class="overline">SHIFT//LAB · DESKTOP QA</div>
+-  <h1>v1.8.7<br>3D 駕駛與碰撞驗收</h1>
+-  <p class="desc">沿用 v1.8.6 四輪動力學。Three.js 顯示畫面、Rapier 獨立處理剛體碰撞；測試場景使用可重現的初始條件。</p>
++  <h1>v1.8.7.1<br>3D 駕駛與碰撞修復</h1>
++  <p class="desc">保留 v1.8.6 四輪物理核心。本版修正 Rapier 懸吊接地射線與自由駕駛輸入狀態；3D 場景仍須於實際瀏覽器重新驗收。</p>
+   <div class="status" id="status" role="status">正在初始化 WebGL / Rapier WASM…</div>
+   <h2>驗收場景</h2>
+   <label for="scenario">測試工況</label><select id="scenario"><option value="free">自由試駕</option><option value="frontal">正面碰撞</option><option value="glancing">斜角擦撞</option><option value="fast">高速 CCD</option><option value="ramp">坡道及離地</option><option value="settle">靜止穩定</option></select>
+   <p class="desc" id="scenario-brief">自由試駕：完整手排操作與四輪物理。</p>
++  <div class="btnrow"><button class="primary" id="drive-now">開始自由駕駛</button></div>
+   <div class="btnrow"><button class="primary" id="load-scenario">載入工況</button><button id="run-case">執行此工況</button></div>
+   <div class="btnrow"><button class="secondary" id="run-suite">完整自動驗收</button><button id="export-report">匯出 JSON 報告</button></div>
+   <div class="btnrow"><button id="pause">暫停</button><button id="step">單步 1/120 s</button><button id="reset">重置</button></div>
+-  <p class="desc">按「載入工況」後可自行操控；「執行此工況」使用固定初速與中立操作重現相同碰撞。自動驗收只檢查程式定義的門檻，不代表實車安全認證。</p>
++  <p class="desc">「開始自由駕駛」會清空測試路障、啟動車輛並取得鍵盤焦點；手排練習則保留原有起步程序。「執行此工況」以固定初速及中立操作驗證碰撞。驗收結果不代表實車安全認證。</p>
+   <div class="segment"><h2>駕駛控制</h2>
+     <div class="btnrow"><button id="engine">啟動引擎 [I]</button></div>
++    <label for="drive-mode">駕駛方式</label><select id="drive-mode"><option value="assisted">快速駕駛（自動起步與換檔輔助）</option><option value="manual">手排練習（原始離合器與同步器）</option></select>
++    <p class="desc" id="input-status">自由駕駛：先按「開始自由駕駛」，再使用 W/A/S/D。按 Esc 離開選單焦點或直接點擊 3D 畫面。</p>
+     <div class="duo"><label>排檔<select id="gear"><option value="0">N 空檔</option><option value="1">1 檔</option><option value="2">2 檔</option><option value="3">3 檔</option><option value="4">4 檔</option><option value="5">5 檔</option><option value="6">6 檔</option><option value="-1">R 倒車</option></select></label><label>ESC<select id="esc"><option value="on">ON</option><option value="off">OFF</option></select></label></div>
+     <div class="duo"><label>輪胎極限手感<select id="feel"><option value="balanced">均衡</option><option value="sport">靈敏</option><option value="raw">原始</option></select></label><label>鏡頭<select id="camera-mode"><option value="chase">追尾</option><option value="side">側面</option><option value="top">俯視</option></select></label></div>
+     <p class="desc"><kbd>W</kbd> 加速、<kbd>S</kbd> 煞車、<kbd>A</kbd>/<kbd>D</kbd> 轉向、<kbd>Shift</kbd> 離合器、<kbd>1</kbd>–<kbd>6</kbd> 換檔、<kbd>R</kbd> 倒檔、<kbd>I</kbd> 引擎、<kbd>Space</kbd> 暫停、<kbd>Backspace</kbd> 重置。起步請先發動，踩離合器，選入 1 檔並平順鬆開離合器。</p>
+@@ -52,6 +55,7 @@
+     <div class="metric"><span>偏航角速度</span><strong id="yaw">0 °/s</strong></div>
+     <div class="metric"><span>側傾 / 俯仰</span><strong id="attitude">0 / 0 °</strong></div>
+     <div class="metric"><span>輪胎接地</span><strong id="contacts">0 / 4</strong></div>
++    <div class="metric"><span>懸吊射線</span><strong id="ray-health">--</strong></div>
+     <div class="metric"><span>ESC</span><strong id="esc-status">待命</strong></div>
+     <div class="metric"><span>護欄 / 路障撞擊</span><strong id="rail-hits">0 / 0</strong></div>
+     <div class="metric"><span>最大接觸衝量</span><strong id="impact">0 N·s</strong></div>
+--- a/desktop3d/package.json
++++ b/desktop3d/package.json
+@@ -1,13 +1,13 @@
+ {
+   "name": "shift-lab-v187-desktop-3d-collision-qa",
+-  "version": "1.8.7",
++  "version": "1.8.7-hotfix.1",
+   "private": true,
+   "type": "module",
+   "scripts": {
+     "dev": "vite --host 127.0.0.1 --port 5173",
+     "build": "vite build",
+     "preview": "vite preview --host 127.0.0.1 --port 4173",
+-    "qa:scenarios": "node ./tests/validate-scenarios.mjs"
++    "qa:scenarios": "node ./tests/validate-scenarios.mjs && node ./tests/validate-ray-contact.mjs"
+   },
+   "dependencies": {
+     "@dimforge/rapier3d-compat": "0.18.2",
+--- a/desktop3d/src/main.mjs
++++ b/desktop3d/src/main.mjs
+@@ -13,12 +13,24 @@
+ let paused=false,locked=false,accumulator=0,prevFrame=performance.now(),lastHud=0,renderFPS=60,dropSteps=0;
+ let chosenPad='auto',lastPadLabel='',lastPadIndex=null,steerFiltered=0,physicsMs=0;
+ let scenarioId='free',lastResult=null,suiteResults=[],labReady=false;
++const autoDrive={lastShiftTime:-100,shiftTarget:0};
++function driveFocus(){
++  const active=document.activeElement;
++  if(active&&active!==canvas&&typeof active.blur==='function')active.blur();
++  canvas.focus({preventScroll:true});
++}
++function driveStatus(text){$('input-status').textContent=text;}
++function setPause(value){
++  paused=!!value;accumulator=0;
++  $('pause').textContent=paused?'繼續':'暫停';
++}
++
+ const binding={axis:0,gas:7,brake:6,clutch:4};
+ const keys={KeyW:'w',ArrowUp:'w',KeyS:'s',ArrowDown:'s',KeyA:'a',ArrowLeft:'a',KeyD:'d',ArrowRight:'d',ShiftLeft:'shift',ShiftRight:'shift'};
+ const trackedKeys=new Set();
+ 
+ function failure(e){
+-  labReady=false;console.error('v1.8.7 3D QA:',e);
++  labReady=false;console.error('v1.8.7.1 3D QA:',e);
+   $('status').textContent='載入或執行失敗';
+   message.textContent='無法啟動 3D 驗收：'+(e?.message||String(e))+'。請確認 npm install / npm run dev，並使用支援 WebGL2 的桌面瀏覽器。';
+   if(!overlay.isConnected)document.body.append(overlay);
+@@ -83,6 +95,42 @@
+   $('pad-status').textContent='已連接：'+pad.id.slice(0,40)+' · axis '+binding.axis+
+     ' / gas '+binding.gas+' / brake '+binding.brake+' / clutch '+binding.clutch;
+ }
++// Optional game accessibility aid. The four-wheel physics and mechanical
++// gearbox stay authoritative: this host automates clutch/shift commands only.
++// QA scenarios never use this aid, including when the UI selector says assisted.
++function updateAutoDrive(){
++  if(!d||scenarioId!=='free'||$('drive-mode').value!=='assisted'||locked)return;
++  const s=d.state, speed=Math.abs(s.velocity),rps=s.engineOmega*60/(2*Math.PI);
++  const throttle=(d.inputKeys.has('w')?1:d.hostControls.throttle)||0;
++  // Hold clutch fully down until the engine/gearbox can be coupled safely.
++  if(!s.engineOn){
++    d.hostControls.clutch=1;
++    if(s.clutch>.84||s.gear===0)d.startEngine();
++  }
++  const upshift=s.gear>=1&&s.gear<6&&rps>5650&&speed>5&&
++    s.time-autoDrive.lastShiftTime>1.15;
++  const downshift=s.gear>1&&rps<1200&&speed>1.5&&
++    s.time-autoDrive.lastShiftTime>1.15;
++  const desired=s.gear===0?1:upshift?s.gear+1:downshift?s.gear-1:0;
++  if(s.pendingGear!==null||desired){
++    d.hostControls.clutch=1;
++    if(desired&&s.pendingGear===null&&s.clutch>=.83){
++      if(d.requestGear(desired)){
++        autoDrive.lastShiftTime=s.time;autoDrive.shiftTarget=desired;
++      }
++    }
++  }else if(s.gear>0){
++    // Engage progressively on launch; do not stall just because W is released.
++    const pedal=Math.max(0,Math.min(1,throttle));
++    d.hostControls.clutch=speed<.55&&pedal<.05?1:
++      speed<4?Math.max(.09,.66-speed*.135-pedal*.09):0;
++  }else{
++    d.hostControls.clutch=1;
++  }
++  $('input-status').textContent='快速駕駛 · '+
++    (s.pendingGear!==null?'換檔中':s.gear===0?'準備入檔':s.gear+' 檔')+
++    ' · 使用 W/A/S/D，按 M 切換手排';
++}
+ function makeCar(){
+   const P=d.params,group=new THREE.Group();
+   const bodyMaterial=new THREE.MeshStandardMaterial({color:0x1cb5a0,metalness:.45,roughness:.34});
+@@ -146,10 +194,14 @@
+     x:t.x,y:t.y,z:t.z,vx:v.x,vy:v.y,vz:v.z,
+     speed:Math.hypot(v.x,v.y,v.z),yaw:d.vehicleMotion.yawRate,
+     roll:d.vehicleMotion.roll,pitch:d.vehicleMotion.pitch,
+-    contacts:d.suspension.contacts,railHits:bridge.railHits,
++    contacts:d.suspension.contacts,rayHits:bridge.wheelCastHits,
++    invalidWheelLoads:bridge.invalidWheelLoads,contactMicrosteps:bridge.contactMicrosteps,
++    railHits:bridge.railHits,
+     barrierHits:bridge.barrierHits,collisionCount:bridge.collisionCount,
+     impact:bridge.maxImpactImpulse,penetration:bridge.maxBarrierPenetration,
+-    routeS:d.route.distance,physicsMs,frameDrops:dropSteps};
++    routeS:d.route.distance,physicsMs,frameDrops:dropSteps,
++    driverMode:$('drive-mode').value,inputKeys:[...trackedKeys],
++    focus:document.activeElement?.id||document.activeElement?.tagName||'none'};
+ }
+ function htmlMetric(id,text){$(id).textContent=text;}
+ function updateHud(force=false){
+@@ -162,6 +214,9 @@
+   htmlMetric('yaw',(m.yawRate*180/Math.PI).toFixed(1)+' °/s');
+   htmlMetric('attitude',(m.roll*180/Math.PI).toFixed(1)+' / '+(m.pitch*180/Math.PI).toFixed(1)+'°');
+   htmlMetric('contacts',d.suspension.contacts+' / 4');
++  htmlMetric('ray-health',bridge.invalidWheelLoads===0?
++    bridge.wheelCastHits+' 命中 / '+bridge.wheelCastMisses+' 未命中':
++    '異常 '+bridge.invalidWheelLoads+' 次');
+   htmlMetric('esc-status',d.handling.escBrakeNm>5?
+     d.handling.escWheel+' '+Math.round(d.handling.escBrakeNm)+' Nm':d.handling.phase);
+   htmlMetric('rail-hits',bridge.railHits+' / '+bridge.barrierHits);
+@@ -218,8 +273,10 @@
+   d.hostControls.active=true;
+   Object.assign(d.hostControls,{steer:0,throttle:0,brake:0,clutch:0});
+   trackedKeys.clear();d.inputKeys.clear();
++  autoDrive.lastShiftTime=-100;autoDrive.shiftTarget=0;
+   const point=d.roadPointAt(setting.spawnS);
+   road.ensure(point.s);
++  obstacles.configure(id);
+   bridge.teleport({roadPoint:point,side:setting.side,angle:setting.angle,speed:setting.speed});
+   // The base physics projects back to the nearest route after each 120 Hz update.
+   d.vehicleMotion.routeS=point.s;
+@@ -234,13 +291,15 @@
+ function stepOnce(){
+   road.ensure(d.route.distance);
+   const begin=performance.now();
++  updateAutoDrive();
+   d.advancePhysics(FIXED_DT);
+   physicsMs=performance.now()-begin;
+ }
+ function measureBaseline(){
+   const p=bridge.rigidBody.translation();
+   return {finite:true,nonFiniteSteps:0,maxPositionAbs:0,maxSpeed:0,
+-    maxTiltDeg:0,maxWheelContacts:0,maxImpactImpulse:0,
++    maxTiltDeg:0,maxWheelContacts:0,validWheelSteps:0,
++    invalidWheelLoads:0,rayHits:0,maxImpactImpulse:0,
+     barrierHits:0,railHits:0,maxBeyondBarrier:-1e9,
+     maxBarrierPenetration:0,minY:p.y,maxY:p.y,
+     x:p.x,z:p.z,travel:0,verticalExcursion:0,maxRouteS:d.route.distance,runtimeMs:0};
+@@ -254,6 +313,10 @@
+   data.maxTiltDeg=Math.max(data.maxTiltDeg,
+     Math.hypot(d.vehicleMotion.roll,d.vehicleMotion.pitch)*180/Math.PI);
+   data.maxWheelContacts=Math.max(data.maxWheelContacts,d.suspension.contacts);
++  if(d.suspension.contacts>=2)data.validWheelSteps++;
++  data.invalidWheelLoads=bridge.invalidWheelLoads;
++  data.rayHits=bridge.wheelCastHits;
++  if(data.invalidWheelLoads>0){data.finite=false;data.nonFiniteSteps++;return false;}
+   data.barrierHits=bridge.barrierHits;data.railHits=bridge.railHits;
+   data.maxImpactImpulse=Math.max(data.maxImpactImpulse,bridge.maxImpactImpulse);
+   data.maxBarrierPenetration=Math.max(data.maxBarrierPenetration,bridge.maxBarrierPenetration);
+@@ -265,7 +328,7 @@
+   return true;
+ }
+ function setBusy(value){
+-  locked=value;for(const id of ['scenario','load-scenario','run-case','run-suite','reset','pause','step','gear','engine'])$(id).disabled=value;
++  locked=value;for(const id of ['scenario','drive-now','load-scenario','run-case','run-suite','reset','pause','step','gear','engine','drive-mode'])$(id).disabled=value;
+ }
+ async function runScenario(id,options={}){
+   if(!labReady)throw new Error('3D 引擎尚未就緒');
+@@ -309,13 +372,14 @@
+       const result=await runScenario(id,{fromSuite:true});
+       suiteResults.push(result);renderSuite();
+     }
+-    $('status').textContent='3D 驗收完成：'+suiteResults.filter(r=>r.pass).length+'/'+suiteResults.length+' 通過';
++    $('status').textContent='3D 驗收完成：'+suiteResults.filter(r=>r.pass).length+'/'+suiteResults.length+
++      ' 通過 · 點「開始自由駕駛」繼續試玩';
+   }catch(e){failure(e);throw e;}
+   finally{setBusy(false);}
+   return suiteResults.map(r=>({...r}));
+ }
+ function exportReport(){
+-  const bundle={version:'1.8.7',createdAt:new Date().toISOString(),
++  const bundle={version:'1.8.7.1',createdAt:new Date().toISOString(),
+     userAgent:navigator.userAgent,
+     physics:'Four-wheel SHIFT LAB v1.8.6 bridge / Rapier 3D 0.18',
+     suite:suiteResults.map(r=>({...r})),lastResult,
+@@ -327,29 +391,59 @@
+ }
+ function installEvents(){
+   selectOptions();
+-  $('pad').addEventListener('change',e=>chosenPad=e.target.value);
++  $('pad').addEventListener('change',e=>{chosenPad=e.target.value;driveFocus();});
+   $('scenario').addEventListener('change',e=>$('scenario-brief').textContent=SCENARIOS[e.target.value].description);
+-  $('load-scenario').addEventListener('click',()=>{if(locked)return;resetDriving($('scenario').value);paused=false;$('pause').textContent='暫停';});
+-  $('reset').addEventListener('click',()=>{if(!locked)resetDriving(scenarioId);});
+-  $('pause').addEventListener('click',()=>{if(locked)return;paused=!paused;accumulator=0;$('pause').textContent=paused?'繼續':'暫停';});
++  function goFree(){
++    if(locked||!labReady)return;
++    resetDriving('free');setPause(false);driveFocus();
++    driveStatus($('drive-mode').value==='manual'?'手排模式 · 按 I 發動，踩 Shift 入 1 檔後鬆開離合器':
++      '快速駕駛 · 車輛將自動起步並換檔，使用 W/A/S/D');
++  }
++  $('drive-now').addEventListener('click',goFree);
++  $('load-scenario').addEventListener('click',()=>{if(locked)return;
++    resetDriving($('scenario').value);setPause(false);driveFocus();});
++  $('reset').addEventListener('click',()=>{if(!locked){resetDriving(scenarioId);driveFocus();}});
++  $('pause').addEventListener('click',()=>{if(locked)return;setPause(!paused);driveFocus();});
++  $('drive-mode').addEventListener('change',()=>{
++    if(!locked&&scenarioId==='free')goFree();
++  });
++  canvas.addEventListener('pointerdown',driveFocus);
+   $('step').addEventListener('click',()=>{if(!locked&&paused){stepOnce();updateHud(true);}});
+   $('engine').addEventListener('click',()=>{if(!locked)d?.startEngine();});
+   gearSelect.addEventListener('change',()=>{if(!d||locked)return;
++    if(scenarioId==='free'&&$('drive-mode').value==='assisted'){
++      $('drive-mode').value='manual';driveStatus('已切換為手排模式，請自行操作離合器及換檔');
++    }
+     if(!d.requestGear(Number(gearSelect.value)))gearSelect.value=String(d.state.gear);});
+-  $('esc').addEventListener('change',()=>d?.setESCEnabled($('esc').value==='on'));
+-  $('feel').addEventListener('change',()=>d?.setHandlingFeel($('feel').value));
++  $('esc').addEventListener('change',()=>{d?.setESCEnabled($('esc').value==='on');driveFocus();});
++  $('feel').addEventListener('change',()=>{d?.setHandlingFeel($('feel').value);driveFocus();});
++  for(const id of ['pad-axis','pad-gas','pad-brake','pad-clutch','camera-mode']){
++    $(id).addEventListener('change',driveFocus);
++  }
+   $('run-case').addEventListener('click',()=>runScenario($('scenario').value).catch(failure));
+   $('run-suite').addEventListener('click',()=>runSuite().catch(failure));
+   $('export-report').addEventListener('click',exportReport);
+   window.addEventListener('keydown',e=>{
+-    if(['INPUT','SELECT','TEXTAREA'].includes(e.target?.tagName))return;
++    const editing=['INPUT','SELECT','TEXTAREA'].includes(e.target?.tagName);
++    if(editing){
++      if(e.code==='Escape'){
++        e.preventDefault();driveFocus();
++      }
++      return;
++    }
+     if(locked)return;
+     const key=keys[e.code];
+     if(key){e.preventDefault();trackedKeys.add(key);if(d)d.inputKeys.add(key);return;}
+     if(e.repeat)return;
+     if(e.code==='Space'){e.preventDefault();paused=!paused;accumulator=0;$('pause').textContent=paused?'繼續':'暫停';}
+     else if(e.code==='KeyI'){e.preventDefault();d?.startEngine();}
+-    else if(e.code==='Backspace'){e.preventDefault();resetDriving(scenarioId);}
++    else if(e.code==='Backspace'){e.preventDefault();resetDriving(scenarioId);driveFocus();}
++    else if(e.code==='KeyM'){
++      e.preventDefault();$('drive-mode').value=$('drive-mode').value==='manual'?'assisted':'manual';
++      if(scenarioId==='free'){
++        resetDriving('free');setPause(false);driveFocus();
++      }
++    }
+     else if(/^Digit[1-6]$/.test(e.code)){e.preventDefault();d?.requestGear(Number(e.code.slice(-1)));}
+     else if(e.code==='Digit0'){e.preventDefault();d?.requestGear(0);}
+     else if(e.code==='KeyR'){e.preventDefault();d?.requestGear(-1);}
+@@ -410,6 +504,6 @@
+     runScenario,runSuite,gradeScenario,
+     get report(){return {lastResult,suiteResults:[...suiteResults]};}
+   };
+-  $('status').textContent='3D 已初始化 · 可載入工況與進行碰撞驗收';
++  $('status').textContent='3D 已初始化 · 可按「開始自由駕駛」操作，或載入驗收場景';
+ }
+ boot().catch(failure);
+--- a/desktop3d/src/chassis.mjs
++++ b/desktop3d/src/chassis.mjs
+@@ -1,4 +1,5 @@
+ import * as THREE from 'three';
++import {rayContactDistance} from './ray-contact.mjs';
+ 
+ // Single authority for translation, yaw, pitch, roll and collision.
+ // SHIFT LAB still calculates four contact-patch forces, engine, shaft, gearbox,
+@@ -15,6 +16,8 @@
+     this.lastImpact={type:'',impulse:0,time:0};
+     this.lastContact=false;this.lastRail=false;this.lastBarrier=false;
+     this.lastWheelContacts=0;
++    this.wheelCastHits=0;this.wheelCastMisses=0;this.invalidWheelLoads=0;
++    this.contactMicrosteps=0;this.totalSuspensionMicrosteps=0;
+     this.eventHistory=[];
+   }
+   create(params){
+@@ -46,6 +49,9 @@
+     this.lastImpact={type:'',impulse:0,time:0};
+     this.lastContact=false;this.lastRail=false;this.lastBarrier=false;
+     this.eventHistory=[];
++    this.lastWheelContacts=0;
++    this.wheelCastHits=0;this.wheelCastMisses=0;this.invalidWheelLoads=0;
++    this.contactMicrosteps=0;this.totalSuspensionMicrosteps=0;
+   }
+   // Scenario/QA setup only. Set both Rapier pose and legacy route/wheel states,
+   // otherwise SHIFT LAB's road-projection guard or wheel slip would diverge.
+@@ -78,6 +84,7 @@
+     const up=new THREE.Vector3(0,1,0).applyQuaternion(this.q).normalize();
+     const down={x:-up.x,y:-up.y,z:-up.z};
+     let contacts=0,maxTravel=0;
++    this.totalSuspensionMicrosteps++;
+     for(const id of d.WHEEL_IDS){
+       const w=d.wheelModel[id],corner=d.wheelCoords(id);
+       const mount=new THREE.Vector3(corner.x,-.15,corner.z).applyQuaternion(this.q);
+@@ -91,8 +98,15 @@
+       const hit=this.world.castRay(ray,maxDistance,true,
+         this.RAPIER.QueryFilterFlags.EXCLUDE_DYNAMIC,undefined,this.collider,b,
+         candidate=>this.road.groundHandles.has(candidate.handle));
+-      if(!hit){w.normal=0;w.contact=false;w.travel=-P.droopTravel;continue;}
+-      const distance=hit.toi;
++      const distance=rayContactDistance(hit,maxDistance);
++      if(distance===null){
++        if(hit)this.invalidWheelLoads++;
++        this.wheelCastMisses++;
++        w.normal=0;w.contact=false;w.travel=-P.droopTravel;
++        w.springForce=0;
++        continue;
++      }
++      this.wheelCastHits++;
+       const compression=rest-distance;
+       const r=new THREE.Vector3(mount.x,mount.y,mount.z);
+       const turn=new THREE.Vector3(omega.x,omega.y,omega.z).cross(r);
+@@ -100,6 +114,10 @@
+       const verticalSpeed=pointSpeed.dot(up);
+       const load=Math.max(0,Math.min(restLoad*4.2,
+         stiffness*compression-damper*verticalSpeed));
++      if(!Number.isFinite(load)){
++        this.invalidWheelLoads++;w.normal=0;w.contact=false;
++        w.springForce=0;w.travel=-P.droopTravel;continue;
++      }
+       w.normal=load;w.contact=load>1;
+       w.travel=Math.max(-P.droopTravel,Math.min(P.bumpTravel,compression-restLoad/stiffness));
+       w.roadHeight=0;w.hubZ=0;w.hubV=0;w.springForce=load;
+@@ -110,6 +128,7 @@
+       maxTravel=Math.max(maxTravel,Math.abs(w.travel));
+     }
+     this.lastWheelContacts=contacts;
++    if(contacts>0)this.contactMicrosteps++;
+     d.suspension.contacts=contacts;
+     d.suspension.maxTravel=maxTravel;
+   }
+--- a/desktop3d/src/obstacles.mjs
++++ b/desktop3d/src/obstacles.mjs
+@@ -6,7 +6,9 @@
+   constructor(RAPIER,world,scene,road){
+     this.RAPIER=RAPIER;this.world=world;this.scene=scene;this.road=road;
+     this.objects=[];this.barrierS=104;
+-    this.makeBarrier();this.makeRamp();
++    this.barrierCenter=this.road.position(this.barrierS,0);
++    this.barrierCenter.y+=.68;
++    this.activeScenario='free';
+   }
+   add(collider,mesh,ground=false){
+     this.objects.push({collider,mesh,ground});this.scene.add(mesh);
+@@ -53,6 +55,17 @@
+       roughness:.96,side:THREE.DoubleSide}));mesh.receiveShadow=true;
+     this.add(collider,mesh,true);
+   }
++  configure(scenario){
++    // Rapier 0.18.x has reports of setEnabled(false) not disabling contacts.
++    // Remove/recreate actual colliders instead of merely hiding their meshes.
++    const mode=['frontal','fast','ramp'].includes(scenario)?scenario:'free';
++    if(this.activeScenario===mode&&this.objects.length)return;
++    this.dispose();
++    this.activeScenario=mode;
++    if(mode==='frontal'||mode==='fast')this.makeBarrier();
++    if(mode==='ramp')this.makeRamp();
++    if(typeof this.world.updateSceneQueries==='function')this.world.updateSceneQueries();
++  }
+   dispose(){
+     for(const o of this.objects){
+       this.road.obstacleHandles.delete(o.collider.handle);
+--- a/desktop3d/src/scenarios.mjs
++++ b/desktop3d/src/scenarios.mjs
+@@ -15,13 +15,15 @@
+   const check=(label,passed,value)=>tests.push({label,passed:!!passed,value});
+   const s=SCENARIOS[id];
+   if(!s||!s.duration)return {pass:false,checks:[{label:'無效測試',passed:false}]};
+-  check('模擬值皆為有限值',data.finite&&data.nonFiniteSteps===0,data.nonFiniteSteps);
++  check('車身與輪胎受力皆為有限值',data.finite&&data.nonFiniteSteps===0&&
++    data.invalidWheelLoads===0,data.nonFiniteSteps+data.invalidWheelLoads);
+   check('3D 剛體未超出受控邊界',data.maxPositionAbs<100000,data.maxPositionAbs);
+   check('沒有明顯的數值速度爆衝',data.maxSpeed<=Math.max(16,s.speed+12),data.maxSpeed);
+   if(id==='settle'){
+     check('靜止車輛無明顯橫向漂移',data.travel<3.0,data.travel);
+     check('車身未翻覆',data.maxTiltDeg<38,data.maxTiltDeg);
+-    check('有車輪接觸路面',data.maxWheelContacts>=2,data.maxWheelContacts);
++    check('懸吊射線有命中路面',data.rayHits>0,data.rayHits);
++    check('大部分時間至少兩輪接地',data.validWheelSteps>Math.round(s.duration*120*.50),data.validWheelSteps);
+   }else if(s.expect==='barrier'){
+     check('確實產生路障碰撞',data.barrierHits>0,data.barrierHits);
+     check('路障有解算接觸衝量',data.maxImpactImpulse>0.1,data.maxImpactImpulse);
+@@ -33,7 +35,8 @@
+     check('沒有極端穿透護欄',data.maxBarrierPenetration<=.45,data.maxBarrierPenetration);
+   }else if(s.expect==='ramp'){
+     check('車輛實際到達坡道最高點',data.maxRouteS>=156,data.maxRouteS);
+-    check('輪胎接觸狀態持續更新',data.maxWheelContacts>=2,data.maxWheelContacts);
++    check('坡道前後的懸吊射線有效',data.rayHits>0&&data.maxWheelContacts>=2,data.rayHits);
++    check('輪胎接地計數持續更新',data.validWheelSteps>Math.round(s.duration*120*.12),data.validWheelSteps);
+     check('通過坡道期間產生垂直位移',data.verticalExcursion>.12,data.verticalExcursion);
+     check('沒有不合理翻覆',data.maxTiltDeg<90,data.maxTiltDeg);
+   }
+--- /dev/null
++++ b/desktop3d/src/ray-contact.mjs
+@@ -0,0 +1,6 @@
++// Rapier 0.18 RayColliderHit exposes `timeOfImpact`, not `toi`.
++// Return null for absent/invalid hits so a NaN cannot silently poison wheel loads.
++export function rayContactDistance(hit,maxDistance){
++  const distance=hit?.timeOfImpact;
++  return Number.isFinite(distance)&&distance>=0&&distance<=maxDistance+1e-5?distance:null;
++}
+--- a/desktop3d/tests/browser_v187.py
++++ b/desktop3d/tests/browser_v187.py
+@@ -26,6 +26,16 @@
+         try:
+             page.goto(args.url,wait_until='domcontentloaded',timeout=30000)
+             page.wait_for_function("window.__SHIFT_LAB_3D_QA__?.ready===true",timeout=30000)
++            # Diagnostic only: capture whether free mode actually exposes keyboard input
++            # and viable suspension BEFORE running the collision suite.
++            page.locator('#drive-now').click()
++            page.keyboard.down('w')
++            page.wait_for_timeout(1500)
++            free_snapshot=page.evaluate('window.__SHIFT_LAB_3D_QA__.snapshot()')
++            page.keyboard.up('w')
++            (out/'v187_free_drive_probe.json').write_text(json.dumps(free_snapshot,indent=2,ensure_ascii=False))
++            print('Free drive probe:',{k:free_snapshot.get(k) for k in
++                ['contacts','rayHits','invalidWheelLoads','speed','driverMode','focus','inputKeys']})
+             report=page.evaluate('async()=>await window.__SHIFT_LAB_3D_QA__.runSuite()')
+             (out/'v187_browser_report.json').write_text(json.dumps(report,indent=2,ensure_ascii=False))
+             page.screenshot(path=str(out/'v187_browser_screenshot.png'),full_page=False)
+--- a/desktop3d/tests/validate-scenarios.mjs
++++ b/desktop3d/tests/validate-scenarios.mjs
+@@ -6,7 +6,8 @@
+   assert.ok(c.spawnS>0&&c.spawnS<300);
+ }
+ const perfect={finite:true,nonFiniteSteps:0,maxPositionAbs:150,maxSpeed:21,maxTiltDeg:5,
+-  maxWheelContacts:4,maxImpactImpulse:800,barrierHits:1,railHits:1,
++  maxWheelContacts:4,validWheelSteps:350,invalidWheelLoads:0,rayHits:1200,
++  maxImpactImpulse:800,barrierHits:1,railHits:1,
+   maxBeyondBarrier:-.8,maxBarrierPenetration:.03,travel:1.5,verticalExcursion:.20,maxRouteS:170};
+ for(const id of TEST_ORDER){
+   const metrics={...perfect,maxSpeed:Math.max(10,SCENARIOS[id].speed)};
+@@ -22,4 +23,7 @@
+ assert.equal(gradeScenario('ramp',{...perfect,verticalExcursion:0}).pass,false);
+ assert.equal(gradeScenario('ramp',{...perfect,maxRouteS:145}).pass,false);
+ assert.equal(gradeScenario('settle',{...perfect,travel:8}).pass,false);
++assert.equal(gradeScenario('settle',{...perfect,rayHits:0}).pass,false);
++assert.equal(gradeScenario('settle',{...perfect,validWheelSteps:0}).pass,false);
++assert.equal(gradeScenario('ramp',{...perfect,invalidWheelLoads:1}).pass,false);
+ console.log('PASS scenario definitions and fail-safe QA gates (14 assertions+)');
+--- /dev/null
++++ b/desktop3d/tests/validate-ray-contact.mjs
+@@ -0,0 +1,12 @@
++import assert from 'node:assert/strict';
++import {rayContactDistance} from '../src/ray-contact.mjs';
++// Rapier 0.18.x castRay returns RayColliderHit.timeOfImpact; former .toi bug
++// yielded NaN spring force and zero ground-contact wheels.
++assert.equal(rayContactDistance({timeOfImpact:.38},.95),.38);
++assert.equal(rayContactDistance({timeOfImpact:0},.95),0);
++assert.equal(rayContactDistance({timeOfImpact:.951},.95),null);
++assert.equal(rayContactDistance({timeOfImpact:-.1},.95),null);
++assert.equal(rayContactDistance({timeOfImpact:Number.NaN},.95),null);
++assert.equal(rayContactDistance({toi:.38},.95),null);
++assert.equal(rayContactDistance(null,.95),null);
++console.log('PASS Rapier ray impact property and safe suspension distance');
+--- a/tests/test_v187.py
++++ b/tests/test_v187.py
+@@ -62,6 +62,8 @@
+         self.assertIn('await new Promise(resolve=>requestAnimationFrame(resolve))',main)
+         self.assertIn('maxBarrierPenetration',main)
+         self.assertIn('dropSteps',main)
++        self.assertIn('updateAutoDrive();',main)
++        self.assertIn('driveFocus()',main)
+         self.assertIn('__SHIFT_LAB_3D_QA__',main)
+ 
+     def test_keyboard_works_after_clicking_control_buttons(self):
+@@ -73,7 +75,7 @@
+ 
+     def test_version_and_start_scripts_exist(self):
+         package=json.loads((THREE/'package.json').read_text())
+-        self.assertEqual(package['version'],'1.8.7')
++        self.assertEqual(package['version'],'1.8.7-hotfix.1')
+         self.assertIn('rapier3d-compat',str(package['dependencies']))
+         self.assertTrue((THREE/'START_WINDOWS.cmd').exists())
+         self.assertTrue((THREE/'START_UNIX.sh').exists())
+--- /dev/null
++++ b/tests/test_v1871.py
+@@ -0,0 +1,30 @@
++"""v1.8.7.1 suspension and freedom-of-driving regression contracts."""
++import unittest, subprocess
++from pathlib import Path
++ROOT=Path(__file__).resolve().parents[1]
++SRC=ROOT/'desktop3d/src'
++class HotfixContracts(unittest.TestCase):
++ def test_ray_hit_property_is_fixed(self):
++  ch=(SRC/'chassis.mjs').read_text()
++  self.assertIn('rayContactDistance(hit,maxDistance)',ch)
++  self.assertNotIn('const distance=hit.toi',ch)
++  p=subprocess.run(['node',str(ROOT/'desktop3d/tests/validate-ray-contact.mjs')],capture_output=True,text=True)
++  self.assertEqual(p.returncode,0,p.stderr)
++ def test_free_road_has_no_test_barrier(self):
++  obstacles=(SRC/'obstacles.mjs').read_text()
++  main=(SRC/'main.mjs').read_text()
++  self.assertNotIn('this.makeBarrier();this.makeRamp();',obstacles)
++  self.assertIn('obstacles.configure(id)',main)
++  self.assertIn('this.dispose();',obstacles)
++ def test_focus_assisted_driving_controls(self):
++  main=(SRC/'main.mjs').read_text()
++  page=(ROOT/'desktop3d/index.html').read_text()
++  for v in ['drive-now','drive-mode','input-status']:
++   self.assertIn(f'id="{v}"',page)
++  self.assertIn('canvas.focus({preventScroll:true})',main)
++  self.assertIn('updateAutoDrive();',main)
++ def test_wheel_qa_catches_invalid_loads(self):
++  main=(SRC/'main.mjs').read_text()
++  self.assertIn('invalidWheelLoads=bridge.invalidWheelLoads',main)
++  self.assertIn('rayHits=bridge.wheelCastHits',main)
++if __name__=='__main__':unittest.main(verbosity=2)

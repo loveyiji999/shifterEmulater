@@ -1,0 +1,266 @@
+{
+  "date": "2026-11-02",
+  "objective": "進行按階段的開發直到完成建置書所要求之成果",
+  "goalStatus": "active",
+  "planVersion": "1.11",
+  "previousGoalTurnClassification": {
+    "classification": "progress",
+    "evidence": "Package 17 added protected costed routing, 16 exhaustive route oracles, native preview, complete QA and immutable checkpoint."
+  },
+  "workPackage": "18: connected wet terrain components / actual shoreline; regional outlets and game runtime water remain incomplete",
+  "checks": {
+    "node tests/validate-riverbed.mjs": "PASS final: closed side basin, cross-tile inundation, dry detached pool, rejected wet outer boundary and internal hole, rejected zero-depth shoreline connection, existing geometry / ownership / actual Rapier support",
+    "npm.cmd run qa:terrain": "PASS exit 0; terrain/surface/scenery/drainage/riverbed/routing. Final topology allocation/work guards were followed by another targeted riverbed PASS.",
+    "npm.cmd run build": "PASS final 42 modules; existing chunk warning; all 6 production files byte-identical",
+    "node tests/build-riverbed-preview.mjs --preview-name=p2-river-inundation": "PASS; final regenerated HTML identical to the native-browser-tested HTML",
+    "node tests/validate-procedural-browser.mjs --riverbed-preview --preview-name=p2-river-inundation --native-gpu": "PASS Intel UHD 770; same before/after camera/target; zero runtime/HTTP errors; after screenshot visually inspected",
+    "node --input-type=module (archived/current comparison)": "PASS three actual fixtures: ground vertices/indices/normals/UV deep-equal and SHA256 equal",
+    "sourceRoundtrip": "PASS 8 files",
+    "documentationLinks": "PASS",
+    "previousFrozenArtifacts": "PASS all package 17 frozen artifacts preserved",
+    "npm.cmd run qa:all": "NOT RERUN; no game entry or existing test runner changes. Package 17 full-suite PASS remains historical."
+  },
+  "sources": {
+    "desktop3d/src/riverbed-proposal.mjs": "5e73032f69e09ccf405c13500190ea4d4a2b1eba8da92ab7099def29cb06ad53",
+    "desktop3d/tests/validate-riverbed.mjs": "ee1096ddde5cbb98f88d90499b2606efaf25b6715448e4b25c524dcdac5991c4",
+    "docs/P2_RIVER_INUNDATION.md": "57c694c1635939f47ef59f48ef514db066e44f5bc09745d8f725053785ae2a29",
+    "docs/DEVELOPMENT_PLAN.md": "f7f81e31f0ebc5809fe96bbd223e1c66685b7c70dc4ab9e737dc9bbf22f6586f",
+    "docs/DEVELOPMENT_PROGRESS.md": "dbd48bcfc3f953b6474d53cea5de061a6f87e9175e027bb2e2dfbf58d9189e2d",
+    "docs/AGENT_KNOWLEDGE.md": "870fad0555d408a5238d767f61cd626e6fb5d4bb42e9351b769b9fafd64ac223",
+    "docs/AGENT_VERIFICATION.md": "090c544c4d362a25a29dafa05c6e0aa2e280ec1aec6b1da2d50ee3140b6b8aa0",
+    "docs/DATA_CATALOG.md": "173fb82995711cb14c0e3306f4fa31ea84b5cff3f15540cf121c9288e8e7fe1c"
+  },
+  "sourceArchive": "p2-river-inundation-source-2026-11-02.zip",
+  "sourceArchiveSha256": "3115033bbf5e1704c04b62afe9bfec454636d66ae322fd5d1543621019adbfe8",
+  "patch": "archive/patches/p2-river-inundation-2026-11-02.patch",
+  "patchSha256": "17bce3b7b717219213da7662898255cb1fde6d2d1169019babed263006a7dc8b",
+  "productionHashes": {
+    "index.html": "3caae9129e7cb28e137143dddb55f4b6d8cef1df5bf5deeb7b4b8ef5604ac0b2",
+    "physics.html": "c491cfc1ca5af23367822f87dfd27c12e122b83bf362ff6073829c75f952edbd",
+    "road-generator-v2.js": "09d1d2602c50d3a89e32b8d00b91cba34edc71a52a9f40e75529d63c81c2615c",
+    "road-generator-v3.js": "d9d0c37bfa479bfcce098e5f86625eff36055fa04927f377b9b48cdc655a9668",
+    "assets/index-4eUkyMqd.js": "f2c77199513aad0a097cf2b22ff4b9b890c709f0308eadb3ec663030fd82fe98",
+    "assets/streaming.worker-BprFnv2s.js": "788a7c7f1174055f672789089afcf7a5c8ee082f6dfaa222714124c75827b152"
+  },
+  "nativePreviewHtmlSha256": "28c905b0993f0a9dea0d64179e45fb96e5444628a5919e94749b3f775dce483b",
+  "artifacts": {
+    "p2-river-inundation-results-2026-11-02.json": "0df5196e0a74d6a9736c377383a0c48b2e5f38cad666adfa63ed3c0f373443c2",
+    "p2-river-inundation-ground-comparison-2026-11-02.json": "5acec2c3bdca3a9666a08d20ddd5616ac669580b5cfb86028fac8ad002ddd87b",
+    "p2-river-inundation-preview-2026-11-02.html": "28c905b0993f0a9dea0d64179e45fb96e5444628a5919e94749b3f775dce483b",
+    "p2-river-inundation-before-2026-11-02.png": "bfef8e48bdf2deff2cd16a865aa4e34f36511ad63bb1b6ed815fb1864c4a0f60",
+    "p2-river-inundation-after-2026-11-02.png": "8c12a1edd005db2f60a64705b60b3b96a1267afc6735ea7c015ef2ac9e1f9205",
+    "p2-river-inundation-preview-verification-2026-11-02.json": "ed5dac1c27e8b91e395c8783d17afc1d829c3f7f924ff7ddd8073ec89ffc717c",
+    "p2-river-inundation-terrain-2026-11-02.log": "0e742227373c7b8e0dce1fabe4279fa9677c3e648e4da8ba5034d549c30463fa"
+  },
+  "results": {
+    "scope": "actual-terrain construction proposals; not connected river network, game integration or hydraulic simulation",
+    "syntheticContacts": {
+      "queries": 210,
+      "maxError": 2.6198955538347946e-07
+    },
+    "inundationContacts": {
+      "queries": 88,
+      "maxError": 2.6777391326504585e-07
+    },
+    "inundationSeamContacts": {
+      "queries": 130,
+      "maxError": 2.6777391326504585e-07
+    },
+    "inundationCases": {
+      "closed": {
+        "changedVertices": 9,
+        "maxCut": 3.1679999828338623,
+        "protectedVertices": 0,
+        "wetMaskEdges": 11,
+        "openWaterEdges": 0,
+        "openOuterEdges": 0,
+        "openInteriorEdges": 0,
+        "terminalWaterEdges": 4,
+        "discardedWaterTriangles": 0,
+        "outsideCorridorTriangles": 56,
+        "minPathCoverage": 1,
+        "waterTriangles": 88
+      },
+      "joined": {
+        "changedVertices": 9,
+        "maxCut": 3.1679999828338623,
+        "protectedVertices": 0,
+        "wetMaskEdges": 11,
+        "openWaterEdges": 0,
+        "openOuterEdges": 0,
+        "openInteriorEdges": 0,
+        "terminalWaterEdges": 4,
+        "discardedWaterTriangles": 0,
+        "outsideCorridorTriangles": 98,
+        "minPathCoverage": 1,
+        "waterTriangles": 130
+      },
+      "isolated": {
+        "changedVertices": 9,
+        "maxCut": 3.1679999828338623,
+        "protectedVertices": 0,
+        "wetMaskEdges": 0,
+        "openWaterEdges": 0,
+        "openOuterEdges": 0,
+        "openInteriorEdges": 0,
+        "terminalWaterEdges": 4,
+        "discardedWaterTriangles": 28,
+        "outsideCorridorTriangles": 0,
+        "minPathCoverage": 1,
+        "waterTriangles": 48
+      },
+      "open": {
+        "status": "rejected",
+        "issues": [
+          "open-water-boundary"
+        ],
+        "summary": {
+          "changedVertices": 9,
+          "maxCut": 3.1679999828338623,
+          "protectedVertices": 0,
+          "wetMaskEdges": 11,
+          "openWaterEdges": 6,
+          "openOuterEdges": 6,
+          "openInteriorEdges": 0,
+          "terminalWaterEdges": 4,
+          "discardedWaterTriangles": 0,
+          "outsideCorridorTriangles": 69,
+          "minPathCoverage": 1,
+          "waterTriangles": 101
+        }
+      },
+      "hole": {
+        "status": "rejected",
+        "issues": [
+          "open-water-boundary"
+        ],
+        "summary": {
+          "changedVertices": 9,
+          "maxCut": 3.1679999828338623,
+          "protectedVertices": 0,
+          "wetMaskEdges": 11,
+          "openWaterEdges": 4,
+          "openOuterEdges": 0,
+          "openInteriorEdges": 4,
+          "terminalWaterEdges": 4,
+          "discardedWaterTriangles": 0,
+          "outsideCorridorTriangles": 54,
+          "minPathCoverage": 1,
+          "waterTriangles": 86
+        }
+      },
+      "dryShore": {
+        "status": "rejected",
+        "issues": [
+          "incomplete-water-path"
+        ],
+        "summary": {
+          "changedVertices": 0,
+          "maxCut": 0,
+          "protectedVertices": 81,
+          "wetMaskEdges": 16,
+          "openWaterEdges": 0,
+          "openOuterEdges": 0,
+          "openInteriorEdges": 0,
+          "terminalWaterEdges": 0,
+          "discardedWaterTriangles": 99,
+          "outsideCorridorTriangles": 0,
+          "minPathCoverage": 0,
+          "waterTriangles": 0
+        }
+      }
+    },
+    "reports": [
+      {
+        "seed": "LEVEL-1",
+        "pathPoints": 20,
+        "foundations": 8,
+        "roadProtections": 14,
+        "status": "geometry-candidate",
+        "issues": [],
+        "outletStatus": "window-continuation-required",
+        "summary": {
+          "changedVertices": 5477,
+          "maxCut": 20.90858829021454,
+          "protectedVertices": 1219,
+          "wetMaskEdges": 0,
+          "openWaterEdges": 0,
+          "openOuterEdges": 0,
+          "openInteriorEdges": 0,
+          "terminalWaterEdges": 5,
+          "discardedWaterTriangles": 78,
+          "outsideCorridorTriangles": 0,
+          "minPathCoverage": 1,
+          "waterTriangles": 1245
+        },
+        "contacts": {
+          "queries": 212,
+          "maxError": 7.57058174372105e-07
+        },
+        "sourceHash": "5f729c367383c268845549cd9330d412e22e65dc763a726b90dfa9054174d3d5"
+      },
+      {
+        "seed": "LEVEL-2",
+        "pathPoints": 20,
+        "foundations": 8,
+        "roadProtections": 40,
+        "status": "rejected",
+        "issues": [
+          "open-water-boundary"
+        ],
+        "outletStatus": "window-continuation-required",
+        "summary": {
+          "changedVertices": 5517,
+          "maxCut": 20.820564776659012,
+          "protectedVertices": 4566,
+          "wetMaskEdges": 11,
+          "openWaterEdges": 113,
+          "openOuterEdges": 52,
+          "openInteriorEdges": 61,
+          "terminalWaterEdges": 6,
+          "discardedWaterTriangles": 8696,
+          "outsideCorridorTriangles": 2092,
+          "minPathCoverage": 1,
+          "waterTriangles": 3303
+        },
+        "contacts": {
+          "queries": 317,
+          "maxError": 1.1726610765094847e-05
+        },
+        "sourceHash": "d64814224def5bf0b8dcb11edab05c64736c454fb410190c7041a22e0e472429"
+      },
+      {
+        "seed": "ROAD-38274CD4",
+        "pathPoints": 20,
+        "foundations": 8,
+        "roadProtections": 5,
+        "status": "geometry-candidate",
+        "issues": [],
+        "outletStatus": "window-continuation-required",
+        "summary": {
+          "changedVertices": 6384,
+          "maxCut": 22.200616359710693,
+          "protectedVertices": 518,
+          "wetMaskEdges": 0,
+          "openWaterEdges": 0,
+          "openOuterEdges": 0,
+          "openInteriorEdges": 0,
+          "terminalWaterEdges": 4,
+          "discardedWaterTriangles": 102,
+          "outsideCorridorTriangles": 0,
+          "minPathCoverage": 1,
+          "waterTriangles": 1529
+        },
+        "contacts": {
+          "queries": 243,
+          "maxError": 3.7892710480491587e-07
+        },
+        "sourceHash": "659912fe1710719a1b61aae17106162ead3f54423f1d5b4049e61570f296f5b7"
+      }
+    ]
+  },
+  "completionAudit": {
+    "entireObjectiveAchieved": false,
+    "reason": "Local water geometry only; P2 regional connected outlets, natural shape, bank refinement, surface rebake/scenery/Worker/runtime, remaining environments, full P3, P4 and P5 not complete. Player stutter still awaits actual capture."
+  }
+}

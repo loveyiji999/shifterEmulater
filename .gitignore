@@ -1,0 +1,31 @@
+# Dependencies, build output, and caches
+node_modules/
+dist/
+build/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.cache/
+
+# Local editor and agent settings
+.idea/
+.vscode/
+.codex/
+.agents/
+.DS_Store
+Thumbs.db
+
+# Local secrets and credentials
+.env
+.env.*
+!.env.example
+!.env.sample
+.aws/
+.ssh/
+.npmrc
+.pypirc
+*.pem
+*.key
+credentials.json
+service-account*.json

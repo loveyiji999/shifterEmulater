@@ -1,0 +1,330 @@
+{
+  "schema": "shiftlab.road-environment.knowledge.v1",
+  "updated_on": "2026-10-28",
+  "scope": "documentation_only",
+  "runtime_importable": false,
+  "implemented": false,
+  "materials": [
+    {
+      "id": "asphalt_dense",
+      "name": "密級配瀝青",
+      "visual_cues": "骨材顆粒、補丁、裂紋、磨光輪跡",
+      "geometry_guidance": "微細紋理用normal；凹坑及沉陷另建共用幾何",
+      "sources": [
+        "SURFACE-FHWA"
+      ],
+      "status": "preliminary",
+      "engineering_basis": "see_source_scope",
+      "physics_profile": null,
+      "pbr_parameters": null
+    },
+    {
+      "id": "asphalt_open",
+      "name": "開級配瀝青",
+      "visual_cues": "較開放的骨材間隙與排水外觀",
+      "geometry_guidance": "表面孔隙不逐一作輪胎碰撞孔洞；不宣稱已模擬滲流",
+      "sources": [
+        "SURFACE-FHWA"
+      ],
+      "status": "preliminary",
+      "engineering_basis": "see_source_scope",
+      "physics_profile": null,
+      "pbr_parameters": null
+    },
+    {
+      "id": "concrete",
+      "name": "混凝土鋪面",
+      "visual_cues": "板塊、接縫、刻紋、修補區",
+      "geometry_guidance": "刻紋可用貼圖；錯台、接縫隆起需共用幾何",
+      "sources": [
+        "SURFACE-FHWA"
+      ],
+      "status": "preliminary",
+      "engineering_basis": "see_source_scope",
+      "physics_profile": null,
+      "pbr_parameters": null
+    },
+    {
+      "id": "concrete_paver",
+      "name": "互鎖混凝土鋪面磚",
+      "visual_cues": "人字形或經適用性確認的排列、填縫與收邊",
+      "geometry_guidance": "分清墊層與表面；近景局部磚面和遠景合併網格",
+      "sources": [
+        "PAVER-CMHA"
+      ],
+      "status": "preliminary",
+      "engineering_basis": "see_source_scope",
+      "physics_profile": null,
+      "pbr_parameters": null
+    },
+    {
+      "id": "clay_paver",
+      "name": "黏土鋪面磚",
+      "visual_cues": "燒製色差、鋪砌方向、磚縫",
+      "geometry_guidance": "與混凝土磚分開；交通用途及鋪砌層次需確認",
+      "sources": [
+        "BRICK-BIA"
+      ],
+      "status": "preliminary",
+      "engineering_basis": "see_source_scope",
+      "physics_profile": null,
+      "pbr_parameters": null
+    },
+    {
+      "id": "natural_stone",
+      "name": "天然石材鋪面",
+      "visual_cues": "石材種類、加工面、拼縫與不規則磨耗",
+      "geometry_guidance": "外觀先列型錄；可行車適用性與止滑資料另補，暫不配置性能",
+      "sources": [
+        "PBR-THREE"
+      ],
+      "status": "preliminary",
+      "engineering_basis": "pending",
+      "physics_profile": null,
+      "pbr_parameters": null
+    },
+    {
+      "id": "gravel",
+      "name": "碎石路",
+      "visual_cues": "粗細料、壓實輪跡、鬆散路肩與粉塵",
+      "geometry_guidance": "主承載面連續；少量石塊作獨立障礙，不能以全車道球體堆砌代替路床",
+      "sources": [
+        "UNPAVED-CPY"
+      ],
+      "status": "preliminary",
+      "engineering_basis": "see_source_scope",
+      "physics_profile": null,
+      "pbr_parameters": null
+    },
+    {
+      "id": "earth",
+      "name": "壓實土路",
+      "visual_cues": "土色、輪轍、裂隙、含水及沖蝕痕",
+      "geometry_guidance": "土壤含水與車轍分開；深轍須有接觸幾何，不自動成為可變形地形",
+      "sources": [
+        "UNPAVED-CPY"
+      ],
+      "status": "preliminary",
+      "engineering_basis": "see_source_scope",
+      "physics_profile": null,
+      "pbr_parameters": null
+    },
+    {
+      "id": "timber",
+      "name": "木板行車面",
+      "visual_cues": "木紋、板縫、磨耗與保護層",
+      "geometry_guidance": "木橋不必是木路面；實際磨耗層和結構材質分開",
+      "sources": [
+        "TIMBER-USFS"
+      ],
+      "status": "preliminary",
+      "engineering_basis": "see_source_scope",
+      "physics_profile": null,
+      "pbr_parameters": null
+    },
+    {
+      "id": "steel",
+      "name": "鋼板與鋼格柵",
+      "visual_cues": "鋼板接縫、塗裝、鏽蝕或格柵開口",
+      "geometry_guidance": "開口格柵與填充格柵分型；透明貼圖不是輪胎孔洞模型",
+      "sources": [
+        "STEEL-MNDOT",
+        "PBR-THREE"
+      ],
+      "status": "preliminary",
+      "engineering_basis": "see_source_scope",
+      "physics_profile": null,
+      "pbr_parameters": null
+    }
+  ],
+  "surface_states": [
+    {
+      "id": "dry",
+      "name": "乾燥",
+      "status": "preliminary",
+      "sources": [
+        "SURFACE-FHWA"
+      ]
+    },
+    {
+      "id": "wet",
+      "name": "濕潤",
+      "status": "preliminary",
+      "sources": [
+        "WEATHER-FHWA"
+      ]
+    },
+    {
+      "id": "puddled",
+      "name": "局部積水",
+      "status": "preliminary",
+      "sources": [
+        "WEATHER-FHWA"
+      ]
+    },
+    {
+      "id": "muddy",
+      "name": "泥濘覆蓋或土壤飽水",
+      "status": "preliminary",
+      "sources": [
+        "UNPAVED-CPY"
+      ]
+    },
+    {
+      "id": "snow",
+      "name": "積雪",
+      "status": "preliminary",
+      "sources": [
+        "WEATHER-FHWA"
+      ]
+    },
+    {
+      "id": "ice",
+      "name": "結冰",
+      "status": "preliminary",
+      "sources": [
+        "WEATHER-FHWA"
+      ]
+    }
+  ],
+  "biomes": [
+    {
+      "id": "mountain",
+      "name": "山地岩坡",
+      "elements": "山脊、挖填方、岩層、擋牆、落石防護",
+      "placement_rule": "陡坡不隨機覆蓋草皮；洞口與橋墩必須接地",
+      "sources": [
+        "TERRAIN-FHWA",
+        "VEG-FHWA",
+        "WATER-EPA"
+      ],
+      "status": "project_design_not_implemented"
+    },
+    {
+      "id": "forest",
+      "name": "森林",
+      "elements": "喬木、灌木、林緣、枯枝與地被",
+      "placement_rule": "按坡向與水分分群；路口視線、護欄及路肩退讓",
+      "sources": [
+        "TERRAIN-FHWA",
+        "VEG-FHWA",
+        "WATER-EPA"
+      ],
+      "status": "project_design_not_implemented"
+    },
+    {
+      "id": "river_valley",
+      "name": "河谷",
+      "elements": "河床、岸坡、護岸、涵洞、橋台",
+      "placement_rule": "水面須在河槽內；橋墩與流水方向協調",
+      "sources": [
+        "TERRAIN-FHWA",
+        "VEG-FHWA",
+        "WATER-EPA"
+      ],
+      "status": "project_design_not_implemented"
+    },
+    {
+      "id": "farmland",
+      "name": "農田鄉間",
+      "elements": "田埂、灌排溝渠、植栽帶、小型聚落",
+      "placement_rule": "田區不能穿入車道；溝渠出口具連續流向",
+      "sources": [
+        "TERRAIN-FHWA",
+        "VEG-FHWA",
+        "WATER-EPA"
+      ],
+      "status": "project_design_not_implemented"
+    },
+    {
+      "id": "suburban",
+      "name": "郊區聚落",
+      "elements": "住宅、圍牆、路邊草地、出入口",
+      "placement_rule": "建物沿地塊或支路生成；避免門口直接接護欄",
+      "sources": [
+        "TERRAIN-FHWA",
+        "VEG-FHWA",
+        "WATER-EPA"
+      ],
+      "status": "project_design_not_implemented"
+    },
+    {
+      "id": "town",
+      "name": "城鎮街道",
+      "elements": "人行道、路緣、排水口、店面、街燈",
+      "placement_rule": "保留行車面與路口平台；外觀建物不預設室內",
+      "sources": [
+        "TERRAIN-FHWA",
+        "VEG-FHWA",
+        "WATER-EPA"
+      ],
+      "status": "project_design_not_implemented"
+    },
+    {
+      "id": "industrial",
+      "name": "工業區",
+      "elements": "廠房、倉庫、圍籬、裝卸區與寬入口",
+      "placement_rule": "圍籬不封死支路；材質老化應有排水與使用原因",
+      "sources": [
+        "TERRAIN-FHWA",
+        "VEG-FHWA",
+        "WATER-EPA"
+      ],
+      "status": "project_design_not_implemented"
+    },
+    {
+      "id": "coastal",
+      "name": "海岸",
+      "elements": "海岸線、岩岸或沙灘、海堤、耐鹽植栽",
+      "placement_rule": "海水不可沿山坡上爬；岸型先選定再配置物件",
+      "sources": [
+        "TERRAIN-FHWA",
+        "VEG-FHWA",
+        "WATER-EPA"
+      ],
+      "status": "project_design_not_implemented"
+    },
+    {
+      "id": "arid",
+      "name": "乾燥沙石地",
+      "elements": "沙石、裸岩、稀疏灌木、風蝕形態",
+      "placement_rule": "沙地外觀不等於車輛已支援陷沙；不要均勻撒樹",
+      "sources": [
+        "TERRAIN-FHWA",
+        "VEG-FHWA",
+        "WATER-EPA"
+      ],
+      "status": "project_design_not_implemented"
+    },
+    {
+      "id": "winter",
+      "name": "寒地雪景",
+      "elements": "積雪覆蓋、除雪痕、裸露輪跡、稀疏植被",
+      "placement_rule": "積雪是覆蓋與狀態；路肩雪堆與行車雪面分開",
+      "sources": [
+        "TERRAIN-FHWA",
+        "VEG-FHWA",
+        "WATER-EPA"
+      ],
+      "status": "project_design_not_implemented"
+    }
+  ],
+  "existing_global_surface_presets": {
+    "classification": "observed_game_values_not_measurements",
+    "source": "desktop3d/public/physics.html / P.surfaces",
+    "values": {
+      "dry": 1.02,
+      "wet": 0.68,
+      "snow": 0.32,
+      "ice": 0.13
+    }
+  },
+  "future_contact_parameters": {
+    "calibration_status": "pending",
+    "mu_dry": null,
+    "mu_wet": null,
+    "rolling_resistance": null,
+    "rut_depth_m": null,
+    "water_depth_m": null
+  }
+}

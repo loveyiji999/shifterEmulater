@@ -1,0 +1,24 @@
+test_mobile_responsive_and_visible (test_v185.BrowserReference.test_mobile_responsive_and_visible) ... ok
+test_no_automatic_transfer_and_physics_unchanged (test_v185.BrowserReference.test_no_automatic_transfer_and_physics_unchanged) ... ok
+test_original_p1_and_reference_panels_preserved (test_v185.BrowserReference.test_original_p1_and_reference_panels_preserved) ... ok
+test_real_gasoline_panel (test_v185.BrowserReference.test_real_gasoline_panel) ... ok
+test_all_p1_force_channels_flagged_unfit (test_v185.EvidenceIntegrity.test_all_p1_force_channels_flagged_unfit) ... ok
+test_bmw_candidate_grid_is_predeclared (test_v185.EvidenceIntegrity.test_bmw_candidate_grid_is_predeclared) ... ok
+test_bmw_model_training_selected_and_holdout_disclosed (test_v185.EvidenceIntegrity.test_bmw_model_training_selected_and_holdout_disclosed) ... ok
+test_bmw_no_fake_yaw_or_tire_transfer (test_v185.EvidenceIntegrity.test_bmw_no_fake_yaw_or_tire_transfer) ... ok
+test_bmw_public_raw_checksum_rejects_tampered_data (test_v185.EvidenceIntegrity.test_bmw_public_raw_checksum_rejects_tampered_data) ... ok
+test_bmw_real_observation_identity (test_v185.EvidenceIntegrity.test_bmw_real_observation_identity) ... ok
+test_constant_input_fit_rejected (test_v185.EvidenceIntegrity.test_constant_input_fit_rejected) ... ok
+test_fitted_formula_is_signed_and_unbounded_speeds_guarded (test_v185.EvidenceIntegrity.test_fitted_formula_is_signed_and_unbounded_speeds_guarded) ... ok
+test_force_channel_group_indices (test_v185.EvidenceIntegrity.test_force_channel_group_indices) ... ok
+test_prevent_raw_csv_redistribution (test_v185.EvidenceIntegrity.test_prevent_raw_csv_redistribution) ... ok
+test_real_p1_force_channels_when_available (test_v185.EvidenceIntegrity.test_real_p1_force_channels_when_available) ... ok
+test_real_source_meta_branches (test_v185.EvidenceIntegrity.test_real_source_meta_branches) ... ok
+test_regression_least_squares_correct (test_v185.EvidenceIntegrity.test_regression_least_squares_correct) ... ok
+test_reject_missing_real_mat (test_v185.EvidenceIntegrity.test_reject_missing_real_mat) ... ok
+test_temporal_purge (test_v185.EvidenceIntegrity.test_temporal_purge) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 6.899s
+
+OK

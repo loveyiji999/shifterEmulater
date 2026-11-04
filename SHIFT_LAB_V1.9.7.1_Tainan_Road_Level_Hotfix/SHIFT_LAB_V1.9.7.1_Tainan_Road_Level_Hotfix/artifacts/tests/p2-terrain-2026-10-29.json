@@ -1,0 +1,54 @@
+{
+  "schema": "shiftlab.phase-work-package.v1",
+  "recordedAt": "2026-10-29T00:28:39.671649+00:00",
+  "phase": "P2",
+  "status": "in_progress",
+  "goalStatus": "active",
+  "scope": "continuous near terrain and illustrative soil contact; not complete P2-P5",
+  "checks": {
+    "qa:all": "PASS before final common-edge refinement; final geometry retested separately",
+    "qa:terrain": "PASS final source",
+    "road structures": "PASS final source, 70 lane positions",
+    "V3 real driving": "PASS final source, 54 cases",
+    "vehicle diagnostics": "PASS final source, 52 cases",
+    "terrain-contact": "PASS final source, actual four-wheel soil braking",
+    "terrain-overview": "PASS final source, screenshot visually inspected",
+    "build": "PASS final source, 26 modules; existing bundle warning",
+    "production": "PASS final source, condition switching and DEV isolation",
+    "browser": "PASS four presets, v1/v2/v3, persistence and transmission before edge-only refinement",
+    "acceptance": "PASS 5/5 before edge-only refinement",
+    "dependencies": "unchanged"
+  },
+  "soilBraking": {
+    "distanceM": 30.761882692642292,
+    "seconds": 5.7500000000000755,
+    "scope": "project illustrative soil gameplay experiment; not field calibration"
+  },
+  "sources": {
+    "src/terrain-geometry.mjs": "e3e58ee0c595afda91fd301f13e50c303c3c37766ac783f95e20f81f432701e2",
+    "src/terrain-world.mjs": "90ec486afb2ddce30f654e8dd14216569cd836dbb2348699fc40593c39b81915",
+    "src/road.mjs": "cc6b1f6109cab5c14241aec3b45491c7ad818418e840599d1a970c3b2db7a623",
+    "src/main.mjs": "9a4332cb4891af31dd679d998e73b985f9b7370d658ccf4e4e3391452e2f0f20",
+    "src/surface-map.mjs": "d957bfb8b7651f2281095dd2deb2ecea2e79f47fac340cc37b6ee4fc1a96fe50",
+    "src/surface-definition.mjs": "e53b8a843ced5db2cb733ec09a38b8a314d015a14ced4571cf55df906a132845",
+    "tests/validate-terrain.mjs": "ad9d89d12a2dc0434ff444961c3c23fd5d1e8887392eb895c3606c8b1d1e63ef",
+    "tests/surface-driver.mjs": "66eb19f1965d2c23dfa6f512e695bc6542e0aba613d6ab784dba9d641f45de04",
+    "tests/game-driver.mjs": "92d42d3187f6117af465f623467cec3ba897115e36c109028b4524f79401be63",
+    "tests/validate-surface-map.mjs": "bc6f7b9f499352428d7a535d3e074c2e5b4744a9f6216f94faccc157f05d5d7d",
+    "tests/validate-road-reset.mjs": "883c0e8f146b3ae30cfb663f1444d2f80fef658738d6e87a67c04663799d986f",
+    "tests/validate-procedural-browser.mjs": "3d6861d1cef2a533aaf61b729d3101eab9eebd2c76ac21a91e04f0fccf61bab8",
+    "public/physics.html": "c491cfc1ca5af23367822f87dfd27c12e122b83bf362ff6073829c75f952edbd",
+    "package.json": "e8d10e91263d07fb9873275a97c1170d6f474838eaa6f7337900ae4bea11e711",
+    "package-lock.json": "f6acb5b69f34e0a9351be7f55f28914c490c01bee2ee9ca302435edad545ec86"
+  },
+  "remaining": [
+    "engineered cut/fill and slopes",
+    "structure foundations and portals",
+    "material gallery and calibrated gameplay profiles",
+    "PBR lighting scenery",
+    "P3 complete environment GPU validation",
+    "P4 actual tuning tools",
+    "P5 actual appearance creation tools"
+  ],
+  "sourceSnapshot": "p2-terrain-source-2026-10-29.zip"
+}

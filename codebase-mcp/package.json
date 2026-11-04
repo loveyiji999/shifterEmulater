@@ -1,0 +1,14 @@
+{
+  "name": "shift-lab-codebase-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local read-only code and project knowledge tools for SHIFT LAB",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node server.mjs",
+    "check": "node server.mjs --check",
+    "test": "node --test",
+    "config:codex": "node server.mjs --print-config"
+  }
+}

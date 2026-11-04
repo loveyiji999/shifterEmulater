@@ -1,0 +1,451 @@
+--- a/desktop3d/src/chassis.mjs
++++ b/desktop3d/src/chassis.mjs
+@@ -19,6 +19,7 @@
+     this.wheelCastHits=0;this.wheelCastMisses=0;this.invalidWheelLoads=0;
+     this.contactMicrosteps=0;this.totalSuspensionMicrosteps=0;
+     this.eventHistory=[];
++    this.maxExternalForceN=0;this.maxExternalTorqueNm=0;this.forceResetCount=0;
+   }
+   create(params){
+     if(this.rigidBody)this.world.removeRigidBody(this.rigidBody);
+@@ -41,6 +42,7 @@
+     b.setTranslation({x:roadPoint.x,y:roadPoint.y+params.cgHeight+.025,z:roadPoint.z},true);
+     b.setRotation({x:0,y:Math.sin(roadPoint.heading/2),z:0,w:Math.cos(roadPoint.heading/2)},true);
+     b.setLinvel({x:0,y:0,z:0},true);b.setAngvel({x:0,y:0,z:0},true);
++    b.resetForces(true);b.resetTorques(true);
+     this.resetImpactTelemetry();this.sync();
+   }
+   resetImpactTelemetry(){
+@@ -52,6 +54,7 @@
+     this.lastWheelContacts=0;
+     this.wheelCastHits=0;this.wheelCastMisses=0;this.invalidWheelLoads=0;
+     this.contactMicrosteps=0;this.totalSuspensionMicrosteps=0;
++    this.maxExternalForceN=0;this.maxExternalTorqueNm=0;this.forceResetCount=0;
+   }
+   // Scenario/QA setup only. Set both Rapier pose and legacy route/wheel states,
+   // otherwise SHIFT LAB's road-projection guard or wheel slip would diverge.
+@@ -65,6 +68,8 @@
+     b.setRotation({x:0,y:Math.sin(heading/2),z:0,w:Math.cos(heading/2)},true);
+     b.setLinvel({x:Math.sin(heading)*speed,y:0,z:Math.cos(heading)*speed},true);
+     b.setAngvel({x:0,y:0,z:0},true);
++    // A teleport must not retain forces or moments from the previous test.
++    b.resetForces(true);b.resetTorques(true);
+     if(typeof this.world.updateSceneQueries==='function')this.world.updateSceneQueries();
+     for(const id of d.WHEEL_IDS){
+       const wheel=d.wheelModel[id];wheel.omega=speed/P.wheelRadius;
+@@ -79,6 +84,11 @@
+   }
+   beforeForces(h){
+     const d=this.physics,P=d.params,b=this.rigidBody;
++    // Rapier user forces and torques persist across world.step(). Without this
++    // pair of resets, each of the four suspension struts adds its load again
++    // at every 1/480s microstep; parked vehicles accelerate into the sky.
++    b.resetForces(true);b.resetTorques(true);
++    this.forceResetCount++;
+     const pos=b.translation(),rot=b.rotation(),lin=b.linvel(),omega=b.angvel();
+     this.q.set(rot.x,rot.y,rot.z,rot.w);
+     const up=new THREE.Vector3(0,1,0).applyQuaternion(this.q).normalize();
+@@ -154,6 +164,13 @@
+     // Aerodynamic and rolling forces act at the CG. Road grade is handled by
+     // Rapier gravity on the actual road mesh, not counted a second time here.
+     b.addForce({x:forward.x*resistance,y:forward.y*resistance,z:forward.z*resistance},true);
++    const force=b.userForce(),torque=b.userTorque();
++    const forceN=Math.hypot(force.x,force.y,force.z);
++    const torqueNm=Math.hypot(torque.x,torque.y,torque.z);
++    if(!Number.isFinite(forceN)||!Number.isFinite(torqueNm))
++      throw new Error('3D wheel force / torque became non-finite');
++    this.maxExternalForceN=Math.max(this.maxExternalForceN,forceN);
++    this.maxExternalTorqueNm=Math.max(this.maxExternalTorqueNm,torqueNm);
+     this.world.timestep=h;this.world.step();
+     this.sync();
+     m.lateralAccel=totalFy/d.params.mass;
+--- a/desktop3d/src/main.mjs
++++ b/desktop3d/src/main.mjs
+@@ -30,7 +30,7 @@
+ const trackedKeys=new Set();
+ 
+ function failure(e){
+-  labReady=false;console.error('v1.8.7.1 3D QA:',e);
++  labReady=false;console.error('v1.8.7.2 3D QA:',e);
+   $('status').textContent='載入或執行失敗';
+   message.textContent='無法啟動 3D 驗收：'+(e?.message||String(e))+'。請確認 npm install / npm run dev，並使用支援 WebGL2 的桌面瀏覽器。';
+   if(!overlay.isConnected)document.body.append(overlay);
+@@ -196,6 +196,8 @@
+     roll:d.vehicleMotion.roll,pitch:d.vehicleMotion.pitch,
+     contacts:d.suspension.contacts,rayHits:bridge.wheelCastHits,
+     invalidWheelLoads:bridge.invalidWheelLoads,contactMicrosteps:bridge.contactMicrosteps,
++    forceResetCount:bridge.forceResetCount,maxExternalForceN:bridge.maxExternalForceN,
++    maxExternalTorqueNm:bridge.maxExternalTorqueNm,bodyMassKg:b.mass(),
+     railHits:bridge.railHits,
+     barrierHits:bridge.barrierHits,collisionCount:bridge.collisionCount,
+     impact:bridge.maxImpactImpulse,penetration:bridge.maxBarrierPenetration,
+@@ -214,6 +216,7 @@
+   htmlMetric('yaw',(m.yawRate*180/Math.PI).toFixed(1)+' °/s');
+   htmlMetric('attitude',(m.roll*180/Math.PI).toFixed(1)+' / '+(m.pitch*180/Math.PI).toFixed(1)+'°');
+   htmlMetric('contacts',d.suspension.contacts+' / 4');
++  htmlMetric('ext-force',bridge.maxExternalForceN.toFixed(0)+' N / '+bridge.maxExternalTorqueNm.toFixed(0)+' N·m');
+   htmlMetric('ray-health',bridge.invalidWheelLoads===0?
+     bridge.wheelCastHits+' 命中 / '+bridge.wheelCastMisses+' 未命中':
+     '異常 '+bridge.invalidWheelLoads+' 次');
+@@ -300,6 +303,7 @@
+   return {finite:true,nonFiniteSteps:0,maxPositionAbs:0,maxSpeed:0,
+     maxTiltDeg:0,maxWheelContacts:0,validWheelSteps:0,
+     invalidWheelLoads:0,rayHits:0,maxImpactImpulse:0,
++    forceResetCount:0,maxExternalForceN:0,maxExternalTorqueNm:0,bodyMassKg:bridge.rigidBody.mass(),
+     barrierHits:0,railHits:0,maxBeyondBarrier:-1e9,
+     maxBarrierPenetration:0,minY:p.y,maxY:p.y,
+     x:p.x,z:p.z,travel:0,verticalExcursion:0,maxRouteS:d.route.distance,runtimeMs:0};
+@@ -316,6 +320,9 @@
+   if(d.suspension.contacts>=2)data.validWheelSteps++;
+   data.invalidWheelLoads=bridge.invalidWheelLoads;
+   data.rayHits=bridge.wheelCastHits;
++  data.forceResetCount=bridge.forceResetCount;
++  data.maxExternalForceN=bridge.maxExternalForceN;
++  data.maxExternalTorqueNm=bridge.maxExternalTorqueNm;
+   if(data.invalidWheelLoads>0){data.finite=false;data.nonFiniteSteps++;return false;}
+   data.barrierHits=bridge.barrierHits;data.railHits=bridge.railHits;
+   data.maxImpactImpulse=Math.max(data.maxImpactImpulse,bridge.maxImpactImpulse);
+@@ -345,13 +352,18 @@
+     for(let n=0,total=Math.round(setting.duration/FIXED_DT);n<total;n++){
+       stepOnce();
+       if(!observe(data,start))break;
++      // Fail visibly and stop this test if the rigid body catastrophically
++      // accelerates; do not continue simulating a car launched into the sky.
++      if(data.maxSpeed>Math.max(36,setting.speed+45)||data.maxPositionAbs>5000){
++        data.abortReason='3D 剛體失穩，停止此工況';break;
++      }
+       if(n%20===19){updateHud(true);await new Promise(resolve=>requestAnimationFrame(resolve));}
+     }
+     data.runtimeMs=performance.now()-startTime;
+     const graded=gradeScenario(id,data);
+     const result={scenario:id,pass:graded.pass,checks:graded.checks,
+       metrics:{...data},runtimeMs:data.runtimeMs,
+-      engine:'Rapier 0.18 + SHIFT LAB four-wheel, fixed 120 Hz / 4 microsteps',
++      engine:'Rapier 0.18 + SHIFT LAB four-wheel, fixed 120 Hz / 4 microsteps, per-microstep force reset',
+       events:bridge.eventHistory.map(e=>({...e}))};
+     lastResult=result;displayResult('qa-results',result);updateHud(true);
+     $('status').textContent=(result.pass?'PASS':'FAIL')+' · '+setting.name+' · '+graded.checks.filter(x=>x.passed).length+'/'+graded.checks.length;
+@@ -371,15 +383,19 @@
+       $('status').textContent='正在執行 '+SCENARIOS[id].name+' …';
+       const result=await runScenario(id,{fromSuite:true});
+       suiteResults.push(result);renderSuite();
++      if(id==='settle'&&!result.pass){
++        $('status').textContent='靜止穩定未通過：已停止後續碰撞與坡道驗收，請先修復基礎剛體';
++        break;
++      }
+     }
+-    $('status').textContent='3D 驗收完成：'+suiteResults.filter(r=>r.pass).length+'/'+suiteResults.length+
++    if(suiteResults.length===TEST_ORDER.length)$('status').textContent='3D 驗收完成：'+suiteResults.filter(r=>r.pass).length+'/'+suiteResults.length+
+       ' 通過 · 點「開始自由駕駛」繼續試玩';
+   }catch(e){failure(e);throw e;}
+   finally{setBusy(false);}
+   return suiteResults.map(r=>({...r}));
+ }
+ function exportReport(){
+-  const bundle={version:'1.8.7.1',createdAt:new Date().toISOString(),
++  const bundle={version:'1.8.7.2',createdAt:new Date().toISOString(),
+     userAgent:navigator.userAgent,
+     physics:'Four-wheel SHIFT LAB v1.8.6 bridge / Rapier 3D 0.18',
+     suite:suiteResults.map(r=>({...r})),lastResult,
+--- a/desktop3d/src/scenarios.mjs
++++ b/desktop3d/src/scenarios.mjs
+@@ -19,6 +19,14 @@
+     data.invalidWheelLoads===0,data.nonFiniteSteps+data.invalidWheelLoads);
+   check('3D 剛體未超出受控邊界',data.maxPositionAbs<100000,data.maxPositionAbs);
+   check('沒有明顯的數值速度爆衝',data.maxSpeed<=Math.max(16,s.speed+12),data.maxSpeed);
++  // Rapier addForce/addForceAtPoint are persistent, so a missed force reset
++  // can repeatedly add spring loads and launch even a parked car.
++  check('逐微步重置外力與力矩、沒有受力累積',
++    data.forceResetCount>=1 && Number.isFinite(data.maxExternalForceN) &&
++    Number.isFinite(data.maxExternalTorqueNm) &&
++    data.maxExternalForceN<=data.bodyMassKg*9.81*12 &&
++    data.maxExternalTorqueNm<=data.bodyMassKg*9.81*30,
++    data.maxExternalForceN);
+   if(id==='settle'){
+     check('靜止車輛無明顯橫向漂移',data.travel<3.0,data.travel);
+     check('車身未翻覆',data.maxTiltDeg<38,data.maxTiltDeg);
+--- a/desktop3d/tests/validate-scenarios.mjs
++++ b/desktop3d/tests/validate-scenarios.mjs
+@@ -8,6 +8,7 @@
+ const perfect={finite:true,nonFiniteSteps:0,maxPositionAbs:150,maxSpeed:21,maxTiltDeg:5,
+   maxWheelContacts:4,validWheelSteps:350,invalidWheelLoads:0,rayHits:1200,
+   maxImpactImpulse:800,barrierHits:1,railHits:1,
++  forceResetCount:1000,maxExternalForceN:12500,maxExternalTorqueNm:6000,bodyMassKg:1280,
+   maxBeyondBarrier:-.8,maxBarrierPenetration:.03,travel:1.5,verticalExcursion:.20,maxRouteS:170};
+ for(const id of TEST_ORDER){
+   const metrics={...perfect,maxSpeed:Math.max(10,SCENARIOS[id].speed)};
+@@ -26,4 +27,6 @@
+ assert.equal(gradeScenario('settle',{...perfect,rayHits:0}).pass,false);
+ assert.equal(gradeScenario('settle',{...perfect,validWheelSteps:0}).pass,false);
+ assert.equal(gradeScenario('ramp',{...perfect,invalidWheelLoads:1}).pass,false);
++assert.equal(gradeScenario('settle',{...perfect,forceResetCount:0}).pass,false);
++assert.equal(gradeScenario('ramp',{...perfect,maxExternalForceN:999999}).pass,false);
+ console.log('PASS scenario definitions and fail-safe QA gates (14 assertions+)');
+--- /dev/null
++++ b/desktop3d/tests/validate-force-lifecycle.mjs
+@@ -0,0 +1,97 @@
++import assert from 'node:assert/strict';
++import {readFileSync} from 'node:fs';
++import {fileURLToPath} from 'node:url';
++import {dirname,resolve} from 'node:path';
++import {rayContactDistance} from '../src/ray-contact.mjs';
++
++// This executes the ACTUAL bridge logic with a deterministic Rapier-like test
++// double, with Rapier's documented persistent-force semantics. It does NOT
++// replace a browser/WASM acceptance test.
++const here=dirname(fileURLToPath(import.meta.url));
++let source=readFileSync(resolve(here,'../src/chassis.mjs'),'utf8')
++  .replace("import * as THREE from 'three';",'')
++  .replace("import {rayContactDistance} from './ray-contact.mjs';",'')
++  .replace('export class RapierChassisBridge','class RapierChassisBridge');
++class V3 {
++  constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z;}
++  set(x,y,z){this.x=x;this.y=y;this.z=z;return this;}
++  applyQuaternion(){return this;}
++  normalize(){const len=Math.hypot(this.x,this.y,this.z)||1;return this.multiplyScalar(1/len);}
++  multiplyScalar(a){this.x*=a;this.y*=a;this.z*=a;return this;}
++  add(b){this.x+=b.x;this.y+=b.y;this.z+=b.z;return this;}
++  copy(b){return this.set(b.x,b.y,b.z);}
++  addScaledVector(b,scale){return this.add(new V3(b.x*scale,b.y*scale,b.z*scale));}
++  dot(b){return this.x*b.x+this.y*b.y+this.z*b.z;}
++  cross(b){const {x,y,z}=this;return this.set(y*b.z-z*b.y,z*b.x-x*b.z,x*b.y-y*b.x);}
++}
++class Q {set(x,y,z,w){Object.assign(this,{x,y,z,w});return this;}}
++class Euler {setFromQuaternion(){this.x=0;this.y=0;this.z=0;return this;}}
++const THREE={Vector3:V3,Quaternion:Q,Euler};
++const RapierChassisBridge=Function('THREE','rayContactDistance',source+'\nreturn RapierChassisBridge;')(THREE,rayContactDistance);
++
++const P={mass:1280,pitchInertia:1350,yawInertia:2400,rollInertia:510,
++  cgHeight:.51,wheelbase:2.7,frontStaticLoad:.59,springFront:26000,springRear:20000,
++  damperFront:2500,damperRear:2050,droopTravel:.145,bumpTravel:.11,wheelRadius:.31};
++class Body {
++  constructor(){this.pos={x:0,y:P.cgHeight+.025,z:0};this.rot={x:0,y:0,z:0,w:1};
++    this.v={x:0,y:0,z:0};this.omega={x:0,y:0,z:0};
++    this.force={x:0,y:0,z:0};this.torque={x:0,y:0,z:0};this.clearForces=0;this.clearTorques=0;}
++  translation(){return {...this.pos};}rotation(){return {...this.rot};}
++  linvel(){return {...this.v};}angvel(){return {...this.omega};}mass(){return P.mass;}
++  setTranslation(v){this.pos={...v};}setRotation(q){this.rot={...q};}
++  setLinvel(v){this.v={...v};}setAngvel(v){this.omega={...v};}
++  resetForces(){this.force={x:0,y:0,z:0};this.clearForces++;}
++  resetTorques(){this.torque={x:0,y:0,z:0};this.clearTorques++;}
++  userForce(){return {...this.force};}userTorque(){return {...this.torque};}
++  addForce(f){for(const c of ['x','y','z'])this.force[c]+=f[c];}
++  addForceAtPoint(f,p){this.addForce(f);const r={x:p.x-this.pos.x,y:p.y-this.pos.y,z:p.z-this.pos.z};
++    this.torque.x+=r.y*f.z-r.z*f.y;
++    this.torque.y+=r.z*f.x-r.x*f.z;
++    this.torque.z+=r.x*f.y-r.y*f.x;}
++}
++const body=new Body();
++const rapier={Ray:class {constructor(origin,direction){this.origin=origin;this.dir=direction;}},
++  QueryFilterFlags:{EXCLUDE_DYNAMIC:1}};
++const world={timestep:0,castRay(ray,maxDistance){
++    if(ray.dir.y>=-.5)return null;
++    const distance=ray.origin.y/(-ray.dir.y);
++    return distance<=maxDistance&&distance>=0?{timeOfImpact:distance}:null;
++  },step(){const h=this.timestep;
++    for(const c of ['x','y','z']){
++      body.v[c]+=(body.force[c]/P.mass+(c==='y'?-9.81:0))*h;
++      body.pos[c]+=body.v[c]*h;
++    }
++  },contactPairsWith(){} };
++const wheelModel={};
++for(const id of ['FL','FR','RL','RR'])wheelModel[id]={id,front:id[0]==='F',left:id[1]==='L',
++  contact:false,normal:0,travel:0,fxBody:0,fyBody:0};
++const physics={params:P,WHEEL_IDS:Object.keys(wheelModel),wheelModel,suspension:{contacts:0,maxTravel:0},
++  vehicleMotion:{guardrailHits:0,contactCooldown:0,heading:0,roll:0,pitch:0,yawRate:0,lateralVelocity:0},state:{velocity:0,time:0},
++  wheelCoords(id){return {x:(id[1]==='L'?-1:1)*.78,
++    z:id[0]==='F'?P.wheelbase*(1-P.frontStaticLoad):-P.wheelbase*P.frontStaticLoad};},route:{distance:70}};
++const road={position(s,side){return {x:side,y:0,z:s};},groundHandles:new Set([1]),railHandles:new Set(),barrierHandles:new Set()};
++const bridge=new RapierChassisBridge(rapier,world,road,physics);
++bridge.rigidBody=body;bridge.collider={handle:2};
++const h=1/480;let maxSpeed=0,maxForce=0,minContacts=4;
++for(let i=0;i<480*3;i++){
++  bridge.beforeForces(h);
++  bridge.stepForces(0,0,0,0,h);
++  maxSpeed=Math.max(maxSpeed,Math.abs(body.v.y));
++  maxForce=Math.max(maxForce,Math.abs(body.force.y));
++  minContacts=Math.min(minContacts,bridge.lastWheelContacts);
++}
++assert.equal(body.clearForces,480*3,'clear forces ONCE at the start of EVERY microstep');
++assert.equal(body.clearTorques,480*3,'clear torques ONCE at the start of EVERY microstep');
++assert.ok(maxForce<1.3*P.mass*9.81,`suspension force must not accumulate: ${maxForce}`);
++assert.ok(maxSpeed<1.0,`parked chassis unexpectedly launched: ${maxSpeed}`);
++assert.ok(Math.abs(body.pos.y-(P.cgHeight))<.14,`static ride-height diverged: ${body.pos.y}`);
++assert.ok(minContacts>=2,`parked vehicle lost road contacts: ${minContacts}`);
++body.addForce({x:9e5,y:0,z:0});body.torque.y=8e5;
++bridge.teleport({roadPoint:{s:70,x:0,y:0,z:70,heading:0},speed:0});
++assert.deepEqual(body.userForce(),{x:0,y:0,z:0},'teleport must clear stale forces');
++assert.deepEqual(body.userTorque(),{x:0,y:0,z:0},'teleport must clear stale torques');
++body.addForce({x:0,y:999999,z:0});body.torque.x=999999;
++bridge.reset({x:0,y:0,z:0,heading:0},P);
++assert.deepEqual(body.userForce(),{x:0,y:0,z:0},'hard reset must clear stale forces');
++assert.deepEqual(body.userTorque(),{x:0,y:0,z:0},'hard reset must clear stale torques');
++console.log('PASS real chassis bridge: persistent Rapier forces cleared per 480-Hz microstep; 3-s stationary stability and teleport reset');
+--- a/desktop3d/index.html
++++ b/desktop3d/index.html
+@@ -4,7 +4,7 @@
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width,initial-scale=1">
+   <meta name="theme-color" content="#081623">
+-  <title>SHIFT//LAB v1.8.7.1 — 3D 修復與碰撞驗收</title>
++  <title>SHIFT//LAB v1.8.7.2 — 3D 修復與碰撞驗收</title>
+   <style>
+     :root{color-scheme:dark;--ink:#e6f3f2;--muted:#a6bfca;--line:#3b6376;--mint:#8ce7c9;--warn:#ffd395;--fail:#ff9b9c}
+     *{box-sizing:border-box}body{margin:0;background:#07141c;color:var(--ink);font:13px/1.55 system-ui,'Noto Sans TC','Microsoft JhengHei',sans-serif;overflow:hidden}
+@@ -21,7 +21,7 @@
+ <canvas id="view" tabindex="0" aria-label="3D 車輛與護欄碰撞場景"></canvas>
+ <section id="left" aria-label="駕駛及場景操作">
+   <div class="overline">SHIFT//LAB · DESKTOP QA</div>
+-  <h1>v1.8.7.1<br>3D 駕駛與碰撞修復</h1>
++  <h1>v1.8.7.2<br>3D 駕駛與碰撞修復</h1>
+   <p class="desc">保留 v1.8.6 四輪物理核心。本版修正 Rapier 懸吊接地射線與自由駕駛輸入狀態；3D 場景仍須於實際瀏覽器重新驗收。</p>
+   <div class="status" id="status" role="status">正在初始化 WebGL / Rapier WASM…</div>
+   <h2>驗收場景</h2>
+@@ -56,6 +56,7 @@
+     <div class="metric"><span>側傾 / 俯仰</span><strong id="attitude">0 / 0 °</strong></div>
+     <div class="metric"><span>輪胎接地</span><strong id="contacts">0 / 4</strong></div>
+     <div class="metric"><span>懸吊射線</span><strong id="ray-health">--</strong></div>
++    <div class="metric"><span>外力峰值／力矩峰值</span><strong id="ext-force">--</strong></div>
+     <div class="metric"><span>ESC</span><strong id="esc-status">待命</strong></div>
+     <div class="metric"><span>護欄 / 路障撞擊</span><strong id="rail-hits">0 / 0</strong></div>
+     <div class="metric"><span>最大接觸衝量</span><strong id="impact">0 N·s</strong></div>
+--- a/desktop3d/package.json
++++ b/desktop3d/package.json
+@@ -1,13 +1,13 @@
+ {
+   "name": "shift-lab-v187-desktop-3d-collision-qa",
+-  "version": "1.8.7-hotfix.1",
++  "version": "1.8.7-hotfix.2",
+   "private": true,
+   "type": "module",
+   "scripts": {
+     "dev": "vite --host 127.0.0.1 --port 5173",
+     "build": "vite build",
+     "preview": "vite preview --host 127.0.0.1 --port 4173",
+-    "qa:scenarios": "node ./tests/validate-scenarios.mjs && node ./tests/validate-ray-contact.mjs"
++    "qa:scenarios": "node ./tests/validate-scenarios.mjs && node ./tests/validate-ray-contact.mjs && node ./tests/validate-force-lifecycle.mjs"
+   },
+   "dependencies": {
+     "@dimforge/rapier3d-compat": "0.18.2",
+--- a/desktop3d/START_WINDOWS.cmd
++++ b/desktop3d/START_WINDOWS.cmd
+@@ -7,7 +7,7 @@
+   pause
+   exit /b 1
+ )
+-echo [SHIFT LAB v1.8.7.1] Installing desktop 3D dependencies...
++echo [SHIFT LAB v1.8.7.2] Installing desktop 3D dependencies...
+ call npm install --no-audit --no-fund
+ if errorlevel 1 (
+   echo npm install failed. Check network access to registry.npmjs.org.
+--- a/tests/test_v187.py
++++ b/tests/test_v187.py
+@@ -75,7 +75,7 @@
+ 
+     def test_version_and_start_scripts_exist(self):
+         package=json.loads((THREE/'package.json').read_text())
+-        self.assertEqual(package['version'],'1.8.7-hotfix.1')
++        self.assertEqual(package['version'],'1.8.7-hotfix.2')
+         self.assertIn('rapier3d-compat',str(package['dependencies']))
+         self.assertTrue((THREE/'START_WINDOWS.cmd').exists())
+         self.assertTrue((THREE/'START_UNIX.sh').exists())
+--- /dev/null
++++ b/tests/test_v1872.py
+@@ -0,0 +1,20 @@
++"""v1.8.7.2 force lifecycle: contract and mock-dynamics regression."""
++import unittest, subprocess
++from pathlib import Path
++ROOT=Path(__file__).resolve().parents[1]
++D=ROOT/'desktop3d'
++class ForceLifecycleQA(unittest.TestCase):
++ def test_real_chassis_bridge_mock_dynamics(self):
++  p=subprocess.run(['node',str(D/'tests/validate-force-lifecycle.mjs')],
++    text=True,capture_output=True)
++  self.assertEqual(p.returncode,0,p.stdout+'\n'+p.stderr)
++  self.assertIn('PASS real chassis bridge',p.stdout)
++ def test_diagnostic_force_metrics_and_static_gate(self):
++  js=(D/'src/main.mjs').read_text()
++  scenarios=(D/'src/scenarios.mjs').read_text()
++  self.assertIn('maxExternalForceN',js)
++  self.assertIn('maxExternalTorqueNm',js)
++  self.assertIn('forceResetCount',js)
++  self.assertIn("if(id==='settle'&&!result.pass)",js)
++  self.assertIn('逐微步重置外力與力矩',scenarios)
++if __name__=='__main__':unittest.main()
+--- a/README.md
++++ b/README.md
+@@ -1,3 +1,11 @@
++# SHIFT//LAB v1.8.7.2 — desktop 3D force-stability candidate
++
++**Critical repair:** clears Rapier rigid-body user forces and torques at every 1/480-second microstep. v1.8.7.1 unintentionally accumulated suspension loads and could launch the stationary car. The old model remains untouched. Read [`V1872_FORCE_STABILITY_FIX_NOTES.md`](V1872_FORCE_STABILITY_FIX_NOTES.md) for the isolated regression, real-browser re-test steps and limitations.
++
++**Do not start with the full collision suite. Test `靜止穩定` first.** The suite now stops automatically if that foundation case fails. Actual browser 3D/Rapier results have not been verified in this build environment.
++
++---
++
+ # SHIFT//LAB v1.8.7.1 — 3D suspension / driving hotfix
+ 
+ **Status:** source-level hotfix for v1.8.7. Physical browser acceptance is **not yet re-tested** in this build environment; do not infer PASS from the source regression suite. Full diagnosis, changes and steps: `V1871_HOTFIX_NOTES.md`.
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,3 +1,13 @@
++# v1.8.7.2 — Force lifecycle and stationary stability candidate
++
++- Rapier forces and torques now reset per physics microstep and during scene teleports.
++- 3-second stationary mock-dynamics regression: 1,440 successful force/torque clearing cycles.
++- Added current-step external force/torque monitoring and force-lifecycle grading.
++- Full suite stops on stationary failure, avoiding invalid high-speed results.
++- Legacy wheel/transmission HTML unchanged; actual browser/Rapier WASM validation still pending.
++
++---
++
+ ## v1.8.7.1 (2026-10-21) — Desktop 3D hotfix (browser re-acceptance pending)
+ 
+ - Fix invalid `hit.toi` access: Rapier 0.18 `RayColliderHit` reports `timeOfImpact`; invalid/missing rays cannot produce silent NaN wheel normal forces.
+--- /dev/null
++++ b/V1872_FORCE_STABILITY_FIX_NOTES.md
+@@ -0,0 +1,44 @@
++# SHIFT LAB v1.8.7.2 — 3D force-accumulation hotfix
++
++## Observed failure
++
++The actual user's v1.8.7.1 browser run reported 0/5 scenarios passing, with a ramp speed maximum of 727.7458 m/s, a vertical excursion of 134.5147 m, and no wheel-ground contact counted. A flat-ground car was already repeatedly launching and tumbling before user input. These readings are not credible vehicle behavior and indicate a numerical/force-integration defect.
++
++## Verified source-level root cause
++
++Rapier 0.18 `RigidBody.addForce`, `RigidBody.addForceAtPoint`, and the associated torque retain their effect across `world.step()` until manually cleared. The earlier bridge issued wheel strut and tire forces on every substep but never called `RigidBody.resetForces()` or `resetTorques()`. Normal static suspension forces were **accumulated over multiple 1/480s microsteps**, producing an increasing upward net force and pitching/rolling torques. The earlier ray-field bug had obscured this second independent problem. This explanation is supported by the actual source and documented Rapier force semantics; the user's observations are consistent with it.
++
++Rapier official reference: https://rapier.rs/docs/user_guides/javascript/rigid_body_forces_and_impulses/
++
++## Changes
++
++- In `RapierChassisBridge.beforeForces()`, `resetForces(true)` and `resetTorques(true)` run BEFORE any new suspension or tire force is applied, once for each mechanical microstep.
++- `reset()` and `teleport()` now clear residual user forces and torques as well as velocity.
++- The Rapier `userForce()` and `userTorque()` are measured after the current substep's tire/spring loads are summed, before stepping, and their peak magnitudes exported to HUD / JSON report; the microstep reset counter is also measured.
++- Scenario grading now rejects obvious accumulated external forces or lack of force clearing.
++- If the static settling test fails, the suite aborts before frontal, highway-speed and ramp tests. If severe speed/boundary instability arises during a case, the case stops rather than simulating further uncontrolled flight. No artificial speed clamp is added to the car's physics.
++- `tests/validate-force-lifecycle.mjs` executes the actual `RapierChassisBridge` code with a minimal Rapier-like deterministic stepping double implementing documented persistent-force semantics. This ensures that a stationary car stays supported for 3 simulated seconds, all 1,440 microsteps reset forces/torques, and reset/teleport leave zero stale force. This is NOT a Rapier WASM or WebGL runtime test.
++- The inherited SHIFT LAB stand-alone physics `index.html` and `desktop3d/public/physics.html` are unchanged.
++
++## Testing performed
++
++1. Before the fix, the force lifecycle regression failed with **0** resets out of 1,440 microsteps.
++2. After the fix, the identical lifecycle regression passed: force reset and torque reset occur once per microstep, stationary support is stable within the mock integrator, and reset/teleport clear residual loads.
++3. Node source QA (`npm run qa:scenarios`): passed all 3 modules.
++4. Full Python source/legacy-browser regression: **77 collected, 75 passed, 2 skipped** because original Bucknell MAT data is not included.
++5. ES module syntax check passed.
++6. `npm install` failed with `EAI_AGAIN` for registry.npmjs.org, so the genuine `Rapier 0.18` WASM/Three.js browser run and production bundle remain **unverified in this environment**. This is a patched candidate, not a certified 5/5.
++
++## Re-test sequence (do not start with high-speed or ramp tests)
++
++1. Unzip v1.8.7.2 into a **new folder**, stop the old Vite instance, and launch `desktop3d/START_WINDOWS.cmd` (requires Node/npm and first-run npm network access).
++2. In Chrome/Edge visit http://127.0.0.1:5173/ and hard-refresh with Ctrl+Shift+R. Confirm the version reads v1.8.7.2.
++3. Choose `靜止穩定` then `執行此工況`; this MUST pass before moving on. Wheels should normally report 2–4 contacts, car should not bounce violently. New HUD `外力峰值／力矩峰值` should remain finite and in a plausible range rather than growing on every physics step.
++4. Choose `開始自由駕駛` and confirm W/A/S/D inputs work and car remains supported.
++5. Only then run full automatic suite. If stationary fails, the suite automatically stops and reports only stationary.
++6. If any failure remains, export JSON and provide its `maxExternalForceN`, `maxExternalTorqueNm`, `forceResetCount`, `maxSpeed`, `maxTiltDeg`, `rayHits`, and `validWheelSteps`. This distinguishes force lifecycle, collision, contact geometry, and tuning problems.
++
++## Known follow-up risks
++
++- A repaired force lifecycle does not prove all tire forces, contact geometry, chassis-collider proportions, obstacle geometry or grade/ramp transitions are correct. These require actual Rapier/Chromium results.
++- Spring and tire inputs are entertainment-model parameters rather than manufacturer telemetry. Mobile work remains deferred.

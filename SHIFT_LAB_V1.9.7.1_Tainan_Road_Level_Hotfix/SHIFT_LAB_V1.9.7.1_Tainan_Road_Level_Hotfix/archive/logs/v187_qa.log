@@ -1,0 +1,76 @@
+test_browser_debug_data_and_no_physics_override (test_v183.BrowserIntegrationTests.test_browser_debug_data_and_no_physics_override) ... ok
+test_desktop_reference_panel_render (test_v183.BrowserIntegrationTests.test_desktop_reference_panel_render) ... ok
+test_mobile_render_without_horizontal_overflow (test_v183.BrowserIntegrationTests.test_mobile_render_without_horizontal_overflow) ... ok
+test_adma_fields_hz_holdout_and_numeric_fit (test_v183.SourceProcessingTests.test_adma_fields_hz_holdout_and_numeric_fit) ... ok
+test_adma_irregular_timestamps_fail (test_v183.SourceProcessingTests.test_adma_irregular_timestamps_fail) ... ok
+test_adma_schema_drift_fails (test_v183.SourceProcessingTests.test_adma_schema_drift_fails) ... ok
+test_civic_bins_and_gradient (test_v183.SourceProcessingTests.test_civic_bins_and_gradient) ... ok
+test_civic_missing_groups_fail_closed (test_v183.SourceProcessingTests.test_civic_missing_groups_fail_closed) ... ok
+test_fixture_sha_must_not_match_actual (test_v183.SourceProcessingTests.test_fixture_sha_must_not_match_actual) ... ok
+test_git_blob_hash_rejects_modified_file (test_v183.SourceProcessingTests.test_git_blob_hash_rejects_modified_file) ... ok
+test_p1_theoretical_not_measured (test_v183.SourceProcessingTests.test_p1_theoretical_not_measured) ... ok
+test_read_only_bundle_results_and_provenance (test_v183.SourceProcessingTests.test_read_only_bundle_results_and_provenance) ... ok
+test_desktop_real_p1_panel (test_v184.BrowserTests.test_desktop_real_p1_panel) ... ok
+test_mobile_real_p1_panel_and_no_overflow (test_v184.BrowserTests.test_mobile_real_p1_panel_and_no_overflow) ... ok
+test_physics_debug_unchanged_and_fitting_readonly (test_v184.BrowserTests.test_physics_debug_unchanged_and_fitting_readonly) ... ok
+test_all_required_source_ids_are_grounded (test_v184.ModelAndProvenance.test_all_required_source_ids_are_grounded) ... ok
+test_calibration_results_match_table (test_v184.ModelAndProvenance.test_calibration_results_match_table) ... ok
+test_default_and_historical_rear_b_produce_different_lateral_response (test_v184.ModelAndProvenance.test_default_and_historical_rear_b_produce_different_lateral_response) ... ok
+test_fixed_training_holdout_protocol (test_v184.ModelAndProvenance.test_fixed_training_holdout_protocol) ... ok
+test_force_zero_at_zero_steer_zero_rate (test_v184.ModelAndProvenance.test_force_zero_at_zero_steer_zero_rate) ... ok
+test_holdout_failure_not_concealed (test_v184.ModelAndProvenance.test_holdout_failure_not_concealed) ... ok
+test_html_no_full_car_application (test_v184.ModelAndProvenance.test_html_no_full_car_application) ... ok
+test_integration_finite (test_v184.ModelAndProvenance.test_integration_finite) ... ok
+test_lateral_force_saturates_under_large_input (test_v184.ModelAndProvenance.test_lateral_force_saturates_under_large_input) ... ok
+test_measured_mat_file_replay_when_available (test_v184.ModelAndProvenance.test_measured_mat_file_replay_when_available) ... skipped 'Raw P1 file not bundled; supply P1_RAW_DIR to reproduce'
+test_raw_originals_not_in_release_directory (test_v184.ModelAndProvenance.test_raw_originals_not_in_release_directory) ... ok
+test_reject_bad_source_header (test_v184.ModelAndProvenance.test_reject_bad_source_header) ... ok
+test_reject_source_hash_drift (test_v184.ModelAndProvenance.test_reject_source_hash_drift) ... ok
+test_require_raw_does_not_make_up_measurements (test_v184.ModelAndProvenance.test_require_raw_does_not_make_up_measurements) ... ok
+test_source_download_script_never_bypasses_hash (test_v184.ModelAndProvenance.test_source_download_script_never_bypasses_hash) ... ok
+test_symmetric_wheel_tire_sign (test_v184.ModelAndProvenance.test_symmetric_wheel_tire_sign) ... ok
+test_two_source_geometry_sensitivity_is_explicit (test_v184.ModelAndProvenance.test_two_source_geometry_sensitivity_is_explicit) ... ok
+test_mobile_responsive_and_visible (test_v185.BrowserReference.test_mobile_responsive_and_visible) ... ok
+test_no_automatic_transfer_and_physics_unchanged (test_v185.BrowserReference.test_no_automatic_transfer_and_physics_unchanged) ... ok
+test_original_p1_and_reference_panels_preserved (test_v185.BrowserReference.test_original_p1_and_reference_panels_preserved) ... ok
+test_real_gasoline_panel (test_v185.BrowserReference.test_real_gasoline_panel) ... ok
+test_all_p1_force_channels_flagged_unfit (test_v185.EvidenceIntegrity.test_all_p1_force_channels_flagged_unfit) ... ok
+test_bmw_candidate_grid_is_predeclared (test_v185.EvidenceIntegrity.test_bmw_candidate_grid_is_predeclared) ... ok
+test_bmw_model_training_selected_and_holdout_disclosed (test_v185.EvidenceIntegrity.test_bmw_model_training_selected_and_holdout_disclosed) ... ok
+test_bmw_no_fake_yaw_or_tire_transfer (test_v185.EvidenceIntegrity.test_bmw_no_fake_yaw_or_tire_transfer) ... ok
+test_bmw_public_raw_checksum_rejects_tampered_data (test_v185.EvidenceIntegrity.test_bmw_public_raw_checksum_rejects_tampered_data) ... ok
+test_bmw_real_observation_identity (test_v185.EvidenceIntegrity.test_bmw_real_observation_identity) ... ok
+test_constant_input_fit_rejected (test_v185.EvidenceIntegrity.test_constant_input_fit_rejected) ... ok
+test_fitted_formula_is_signed_and_unbounded_speeds_guarded (test_v185.EvidenceIntegrity.test_fitted_formula_is_signed_and_unbounded_speeds_guarded) ... ok
+test_force_channel_group_indices (test_v185.EvidenceIntegrity.test_force_channel_group_indices) ... ok
+test_prevent_raw_csv_redistribution (test_v185.EvidenceIntegrity.test_prevent_raw_csv_redistribution) ... ok
+test_real_p1_force_channels_when_available (test_v185.EvidenceIntegrity.test_real_p1_force_channels_when_available) ... skipped 'Optional authentic Bucknell source files not supplied'
+test_real_source_meta_branches (test_v185.EvidenceIntegrity.test_real_source_meta_branches) ... ok
+test_regression_least_squares_correct (test_v185.EvidenceIntegrity.test_regression_least_squares_correct) ... ok
+test_reject_missing_real_mat (test_v185.EvidenceIntegrity.test_reject_missing_real_mat) ... ok
+test_temporal_purge (test_v185.EvidenceIntegrity.test_temporal_purge) ... ok
+test_esc_corrects_split_mu_straightline (test_v186.BrowserDriving.test_esc_corrects_split_mu_straightline) ... ok
+test_high_yaw_no_old_clamp (test_v186.BrowserDriving.test_high_yaw_no_old_clamp) ... ok
+test_keyboard_reverse_and_release (test_v186.BrowserDriving.test_keyboard_reverse_and_release) ... ok
+test_original_v185_panels_preserved (test_v186.BrowserDriving.test_original_v185_panels_preserved) ... ok
+test_planar_disabled_guardrail_is_passable (test_v186.BrowserDriving.test_planar_disabled_guardrail_is_passable) ... ok
+test_planar_guardrail_impulse_no_speed_growth (test_v186.BrowserDriving.test_planar_guardrail_impulse_no_speed_growth) ... ok
+test_single_authority_external_chassis (test_v186.BrowserDriving.test_single_authority_external_chassis) ... ok
+test_tire_friction_peak_and_recovery (test_v186.BrowserDriving.test_tire_friction_peak_and_recovery) ... ok
+test_3d_uses_same_physics_page (test_v186.Native3DSource.test_3d_uses_same_physics_page) ... ok
+test_js_syntax (test_v186.Native3DSource.test_js_syntax) ... ok
+test_collider_labels_and_real_impulse_sampling (test_v187.V187QA.test_collider_labels_and_real_impulse_sampling) ... ok
+test_every_explicit_dom_selector_exists (test_v187.V187QA.test_every_explicit_dom_selector_exists) ... ok
+test_guardrail_chassis_uses_four_point_forces (test_v187.V187QA.test_guardrail_chassis_uses_four_point_forces) ... ok
+test_keyboard_works_after_clicking_control_buttons (test_v187.V187QA.test_keyboard_works_after_clicking_control_buttons) ... ok
+test_module_syntax (test_v187.V187QA.test_module_syntax) ... ok
+test_old_python_tests_still_bundled (test_v187.V187QA.test_old_python_tests_still_bundled) ... ok
+test_original_model_not_duplicated (test_v187.V187QA.test_original_model_not_duplicated) ... ok
+test_qa_host_has_single_controlled_stepping_path (test_v187.V187QA.test_qa_host_has_single_controlled_stepping_path) ... ok
+test_scenarios_fail_safe_when_telemetry_is_bad (test_v187.V187QA.test_scenarios_fail_safe_when_telemetry_is_bad) ... ok
+test_version_and_start_scripts_exist (test_v187.V187QA.test_version_and_start_scripts_exist) ... ok
+
+----------------------------------------------------------------------
+Ran 71 tests in 21.179s
+
+OK (skipped=2)

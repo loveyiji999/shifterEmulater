@@ -1,0 +1,52 @@
+{
+  "schema": "shiftlab.phase-work-package.v1",
+  "recordedAt": "2026-10-29T01:00:05.243900+00:00",
+  "phase": "P2",
+  "status": "in_progress",
+  "goalStatus": "active",
+  "scope": "terrain-grounded bridge foundations and tunnel portals; P2-P5 incomplete",
+  "checks": {
+    "qa:all": "PASS including engineering, 48x96 seeds and 70 lane positions",
+    "engineering": "PASS 248 foundations, 5587 ground samples, 14 portals",
+    "CCD": "PASS 3 actual rigid-body trajectories",
+    "V3 driving": "PASS 54 actual traversals",
+    "diagnostics": "PASS 52 actual cases",
+    "browser": "PASS 4 presets, v1/v2/v3 and persistence",
+    "acceptance": "PASS 5/5",
+    "build": "PASS 27 modules; existing bundle size warning",
+    "production": "PASS test module isolation, road conditions and contact",
+    "images": "portal and suspension visually inspected"
+  },
+  "maximumGroundHeightErrorM": 0.00016641616821289062,
+  "sourceSnapshot": "p2-engineering-source-2026-10-29.zip",
+  "sources": {
+    "src/road-engineering.mjs": "41e8405babd7f6d29b0d571e07fb82bff2de429e85e095d56168acca06543ba5",
+    "src/terrain-world.mjs": "91b49e60d73574559aef431b9bdb1bfc5ec5926be475be1089933fa97d8090bb",
+    "src/terrain-geometry.mjs": "e3e58ee0c595afda91fd301f13e50c303c3c37766ac783f95e20f81f432701e2",
+    "src/road-geometry-v3.mjs": "277f9b10df691e559d8d6b5e614415959686578002fbbb8cb24d2566781c299a",
+    "src/road.mjs": "0a2c27b6ea7a7329b08af3d90e791f4ad6dbd2bfb9647240f4c72e765a25079e",
+    "src/main.mjs": "9a4332cb4891af31dd679d998e73b985f9b7370d658ccf4e4e3391452e2f0f20",
+    "src/surface-map.mjs": "d957bfb8b7651f2281095dd2deb2ecea2e79f47fac340cc37b6ee4fc1a96fe50",
+    "src/surface-definition.mjs": "e53b8a843ced5db2cb733ec09a38b8a314d015a14ced4571cf55df906a132845",
+    "public/physics.html": "c491cfc1ca5af23367822f87dfd27c12e122b83bf362ff6073829c75f952edbd",
+    "tests/validate-road-engineering.mjs": "df4b3af6df8ca5f3f06d6f1704a857d317ca8f54588a19bd959802d7743ebf19",
+    "tests/validate-foundation-ccd.mjs": "e5eb6284fc3533b3754da401bb865aacff2346c670b0fdbb8622927e96b6281f",
+    "tests/validate-procedural-browser.mjs": "dd1bf15b24da8bfc02c97703256172a5196b3f9771dda77252482c345a6dc18d",
+    "package.json": "ab8c9f9a59bff375806e5dfda0e47c21233fd6da10b3c97609d7b165ea23835b",
+    "package-lock.json": "f6acb5b69f34e0a9351be7f55f28914c490c01bee2ee9ca302435edad545ec86"
+  },
+  "unchangedComparedWithPriorStage": [
+    "public/physics.html",
+    "src/main.mjs",
+    "package-lock.json",
+    "production dependencies"
+  ],
+  "remaining": [
+    "terrain grading and structure approach transitions",
+    "10 surface material gallery and drivable profiles",
+    "PBR lighting and scenery",
+    "P3 native GPU full environment optimization",
+    "P4 tuning tools",
+    "P5 appearance creation tools"
+  ]
+}

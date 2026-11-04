@@ -1,0 +1,72 @@
+{
+  "scope": "local construction routing with protected footprints; regional outlets / river network and runtime integration still incomplete",
+  "exhaustiveOracleCases": 16,
+  "previousResults": "p2-riverbed-results-2026-11-02.json",
+  "reports": [
+    {
+      "seed": "LEVEL-1",
+      "routing": {
+        "points": 20,
+        "length": 171.8822509939086,
+        "cost": 92834.41755487592,
+        "visited": 2377,
+        "outletStatus": "window-continuation-required"
+      },
+      "status": "geometry-candidate",
+      "issues": [],
+      "summary": {
+        "changedVertices": 5477,
+        "maxCut": 20.90858829021454,
+        "protectedVertices": 1219,
+        "wetMaskEdges": 0,
+        "minPathCoverage": 1,
+        "waterTriangles": 1323
+      },
+      "sourceHash": "5f729c367383c268845549cd9330d412e22e65dc763a726b90dfa9054174d3d5"
+    },
+    {
+      "seed": "LEVEL-2",
+      "routing": {
+        "points": 20,
+        "length": 175.19595949289337,
+        "cost": 92000.38739245363,
+        "visited": 3015,
+        "outletStatus": "window-continuation-required"
+      },
+      "status": "rejected",
+      "issues": [
+        "wet-mask-boundary"
+      ],
+      "summary": {
+        "changedVertices": 5517,
+        "maxCut": 20.820564776659012,
+        "protectedVertices": 4566,
+        "wetMaskEdges": 11,
+        "minPathCoverage": 1,
+        "waterTriangles": 1317
+      },
+      "sourceHash": "d64814224def5bf0b8dcb11edab05c64736c454fb410190c7041a22e0e472429"
+    },
+    {
+      "seed": "ROAD-38274CD4",
+      "routing": {
+        "points": 20,
+        "length": 161.9411254969543,
+        "cost": 79219.39300932766,
+        "visited": 2634,
+        "outletStatus": "window-continuation-required"
+      },
+      "status": "geometry-candidate",
+      "issues": [],
+      "summary": {
+        "changedVertices": 6384,
+        "maxCut": 22.200616359710693,
+        "protectedVertices": 518,
+        "wetMaskEdges": 0,
+        "minPathCoverage": 1,
+        "waterTriangles": 1631
+      },
+      "sourceHash": "659912fe1710719a1b61aae17106162ead3f54423f1d5b4049e61570f296f5b7"
+    }
+  ]
+}

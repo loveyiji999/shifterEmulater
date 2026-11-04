@@ -1,0 +1,115 @@
+{
+  "schema": "shiftlab.road-knowledge.v1",
+  "updated_on": "2026-10-28",
+  "sources": [
+    {
+      "id": "TW-ROAD-2026",
+      "title": "交通部公路路線設計規範（11507版）",
+      "url": "https://www.motc.gov.tw/ch/app/data/view?id=740&module=divpubreg&serno=440",
+      "publisher": "交通部",
+      "version": "2026-07-28／11507版，官網更新2026-08-05",
+      "status": "metadata_only",
+      "scope": "官方目錄、版本與發布資訊；附件全文尚未取得",
+      "claims": [],
+      "limits": "不能把搜尋到的2026-03草案或舊版數值當成11507版規定。臺灣規範數值核對仍待附件全文。",
+      "retrieved_on": "2026-10-28",
+      "primary_source": true
+    },
+    {
+      "id": "ALIGN-FHWA",
+      "title": "PDDM Chapter 9 — Highway Design",
+      "url": "https://highways.dot.gov/sites/fhwa.dot.gov/files/Chapter_09-20251113.pdf",
+      "publisher": "FHWA Federal Lands Highway",
+      "version": "官網檔名20251113；PDF章節頁首August 2012",
+      "status": "sections_reviewed",
+      "scope": "9.3.3；9.3.5.1.4–5；9.3.5.2；9.3.6.9；9.3.7；印刷頁9-35、9-38–41、9-57–60",
+      "claims": [
+        "平面線形與縱斷面需協調，曲率與超高過渡需要相應空間，不能用急遽反向彎湊路線。",
+        "淨空需要涵蓋整個道路寬度，並考慮設計車、鋪面與未來加鋪。",
+        "視距與道路功能、地形、設計速率共同控制道路設計。"
+      ],
+      "limits": "美國聯邦公路指引，非臺灣法定數值；檔名日期不等於全文修訂年份。視距表、設計速率與安全符合性尚未逐表實作。",
+      "retrieved_on": "2026-10-28",
+      "primary_source": true
+    },
+    {
+      "id": "JUNCTION-FHWA",
+      "title": "Signalized Intersections: Informational Guide — Chapter 3",
+      "url": "https://www.fhwa.dot.gov/publications/research/safety/04091/03.cfm",
+      "publisher": "FHWA",
+      "version": "FHWA-HRT-04-091，August 2004",
+      "status": "sections_reviewed",
+      "scope": "3.3 Intersection angle；3.4 Horizontal and Vertical Alignment；3.5 Corner Radius",
+      "claims": [
+        "路口交角影響視線、轉彎與穿越距離；來源建議盡量接近正交。",
+        "進口道縱坡、路口平台橫坡與視距需要一起處理，不能直接把兩條不同高度道路標成連通。"
+      ],
+      "limits": "歷史指引，部分引用規範已有較新版本；只作幾何原則，不把所有建議當成現行通用強制值。",
+      "retrieved_on": "2026-10-28",
+      "primary_source": true
+    },
+    {
+      "id": "BRIDGE-CDOT-2026",
+      "title": "Bridge Design Manual Section 2 — General Design and Location Features",
+      "url": "https://www.codot.gov/programs/bridge/bridge-manuals/design_manual/bdm_section-2_2026.pdf",
+      "publisher": "Colorado DOT",
+      "version": "January 2026",
+      "status": "sections_reviewed",
+      "scope": "2.2.1 Alignment；2.2.2 Vertical Clearances；2.2.3 Horizontal Clearances；印刷頁2-1–2-3，已核對2-2頁影像",
+      "claims": [
+        "橋面、引道與接續板高程需對齊，橋下交通與空間限制要在縱斷面設計時納入。",
+        "該轄區主幹道上方橋梁的指定最小淨空為16.50 ft，步行橋與門架等使用另一要求；不能只量兩條中心線高差。"
+      ],
+      "limits": "此數值限定來源轄區與設施類別。模型橋厚、支柱與索尺寸另屬遊戲估算，沒有結構安全驗算。",
+      "retrieved_on": "2026-10-28",
+      "primary_source": true
+    },
+    {
+      "id": "TUNNEL-FHWA-2009",
+      "title": "Technical Manual for Design and Construction of Road Tunnels — Civil Elements",
+      "url": "https://www.fhwa.dot.gov/bridge/tunnel/pubs/nhi09010/tunnel_manual.pdf",
+      "alternate_url": "https://www.govinfo.gov/content/pkg/GOVPUB-TD2-PURL-gpo93381/pdf/GOVPUB-TD2-PURL-gpo93381.pdf",
+      "publisher": "FHWA／U.S. Government Publishing Office",
+      "version": "FHWA-NHI-09-010，March 2009",
+      "status": "indexed_sections_reviewed",
+      "scope": "官方PDF搜尋索引中2.1.1、2.2、斷面與淨空段落；整份PDF因29–34 MB工具上限未完整載入",
+      "claims": [
+        "隧道幾何要同時考慮路寬、路肩、線形、坡度、視距、橫坡與淨空。",
+        "淨空包絡還需容納設備、加鋪與公差；地質、地下水、通風與消防屬必要的工程背景。"
+      ],
+      "limits": "只讀官方索引段落，不能宣稱完整審閱。文件引用2004 Green Book與2008 NFPA 502；不得冒稱是現行完整消防／隧道認證。",
+      "retrieved_on": "2026-10-28",
+      "primary_source": true
+    },
+    {
+      "id": "TUNNEL-NTI-2015",
+      "title": "Specifications for the National Tunnel Inventory",
+      "url": "https://fhwaapps.fhwa.dot.gov/FullNTICheckerp/Content/SNTI.pdf",
+      "publisher": "FHWA",
+      "version": "FHWA-HIF-15-006，July 2015",
+      "status": "indexed_sections_reviewed",
+      "scope": "G.2 Minimum Vertical Clearance over Tunnel Roadway；印刷頁2-46；封面可讀，後續工具抓取逾時",
+      "claims": [
+        "最小隧道淨空是可行駛道路面至任一上方限制物的最小距離，包含頂板、號誌與照明等。"
+      ],
+      "limits": "隧道清冊／檢查資料定義，不是給新建隧道選用所有設計尺寸的規範。",
+      "retrieved_on": "2026-10-28",
+      "primary_source": true
+    },
+    {
+      "id": "SUSPENSION-WSDOT",
+      "title": "Tacoma Narrows Bridge History — Glossary",
+      "url": "https://www.wsdot.wa.gov/tnbhistory/glossary.htm",
+      "publisher": "Washington State DOT",
+      "version": "官網歷史與教育詞彙頁，查閱2026-10-28",
+      "status": "sections_reviewed",
+      "scope": "懸索橋主纜、吊索、塔、錨碇、橋面及下部結構詞彙",
+      "claims": [
+        "懸索橋以主纜、吊索、橋塔、錨碇與橋面形成可辨識的結構系統。"
+      ],
+      "limits": "名詞與構件依據，不能用來證明任意跨度、索徑、塔高或橋厚有足夠承載力。",
+      "retrieved_on": "2026-10-28",
+      "primary_source": true
+    }
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "signal_group": "15 Wheel Forces, two front wheels",
+  "reference_static_front_per_wheel_N": 3796.6702040816335,
+  "fraction_pass_threshold": 0.65,
+  "sessions": [
+    {
+      "source": "craig_2018-07-19_aa",
+      "checked_original_SHA256": "058e7b9fa5a3b4fadf1c53e8102cf5bfab02310e67841ccbc3d89b2e66f8b246",
+      "samples_stride_250": 286,
+      "front_wheel_nominal_rough_N": 3796.6702040816335,
+      "minimum_positive_load_each_N": 569.500530612245,
+      "left_fz_N_quantiles_5_50_95": [
+        -300.140380859375,
+        -7.32421875,
+        968.6279296875
+      ],
+      "right_fz_N_quantiles_5_50_95": [
+        -89.630126953125,
+        -4.486083984375,
+        40.283203125
+      ],
+      "fraction_both_positive_above_floor": 0.0,
+      "passes_both_channel_load_gate": false
+    },
+    {
+      "source": "craig_2018-07-19_ab",
+      "checked_original_SHA256": "6bbf38bcc10ec3d644da192deb5f6beed710e7f3ce9dd215882f98d567cff1c5",
+      "samples_stride_250": 262,
+      "front_wheel_nominal_rough_N": 3796.6702040816335,
+      "minimum_positive_load_each_N": 569.500530612245,
+      "left_fz_N_quantiles_5_50_95": [
+        -1.5258789062499956,
+        1769.10400390625,
+        2773.98681640625
+      ],
+      "right_fz_N_quantiles_5_50_95": [
+        -75.5767822265625,
+        -41.107177734375,
+        6.335449218749983
+      ],
+      "fraction_both_positive_above_floor": 0.0,
+      "passes_both_channel_load_gate": false
+    },
+    {
+      "source": "craig_2018-07-19_ac",
+      "checked_original_SHA256": "0b6d49bad94180b8f3069410cebe033580da0b7a9cccafd8b6a920ff47cd83b4",
+      "samples_stride_250": 278,
+      "front_wheel_nominal_rough_N": 3796.6702040816335,
+      "minimum_positive_load_each_N": 569.500530612245,
+      "left_fz_N_quantiles_5_50_95": [
+        -5056.915283203125,
+        -1421.5087890625,
+        1513.092041015625
+      ],
+      "right_fz_N_quantiles_5_50_95": [
+        -104.0679931640625,
+        34.24072265625,
+        81.01501464843749
+      ],
+      "fraction_both_positive_above_floor": 0.0,
+      "passes_both_channel_load_gate": false
+    },
+    {
+      "source": "craig_2018-07-19_ad",
+      "checked_original_SHA256": "49c3434f5c99f603f25f17331ad2de471c3e727c3e0735bb74104c525149c56c",
+      "samples_stride_250": 358,
+      "front_wheel_nominal_rough_N": 3796.6702040816335,
+      "minimum_positive_load_each_N": 569.500530612245,
+      "left_fz_N_quantiles_5_50_95": [
+        -259.674072265625,
+        -98.2666015625,
+        377.89916992187443
+      ],
+      "right_fz_N_quantiles_5_50_95": [
+        -25.067138671875,
+        -8.7890625,
+        18.22814941406243
+      ],
+      "fraction_both_positive_above_floor": 0.0,
+      "passes_both_channel_load_gate": false
+    },
+    {
+      "source": "craig_2018-07-19_ai",
+      "checked_original_SHA256": "1a9c7058c0b121b5ac75313847f83cd954e7cfb01c0a2a3d2920cfd062912a5a",
+      "samples_stride_250": 238,
+      "front_wheel_nominal_rough_N": 3796.6702040816335,
+      "minimum_positive_load_each_N": 569.500530612245,
+      "left_fz_N_quantiles_5_50_95": [
+        -223.72436523437497,
+        341.796875,
+        2136.5661621093736
+      ],
+      "right_fz_N_quantiles_5_50_95": [
+        -147.69287109375,
+        -26.275634765625,
+        14.593505859374925
+      ],
+      "fraction_both_positive_above_floor": 0.0,
+      "passes_both_channel_load_gate": false
+    },
+    {
+      "source": "craig_2018-07-19_ak",
+      "checked_original_SHA256": "0f845618162acf0036a5c9e3ffe466aaddf014d421778473ead5c1b9dd47ecbe",
+      "samples_stride_250": 260,
+      "front_wheel_nominal_rough_N": 3796.6702040816335,
+      "minimum_positive_load_each_N": 569.500530612245,
+      "left_fz_N_quantiles_5_50_95": [
+        -21.45385742187497,
+        977.47802734375,
+        2563.842773437499
+      ],
+      "right_fz_N_quantiles_5_50_95": [
+        -64.1143798828125,
+        -35.70556640625,
+        18.49365234375
+      ],
+      "fraction_both_positive_above_floor": 0.0,
+      "passes_both_channel_load_gate": false
+    }
+  ],
+  "all_runs_pass": false,
+  "tire_force_coefficient_fit_approved": false,
+  "reason": "Some force/normal-load channels are near zero or negative under driving. Recording or channel calibration must be verified before using Fy vs alpha or Mz vs alpha."
+}

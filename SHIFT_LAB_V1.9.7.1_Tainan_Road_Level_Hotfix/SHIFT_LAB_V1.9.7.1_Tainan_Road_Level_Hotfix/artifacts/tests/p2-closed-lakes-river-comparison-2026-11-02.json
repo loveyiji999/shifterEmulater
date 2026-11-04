@@ -1,0 +1,101 @@
+[
+  {
+    "seed": "LEVEL-1",
+    "exactlyEqual": true,
+    "geometryEqual": true,
+    "before": {
+      "changedVertices": 5477,
+      "maxCut": 20.90858829021454,
+      "protectedVertices": 1219,
+      "wetMaskEdges": 0,
+      "openWaterEdges": 0,
+      "openOuterEdges": 0,
+      "openInteriorEdges": 0,
+      "terminalWaterEdges": 5,
+      "discardedWaterTriangles": 78,
+      "outsideCorridorTriangles": 0,
+      "minPathCoverage": 1,
+      "waterTriangles": 1245
+    },
+    "after": {
+      "changedVertices": 5477,
+      "maxCut": 20.90858829021454,
+      "protectedVertices": 1219,
+      "wetMaskEdges": 0,
+      "openWaterEdges": 0,
+      "openOuterEdges": 0,
+      "openInteriorEdges": 0,
+      "terminalWaterEdges": 5,
+      "discardedWaterTriangles": 78,
+      "outsideCorridorTriangles": 0,
+      "minPathCoverage": 1,
+      "waterTriangles": 1245
+    }
+  },
+  {
+    "seed": "LEVEL-2",
+    "exactlyEqual": true,
+    "geometryEqual": true,
+    "before": {
+      "changedVertices": 5517,
+      "maxCut": 20.820564776659012,
+      "protectedVertices": 4566,
+      "wetMaskEdges": 11,
+      "openWaterEdges": 113,
+      "openOuterEdges": 52,
+      "openInteriorEdges": 61,
+      "terminalWaterEdges": 6,
+      "discardedWaterTriangles": 8696,
+      "outsideCorridorTriangles": 2092,
+      "minPathCoverage": 1,
+      "waterTriangles": 3303
+    },
+    "after": {
+      "changedVertices": 5517,
+      "maxCut": 20.820564776659012,
+      "protectedVertices": 4566,
+      "wetMaskEdges": 11,
+      "openWaterEdges": 113,
+      "openOuterEdges": 52,
+      "openInteriorEdges": 61,
+      "terminalWaterEdges": 6,
+      "discardedWaterTriangles": 8696,
+      "outsideCorridorTriangles": 2092,
+      "minPathCoverage": 1,
+      "waterTriangles": 3303
+    }
+  },
+  {
+    "seed": "ROAD-38274CD4",
+    "exactlyEqual": true,
+    "geometryEqual": true,
+    "before": {
+      "changedVertices": 6384,
+      "maxCut": 22.200616359710693,
+      "protectedVertices": 518,
+      "wetMaskEdges": 0,
+      "openWaterEdges": 0,
+      "openOuterEdges": 0,
+      "openInteriorEdges": 0,
+      "terminalWaterEdges": 4,
+      "discardedWaterTriangles": 102,
+      "outsideCorridorTriangles": 0,
+      "minPathCoverage": 1,
+      "waterTriangles": 1529
+    },
+    "after": {
+      "changedVertices": 6384,
+      "maxCut": 22.200616359710693,
+      "protectedVertices": 518,
+      "wetMaskEdges": 0,
+      "openWaterEdges": 0,
+      "openOuterEdges": 0,
+      "openInteriorEdges": 0,
+      "terminalWaterEdges": 4,
+      "discardedWaterTriangles": 102,
+      "outsideCorridorTriangles": 0,
+      "minPathCoverage": 1,
+      "waterTriangles": 1529
+    }
+  }
+]

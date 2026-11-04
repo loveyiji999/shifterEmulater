@@ -1,0 +1,451 @@
+{
+  "date": "2026-10-30",
+  "objective": "進行按階段的開發直到完成建置書所要求之成果",
+  "goalStatus": "active",
+  "previousGoalTurnClassification": {
+    "classification": "progress",
+    "evidence": "manual-performance-verification-2026-10-30.json; completed opt-in diagnostic tool, production isolation and native local download"
+  },
+  "workPackage": "15: P2 drainage topology foundation; actual riverbed / water / game integration incomplete",
+  "planVersion": "1.8",
+  "checks": {
+    "node --check src/terrain-drainage.mjs": "PASS",
+    "node tests/validate-drainage.mjs": "PASS final: bowl / slope / unresolved island / no diagonal crossing, 32 integer and fractional minimax-oracle cases, rectangular negative-world layout, invalid samples, actual surface and next-bend RNG parity",
+    "npm.cmd run qa:terrain": "PASS existing terrain / surface / scenery plus new drainage",
+    "npm.cmd run build": "PASS 42 modules, existing bundle warning; entire dist byte-identical to preceding work package",
+    "node tests/validate-procedural-browser.mjs --production": "PASS settings, rebuilding, wheel contact and no diagnostics in game",
+    "knowledgeValidation": "PASS 17 unique primary source IDs / cards, original 16 records unchanged, all touched Markdown links valid",
+    "sourceRoundtrip": "PASS all 13 source files"
+  },
+  "sources": {
+    "desktop3d/package.json": "1aae149428e80c8e67e02d4e99e83a4a4c7ec10b8bdf55f09792a14bd47962a0",
+    "desktop3d/src/terrain-drainage.mjs": "e71043fc71b2f70169f463951a69fc0844fee22204931b01c426844d5dd74f30",
+    "desktop3d/tests/validate-drainage.mjs": "e1b8249a6a15aaadd467824ef8ea6541d50d28e2060b42fdd2145ba95ac16c24",
+    "docs/P2_DRAINAGE_FOUNDATION.md": "8408e5c6bc20924ac1e300fe97d8a8068d4b08a67ca54306137d7646ff7483bb",
+    "docs/DEVELOPMENT_PLAN.md": "f70cb1a4920fb8b2908703aa062bad9a0dded28e8e1499b0a1127dca79febdbe",
+    "docs/DATA_CATALOG.md": "dd3e2baff4312c95b616c6add5da2e67d23282b43002e0b7342e4724db61b82e",
+    "docs/AGENT_KNOWLEDGE.md": "e16f8e22038cf538edf6579e0f3ff0d3af29bfcd2e3cf3d28b2e4f0737443766",
+    "docs/AGENT_VERIFICATION.md": "9fb794c26f0eef5ec22de03842d598c03e63b70882525bd0ce34b18d8a1cb6a3",
+    "docs/DEVELOPMENT_PROGRESS.md": "2ec5524b2f4192171e50e320e4b955664d193dcb46646e14219a53c3ac99ab67",
+    "docs/knowledge/road-environment/README.md": "eea61553ef9689a76940ef08586e4bcaed5f787a0d8a9f15d4c1348e471d0451",
+    "docs/knowledge/road-environment/VERIFICATION.md": "328dad2b0d52689a1b09bbf5d2b7b719665ac602f1cad020dc9c81855c49013e",
+    "docs/knowledge/road-environment/source-catalog.json": "17ce8c284c7255028e0911e4afa3e8e8e8100fac07f8c4f1a1f3a50633a77cb3",
+    "docs/knowledge/road-environment/sources/WATER-DRAINAGE.md": "9ab72da207731b1cfe3df512b13152a813865ab94e08a984220775c79486190e"
+  },
+  "sourceArchive": "p2-drainage-source-2026-10-30.zip",
+  "sourceArchiveSha256": "909332fcdc1f352409ed833f868d0c3dabc6e76aa372af8266dfe735a2592919",
+  "actualTerrain": [
+    {
+      "seed": "LEVEL-1",
+      "feature": "suspension",
+      "chainage": 170,
+      "samplesChecked": 1089,
+      "sourceHash": "d45e07b98be1eaadd668c258b506974e52bf72af4c6a49d053821397fdf971ca",
+      "summary": {
+        "reachableCells": 1089,
+        "unresolvedCells": 0,
+        "blockedCells": 0,
+        "outlets": 128,
+        "fillCells": 215,
+        "maxFillDepth": 15.949893951416016
+      },
+      "deepestPath": {
+        "status": "window-boundary",
+        "points": [
+          {
+            "cell": 147,
+            "x": -8,
+            "z": 72,
+            "groundY": -18.065000534057617,
+            "spillY": -2.1151065826416016,
+            "fillDepth": 15.949893951416016,
+            "areaM2": 320
+          },
+          {
+            "cell": 113,
+            "x": -16,
+            "z": 64,
+            "groundY": -11.34000015258789,
+            "spillY": -2.1151065826416016,
+            "fillDepth": 9.224893569946289,
+            "areaM2": 384
+          },
+          {
+            "cell": 79,
+            "x": -24,
+            "z": 56,
+            "groundY": -3.691666603088379,
+            "spillY": -2.1151065826416016,
+            "fillDepth": 1.5765600204467773,
+            "areaM2": 26880
+          },
+          {
+            "cell": 47,
+            "x": -16,
+            "z": 48,
+            "groundY": -2.869999885559082,
+            "spillY": -2.1151065826416016,
+            "fillDepth": 0.7548933029174805,
+            "areaM2": 27712
+          },
+          {
+            "cell": 48,
+            "x": -8,
+            "z": 48,
+            "groundY": -3.890000104904175,
+            "spillY": -2.1151065826416016,
+            "fillDepth": 1.7748935222625732,
+            "areaM2": 28032
+          },
+          {
+            "cell": 49,
+            "x": 0,
+            "z": 48,
+            "groundY": -3.890000104904175,
+            "spillY": -2.1151065826416016,
+            "fillDepth": 1.7748935222625732,
+            "areaM2": 28288
+          },
+          {
+            "cell": 50,
+            "x": 8,
+            "z": 48,
+            "groundY": -3.890000104904175,
+            "spillY": -2.1151065826416016,
+            "fillDepth": 1.7748935222625732,
+            "areaM2": 28544
+          },
+          {
+            "cell": 84,
+            "x": 16,
+            "z": 56,
+            "groundY": -7.105000019073486,
+            "spillY": -2.1151065826416016,
+            "fillDepth": 4.989893436431885,
+            "areaM2": 28608
+          },
+          {
+            "cell": 118,
+            "x": 24,
+            "z": 64,
+            "groundY": -5.87333345413208,
+            "spillY": -2.1151065826416016,
+            "fillDepth": 3.7582268714904785,
+            "areaM2": 28672
+          },
+          {
+            "cell": 152,
+            "x": 32,
+            "z": 72,
+            "groundY": -2.1151065826416016,
+            "spillY": -2.1151065826416016,
+            "fillDepth": 0,
+            "areaM2": 28736
+          },
+          {
+            "cell": 153,
+            "x": 40,
+            "z": 72,
+            "groundY": -3.0880863666534424,
+            "spillY": -3.0880863666534424,
+            "fillDepth": 0,
+            "areaM2": 28800
+          },
+          {
+            "cell": 154,
+            "x": 48,
+            "z": 72,
+            "groundY": -4.641239166259766,
+            "spillY": -4.641239166259766,
+            "fillDepth": 0,
+            "areaM2": 28864
+          },
+          {
+            "cell": 155,
+            "x": 56,
+            "z": 72,
+            "groundY": -6.199444770812988,
+            "spillY": -6.199444770812988,
+            "fillDepth": 0,
+            "areaM2": 29120
+          },
+          {
+            "cell": 123,
+            "x": 64,
+            "z": 64,
+            "groundY": -8.428278923034668,
+            "spillY": -8.428278923034668,
+            "fillDepth": 0,
+            "areaM2": 29184
+          },
+          {
+            "cell": 91,
+            "x": 72,
+            "z": 56,
+            "groundY": -10.688876152038574,
+            "spillY": -10.688876152038574,
+            "fillDepth": 0,
+            "areaM2": 36288
+          },
+          {
+            "cell": 58,
+            "x": 72,
+            "z": 48,
+            "groundY": -11.489428520202637,
+            "spillY": -11.489428520202637,
+            "fillDepth": 0,
+            "areaM2": 38592
+          },
+          {
+            "cell": 25,
+            "x": 72,
+            "z": 40,
+            "groundY": -12.097555160522461,
+            "spillY": -12.097555160522461,
+            "fillDepth": 0,
+            "areaM2": 38976
+          }
+        ]
+      }
+    },
+    {
+      "seed": "LEVEL-2",
+      "feature": "suspension",
+      "chainage": 170,
+      "samplesChecked": 1076,
+      "sourceHash": "6dfd9df6a17903d1bc09e2b72850c7aa57a9b1f258917c4a5dc951005f649a87",
+      "summary": {
+        "reachableCells": 1076,
+        "unresolvedCells": 0,
+        "blockedCells": 13,
+        "outlets": 124,
+        "fillCells": 251,
+        "maxFillDepth": 15.968941926956177
+      },
+      "deepestPath": {
+        "status": "window-boundary",
+        "points": [
+          {
+            "cell": 147,
+            "x": -8,
+            "z": 72,
+            "groundY": -18.065000534057617,
+            "spillY": -2.0960586071014404,
+            "fillDepth": 15.968941926956177,
+            "areaM2": 320
+          },
+          {
+            "cell": 113,
+            "x": -16,
+            "z": 64,
+            "groundY": -11.34000015258789,
+            "spillY": -2.0960586071014404,
+            "fillDepth": 9.24394154548645,
+            "areaM2": 384
+          },
+          {
+            "cell": 79,
+            "x": -24,
+            "z": 56,
+            "groundY": -3.691666603088379,
+            "spillY": -2.0960586071014404,
+            "fillDepth": 1.5956079959869385,
+            "areaM2": 19392
+          },
+          {
+            "cell": 47,
+            "x": -16,
+            "z": 48,
+            "groundY": -2.869999885559082,
+            "spillY": -2.0960586071014404,
+            "fillDepth": 0.7739412784576416,
+            "areaM2": 20224
+          },
+          {
+            "cell": 48,
+            "x": -8,
+            "z": 48,
+            "groundY": -3.890000104904175,
+            "spillY": -2.0960586071014404,
+            "fillDepth": 1.7939414978027344,
+            "areaM2": 20544
+          },
+          {
+            "cell": 49,
+            "x": 0,
+            "z": 48,
+            "groundY": -3.890000104904175,
+            "spillY": -2.0960586071014404,
+            "fillDepth": 1.7939414978027344,
+            "areaM2": 20800
+          },
+          {
+            "cell": 50,
+            "x": 8,
+            "z": 48,
+            "groundY": -3.890000104904175,
+            "spillY": -2.0960586071014404,
+            "fillDepth": 1.7939414978027344,
+            "areaM2": 21120
+          },
+          {
+            "cell": 84,
+            "x": 16,
+            "z": 56,
+            "groundY": -7.105000019073486,
+            "spillY": -2.0960586071014404,
+            "fillDepth": 5.008941411972046,
+            "areaM2": 21184
+          },
+          {
+            "cell": 118,
+            "x": 24,
+            "z": 64,
+            "groundY": -5.87333345413208,
+            "spillY": -2.0960586071014404,
+            "fillDepth": 3.7772748470306396,
+            "areaM2": 21248
+          },
+          {
+            "cell": 152,
+            "x": 32,
+            "z": 72,
+            "groundY": -2.0960586071014404,
+            "spillY": -2.0960586071014404,
+            "fillDepth": 0,
+            "areaM2": 21312
+          },
+          {
+            "cell": 153,
+            "x": 40,
+            "z": 72,
+            "groundY": -2.815176010131836,
+            "spillY": -2.815176010131836,
+            "fillDepth": 0,
+            "areaM2": 21376
+          },
+          {
+            "cell": 154,
+            "x": 48,
+            "z": 72,
+            "groundY": -4.3572540283203125,
+            "spillY": -4.3572540283203125,
+            "fillDepth": 0,
+            "areaM2": 21440
+          },
+          {
+            "cell": 155,
+            "x": 56,
+            "z": 72,
+            "groundY": -6.468778610229492,
+            "spillY": -6.468778610229492,
+            "fillDepth": 0,
+            "areaM2": 21504
+          },
+          {
+            "cell": 156,
+            "x": 64,
+            "z": 72,
+            "groundY": -8.543580055236816,
+            "spillY": -8.543580055236816,
+            "fillDepth": 0,
+            "areaM2": 21568
+          },
+          {
+            "cell": 157,
+            "x": 72,
+            "z": 72,
+            "groundY": -9.917488098144531,
+            "spillY": -9.917488098144531,
+            "fillDepth": 0,
+            "areaM2": 24640
+          },
+          {
+            "cell": 124,
+            "x": 72,
+            "z": 64,
+            "groundY": -10.446755409240723,
+            "spillY": -10.317987442016602,
+            "fillDepth": 0.1287679672241211,
+            "areaM2": 25152
+          },
+          {
+            "cell": 92,
+            "x": 80,
+            "z": 56,
+            "groundY": -11.219756126403809,
+            "spillY": -10.317987442016602,
+            "fillDepth": 0.901768684387207,
+            "areaM2": 29696
+          },
+          {
+            "cell": 59,
+            "x": 80,
+            "z": 48,
+            "groundY": -10.7225923538208,
+            "spillY": -10.317987442016602,
+            "fillDepth": 0.4046049118041992,
+            "areaM2": 30272
+          },
+          {
+            "cell": 26,
+            "x": 80,
+            "z": 40,
+            "groundY": -10.317987442016602,
+            "spillY": -10.317987442016602,
+            "fillDepth": 0,
+            "areaM2": 30336
+          }
+        ]
+      }
+    },
+    {
+      "seed": "ROAD-38274CD4",
+      "feature": "suspension",
+      "chainage": 544.8354623722844,
+      "samplesChecked": 1089,
+      "sourceHash": "139cb98154c6b9f1f8f566f50fc99cbf445f304c4703ee3672d1a9a4f3a7c8e3",
+      "summary": {
+        "reachableCells": 1089,
+        "unresolvedCells": 0,
+        "blockedCells": 0,
+        "outlets": 128,
+        "fillCells": 0,
+        "maxFillDepth": 0
+      },
+      "deepestPath": {
+        "status": "window-boundary",
+        "points": [
+          {
+            "cell": 1071,
+            "x": -8,
+            "z": 672,
+            "groundY": -18.430652618408203,
+            "spillY": -18.430652618408203,
+            "fillDepth": 0,
+            "areaM2": 16064
+          }
+        ]
+      }
+    }
+  ],
+  "rawResult": "p2-drainage-results-2026-10-30.json",
+  "rawResultSha256": "4a4d4bb1b8bf8012c79a0e10acf84df6936e0234f80e06636856f79c51e383f3",
+  "knowledgeReadStatus": {
+    "sections_reviewed": 14,
+    "indexed_sections_reviewed": 3
+  },
+  "productionIdenticalToPriorCheckpoint": true,
+  "analysisImportedByGame": false,
+  "existingRuntimeEntryModified": false,
+  "gpuOrFrameRateClaim": null,
+  "actualUserTraceReceived": false,
+  "remainingOriginalScope": [
+    "Actual player terrain / collision stutter root cause and fix",
+    "P2 connected riverbed excavation / outlets / culverts, clipped water and banks, exact contact / wet classification and streaming integration",
+    "P2 exterior portal scenery and far field",
+    "P3 ten complete scenes, cold / warm repeated native measurements, quality / LOD / compression / backend decision and >=600s endurance",
+    "P4 full tuning / transmission tools and reliable apply",
+    "P5 paint, modular assembly, constrained authoring and asset import"
+  ]
+}

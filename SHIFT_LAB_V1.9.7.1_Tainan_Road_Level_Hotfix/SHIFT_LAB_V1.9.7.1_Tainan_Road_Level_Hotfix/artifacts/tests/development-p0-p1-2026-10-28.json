@@ -1,0 +1,65 @@
+{
+  "schema": "shiftlab.development.verification.v1",
+  "recordedAt": "2026-10-28T15:22:45.496998+00:00",
+  "scope": "P0/P1 partial implementation; not full plan completion",
+  "status": "partial",
+  "verification": [
+    {
+      "command": "node tests/validate-vehicle-definition.mjs",
+      "result": "PASS",
+      "evidence": "observed terminal exit 0 in current development session"
+    },
+    {
+      "command": "node tests/validate-wheel-visuals.mjs",
+      "result": "PASS",
+      "evidence": "observed terminal exit 0 in current development session"
+    },
+    {
+      "command": "npm.cmd run qa:all",
+      "result": "PASS",
+      "evidence": "observed terminal exit 0 in current development session"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs",
+      "result": "PASS",
+      "evidence": "observed terminal exit 0 in current development session"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --vehicle-diagnostics",
+      "result": "PASS",
+      "evidence": "observed terminal exit 0 in current development session"
+    },
+    {
+      "command": "npm.cmd run build",
+      "result": "PASS",
+      "evidence": "observed terminal exit 0 in current development session"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --production",
+      "result": "PASS",
+      "evidence": "observed terminal exit 0 in current development session"
+    }
+  ],
+  "hashes": {
+    "desktop3d/src/vehicle-definition.mjs": "ab4099fdc3d61c6842246ded64e7444c28f26eeff1acd3d21d65fa66f32fb6dd",
+    "desktop3d/src/main.mjs": "8906bb2466637684bfe59e735217fa8e41bf6c5da583447398aae5ddb8fad878",
+    "desktop3d/src/chassis.mjs": "3897972d844464bf8d435ac4f59ef09991d8f477aa30239f251adf92578b4542",
+    "desktop3d/public/physics.html": "ae8599d1e46ead1fe9a72a21134a23e99ec9b25b524bd81640214f07b68b3aed",
+    "desktop3d/tests/validate-vehicle-definition.mjs": "8ac7b28d2da6d5c69717bf01ca91b7556f93eb9498e6cc2c063804072366b204",
+    "desktop3d/tests/validate-wheel-visuals.mjs": "dce4687daa7a88259ba510c41f8e034ce84a347cf05d8b32e333e4453bf4b61a",
+    "desktop3d/tests/vehicle-diagnostics/index.html": "11db948974552019d5a68cb4845e0552d8a6ace9be4e2e9668967a823ce08aff",
+    "desktop3d/tests/vehicle-diagnostics/main.mjs": "4e979ba4ab8fc67292a19686e956a466a29397a2dd59cc542734418c77d01e1c",
+    "desktop3d/tests/game-driver.mjs": "081b84934c4d9fabc8c616a863f525205d3dfa1a54f77d65e44e623108a879e3",
+    "desktop3d/tests/validate-procedural-browser.mjs": "6de59ec5bc8c9daaf35056ad28548c68f062227c3c90ebe79e40e317802d4aab",
+    "desktop3d/package.json": "937879ed55f19736c3b4f92b9b332b0fcf03c748b600f813f6a9917e268beefa"
+  },
+  "nativeGpuBenchmarkRun": false,
+  "phaseStatus": {
+    "P0": "in_progress",
+    "P1": "in_progress",
+    "P2": "not_complete",
+    "P3": "not_complete",
+    "P4": "not_complete",
+    "P5": "not_complete"
+  }
+}

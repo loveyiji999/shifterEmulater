@@ -1,0 +1,207 @@
+{
+  "date": "2026-10-29",
+  "goalStatus": "active; P0-P5 not complete",
+  "previousGoalTurnClassification": "progress: drivable concrete/gravel integrated and verified",
+  "currentScope": "P2 deterministic forest/boulders, matched collision and terrain tint",
+  "sourceHashes": {
+    "desktop3d/src/scenery-geometry.mjs": "afd6aae78a7adf392c6bf4921b3c801e7f212d4e719d2d12764009d6be89de0a",
+    "desktop3d/src/scenery-world.mjs": "668729a23cb3625fce98039ecd2b2a10a41df372f8a8a7e8e72c8beaa07b79b2",
+    "desktop3d/src/terrain-world.mjs": "875cab58173cf1ab2e28c62271e3336da2f7cd793c1e1f4909c93a908d463841",
+    "desktop3d/src/terrain-geometry.mjs": "6fc832cbc9ef705e435c4b061299ee8c8e6ae3faa300146184a08c945a4d8da5",
+    "desktop3d/src/road.mjs": "a40b91b01bafd82ebbafe8a43f1f3057e423ef827319be2a23132a5827dad435",
+    "desktop3d/src/surface-map.mjs": "338b10854328d4190836bc2bfed38a2ecf7d1bc788390d75914381703fa7adc4",
+    "desktop3d/src/geometry-streamer.mjs": "4068554fcb5073610825cc2bf43603ad8f7cb724ee8b195d5fffa11e544a8147",
+    "desktop3d/src/streaming-geometry.mjs": "efff1aedc2a7fab397cc922679031898904ec4ae7e5dd97d4af8c2d895f96877",
+    "desktop3d/src/streaming.worker.mjs": "dd4f799ec49c065425a1eb2bc524925494dc747b3a2d28f8a55753070ac15b12",
+    "desktop3d/src/road-snapshot.mjs": "46550c19336b7e61cda970caf1157dc113c0a0410330e3ca28a952e02602eddb",
+    "desktop3d/src/surface-materials.mjs": "c953a63c6aa10dc9108311f3a027858bd10548608279b742a09c8c981c2098ec",
+    "desktop3d/src/collider-partition.mjs": "13bb526bd5d517428a7b955ba70bbe42b163622ebc9900714b6e6a3ae2440ab2",
+    "desktop3d/src/main.mjs": "34bf757c2f6825e3c1b0aa4d26a815c43ba7890804c80cdf11a32af457ec0cb7",
+    "desktop3d/src/chassis.mjs": "249539c37109de8359530819a045e70b6f1f2c0f48fde6b56f33eec8d641ac80",
+    "desktop3d/public/physics.html": "c491cfc1ca5af23367822f87dfd27c12e122b83bf362ff6073829c75f952edbd",
+    "desktop3d/public/road-generator-v3.js": "d9d0c37bfa479bfcce098e5f86625eff36055fa04927f377b9b48cdc655a9668",
+    "desktop3d/package.json": "ac66cae2d39f862d91e89c5c66d6624a14e98aba2ba3f8d5e3677d36590c9699",
+    "desktop3d/package-lock.json": "f6acb5b69f34e0a9351be7f55f28914c490c01bee2ee9ca302435edad545ec86",
+    "desktop3d/tests/validate-scenery.mjs": "f37593b8b8cf48350eaa04a5025e907e441369de615252ac2e7382d30487662e",
+    "desktop3d/tests/scenery-driver.mjs": "feffb003259c757e76cbe350f820bd1631c24eeb2a8c74a18123ab29c5cfb86f",
+    "desktop3d/tests/game-driver.mjs": "7aad30dc0f2a7653c189f4cee74631c5807423e2f94b22e1bfb45c0395ab6c88",
+    "desktop3d/tests/validate-streaming.mjs": "a7ddbc7487015be60fd45b7eefebeb791c4f917f9ff67cca76ea2fd0aa886880",
+    "desktop3d/tests/performance-baseline.mjs": "b6b8d3b4529556b6ae30d35fb39116dd6d43f2a6338274c2a73603ffe78ed206",
+    "desktop3d/tests/streaming-profile.mjs": "0e4ef4e964f45072bd9e0834dcb72507f85e621af86aeceec8e5f83928b2abb8",
+    "desktop3d/tests/validate-performance-capture.mjs": "22cab26ca734ddb110a5d50f4656b84cd091d39cc275a9c48772ddad7687c88e",
+    "desktop3d/tests/validate-procedural-browser.mjs": "05ca79f7c8090de285580833ab1b61f4fdb2db18ba031600265f08bbb52f5763",
+    "desktop3d/tests/collider-geometry-check.mjs": "bb09bc3ad96d37d1fec0314efaa269af7dbcf7ec883350b75f5548f427398ecc",
+    "desktop3d/tests/geometry-worker-node.mjs": "58334715f7e95ca65697fa9edd40be93823bd26432242a38dbba15a16105817e",
+    "docs/P2_SCENERY.md": "95985c603a8e9715443da8a6c80a1745e6e3b369e7d9a11b84ea22e8196179c6",
+    "docs/DEVELOPMENT_PLAN.md": "a0f22d1f04804c8dee3b4399c458fc5088bde46c3eb67818a5e5344075632025",
+    "docs/DEVELOPMENT_PROGRESS.md": "5a99489ecf82b78ca0c04c35a9ce2668984466ec9bf322b1ee9ee4f209bf8775",
+    "docs/AGENT_KNOWLEDGE.md": "1081b7aa01f474b8d8056fc3fc0d6b2bbc092197b96c8e796bca4b343f2b6f5c",
+    "docs/AGENT_VERIFICATION.md": "ee4eb751ffa0cadcc19591251fae48ee6db1b63d9a736475ec5af468be7323d0",
+    "docs/DATA_CATALOG.md": "fab5790d80bfeb4df9b936b11b782838d400a19f5a2fa50a05a6a1f1f03fbf7f",
+    "docs/knowledge/road-environment/rendering/PIPELINE.md": "a8a4950b82f4082b03b5f8769f8ae1738695c24768a6e2b6b33950756e9511a2"
+  },
+  "archiveSha256": "a3d681dee7aae125a622a5bd967048b453c638f19faa3d9fb0917ee2083267b8",
+  "unchangedAgainstPavementSource": [
+    "desktop3d/src/main.mjs",
+    "desktop3d/src/chassis.mjs",
+    "desktop3d/public/physics.html",
+    "desktop3d/public/road-generator-v3.js",
+    "desktop3d/package-lock.json"
+  ],
+  "checks": [
+    {
+      "command": "node tests/validate-scenery.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-streaming.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-terrain.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-surface-map.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-pavement.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-performance-capture.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "npm.cmd run qa:all",
+      "result": "PASS"
+    },
+    {
+      "command": "npm.cmd run build",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --scenery",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --production",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --road-v3",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --scenery-performance --native-gpu --warm",
+      "result": "PASS"
+    }
+  ],
+  "nativePerformance": {
+    "metadata": {
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+      "device": "ANGLE (Intel, Intel(R) UHD Graphics 770 (0x00004680) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "backend": "WebGL2",
+      "drawingBuffer": [
+        1440,
+        900
+      ],
+      "devicePixelRatio": 1,
+      "hardwareConcurrency": 20,
+      "deviceMemoryGiB": 32,
+      "map": {
+        "seed": "STREAM-TIMING-V1",
+        "turnChance": 0,
+        "hairpinChance": 0,
+        "slopeChance": 0,
+        "leftBias": 50,
+        "upBias": 50,
+        "maxGrade": 9,
+        "generator": 3
+      },
+      "scenery": {
+        "trees": 235,
+        "rocks": 29,
+        "batches": 27,
+        "colliders": 264
+      },
+      "pavementMaterial": "asphalt_dense",
+      "preset": "standard",
+      "warmupSeconds": 10,
+      "captureSeconds": 40
+    },
+    "frameMs": {
+      "p50": 17.5,
+      "p95": 19,
+      "p99": 19.600000023841858,
+      "max": 43.10000002384186
+    },
+    "physicsCpuMs": {
+      "p50": 2.899999976158142,
+      "p95": 4.100000023841858,
+      "p99": 4.899999976158142,
+      "max": 41.5
+    },
+    "streamCpuMs": {
+      "p50": 0,
+      "p95": 0.20000004768371582,
+      "p99": 0.6000000238418579,
+      "max": 2.399999976158142
+    },
+    "gpuRenderMs": {
+      "p50": 7.890885,
+      "p95": 8.397916,
+      "p99": 8.933125,
+      "max": 9.911718
+    },
+    "simulationRatio": 1.0012036099969863,
+    "droppedSteps": 1,
+    "distanceM": 915.3377075195312,
+    "streaming": {
+      "mode": "worker",
+      "jobs": 28,
+      "discarded": 1,
+      "commits": 27,
+      "waits": 0,
+      "maxWorkerMs": 264.40000009536743,
+      "maxPrepareMs": 5,
+      "maxActivateMs": 1.600000023841858,
+      "error": null,
+      "pending": 0,
+      "prepared": 0,
+      "ready": false
+    },
+    "sceneryEnd": {
+      "trees": 336,
+      "rocks": 60,
+      "batches": 36,
+      "colliders": 396
+    }
+  },
+  "functionalScenery": {
+    "trees": 262,
+    "rocks": 55,
+    "batches": 27,
+    "colliders": 317,
+    "rockQueries": 32,
+    "trunkQueries": 32,
+    "maxErrorM": 4.0437614474697625e-06
+  },
+  "rockPositiveLoadAndCapacityFrames": 60,
+  "limitations": [
+    "procedural generic conifers; soft foliage has no hard collision branches",
+    "authored natural_stone gameplay coefficients, not field calibration",
+    "soil tint is not complete PBR terrain material blending",
+    "single seed native40s, one dropped step; not all P3 scenes or600s session",
+    "P2 water/terrain blending/more materials and P3-P5 remain incomplete"
+  ],
+  "resolvedTestSetupIssues": [
+    "test core wheelModel.splitMu initialized to original same mode",
+    "DEV inspection reads owned road.scene; production context API unchanged"
+  ]
+}

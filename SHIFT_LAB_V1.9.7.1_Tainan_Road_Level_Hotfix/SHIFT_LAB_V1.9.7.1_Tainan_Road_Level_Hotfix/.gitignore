@@ -1,0 +1,5 @@
+# Build and interpreter output
+**/node_modules/
+**/dist/
+**/__pycache__/
+**/*.pyc

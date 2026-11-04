@@ -1,0 +1,36 @@
+[
+  {
+    "seed": "LEVEL-1",
+    "tiles": 16,
+    "positions": 96885,
+    "changed": 0,
+    "maxY": 0,
+    "maxNormal": 0.0000034570693969726562,
+    "worst": null
+  },
+  {
+    "seed": "LEVEL-2",
+    "tiles": 16,
+    "positions": 104082,
+    "changed": 0,
+    "maxY": 0,
+    "maxNormal": 0.000004861503839492798,
+    "worst": null
+  },
+  {
+    "seed": "ROAD-38274CD4",
+    "tiles": 16,
+    "positions": 94095,
+    "changed": 16,
+    "maxY": 0.0000016689300537109375,
+    "maxNormal": 0.000012263655662536621,
+    "worst": {
+      "tx": -2,
+      "tz": 3,
+      "x": -226.3777618408203,
+      "z": 493.5080261230469,
+      "before": -3.6734793186187744,
+      "after": -3.673480987548828
+    }
+  }
+]

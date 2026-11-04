@@ -1,0 +1,57 @@
+--- a/index.html
++++ b/index.html
+@@ -309,7 +309,7 @@
+ </div>
+ 
+ <header>
+-  <div class="brand">SHIFT<b>//</b>LAB <small>MANUAL TRANSMISSION · TIRE · DRIVELINE · VEHICLE PROFILES · COACH · REPLAY · STEERING · CAMERA · BODY DYNAMICS V1.8.4</small></div>
++  <div class="brand">SHIFT<b>//</b>LAB <small>MANUAL TRANSMISSION · TIRE · DRIVELINE · VEHICLE PROFILES · COACH · REPLAY · STEERING · CAMERA · BODY DYNAMICS V1.8.5</small></div>
+   <div class="head-right"><div class="tag">物理模擬 <strong>120 Hz</strong> · <span id="header-vehicle">2.0L NA / 6MT</span></div><button type="button" class="btn start" id="ignition">⏻　發動引擎　[I]</button><button type="button" class="btn" id="audio">♫　啟用音效</button><button type="button" class="btn off" id="reset">重置</button></div>
+ </header>
+ <div class="layout">
+@@ -668,6 +668,19 @@
+       <p class="small-reference-note"><strong>Validation limits:</strong> the test-track run degrades versus nominal (0.654 to 0.713 deg/s). This 2-DOF submodel omits road banking, full suspension/roll/pitch, longitudinal drivetrain, steer actuation and load transfer. P1 is an electric two-rear-motor research vehicle; no automatic parameter transfer to manual cars is allowed.</p>
+       <p class="small-reference-note">Institutional source: <a href="https://www.projects.bucknell.edu/Beal_Automotive/" target="_blank" rel="noopener noreferrer">Bucknell P1 test archive</a>. Complete MATLAB raw data accessible through official Drive links; source re-distribution terms not confirmed, so raw .mat files are excluded from the offline ZIP. See calibration/ for checksums, scripted repro and the measured-versus-model figures.</p>
+     </details>
++    <details class="real-external-panel" id="v185-gasoline-validation">
++      <summary>V1.8.5 / 汽油車 BMW M235i 實測操控與 P1 感測器品質驗證（唯讀）</summary>
++      <p class="small-reference-note"><strong>BMW M235i 汽油車（實車 CAN）：</strong>2018-04-08，4,708 筆、約 342 秒。含車速、方向盤轉角、油門、RPM、縱／側向加速度。車速 mph、加速度 g 已換算 SI；轉向量測是方向盤角，<strong>不是已知齒比的前輪實際轉角</strong>。該資料沒有獨立偏航率，因此只能驗證轉向→側向加速度代理模型，不能辨識輪胎真實側偏剛性。</p>
++      <div class="reference-fit-table"><table aria-label="BMW 汽油車側向加速度保留資料驗證"><thead><tr><th>BMW 205～342s 保留資料</th><th>RMSE (m/s²)</th><th>證據判定</th></tr></thead><tbody>
++        <tr><td>固定零側向加速度</td><td>0.6934</td><td>低階基準</td></tr>
++        <tr><td>無延遲、車速平方 × 轉向</td><td>0.4015</td><td>簡單模型</td></tr>
++        <tr><td>訓練期最佳非線性／0.10s 延遲</td><td>0.4049</td><td>未優於簡單模型</td></tr>
++      </tbody></table></div>
++      <p class="small-reference-note"><strong>固定驗證規則：</strong>前 185 秒訓練；185～205 秒隔離；最後 137 秒驗證。只選訓練 RMSE 最低的參數，不用保留資料調整。兩個動態模型的保留樣本均為 1,357 筆（車速高於 5 m/s）。數據僅作參照，<strong>不覆寫遊戲車輛參數</strong>。</p>
++      <p class="small-reference-note"><strong>Ford Fiesta Titanium：</strong><a href="https://github.com/onyekpeu/IO-VNBD" target="_blank" rel="noopener noreferrer">IO-VNBD 真實車輛記錄</a>具有檔位、離合器、油門、RPM、四輪輪速、偏航率與轉向角。但發布的 CSV 是 Git LFS 指標檔，本次尚未取得完整內容，且實驗車燃油類型／變速箱規格未核實；<strong>不列入已完成實車擬合</strong>。</p>
++      <p class="small-reference-note"><strong>P1 前輪六分力品質門檻：</strong>本輪從六份正版 500Hz MAT 跑道記錄重新讀取輪荷通道；前右正常荷重長時間接近零或為負，六組測試都未通過「雙前輪有合理正荷重」門檻。<strong>不將未校準 Fy/Fz/Mz 直接擬合成輪胎模型。</strong></p>
++      <p class="small-reference-note">可重跑腳本：<code>calibration/validate_bmw_m235i.py</code>、<code>calibration/validate_p1_force_channels.py</code>。來源授權尚未核實：ZIP 不含 BMW、Ford 或 P1 原始實車逐筆資料。</p>
++    </details>
+   </details>
+ 
+   <div class="clutch-tuning"><label for="clutch-bite-adjust">離合器接合點：踏板踩下 <strong id="clutch-bite-label">43%</strong></label>
+@@ -757,7 +770,7 @@
+     </div>
+   </details>
+ </section>
+-<div class="bottom">LOCAL / OFFLINE DEMO V1.8.4 · 模型參數均為示範值，未經實車量測驗證 · 教學與物理概念驗證版本，並非特定車款實測動力模型 · 真實駕駛與機械手感需專用控制器或硬體。</div>
++<div class="bottom">LOCAL / OFFLINE DEMO V1.8.5 · V1.8.5 具有實車資料參照，但完整四輪模型仍未取得跨車款實測認證 · 教學與物理概念驗證版本，並非特定車款實測動力模型 · 真實駕駛與機械手感需專用控制器或硬體。</div>
+ </div>
+ <script>
+ (() => {
+@@ -944,6 +957,7 @@
+ }
+ 
+ // V1.8.4 measured P1 500Hz test data: independent 2-DOF vehicle-model benchmark ONLY.
++const V185_GASOLINE_VALIDATION=Object.freeze({"bmw_gasoline":{"vehicle":"BMW M235i gasoline, transmission variant unknown","n":4708,"duration_s":341.985119,"training_best_holdout_rmse":0.40488,"static_holdout_rmse":0.40154,"zero_holdout_rmse":0.6934,"is_shiftlab_integrator_validation":false,"automaticallyAppliedToFourWheelSimulator":false,"sourceGitBlobSHA1":"9fb7b829265b9e94a09bbc188740dd7d350b0245"},"ford_manual_dataset":{"vehicle":"Ford Fiesta Titanium; gasoline vs diesel and exact gearbox variant unverified","source":"https://github.com/onyekpeu/IO-VNBD","paper":"https://doi.org/10.1016/j.dib.2021.106885","measurements_confirmed":"steering,yaw,4 wheel speeds,engine RPM,gear,clutch,pedal","lfs_original_obtained":false,"automaticallyAppliedToFourWheelSimulator":false},"p1_force_channel_audit":{"numberOfRuns":6,"approvedSessions":0,"channels":"P1 MAT column offsets 127/135 force group; source labels checked","reason":"front-right reported normal force around zero and negative during driving; channel calibration unclear","raw_forceFitApproved":false,"automaticallyAppliedToFourWheelSimulator":false}});
+ const P1_REAL_DYNAMICS=Object.freeze({"source":"https://www.projects.bucknell.edu/Beal_Automotive/","vehicle":"Bucknell electric research P1","realMatFilesAnalyzed":6,"originalHz":500,"replayHz":50,"trainSource":"left hand ramp","trainStart_s":40,"trainEnd_s":93,"fit":{"sharedLateralStiffnessMultiplier":0.8226312,"tanhEffectiveMu":0.8778691},"holdout":{"left_release":{"yawNominalRmseDegS":4.0617,"yawCalibratedRmseDegS":1.086},"right_ramp":{"yawNominalRmseDegS":3.796,"yawCalibratedRmseDegS":2.3702},"step_steer":{"yawNominalRmseDegS":1.197,"yawCalibratedRmseDegS":0.859},"increasing_speed_circle":{"yawNominalRmseDegS":2.0846,"yawCalibratedRmseDegS":0.8792},"test_track_loop":{"yawNominalRmseDegS":0.6541,"yawCalibratedRmseDegS":0.7131},"low_speed_straight":{"yawNominalRmseDegS":0.4541,"yawCalibratedRmseDegS":0.4497}},"modelScope":"2DOF surrogate only; separate from SHIFT LAB full four wheel physics","automaticallyAppliedToFourWheelSimulator":false,"rightsForRepublishingRawMats":false});
+ // V1.8 empirical-reference priors: fleet registration-derived archetypes, NOT
+ // measured per-vehicle inertias. Toggle off by default. See calibration/PROVENANCE.md.
+@@ -4121,7 +4135,7 @@
+ }
+ syncSteeringRackSettingsUI();
+ window.__SHIFT_LAB_DEBUG__={state,params:P,wheelModel,WHEEL_IDS,REAL_OBD_BENCHMARK,
+-  MEASURED_DATA_QUALITY,P1_REAL_DYNAMICS,evaluateMeasuredTransferGate,
++  MEASURED_DATA_QUALITY,P1_REAL_DYNAMICS,V185_GASOLINE_VALIDATION,evaluateMeasuredTransferGate,
+   REFERENCE_FITS,REFERENCE_TIRE_FIT,referenceCalibration,toggleReferenceCalibration,referenceCornerLoadMultiplier,
+   tireSystem,TIRE_COMPOUNDS,steeringRack,STEER_RACK_MODES,setSteeringRackSetting,
+   syncSteeringRackSettingsUI,resetSteeringRack,effectiveMechanicalTrail,steeringRackRoadMoment,steeringRackStep,setTireSetting,tirePressureKpa,tireGripFactor,tireThermalStep,regularizedTireSlip,peakSlipCurve,combineTireForces,suspension,resetSuspension,cornerSuspensionStep,wheelRoadHeight,suspensionRoadTexture,wheelCoords,resetFourWheels,individualWheelLoads,ackermannSteer,wheelCornerForce,fourCornerForces,integrateFourCornerChassis,importLegacyAxleSpeeds,exportLegacyAxleSpeeds,requestGear,advancePhysics,startEngine,dumpClutch,reset:initialReset,gateHand,updateGateDrag,displayLeverPosition,gearGain,contactSlip,tireForce,integrateMechanical,ui,controller,trainer,telemetry,refreshControllerUI,pollController,rawInput,normalizedPedal,replaceProfile,buildCSV,calibrate,recordStep,trainingStep,scorePending,VEHICLES,applyVehicle,clutchEngagement,torqueCapacity,revGuidance,replay,replayStep,replaySource,replayDuration,replaySnapshot,buildReplayJSON,validateReplay,updateReplayUI,showShiftFailure,hideShiftFailure,route,generateRoad,roadPointAt,roadTotalDistance,roadFeatures,drawRoad,drawRouteMap,roadAppearance,roadRenderDiagnostics,roadBankAt,roadCrossElevation,roadSampleMeters,roadClipNear,roadCameraPoint:roadVertex,roadTelemetryStep,updateRoadStats,vehicleMotion,steeringSettings,steeringControlStep,resetVehiclePose,maximumSteerAngle,nearestRoadPosition,lateralDynamicsStep,updateVehicleRoadPosition,synchronizeRoadPose,roadProject,keyboardSteering,keyboardSteeringStep,bufferedKeyboardInput,setKeyboardTuning,releaseKeyboardOverride,axleLoadEfficiency,axleForceBudget,suspensionStep,estimatedRollGradient,estimatedCornerRollGradient,estimatedPitchGradient,wheelAlignment,handling,HANDLING_BALANCES,

@@ -1,0 +1,424 @@
+--- a/desktop3d/src/geometry-streamer.mjs
++++ b/desktop3d/src/geometry-streamer.mjs
+@@ -2,11 +2,11 @@
+ const key=(x,z)=>x+','+z;
+ export class GeometryStreamer {
+   constructor(road,{workerFactory,getVelocity=()=>({x:0,z:0}),budgetMs=2,prepareMesh=null}={}){
+-    this.road=road;this.getVelocity=getVelocity;this.budgetMs=budgetMs;this.prepareMesh=prepareMesh;this.visualQueue=[];
++    this.road=road;this.getVelocity=getVelocity;this.budgetMs=budgetMs;this.prepareMesh=prepareMesh;this.visualQueue=[];this.colliderQueue=[];
+     this.worker=workerFactory?workerFactory():new Worker(new URL('./streaming.worker.mjs',import.meta.url),{type:'module'});
+     this.epoch=0;this.id=0;this.busy=null;this.ready=null;this.stagedRoads=[];this.stagedTerrain=[];
+     this.bootstrap=true;this.disabled=false;this.snapshotRevision=null;this.plan=null;this.planKey='';
+-    this.metrics={jobs:0,discarded:0,commits:0,waits:0,maxWorkerMs:0,maxPrepareMs:0,maxActivateMs:0,maxUploadMs:0,preparedMeshes:0,error:null};
++    this.metrics={jobs:0,discarded:0,commits:0,waits:0,maxWorkerMs:0,maxPrepareMs:0,maxActivateMs:0,maxUploadMs:0,preparedMeshes:0,preparedColliders:0,maxColliderMs:0,preparationYields:0,error:null};
+     this.worker.onmessage=event=>{
+       const message=event.data;if(this.busy?.id!==message.id)return;
+       this.busy=null;
+@@ -17,6 +17,7 @@
+     this.worker.onerror=event=>this.fail(event.message||'Geometry worker failed');
+   }
+   discardStaged(){
++    this.colliderQueue=[];
+     for(const [index,chunk] of this.stagedRoads)this.road.disposeChunk(index,chunk,false);
+     for(const [,tile] of this.stagedTerrain)this.road.terrain.dispose(tile);
+     this.stagedRoads=[];this.stagedTerrain=[];this.visualQueue=[];this.ready=null;
+@@ -68,17 +69,27 @@
+     if(this.disabled||!this.ready)return;
+     const message=this.ready;
+     if(message.epoch!==this.epoch||message.revision!==this.road.physics.route.v3State?.revision){this.discardStaged();return;}
+-    const start=performance.now();
++    const start=performance.now();let prepared=false;
+     try{
+       do{
+-        if(message.roads.length){const {index,data}=message.roads.shift();
+-          const chunk=this.road.makeChunkV3(index,data,true);if(chunk){this.stagedRoads.push([index,chunk]);if(this.prepareMesh)this.visualQueue.push(...chunk.objects);}}
+-        else if(message.terrain.length){const data=message.terrain.shift(),tile=this.road.terrain.make(data.tx,data.tz,data,true);
++        if(message.roads.length){prepared=true;const {index,data}=message.roads.shift();
++          const chunk=this.road.makeChunkV3(index,data,true,create=>this.colliderQueue.push(create));if(chunk){this.stagedRoads.push([index,chunk]);if(this.prepareMesh)this.visualQueue.push(...chunk.objects);}}
++        else if(message.terrain.length){prepared=true;const data=message.terrain.shift(),tile=this.road.terrain.make(data.tx,data.tz,data,true,create=>this.colliderQueue.push(create));
+           if(tile){this.stagedTerrain.push([key(data.tx,data.tz),tile]);if(this.prepareMesh)this.visualQueue.push(tile.mesh,...(tile.scenery?.objects||[]));}}
+         else break;
+       }while(performance.now()-start<this.budgetMs);
+       this.metrics.maxPrepareMs=Math.max(this.metrics.maxPrepareMs,performance.now()-start);
+       if(message.roads.length||message.terrain.length)return;
++      // A final construction batch can already exhaust the CPU soft budget.
++      // Do not stack GPU preparation or atomic activation on that same frame.
++      if(prepared){this.metrics.preparationYields++;return;}
++      if(this.colliderQueue.length){
++        const colliders=performance.now();
++        do{this.colliderQueue.shift()();this.metrics.preparedColliders++;}
++        while(this.colliderQueue.length&&performance.now()-colliders<this.budgetMs);
++        this.metrics.maxColliderMs=Math.max(this.metrics.maxColliderMs,performance.now()-colliders);
++        return;
++      }
+       // Upload at most one hidden mesh per frame. Visibility/collision still
+       // commit together only after every member of this reply is GPU-ready.
+       if(this.visualQueue.length){
+@@ -108,5 +119,5 @@
+     }catch(error){this.fail(error.message);}
+   }
+   stats(){return {mode:this.disabled?'synchronous-fallback':'worker',...this.metrics,pending:this.busy?1:0,
+-    prepared:this.stagedRoads.length+this.stagedTerrain.length,visualPending:this.visualQueue.length,ready:!!this.ready};}
++    prepared:this.stagedRoads.length+this.stagedTerrain.length,colliderPending:this.colliderQueue.length,visualPending:this.visualQueue.length,ready:!!this.ready};}
+ }
+--- a/desktop3d/src/road.mjs
++++ b/desktop3d/src/road.mjs
+@@ -98,7 +98,7 @@
+     if(this.streamer&&!this.streamer.disabled)this.streamer.warmed();
+     return this.surfaceMap.normalizeZones(this.surfaceMap.zones);
+   }
+-  makeChunkV3(index,preparedData=null,staged=false){
++  makeChunkV3(index,preparedData=null,staged=false,deferCollider=null){
+     if(!preparedData)this.terrain.prepare();
+     const data=preparedData||buildRoadChunkV3(this.physics,index,{surfaceAt:(x,z)=>this.terrain.surfaceAt(x,z),
+       groundFootprint:(p,heading,hx,hz)=>this.terrain.footprint(p,heading,hx,hz)});if(!data)return null;
+@@ -142,11 +142,14 @@
+         for(const piece of parts){
+           const descriptor=this.rapier.ColliderDesc.trimesh(piece.vertices,piece.indices).setFriction(kind==='cover'?.7:.65);
+           if(staged)descriptor.setEnabled(false);
+-          const collider=this.world.createCollider(descriptor);
+-          const handles=ground?this.groundHandles:kind==='rail'?this.railHandles:this.barrierHandles;
+-          handles.add(collider.handle);colliders.push({collider,handles});
+-          if(prepared)this.surfaceMap.bind(collider,{...prepared.binding,
+-            faces:Array.from(piece.faces,face=>prepared.binding.faces[face]),renderFaces:piece.faces});
++          const create=()=>{
++            const collider=this.world.createCollider(descriptor);
++            const handles=ground?this.groundHandles:kind==='rail'?this.railHandles:this.barrierHandles;
++            handles.add(collider.handle);colliders.push({collider,handles});
++            if(prepared)this.surfaceMap.bind(collider,{...prepared.binding,
++              faces:Array.from(piece.faces,face=>prepared.binding.faces[face]),renderFaces:piece.faces});
++          };
++          if(staged&&deferCollider)deferCollider(create);else create();
+         }
+       }
+     }catch(error){
+--- a/desktop3d/src/terrain-world.mjs
++++ b/desktop3d/src/terrain-world.mjs
+@@ -125,10 +125,10 @@
+       road.world.removeCollider(collider,true);}
+     road.scene.remove(tile.mesh);tile.mesh.geometry.dispose();
+   }
+-  make(tx,tz,preparedData=null,staged=false){
++  make(tx,tz,preparedData=null,staged=false,deferCollider=null){
+     const road=this.road,data=preparedData||this.dataFor(tx,tz);
+     if(!data.indices.length)return null;
+-    const geometry=new THREE.BufferGeometry(),colliders=[];let mesh=null,scenery=null;
++    const geometry=new THREE.BufferGeometry(),colliders=[];let mesh=null,scenery=null,tile=null;
+     try{
+       geometry.setAttribute('position',new THREE.BufferAttribute(data.vertices,3));
+       geometry.setAttribute('uv',new THREE.BufferAttribute(data.uv,2));
+@@ -146,16 +146,20 @@
+       for(const piece of data.collision||partitionColliderMesh(data.vertices,data.indices)){
+         const descriptor=road.rapier.ColliderDesc.trimesh(piece.vertices,piece.indices).setFriction(.7);
+         if(staged)descriptor.setEnabled(false);
+-        const collider=road.world.createCollider(descriptor);colliders.push(collider);
+-        road.surfaceMap.bind(collider,{kind:'terrain',layerId:`terrain:${tx}:${tz}`,renderFaces:piece.faces,
+-          terrain:{vertices:data.vertices,indices:data.indices,weights:geometry.attributes.terrainWeights.array},
+-          faces:Array(piece.indices.length/3).fill('terrain-mix')});
+-        road.groundHandles.add(collider.handle);
++        const create=()=>{
++          const collider=road.world.createCollider(descriptor);colliders.push(collider);
++          if(tile&&!tile.collider)tile.collider=collider;
++          road.surfaceMap.bind(collider,{kind:'terrain',layerId:`terrain:${tx}:${tz}`,renderFaces:piece.faces,
++            terrain:{vertices:data.vertices,indices:data.indices,weights:geometry.attributes.terrainWeights.array},
++            faces:Array(piece.indices.length/3).fill('terrain-mix')});
++          road.groundHandles.add(collider.handle);
++        };
++        if(staged&&deferCollider)deferCollider(create);else create();
+       }
+       if(!this.scenery)this.scenery=new SceneryWorld(road);
+       this.scenery.setCondition(road.surfaceMap.condition);
+-      scenery=this.scenery.create(data.scenery||this.sceneryFor(tx,tz),staged);
+-      road.scene.add(mesh);return {mesh,collider:colliders[0],colliders,scenery};
++      scenery=this.scenery.create(data.scenery||this.sceneryFor(tx,tz),staged,deferCollider);
++      road.scene.add(mesh);tile={mesh,collider:colliders[0],colliders,scenery};return tile;
+     }catch(error){
+       this.scenery?.dispose(scenery);
+       for(const collider of colliders){road.groundHandles.delete(collider.handle);road.surfaceMap.unbind(collider);road.world.removeCollider(collider,true);}
+--- a/desktop3d/src/scenery-world.mjs
++++ b/desktop3d/src/scenery-world.mjs
+@@ -12,7 +12,7 @@
+     this.materials.foliage.color.set(condition==='snow'?'#c1cfc2':condition==='ice'?'#718e7d':condition==='wet'?'#2b492d':'#375b37');
+     this.materials.trunk.color.set(condition==='wet'?'#4e3e2d':'#66503a');
+   }
+-  create(data,staged=false){
++  create(data,staged=false,deferCollider=null){
+     const road=this.road,result={objects:[],colliders:[],models:data.models};
+     try{
+       for(const [kind,part] of Object.entries(data.meshes)){
+@@ -26,9 +26,12 @@
+       for(const piece of data.collisions){
+         const desc=road.rapier.ColliderDesc.trimesh(piece.vertices,piece.indices).setFriction(piece.kind==='rock'?.7:.55);
+         if(staged)desc.setEnabled(false);
+-        const collider=road.world.createCollider(desc),handles=piece.kind==='rock'?road.groundHandles:road.barrierHandles;
+-        handles.add(collider.handle);result.colliders.push({collider,handles,kind:piece.kind,id:piece.id});
+-        if(piece.kind==='rock')road.surfaceMap.bind(collider,{kind:'rock',layerId:data.layerId,renderFaces:piece.renderFaces,sceneryId:piece.id,faces:Array(piece.indices.length/3).fill('natural_stone.'+road.surfaceMap.condition)});
++        const create=()=>{
++          const collider=road.world.createCollider(desc),handles=piece.kind==='rock'?road.groundHandles:road.barrierHandles;
++          handles.add(collider.handle);result.colliders.push({collider,handles,kind:piece.kind,id:piece.id});
++          if(piece.kind==='rock')road.surfaceMap.bind(collider,{kind:'rock',layerId:data.layerId,renderFaces:piece.renderFaces,sceneryId:piece.id,faces:Array(piece.indices.length/3).fill('natural_stone.'+road.surfaceMap.condition)});
++        };
++        if(staged&&deferCollider)deferCollider(create);else create();
+       }
+       return result;
+     }catch(error){this.dispose(result);throw error;}
+--- a/desktop3d/src/main.mjs
++++ b/desktop3d/src/main.mjs
+@@ -616,7 +616,6 @@
+   if(!labReady)return;
+   try{
+     const elapsed=Math.max(0,Math.min(.075,(now-prevFrame)/1000));prevFrame=now;
+-    road.pumpStreaming();
+     renderFPS+=(1-Math.exp(-elapsed*3))*((elapsed>0?1/elapsed:renderFPS)-renderFPS);
+     readInputs(elapsed);
+     if(!paused&&!locked){
+@@ -625,7 +624,10 @@
+       while(accumulator>=FIXED_DT&&count<8){if(stepOnce()===false){accumulator=0;break;}accumulator-=FIXED_DT;count++;}
+       if(accumulator>=FIXED_DT){dropSteps+=Math.floor(accumulator/FIXED_DT);accumulator=0;}
+     }else accumulator=0;
+-    syncVisuals(elapsed);renderer.render(scene,camera);updateHud();
++    syncVisuals(elapsed);renderer.render(scene,camera);
++    // Submit the current view before optional loading work, allowing the GPU
++    // to draw while the CPU prepares future chunks. New chunks appear next frame.
++    road.pumpStreaming();updateHud();
+     requestAnimationFrame(render);
+   }catch(e){failure(e);}
+ }
+--- a/desktop3d/tests/validate-streaming.mjs
++++ b/desktop3d/tests/validate-streaming.mjs
+@@ -8,6 +8,48 @@
+ import {TerrainWorld} from '../src/terrain-world.mjs';
+ import {buildRoadChunkV3} from '../src/road-geometry-v3.mjs';
+ import {RoadWorld} from '../src/road.mjs';
++import {GeometryStreamer} from '../src/geometry-streamer.mjs';
++
++// A construction call is not preemptible. Even when it is the last item in a
++// reply, the upload/commit must wait for another pump (another render frame).
++for(const withUpload of [false,true]){
++  const mesh={visible:false,userData:{}},collider={setEnabled(value){this.enabled=value;}},chunk={objects:[mesh],colliders:[{collider}]};
++  let uploads=0;
++  const mockRoad={physics:{route:{v3State:{revision:1}}},chunks:new Map(),terrain:{tiles:new Map(),data:new Map()},
++    makeChunkV3(){return chunk;}};
++  const streamer=new GeometryStreamer(mockRoad,{workerFactory:()=>({terminate(){}}),
++    prepareMesh:withUpload?()=>{uploads++;}:null});
++  streamer.ready={id:1,epoch:0,revision:1,roads:[{index:0,data:{}}],terrain:[]};
++  streamer.pump();
++  assert.equal(uploads,0,'construction frame must not also upload');
++  assert.equal(streamer.metrics.commits,0,'construction frame must not also activate');
++  assert.equal(mesh.visible,false);assert.equal(collider.enabled,undefined);
++  assert.equal(streamer.metrics.preparationYields,1);
++  streamer.pump();
++  if(withUpload){assert.equal(uploads,1);assert.equal(streamer.metrics.commits,0);streamer.pump();}
++  assert.equal(streamer.metrics.commits,1);assert.equal(mesh.visible,true);assert.equal(collider.enabled,true);
++}
++
++// Force a zero soft budget so each pump creates exactly one queued shape.
++{
++  const mesh={visible:false,userData:{}},chunk={objects:[mesh],colliders:[]};let created=0,disposed=0;
++  const mockRoad={physics:{route:{v3State:{revision:1}}},chunks:new Map(),terrain:{tiles:new Map(),data:new Map()},
++    makeChunkV3(index,data,staged,defer){
++      for(let i=0;i<4;i++)defer(()=>{created++;chunk.colliders.push({collider:{enabled:false,setEnabled(v){this.enabled=v;}}});});
++      return chunk;
++    },disposeChunk(){disposed++;}};
++  const streamer=new GeometryStreamer(mockRoad,{workerFactory:()=>({terminate(){}}),budgetMs:0});
++  const reply=()=>({id:1,epoch:streamer.epoch,revision:1,roads:[{index:0,data:{}}],terrain:[]});
++  streamer.ready=reply();streamer.pump();assert.equal(created,0);assert.equal(streamer.stats().colliderPending,4);
++  for(let i=1;i<=4;i++){
++    streamer.pump();assert.equal(created,i);assert.equal(streamer.metrics.commits,0);assert.equal(mesh.visible,false);
++    assert.ok(chunk.colliders.every(c=>!c.collider.enabled),'partial collider preparation stays disabled');
++  }
++  streamer.pump();assert.equal(streamer.metrics.commits,1);assert.ok(chunk.colliders.every(c=>c.collider.enabled));
++  streamer.ready=reply();streamer.pump();assert.equal(streamer.stats().colliderPending,4);
++  streamer.invalidate();assert.equal(streamer.stats().colliderPending,0);streamer.pump();assert.equal(created,4);assert.equal(disposed,1);
++}
++
+ const delay=ms=>new Promise(r=>setTimeout(r,ms));
+ const core=fixture(base,48),snapshot=structuredClone(roadSnapshot(core)),adapter=snapshotCore(snapshot);
+ for(let s=0;s<core.roadTotalDistance();s+=17.31){
+@@ -65,6 +107,8 @@
+   assert.equal(road.streamingStats().commits,1);assert.equal(mainBuilds,0,'moving stream must not generate terrain on main');
+   assert.ok(road.terrain.tiles.has('0,2'));
+   assert.ok(uploaded.size>0);assert.equal(road.streamingStats().visualPending,0);
++  assert.ok(road.streamingStats().preparedColliders>0);assert.equal(road.streamingStats().colliderPending,0);
++  for(const tile of road.terrain.tiles.values())assert.equal(tile.collider,tile.colliders[0],'deferred creation preserves first-collider alias');
+   for(const tile of road.terrain.tiles.values())if(tile.streamRevision===flat.route.v3State.revision&&uploaded.has(tile.mesh))
+     for(const mesh of [tile.mesh,...tile.scenery.objects])assert.ok(uploaded.has(mesh),'all terrain/scenery meshes warmed before atomic visibility');
+   for(const tile of road.terrain.tiles.values())assert.ok(tile.mesh.visible&&tile.colliders.every(c=>c.isEnabled()));
+@@ -83,7 +127,7 @@
+   assert.ok(road.streamer.visualQueue.length,'exercise reset while hidden meshes await upload');
+   const pendingMesh=road.streamer.visualQueue[0];let pendingDisposed=false;
+   pendingMesh.geometry.addEventListener('dispose',()=>pendingDisposed=true);
+-  road.clear();road.assertClean();assert.equal(road.streamer.visualQueue.length,0);assert.ok(pendingDisposed);
++  road.clear();road.assertClean();assert.equal(road.streamer.visualQueue.length,0);assert.equal(road.streamingStats().colliderPending,0);assert.ok(pendingDisposed);
+   assert.equal(world.colliders.len(),0);assert.equal(scene.children.length,0);
+   road.ensure(70);road.streamer.warmed();
+   assert.equal(road.ensure(600,flat.roadPointAt(600),{stream:true}),false,'missing terrain prevents an unsafe physics step');
+@@ -119,5 +163,19 @@
+     assert.equal(fallbackRoad.streamingStats().error,'transfer failure');
+     assert.equal(fallbackRoad.streamingStats().pending,0,'failed sends cannot retain pending ownership');
+   }finally{console.warn=sendWarn;}
++  // A delayed Rapier allocation failure must release partially created shapes,
++  // staged meshes and callbacks, while preserving all previously active ground.
++  fallbackRoad.streamer=null;
++  fallbackRoad.enableAsyncStreaming({workerFactory:()=>({postMessage(){},terminate(){}})});
++  const queued=fallbackRoad.streamer,priorColliders=fallbackWorld.colliders.len(),priorMeshes=fallbackRoad.scene.children.length;
++  queued.ready={id:1,epoch:queued.epoch,revision:flat.route.v3State.revision,roads:[{index:4,data:buildRoadChunkV3(flat,4)}],terrain:[]};
++  queued.pump();assert.ok(queued.stats().colliderPending>1);
++  const allocation=fallbackWorld.createCollider;let allocations=0;
++  fallbackWorld.createCollider=function(...args){if(++allocations===2)throw Error('deferred allocation failure');return allocation.apply(this,args);};
++  const deferredWarn=console.warn;console.warn=()=>{};
++  try{queued.pump();}finally{fallbackWorld.createCollider=allocation;console.warn=deferredWarn;}
++  assert.equal(queued.stats().mode,'synchronous-fallback');assert.equal(queued.stats().colliderPending,0);
++  assert.equal(queued.stats().error,'deferred allocation failure');assert.equal(fallbackWorld.colliders.len(),priorColliders);
++  assert.equal(fallbackRoad.scene.children.length,priorMeshes);assert.equal(queued.visualQueue.length,0);
+ }finally{fallbackRoad.clear();fallbackRoad.assertClean();fallbackWorld.free();}
+ console.log('PASS actual geometry worker: original profile parity, identical road/terrain buffers, transfer cache ownership, bounded queue, atomic visibility/collision, no main terrain generation and stale reply cleanup');
+--- a/desktop3d/tests/streaming-profile.mjs
++++ b/desktop3d/tests/streaming-profile.mjs
+@@ -4,12 +4,12 @@
+   const {core:d,road,bridge}=getContext();
+   const manager=road.streamer;
+   if(options.synchronous&&manager){manager.invalidate();road.streamer=null;}
+-  if(d.route.config.generator!==3||d.route.config.turnChance||d.route.config.slopeChance)throw Error('Flat V3 trace required');
++  if(d.route.config.generator!==3||!options.natural&&(d.route.config.turnChance||d.route.config.slopeChance))throw Error('Flat V3 trace required unless natural traversal is requested');
+   if(options.disableCCD)bridge.rigidBody.enableCcd(false);
+   const mode=document.getElementById('drive-mode');mode.value='manual';mode.dispatchEvent(new Event('change'));
+   setPause(true);d.inputKeys.clear();d.releaseKeyboardOverride();d.requestGear(0);
+   Object.assign(d.hostControls,{active:true,steer:0,throttle:0,brake:0,clutch:1,parkPawl:false});
+-  const place=()=>{road.ensure(70);bridge.teleport({roadPoint:{...d.roadPointAt(70),y:road.position(70,0).y},speed:options.speed??14});};
++  const place=()=>{road.ensure(70);bridge.teleport({roadPoint:{...d.roadPointAt(70),y:road.position(70,0).y},angle:options.collision?Math.PI/2:0,speed:options.collision?20:options.speed??14});};
+   place();let origin=bridge.rigidBody.translation(),end=origin,capturing=false;setPause(false);
+   const events=[],revealEvents=[],original=road.ensure,gl=getContext().renderer.getContext();
+   const originalUpload=gl.bufferData,originalBounds=THREE.BufferGeometry.prototype.computeBoundingSphere,originalPump=road.pumpStreaming;
+@@ -17,7 +17,7 @@
+   if(options.reveal){
+     if(manager?.prepareMesh){const originalPrepare=manager.prepareMesh;manager.prepareMesh=function(...args){uploadPhase=true;try{return originalPrepare.apply(this,args);}finally{uploadPhase=false;}};restorePhases.push(()=>manager.prepareMesh=originalPrepare);}
+     const wasProfiling=bridge.world.profilerEnabled;bridge.world.profilerEnabled=!!options.profilePhysics;restorePhases.push(()=>bridge.world.profilerEnabled=wasProfiling);
+-    for(const [object,name] of [[bridge.world,'step'],[bridge.world,'castRayAndGetNormal'],[bridge,'beforeForces']]){
++    for(const [object,name] of [[bridge.world,'step'],[bridge.world,'castRayAndGetNormal'],[bridge,'beforeForces'],[bridge,'captureContacts']]){
+       const original=object[name];object[name]=function(...args){const start=performance.now();try{return original.apply(this,args);}
+         finally{const ms=performance.now()-start;if(capturing&&ms>.5)revealEvents.push({kind:name,timeMs:performance.now()-captureStart,ms,...(name==='step'&&options.profilePhysics?Object.fromEntries(['timingStep','timingBroadPhase','timingNarrowPhase','timingSolver','timingCcd'].map(k=>[k,bridge.world[k]()] )):{})});}};
+       restorePhases.push(()=>object[name]=original);
+@@ -31,13 +31,23 @@
+   }
+   road.ensure=function(...args){const start=performance.now();try{return original.apply(this,args);}
+     finally{const ms=performance.now()-start;if(capturing&&ms>1)events.push({s:args[0],ms});}};
++  if(options.natural){
++    const advance=d.advancePhysics;
++    d.advancePhysics=function(...args){
++      const m=d.vehicleMotion,target=road.position(Math.min(d.roadTotalDistance(),d.route.distance+6+Math.min(5,Math.abs(d.state.velocity)*.35)),0);
++      const angle=Math.atan2(Math.sin(Math.atan2(target.x-m.x,target.z-m.z)-m.heading),Math.cos(Math.atan2(target.x-m.x,target.z-m.z)-m.heading));
++      d.hostControls.steer=Math.max(-1,Math.min(1,Math.atan(2*d.params.wheelbase*Math.sin(angle)/Math.max(3,Math.hypot(target.x-m.x,target.z-m.z)))/d.maximumSteerAngle(d.state.velocity)));
++      return advance.apply(this,args);
++    };
++    restorePhases.push(()=>d.advancePhysics=advance);
++  }
+   try{
+     const result=await collectPerformanceBaseline({renderer:getContext().renderer,road,core:d,getContext},
+       {warmupSeconds:options.warmupSeconds??1,captureSeconds:options.captureSeconds??25,requireNative:!!options.requireNative,
+         beforeCapture:options.warmupSeconds?place:undefined,onCaptureStart:()=>{origin=bridge.rigidBody.translation();captureStart=performance.now();capturing=true;},
+         onCaptureStop:()=>{end=bridge.rigidBody.translation();capturing=false;}});
+     setPause(true);
+-    return {...result,scope:options.disableCCD?'diagnostic CCD-disabled comparison; not a shipping fix or performance acceptance':'moving real-vehicle terrain streaming trace; CCD enabled; not P3 completion',streamEvents:events,
+-      sceneryEnd:road.terrain?.sceneryStats?.()??null,revealEvents,distanceM:Math.hypot(end.x-origin.x,end.z-origin.z),streaming:road.streamingStats?.()??{mode:'synchronous'}};
++    return {...result,traceMode:options.collision?'lateral-guardrail-impact':options.natural?'natural-road-pure-pursuit-coast':'flat-coast',initialSpeedMps:options.collision?20:options.speed??14,scope:options.disableCCD?'diagnostic CCD-disabled comparison; not a shipping fix or performance acceptance':'moving real-vehicle terrain streaming trace; CCD enabled; not P3 completion',streamEvents:events,
++      sceneryEnd:road.terrain?.sceneryStats?.()??null,collision:{count:bridge.collisionCount,railHits:bridge.railHits,barrierHits:bridge.barrierHits,maxImpulse:bridge.maxImpactImpulse},revealEvents,distanceM:Math.hypot(end.x-origin.x,end.z-origin.z),streaming:road.streamingStats?.()??{mode:'synchronous'}};
+   }finally{if(options.disableCCD)bridge.rigidBody.enableCcd(true);for(const restore of restorePhases)restore();road.ensure=original;road.pumpStreaming=originalPump;gl.bufferData=originalUpload;THREE.BufferGeometry.prototype.computeBoundingSphere=originalBounds;setPause(true);if(options.synchronous&&manager){road.streamer=manager;manager.warmed();}}
+ }
+--- a/desktop3d/tests/validate-procedural-browser.mjs
++++ b/desktop3d/tests/validate-procedural-browser.mjs
+@@ -142,14 +142,18 @@
+     assert.ok(nativeGpu,'Streaming timing requires native GPU');
+     const reveal=process.argv.includes('--reveal-performance')||process.argv.includes('--scenery-performance');
+     if(process.argv.includes('--cpu-profile')){await cdp.send('Profiler.enable',{},sessionId);await cdp.send('Profiler.start',{},sessionId);}
++    const traceSeed=process.argv.find(a=>a.startsWith('--trace-seed='))?.slice(13)||'STREAM-TIMING-V1';
+     const tracePavement=process.argv.find(a=>a.startsWith('--pavement='))?.slice(11)||'asphalt_dense';
+-    const traceOptions={captureSeconds:reveal?(process.argv.includes('--short-profile')?15:40):25,speed:reveal?45:14,reveal,profilePhysics:process.argv.includes('--short-profile'),disableCCD:process.argv.includes('--diagnose-ccd'),requireNative:true,warmupSeconds:process.argv.includes('--warm')?10:1,synchronous:!reveal&&process.argv.includes('--before')};
+-    await evaluate(`(()=>{const q=window.__SHIFT_LAB_3D_QA__;q.applyMap({...q.map,generator:3,seed:'STREAM-TIMING-V1',turnChance:0,hairpinChance:0,slopeChance:0});const select=document.getElementById('road-material');if(!Array.from(select.options).some(o=>o.value===${JSON.stringify(tracePavement)}))throw Error('Unsupported trace pavement');select.value=${JSON.stringify(tracePavement)};select.dispatchEvent(new Event('change'));q.startStreamingTrace(${JSON.stringify(traceOptions)});})()`);
++    const collisionTrace=process.argv.includes('--collision-trace'),naturalTrace=process.argv.includes('--natural-trace');
++    const traceOptions={natural:naturalTrace,collision:collisionTrace,captureSeconds:reveal?(process.argv.includes('--short-profile')?15:40):25,speed:naturalTrace?20:reveal?45:14,reveal,profilePhysics:process.argv.includes('--short-profile'),disableCCD:process.argv.includes('--diagnose-ccd'),requireNative:true,warmupSeconds:process.argv.includes('--warm')?10:1,synchronous:!reveal&&process.argv.includes('--before')};
++    await evaluate(`(()=>{const q=window.__SHIFT_LAB_3D_QA__;q.applyMap({...q.map,generator:3,seed:${JSON.stringify(traceSeed)},turnChance:${naturalTrace?58:0},hairpinChance:${naturalTrace?20:0},slopeChance:${naturalTrace?52:0}});const select=document.getElementById('road-material');if(!Array.from(select.options).some(o=>o.value===${JSON.stringify(tracePavement)}))throw Error('Unsupported trace pavement');select.value=${JSON.stringify(tracePavement)};select.dispatchEvent(new Event('change'));q.startStreamingTrace(${JSON.stringify(traceOptions)});})()`);
+     let trace;
+     for(let i=0;i<800;i++){trace=await evaluate('window.__SHIFT_LAB_3D_QA__.baseline');
+       if(trace.status==='complete'||trace.status==='failed')break;await delay(100);}
+     if(process.argv.includes('--cpu-profile')){const profile=await cdp.send('Profiler.stop',{},sessionId);await fs.writeFile(path.join(root,'../artifacts/tests/terrain-reveal-cpu-2026-10-29.json'),JSON.stringify(profile));}
+-    assert.equal(trace.status,'complete',JSON.stringify(trace));assert.ok(trace.result.distanceM>180,'trace must cross multiple terrain boundaries');
++    assert.equal(trace.status,'complete',JSON.stringify(trace));
++    if(collisionTrace)assert.ok(trace.result.collision.count>0,'collision trace must produce real contact');
++    else assert.ok(trace.result.distanceM>180,'trace must cross multiple terrain boundaries');
+     assert.deepEqual(cdp.errors,[]);assert.deepEqual(httpErrors,[]);
+     const suffix=(process.argv.includes('--diagnose-ccd')?'diagnostic-ccd':process.argv.includes('--short-profile')?'diagnostic-physics':process.argv.includes('--before')?'before':'after')+(process.argv.includes('--warm')?'-warm':'');
+     const label=process.argv.find(a=>a.startsWith('--capture-label='))?.slice(16).replace(/[^a-z0-9-]/gi,'');
+--- a/desktop3d/tests/performance-baseline.mjs
++++ b/desktop3d/tests/performance-baseline.mjs
+@@ -11,7 +11,7 @@
+   await new Promise(resolve=>setTimeout(resolve,warmupSeconds*1000));
+   options.beforeCapture?.();
+   const frames=[],gpuMs=[],pending=[];
+-  let physics=0,stream=0,submit=0,active=null,disjointSamples=0,queryMisses=0,capturing=true;
++  let visibleRender=null,physics=0,stream=0,submit=0,active=null,disjointSamples=0,queryMisses=0,capturing=true;
+   const originalRender=renderer.render,originalAdvance=core.advancePhysics,originalEnsure=road.ensure,originalPump=road.pumpStreaming;
+   const poll=()=>{
+     const disjoint=ext&&gl.getParameter(ext.GPU_DISJOINT_EXT);
+@@ -30,6 +30,7 @@
+     try{return originalRender.apply(this,args);}finally{
+       if(active){gl.endQuery(ext.TIME_ELAPSED_EXT);pending.push(active);active=null;}
+       submit+=performance.now()-start;
++      if(!renderer.getRenderTarget?.())visibleRender={...renderer.info.render};
+     }
+   };
+   core.advancePhysics=function(...args){const start=performance.now();
+@@ -50,10 +51,10 @@
+         if(gl.isContextLost()){reject(Error('Context lost during baseline'));return;}
+         const context=getContext();
+         if(context.paused||context.locked){reject(Error('Simulation paused during baseline'));return;}
+-        const info=renderer.info;
++        const info=renderer.info,render=visibleRender||info.render;
+         frames.push({timeMs:now-begin,frameMs:now-previous,physicsCpuMs:physics,
+-          streamCpuMs:stream,renderSubmissionCpuMs:submit,calls:info.render.calls,
+-          triangles:info.render.triangles,geometries:info.memory.geometries,textures:info.memory.textures});
++          streamCpuMs:stream,renderSubmissionCpuMs:submit,calls:render.calls,
++          triangles:render.triangles,geometries:info.memory.geometries,textures:info.memory.textures});
+         previous=now;physics=0;stream=0;submit=0;poll();
+         if(now-begin>=captureSeconds*1000)resolve();else requestAnimationFrame(frame);
+       };requestAnimationFrame(frame);
+--- a/desktop3d/tests/validate-performance-capture.mjs
++++ b/desktop3d/tests/validate-performance-capture.mjs
+@@ -6,8 +6,8 @@
+ try{
+   for(const key of keys)Object.defineProperty(globalThis,key,{value:null,writable:true,configurable:true});
+   globalThis.navigator={userAgent:'deterministic test double',hardwareConcurrency:4};globalThis.devicePixelRatio=1;
+-  async function run({software=false,paused=false,disjoint=false}={}){
+-    let clock=0,frame=0,active=null,deleted=0;
++  async function run({software=false,paused=false,disjoint=false,postRenderPreparation=false}={}){
++    let clock=0,frame=0,active=null,deleted=0,target=null;
+     const queries=[];
+     globalThis.performance={now:()=>clock};
+     const ext={TIME_ELAPSED_EXT:10,GPU_DISJOINT_EXT:11};
+@@ -20,13 +20,15 @@
+       deleteQuery(q){assert.ok(!q.deleted);q.deleted=true;deleted++;},isContextLost(){return false;}};
+     const core={state:{time:0},route:{config:{seed:'fixed'}},advancePhysics(){clock+=1;core.state.time+=1/60;}};
+     const road={ensure(){clock+=.25;}};
+-    const renderer={getContext:()=>gl,render(){clock+=2;},
++    const renderer={getContext:()=>gl,getRenderTarget:()=>target,render(){clock+=2;this.info.render={calls:target?0:5,triangles:target?0:600};},
+       info:{render:{calls:5,triangles:600},memory:{geometries:3,textures:2}}};
+     const context={paused:false,locked:false,dropSteps:0,visualVehicleId:'standard'};
+     const originals={render:renderer.render,advance:core.advancePhysics,ensure:road.ensure};
+     globalThis.requestAnimationFrame=callback=>queueMicrotask(()=>{
+       frame++;const end=clock+1000/60;
+-      road.ensure();core.advancePhysics();renderer.render();clock=end;
++      road.ensure();core.advancePhysics();renderer.render();
++      if(postRenderPreparation){target={};renderer.render();target=null;}
++      clock=end;
+       context.paused=paused&&frame>5;callback(clock-100);
+     });
+     let result;
+@@ -46,6 +48,8 @@
+   assert.equal(measured.physicsCpuMs.p95,1);assert.equal(measured.streamCpuMs.p95,.25);
+   assert.equal(measured.gpuRenderMs.p95,2);assert.equal(measured.resourceMemoryBytes,null);
+   assert.ok(Math.abs(measured.simulationRatio-1)<1e-8,'GPU drain must not inflate measured simulation time');
++  const postRender=await run({postRenderPreparation:true});
++  assert.ok(postRender.frames.every(f=>f.calls===5&&f.triangles===600),'hidden preparation after visible render must not erase visible draw statistics');
+   const invalid=await run({disjoint:true});assert.equal(invalid.gpuTimer.samples,0);
+   assert.ok(invalid.gpuTimer.disjointSamples>0);
+   await assert.rejects(run({software:true}),/Native GPU required/);

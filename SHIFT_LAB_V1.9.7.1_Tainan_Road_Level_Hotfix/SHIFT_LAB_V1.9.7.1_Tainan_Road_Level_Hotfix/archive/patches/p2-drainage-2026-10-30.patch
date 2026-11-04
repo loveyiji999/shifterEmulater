@@ -1,0 +1,403 @@
+--- a/desktop3d/package.json
++++ b/desktop3d/package.json
+@@ -18,7 +18,7 @@
+     "qa:all": "npm run qa:streaming && npm run qa:vehicle && npm run qa:surface && npm run qa:terrain && npm run qa:grading && npm run qa:materials && npm run qa:lighting && npm run qa:engineering && npm run qa:performance && npm run qa:scenarios && npm run qa:map && npm run qa:transmission && npm run qa:manual && npm run qa:health && npm run qa:prnd",
+     "qa:performance": "node ./tests/validate-performance-capture.mjs && node ./tests/validate-manual-performance.mjs",
+     "qa:surface": "node ./tests/validate-surface-map.mjs && node ./tests/validate-pavement.mjs",
+-    "qa:terrain": "node ./tests/validate-terrain.mjs && node ./tests/validate-terrain-surface.mjs && node ./tests/validate-scenery.mjs",
++    "qa:terrain": "node ./tests/validate-terrain.mjs && node ./tests/validate-terrain-surface.mjs && node ./tests/validate-scenery.mjs && node ./tests/validate-drainage.mjs",
+     "qa:grading": "node ./tests/validate-terrain-grading.mjs",
+     "qa:lighting": "node ./tests/validate-tunnel-lighting.mjs",
+     "qa:materials": "node ./tests/validate-surface-materials.mjs",
+--- /dev/null
++++ b/desktop3d/src/terrain-drainage.mjs
+@@ -0,0 +1,105 @@
++// Local Priority-Flood analysis of the actual terrain surface, not a hydraulic
++// simulation. Spill elevations are virtual: this module never changes terrain.
++const directions=[[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,1],[0,1],[1,1]];
++function validateLayout({width,height,cellSize,originX,originZ}){
++  if(!Number.isInteger(width)||!Number.isInteger(height)||width<3||height<3||width>129||height>129)
++    throw Error('Drainage grid must be 3..129 cells per dimension');
++  if(!Number.isFinite(cellSize)||cellSize<1||cellSize>128||!Number.isFinite(originX)||!Number.isFinite(originZ)||
++    Math.abs(originX)>1e7||Math.abs(originZ)>1e7)throw Error('Invalid drainage grid coordinates');
++}
++function validateGrid(grid){
++  validateLayout(grid);const {width,height,heights,valid}=grid;
++  if(!(heights instanceof Float32Array||heights instanceof Float64Array)||!(valid instanceof Uint8Array)||
++    heights.length!==width*height||valid.length!==heights.length)throw Error('Invalid drainage buffers');
++  for(let i=0;i<heights.length;i++)if(valid[i]>1||valid[i]&&!Number.isFinite(heights[i]))throw Error('Invalid drainage elevation or mask');
++}
++const boundary=(i,w,h)=>i<w||i>=w*(h-1)||i%w===0||i%w===w-1;
++function neighbours(i,grid){
++  const {width:w,height:h,valid}=grid,x=i%w,z=Math.floor(i/w),result=[];
++  for(const [dx,dz] of directions){
++    const nx=x+dx,nz=z+dz;if(nx<0||nx>=w||nz<0||nz>=h)continue;
++    const n=nz*w+nx;if(!valid[n])continue;
++    // A diagonal must not cross a road cut / no-data corner.
++    if(dx&&dz&&(!valid[z*w+nx]||!valid[nz*w+x]))continue;
++    result.push(n);
++  }
++  return result;
++}
++class MinHeap{
++  constructor(elevations){this.items=[];this.elevations=elevations;}
++  less(a,b){return this.elevations[a]<this.elevations[b]||this.elevations[a]===this.elevations[b]&&a<b;}
++  push(i){const q=this.items;q.push(i);let at=q.length-1;
++    while(at){const parent=(at-1)>>1;if(!this.less(q[at],q[parent]))break;[q[at],q[parent]]=[q[parent],q[at]];at=parent;}}
++  pop(){const q=this.items,first=q[0],last=q.pop();if(q.length){q[0]=last;let at=0;
++    for(;;){let child=at*2+1;if(child>=q.length)break;if(child+1<q.length&&this.less(q[child+1],q[child]))child++;
++      if(!this.less(q[child],q[at]))break;[q[at],q[child]]=[q[child],q[at]];at=child;}}
++    return first;}
++}
++
++export function sampleDrainageGrid(terrain,{width=33,height=33,cellSize=8,originX,originZ}){
++  validateLayout({width,height,cellSize,originX,originZ});
++  const grid={schema:'shiftlab.drainage-grid.v1',width,height,cellSize,originX,originZ,
++    heights:new Float64Array(width*height),valid:new Uint8Array(width*height)};
++  validateGrid(grid);terrain.prepare();
++  for(let z=0;z<height;z++)for(let x=0;x<width;x++){
++    const i=z*width+x,hit=terrain.surfaceAt(Math.fround(originX+x*cellSize),Math.fround(originZ+z*cellSize));
++    grid.heights[i]=hit?.y??NaN;grid.valid[i]=hit?1:0;
++  }
++  validateGrid(grid);return grid;
++}
++
++export function analyzeDrainage(grid){
++  validateGrid(grid);
++  const {width,height,cellSize,originX,originZ}=grid,n=grid.heights.length;
++  const heights=new Float64Array(grid.heights),valid=grid.valid.slice(),spillElevation=new Float64Array(n).fill(NaN),
++    receiver=new Int32Array(n).fill(-3),fillDepth=new Float64Array(n).fill(NaN),areaM2=new Float64Array(n),
++    rank=new Int32Array(n).fill(-1),seen=new Uint8Array(n),order=[],heap=new MinHeap(spillElevation);
++  const field={width,height,valid};let outlets=0,blockedCells=0;
++  for(let i=0;i<n;i++){
++    if(!valid[i]){blockedCells++;continue;}receiver[i]=-2;
++    if(boundary(i,width,height)){seen[i]=1;receiver[i]=-1;spillElevation[i]=heights[i];heap.push(i);outlets++;}
++  }
++  while(heap.items.length){
++    const i=heap.pop();rank[i]=order.length;order.push(i);
++    for(const next of neighbours(i,field))if(!seen[next]){
++      seen[next]=1;spillElevation[next]=Math.max(heights[next],spillElevation[i]);receiver[next]=i;heap.push(next);
++    }
++  }
++  // On non-flat terrain prefer steepest descent. Strictly decreasing flood rank
++  // resolves flats without epsilon height changes or cyclic flow directions.
++  for(const i of order)if(receiver[i]>=0){
++    let best=receiver[i],score=-Infinity;
++    for(const next of neighbours(i,field))if(rank[next]>=0&&rank[next]<rank[i]&&spillElevation[next]<=spillElevation[i]){
++      const distance=Math.hypot(i%width-next%width,Math.floor(i/width)-Math.floor(next/width))*cellSize;
++      const slope=(spillElevation[i]-spillElevation[next])/distance;
++      if(slope>score||slope===score&&next<best){best=next;score=slope;}
++    }
++    receiver[i]=best;
++  }
++  let fillCells=0,maxFillDepth=0;
++  for(const i of order){areaM2[i]=cellSize*cellSize;fillDepth[i]=spillElevation[i]-heights[i];
++    if(fillDepth[i]>0){fillCells++;maxFillDepth=Math.max(maxFillDepth,fillDepth[i]);}}
++  for(let at=order.length-1;at>=0;at--){const i=order[at];if(receiver[i]>=0)areaM2[receiver[i]]+=areaM2[i];}
++  return {schema:'shiftlab.drainage-analysis.v1',width,height,cellSize,originX,originZ,
++    heights,valid,spillElevation,receiver,fillDepth,areaM2,order:Uint32Array.from(order),
++    summary:{reachableCells:order.length,unresolvedCells:n-blockedCells-order.length,blockedCells,outlets,fillCells,maxFillDepth}};
++}
++
++export function traceDrainage(analysis,start){
++  if(analysis.schema!=='shiftlab.drainage-analysis.v1'||!Number.isInteger(start)||start<0||start>=analysis.receiver.length)
++    throw Error('Invalid drainage trace start');
++  const points=[],seen=new Set();let i=start;
++  for(;;){
++    if(seen.has(i))throw Error('Cyclic drainage receiver');seen.add(i);
++    if(analysis.receiver[i]===-3)return {status:'blocked',points};
++    points.push({cell:i,x:Math.fround(analysis.originX+i%analysis.width*analysis.cellSize),
++      z:Math.fround(analysis.originZ+Math.floor(i/analysis.width)*analysis.cellSize),
++      groundY:analysis.heights[i],spillY:Number.isFinite(analysis.spillElevation[i])?analysis.spillElevation[i]:null,
++      fillDepth:Number.isFinite(analysis.fillDepth[i])?analysis.fillDepth[i]:null,areaM2:analysis.areaM2[i]});
++    const next=analysis.receiver[i];
++    if(next===-1)return {status:'window-boundary',points};
++    if(next===-2)return {status:'unresolved-outlet',points};
++    if(!Number.isInteger(next)||next<0||next>=analysis.receiver.length)throw Error('Invalid drainage receiver');
++    i=next;
++  }
++}
+--- /dev/null
++++ b/desktop3d/tests/validate-drainage.mjs
+@@ -0,0 +1,102 @@
++import assert from 'node:assert/strict';
++import {writeFileSync} from 'node:fs';
++import {createHash} from 'node:crypto';
++import {analyzeDrainage,sampleDrainageGrid,traceDrainage} from '../src/terrain-drainage.mjs';
++import {TerrainWorld} from '../src/terrain-world.mjs';
++import {fixture,base,engine} from './road-v3-fixture.mjs';
++
++const grid=(w,h,values,valid=values.map(()=>1))=>({width:w,height:h,cellSize:8,originX:0,originZ:0,
++  heights:Float64Array.from(values),valid:Uint8Array.from(valid)});
++// Independent repeated minimax relaxation, deliberately without the heap or
++// flood visitation order used by the implementation.
++function reference(g){
++  const {width:w,height:h}=g,d=Array(w*h).fill(Infinity);
++  for(let i=0;i<d.length;i++)if(g.valid[i]&&(i<w||i>=w*(h-1)||i%w===0||i%w===w-1))d[i]=g.heights[i];
++  for(let pass=0;pass<d.length;pass++){
++    let changed=false;
++    for(let z=0;z<h;z++)for(let x=0;x<w;x++)if(g.valid[z*w+x]){
++      const i=z*w+x;
++      for(let dz=-1;dz<=1;dz++)for(let dx=-1;dx<=1;dx++){
++        if(!dx&&!dz||x+dx<0||x+dx>=w||z+dz<0||z+dz>=h)continue;
++        const j=(z+dz)*w+x+dx;
++        if(!g.valid[j]||dx&&dz&&(!g.valid[z*w+x+dx]||!g.valid[(z+dz)*w+x]))continue;
++        const candidate=Math.max(g.heights[i],d[j]);if(candidate<d[i]){d[i]=candidate;changed=true;}
++      }
++    }
++    if(!changed)break;
++  }
++  return d;
++}
++function check(g){
++  const original=g.heights.slice(),mask=g.valid.slice(),a=analyzeDrainage(g),r=reference(g);
++  assert.deepEqual(a,analyzeDrainage(g));assert.deepEqual(g.heights,original);assert.deepEqual(g.valid,mask);
++  let area=0;
++  for(let i=0;i<r.length;i++){
++    const path=traceDrainage(a,i);
++    if(!g.valid[i]){assert.equal(a.receiver[i],-3);assert.equal(path.status,'blocked');continue;}
++    if(!Number.isFinite(r[i])){assert.equal(a.receiver[i],-2);assert.equal(path.status,'unresolved-outlet');continue;}
++    assert.equal(a.spillElevation[i],r[i]);assert.equal(path.status,'window-boundary');
++    assert.ok(path.points.length<=g.heights.length);assert.ok(a.areaM2[i]>=g.cellSize*g.cellSize);
++    if(a.receiver[i]===-1)area+=a.areaM2[i];
++    for(let k=1;k<path.points.length;k++){
++      const p=path.points[k-1],q=path.points[k];assert.ok(q.spillY<=p.spillY);
++      const dx=q.cell%g.width-p.cell%g.width,dz=Math.floor(q.cell/g.width)-Math.floor(p.cell/g.width);
++      assert.ok(Math.abs(dx)<=1&&Math.abs(dz)<=1);
++      if(dx&&dz){assert.ok(g.valid[p.cell+dx]);assert.ok(g.valid[p.cell+dz*g.width]);}
++    }
++  }
++  assert.equal(area,a.summary.reachableCells*g.cellSize*g.cellSize,'contributing area conserved at window outlets');
++  return a;
++}
++const bowl=grid(5,5,Array.from({length:25},(_,i)=>i<5||i>=20||i%5===0||i%5===4?4:0));
++assert.equal(check(bowl).summary.maxFillDepth,4);assert.equal(check(bowl).summary.fillCells,9);
++const plane=grid(5,5,Array.from({length:25},(_,i)=>4-Math.floor(i/5)));
++assert.equal(check(plane).receiver[12],17,'steepest descent on an unfilled slope');
++assert.equal(check(plane).summary.fillCells,0);
++const island=grid(5,5,Array(25).fill(1),Array.from({length:25},(_,i)=>i===12?1:0));
++assert.equal(check(island).summary.unresolvedCells,1);
++const diagonal=grid(3,3,Array(9).fill(0),[1,0,0,0,1,0,0,0,0]);
++assert.equal(check(diagonal).receiver[4],-2,'do not route diagonally through two blocked corners');
++let seed=92071;
++for(let test=0;test<32;test++){
++  const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/2**32;};
++  const values=Array.from({length:49},()=>test%2?Math.round(random()*200)/10:Math.floor(random()*20));
++  check(grid(7,7,values,values.map(()=>random()>.22?1:0)));
++}
++const rectangle={...grid(7,5,Array.from({length:35},(_,i)=>10-Math.floor(i/7)+.1*(i%7))),originX:-64,originZ:-128};
++const rectangular=check(rectangle),first=traceDrainage(rectangular,17).points[0];assert.equal(first.x,-40);assert.equal(first.z,-112);
++assert.throws(()=>sampleDrainageGrid({prepare(){},surfaceAt:()=>({y:NaN})},{width:3,height:3,cellSize:8,originX:0,originZ:0}),/elevation/);
++assert.throws(()=>analyzeDrainage({...plane,heights:new Float64Array(2)}),/buffers/);
++assert.throws(()=>analyzeDrainage({...plane,cellSize:0}),/coordinates/);
++assert.throws(()=>analyzeDrainage({...plane,heights:Float64Array.from(plane.heights,()=>NaN)}),/elevation/);
++assert.throws(()=>sampleDrainageGrid({prepare(){throw Error('must validate first');}},{width:1e9,height:3,cellSize:8,originX:0,originZ:0}),/3..129/);
++const forged=check(plane);forged.receiver[12]=12;assert.throws(()=>traceDrainage(forged,12),/Cyclic/);
++
++const reports=[];
++for(const seed of ['LEVEL-1','LEVEL-2','ROAD-38274CD4']){
++  const config={...base,seed},core=fixture(config,48),state=core.route.v3State;
++  const feature=state.features.find(f=>f.kind==='suspension'||f.kind==='bridge');assert.ok(feature);
++  const center=core.roadPointAt((feature.start+feature.end)/2),terrain=new TerrainWorld({physics:core});
++  const fingerprint=JSON.stringify(state.points),beforeRevision=state.revision;
++  try{
++    const sampled=sampleDrainageGrid(terrain,{originX:Math.floor(center.x/8)*8-128,originZ:Math.floor(center.z/8)*8-128});
++    const data=analyzeDrainage(sampled);assert.ok(data.summary.reachableCells>0);
++    let checked=0;
++    for(let i=0;i<sampled.heights.length;i++){
++      const hit=terrain.surfaceAt(sampled.originX+i%33*8,sampled.originZ+Math.floor(i/33)*8);
++      assert.equal(sampled.valid[i],hit?1:0);
++      if(hit){assert.equal(sampled.heights[i],hit.y);checked++;}
++      if(data.receiver[i]>=0)assert.equal(traceDrainage(data,i).status,'window-boundary');
++    }
++    assert.equal(JSON.stringify(state.points),fingerprint);assert.equal(state.revision,beforeRevision);
++    const source=createHash('sha256').update(Buffer.from(sampled.heights.buffer)).update(sampled.valid).digest('hex');
++    const deepest=Array.from(data.order).sort((a,b)=>data.fillDepth[b]-data.fillDepth[a])[0];
++    reports.push({seed,feature:feature.kind,chainage:(feature.start+feature.end)/2,samplesChecked:checked,
++      sourceHash:source,summary:data.summary,deepestPath:traceDrainage(data,deepest)});
++    const fresh=fixture(config,48);engine.extend(state,1);engine.extend(fresh.route.v3State,1);
++    assert.equal(JSON.stringify(state.points),JSON.stringify(fresh.route.v3State.points),'analysis cannot consume road RNG or change next bend');
++  }finally{terrain.clear();terrain.depthMaterial.dispose();}
++}
++writeFileSync(new URL('../../artifacts/tests/p2-drainage-latest.json',import.meta.url),JSON.stringify({
++  scope:'local actual-terrain drainage analysis; not water geometry / hydraulic simulation / game integration',reports},null,2)+'\n');
++console.log('PASS priority-flood against independent minimax oracle, no-data barriers / diagonal exclusion, deterministic acyclic receivers, area conservation and actual Float32 terrain samples: '+JSON.stringify(reports.map(r=>({seed:r.seed,samples:r.samplesChecked,...r.summary}))));
+--- /dev/null
++++ b/docs/P2_DRAINAGE_FOUNDATION.md
+@@ -0,0 +1,35 @@
++# P2水系排水拓樸基礎
++
++2026-10-30。這一包建立河床／水面施工前的局部排水分析，不代表水系渲染或水理模擬已完成。使用者的大量載入及碰撞卡頓仍待實際手動記錄；本模組未接入遊戲主迴圈或Worker，不增加目前遊戲的渲染與物理工作。
++
++## 已實作
++
++terrain-drainage.mjs從TerrainWorld.surfaceAt取得實際Float32三角面內插高度，不使用另一份理想高度場。地形被道路挖掉的位置保留缺面，橋下仍可取到原谷底。分析採邊界Priority-Flood求局部最小溢出高程，再以8鄰接、非上升溢出面及嚴格遞減處理序建立無循環接收圖。斜線不得穿過缺面角落。
++
++spillElevation／fillDepth是分析值，沒有改變真實地面。原始高度、有效遮罩與結果分開保存；浮點高度不加epsilon。areaM2依格心等面積累積，不是降雨流量或真實集水區面積。相同輸入的結果與平面破同分規則確定；平面上的任意破同分方向不能當成自然河流流向。
++
++接收索引-1為視窗邊界候選出口、-2為無法連到視窗邊界的有效區、-3為缺面。未決區不虛構涵洞或出水口。traceDrainage保留原高程、虛擬溢出面、修整深度與面積；遇到人為損壞的循環會拒絕。格網尺寸3–129，預設33×33格心、間距8m；資料及空間範圍先驗證再配置，所有分析都不回寫來源。
++
++方法來源與專案差異見[Priority-Flood卡片](knowledge/road-environment/sources/WATER-DRAINAGE.md)。NoData當屏障是遊戲的保守選擇，並非論文原本將NoData視為低位的處理方式。沒有複製論文的完整程式或宣稱工程認證。
++
++## 實際地形結果
++
++每種子選第一座橋／吊橋中心附近33×33格心視窗，共3267個位置，其中3254個有效地形面命中。這是局部視窗，不是整個種子流域；分析邊界亦不是真實河流終點。
++
++| 種子 | 有效採樣 | 缺面 | 需虛擬填平的格心 | 最大填平深度 |
++| --- | ---: | ---: | ---: | ---: |
++| LEVEL-1 | 1089 | 0 | 215 | 15.950m |
++| LEVEL-2 | 1076 | 13 | 251 | 15.969m |
++| ROAD-38274CD4 | 1089 | 0 | 0 | 0.000m |
++
++LEVEL-1／LEVEL-2的谷底在這個視窗中存在約16m填平需求。這支持「不能直接拿一張水面冒充已連通河槽」的施工判斷，不代表現實水位、流量或洪水深度。ROAD-38274CD4本視窗沒有填平需求，也不能推論整張地圖均已具備水系。
++
++下一步需要在V3不可變道路／橋台約束下規劃可連通河床與出口，驗證實際修整幾何、共享邊界、路基及基礎後，再以同源河槽裁切水面；可見水面不建立假的輪胎承載平面。河槽、水面、岸緣、碰撞／濕地分類及遊戲串流整合仍是原P2交付要求，沒有以本分析替代。
++
++## 驗證
++
++node tests/validate-drainage.mjs：通過明確碗地、坡面、隔離區、斜向屏障及32組整數／小數高程與缺面組合。用獨立minimax反覆鬆弛逐點對照溢出高程，驗證無循環、非上升路徑、候選出口面積守恆、輸入不變及錯誤拒絕。真實地形逐點重查3254個高度，另比對延伸後的下一個彎道，確認未消耗道路RNG。
++
++npm.cmd run qa:terrain、npm.cmd run build及正式版瀏覽器回歸通過。production仍為42 modules及相同bundle；本輪只把新測試接到qa:terrain，未修改既有runtime入口、地形生成或車輛物理。未因本包重跑全套道路／車輛套件，也沒有新的FPS成績。
++
++原始結果：artifacts/tests/p2-drainage-latest.json；本輪checkpoint／驗證：p2-drainage-source-2026-10-30.zip、p2-drainage-verification-2026-10-30.json。聚焦patch位於archive/patches/p2-drainage-2026-10-30.patch。
+--- a/docs/DEVELOPMENT_PLAN.md
++++ b/docs/DEVELOPMENT_PLAN.md
+@@ -1,6 +1,6 @@
+ # SHIFT LAB 車輛與環境整合開發規劃書
+ 
+-版本：1.7　更新：2026-10-30（Asia/Taipei）；初版：2026-10-28
++版本：1.8　更新：2026-10-30（Asia/Taipei）；初版：2026-10-28
+ 
+ 適用專案：`SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/`。
+ 
+@@ -247,7 +247,7 @@
+ 
+ ## 下一個可執行工作包
+ 
+-P2第一包的連續地表、土路接觸及結構／洞口已整合，實作及邊界見[P2連續地表](P2_CONTINUOUS_TERRAIN.md)。下列工作包保留完整目標；結構基礎接地與洞口後續成果見[P2結構整合](P2_ENGINEERING.md)。橋端整形、PBR與光照後續成果見[P2材質與整形](P2_PBR_AND_GRADING.md)。已依使用者最新要求恢復分階段開發；混凝土與碎石已加入遊戲路面選擇及接觸驗證，詳見[P2可行駛路面](P2_DRIVABLE_PAVEMENTS.md)。第十包的基本樹木／岩石與土色變化見[P2造景](P2_SCENERY.md)。第十一包的土／碎石／裸岩混合與同源接觸見[P2地形混合](P2_TERRAIN_BLEND.md)。第十二包的局部天空光、洞內燈光與側緣銜接見[P2洞內外光照](P2_TUNNEL_LIGHTING.md)。第十三包的十類路面發布與40組制動見[P2十類路面](P2_TEN_PAVEMENTS.md)。水系、外側入口造景及遠景品質仍保留原目標。
++P2第一包的連續地表、土路接觸及結構／洞口已整合，實作及邊界見[P2連續地表](P2_CONTINUOUS_TERRAIN.md)。下列工作包保留完整目標；結構基礎接地與洞口後續成果見[P2結構整合](P2_ENGINEERING.md)。橋端整形、PBR與光照後續成果見[P2材質與整形](P2_PBR_AND_GRADING.md)。已依使用者最新要求恢復分階段開發；混凝土與碎石已加入遊戲路面選擇及接觸驗證，詳見[P2可行駛路面](P2_DRIVABLE_PAVEMENTS.md)。第十包的基本樹木／岩石與土色變化見[P2造景](P2_SCENERY.md)。第十一包的土／碎石／裸岩混合與同源接觸見[P2地形混合](P2_TERRAIN_BLEND.md)。第十二包的局部天空光、洞內燈光與側緣銜接見[P2洞內外光照](P2_TUNNEL_LIGHTING.md)。第十三包的十類路面發布與40組制動見[P2十類路面](P2_TEN_PAVEMENTS.md)。第十五包的局部排水分析及實際谷底修整需求見[P2排水拓樸](P2_DRAINAGE_FOUNDATION.md)，尚未接入水面或遊戲串流。水系、外側入口造景及遠景品質仍保留原目標。
+ 
+ 目前優先取得實際玩家長幀／碰撞／串流記錄並依證據處理卡頓，再接續水系與外側入口地形銜接；下方保留已實作地形工作的驗收定義，不表示重新開發另一套地圖。
+ 
+--- a/docs/DATA_CATALOG.md
++++ b/docs/DATA_CATALOG.md
+@@ -26,6 +26,10 @@
+ | 玩家偏好 | 瀏覽器 localStorage | `shiftlab.v189.settings`、`shiftlab.v189.procedural-map`；不屬於本機研究檔案 |
+ | 手動效能診斷 | `desktop3d/tests/manual-performance.mjs`、`tests/performance/` | DEV正常玩家操作的長幀／碰撞／串流記錄與本機JSON下載；不寫玩家storage、不進入production |
+ | 開發驗收 | `desktop3d/tests/acceptance/` | 固定參考地圖、standard 車型及五項工況；不納入玩家建置 |
++
++## P2水系開發分析（尚未接入遊戲）
++
++`desktop3d/src/terrain-drainage.mjs`採樣真實地形三角面，求局部溢出面、無循環接收圖與等面積格心累積。數據為河床規劃分析，不是已施工地形、水面、流量或玩家storage。原始三種子結果位於`artifacts/tests/p2-drainage-latest.json`；規格見[排水基礎](P2_DRAINAGE_FOUNDATION.md)。
+ 
+ ## 車輛研究與校準資料
+ 
+--- a/docs/AGENT_KNOWLEDGE.md
++++ b/docs/AGENT_KNOWLEDGE.md
+@@ -1,3 +1,7 @@
++# 第十五工作包 P2排水拓樸基礎
++
++2026-10-30新增實際地形排水分析，完成最小溢出面、無循環接收圖、缺面／斜角屏障及面積累積；獨立minimax對照與三種子3254次有效面命中通過。LEVEL-1／LEVEL-2局部谷底約16m虛擬填平需求，後續須施工河床與出口。詳見[P2排水基礎](P2_DRAINAGE_FOUNDATION.md)。此模組未接入遊戲，不代表水系完成或卡頓已解除；P2水面／銜接、P3完整性能及P4／P5保留。下方保留歷史。
++
+ # 第十四工作包 實際玩家手動效能擷取
+ 
+ 2026-10-30補齊P0／P3診斷：外部入口回到同一遊戲分頁，保留玩家設定與正常操作，記錄長幀、Rapier碰撞／射線／接觸耗時、串流佇列、實際後端／解析度／焦點，60秒或Esc後下載本機JSON。單元與原生瀏覽器流程通過；完整結果及限制見[手動效能擷取](PERFORMANCE_MANUAL_CAPTURE.md)。使用者嚴重卡頓尚未確定根因，P2水系／場景銜接、P3十場景、P4及P5仍未完成。下方保留歷史。
+--- a/docs/AGENT_VERIFICATION.md
++++ b/docs/AGENT_VERIFICATION.md
+@@ -1,3 +1,7 @@
++# 第十五工作包 P2排水拓樸基礎
++
++2026-10-30新增實際地形排水分析，完成最小溢出面、無循環接收圖、缺面／斜角屏障及面積累積；獨立minimax對照與三種子3254次有效面命中通過。LEVEL-1／LEVEL-2局部谷底約16m虛擬填平需求，後續須施工河床與出口。詳見[P2排水基礎](P2_DRAINAGE_FOUNDATION.md)。此模組未接入遊戲，不代表水系完成或卡頓已解除；P2水面／銜接、P3完整性能及P4／P5保留。下方保留歷史。
++
+ # 第十四工作包 實際玩家手動效能擷取
+ 
+ 2026-10-30補齊P0／P3診斷：外部入口回到同一遊戲分頁，保留玩家設定與正常操作，記錄長幀、Rapier碰撞／射線／接觸耗時、串流佇列、實際後端／解析度／焦點，60秒或Esc後下載本機JSON。單元與原生瀏覽器流程通過；完整結果及限制見[手動效能擷取](PERFORMANCE_MANUAL_CAPTURE.md)。使用者嚴重卡頓尚未確定根因，P2水系／場景銜接、P3十場景、P4及P5仍未完成。下方保留歷史。
+--- a/docs/DEVELOPMENT_PROGRESS.md
++++ b/docs/DEVELOPMENT_PROGRESS.md
+@@ -1,3 +1,7 @@
++# 第十五工作包 P2排水拓樸基礎
++
++2026-10-30新增實際地形排水分析，完成最小溢出面、無循環接收圖、缺面／斜角屏障及面積累積；獨立minimax對照與三種子3254次有效面命中通過。LEVEL-1／LEVEL-2局部谷底約16m虛擬填平需求，後續須施工河床與出口。詳見[P2排水基礎](P2_DRAINAGE_FOUNDATION.md)。此模組未接入遊戲，不代表水系完成或卡頓已解除；P2水面／銜接、P3完整性能及P4／P5保留。下方保留歷史。
++
+ # 第十四工作包 實際玩家手動效能擷取
+ 
+ 2026-10-30補齊P0／P3診斷：外部入口回到同一遊戲分頁，保留玩家設定與正常操作，記錄長幀、Rapier碰撞／射線／接觸耗時、串流佇列、實際後端／解析度／焦點，60秒或Esc後下載本機JSON。單元與原生瀏覽器流程通過；完整結果及限制見[手動效能擷取](PERFORMANCE_MANUAL_CAPTURE.md)。使用者嚴重卡頓尚未確定根因，P2水系／場景銜接、P3十場景、P4及P5仍未完成。下方保留歷史。
+--- a/docs/knowledge/road-environment/README.md
++++ b/docs/knowledge/road-environment/README.md
+@@ -1,6 +1,6 @@
+ # 道路材質與環境建模先期知識庫
+ 
+-更新：2026-10-28。供V3道路與場景後續開發使用，涵蓋10類路面、6種表面狀態及10類造景環境。本輪交付研究、分類、建模規格及驗證門檻；遊戲程式、物理數值與資產未改動。
++初版：2026-10-28；補充：2026-10-30。供V3道路與場景後續開發使用，涵蓋10類路面、6種表面狀態及10類造景環境。初版交付研究、分類、建模規格及驗證門檻；本次新增[排水拓樸基礎](../../P2_DRAINAGE_FOUNDATION.md)及[Priority-Flood來源卡片](sources/WATER-DRAINAGE.md)，尚未在遊戲內生成河槽或水面。
+ 
+ ## 當前優先目標
+ 
+@@ -15,13 +15,13 @@
+ | [資產與渲染規格](ASSET_PIPELINE.md) | UV、PBR、色彩空間、LOD、實例化、授權及資源管理 |
+ | [V3整合與驗證規格](INTEGRATION.md) | 現況差異、資料邊界、接觸分類與後續驗收條件 |
+ | [分類資料](classification.json) | 供開發查詢的材質、狀態與環境型錄；不是runtime設定 |
+-| [來源目錄](source-catalog.json) | 16份第一手來源的版本、連結、閱讀狀態與來源卡片 |
++| [來源目錄](source-catalog.json) | 17份第一手來源的版本、連結、閱讀狀態與來源卡片 |
+ | [本輪驗證](VERIFICATION.md) | 文件結構、引用、既有程式保持不變的檢查 |
+ 
+ ## 分類原則
+ 
+ 外觀材質、可碰撞幾何、輪胎接觸特性分開描述。`roughness`不是輪胎摩擦，法線貼圖不是車轍，鋼格柵的透明貼圖也不會自動產生物理孔洞。新增材質的摩擦、滾阻、變形及水深先保留待校準。
+ 
+-工程來源用於理解形態與使用條件；Three.js、Khronos及Rapier來源用於表達及實作邊界。13份已讀指定段落，3份僅取得官方索引段落；狀態與限制逐筆寫在卡片，沒有以索引冒充全文。天然石材的行車工程依據仍待補齊。
++工程來源用於理解形態與使用條件；Three.js、Khronos及Rapier來源用於表達及實作邊界。14份已讀指定段落，3份僅取得官方索引段落；狀態與限制逐筆寫在卡片，沒有以索引冒充全文。天然石材的行車工程依據仍待補齊。
+ 
+ 沿用[道路線形與立體結構知識庫](../road-design/README.md)。V3仍是唯一開發主線，現實城市地圖與圖資不在本庫範圍。
+--- a/docs/knowledge/road-environment/VERIFICATION.md
++++ b/docs/knowledge/road-environment/VERIFICATION.md
+@@ -1,3 +1,7 @@
++# 2026-10-30 排水補充
++
++新增WATER-DRAINAGE來源後，目錄為17份、14份指定段落閱讀與3份索引閱讀；原16筆來源欄位保持不變。來源ID／卡片／引用及JSON已重新檢查。排水程式與三種子實測見[排水基礎](../../P2_DRAINAGE_FOUNDATION.md)。下方2026-10-28的16份結果是歷史快照，不代表新的runtime整合狀態。
++
+ # 道路材質與環境知識庫驗證
+ 
+ 日期：2026-10-28（Asia/Taipei）。本輪只有研究與文件，沒有開發或套用新的遊戲材質、模型、天候或物理參數。
+--- a/docs/knowledge/road-environment/source-catalog.json
++++ b/docs/knowledge/road-environment/source-catalog.json
+@@ -1,6 +1,6 @@
+ {
+   "schema": "shiftlab.knowledge.sources.v1",
+-  "updated_on": "2026-10-28",
++  "updated_on": "2026-10-30",
+   "scope": "documentation_only",
+   "sources": [
+     {
+@@ -194,6 +194,18 @@
+       "retrieved_on": "2026-10-28",
+       "primary_source": true,
+       "card": "sources/COLLIDER-RAPIER.md"
++    },
++    {
++      "id": "WATER-DRAINAGE",
++      "title": "Priority-Flood: An Optimal Depression-Filling and Watershed-Labeling Algorithm for Digital Elevation Models",
++      "publisher": "Richard Barnes, Clarence Lehman, David Mulla; Computers & Geosciences",
++      "url": "https://rbarnes.org/sci/2014_depressions.pdf",
++      "version": "2014 journal paper; author-hosted preprint dated 2015-07-08",
++      "status": "sections_reviewed",
++      "reviewed_sections": "Problem definition; section 3.2 / Algorithm 1 and NoData handling; Algorithm 4 comparison",
++      "retrieved_on": "2026-10-30",
++      "primary_source": true,
++      "card": "sources/WATER-DRAINAGE.md"
+     }
+   ]
+ }
+--- /dev/null
++++ b/docs/knowledge/road-environment/sources/WATER-DRAINAGE.md
+@@ -0,0 +1,11 @@
++# Priority-Flood排水前處理
++
++來源：Barnes／Lehman／Mulla，[作者提供的論文](https://rbarnes.org/sci/2014_depressions.pdf)，DOI 10.1016/j.cageo.2013.04.024。期刊出版2014年；目前作者稿日期2015-07-08，不能把預印本日期當成首次出版。查閱2026-10-30，狀態sections_reviewed。
++
++閱讀範圍：問題定義、3.2節／Algorithm 1及NoData處理；Algorithm 4只作流向方法比較，未宣稱讀完或重現所有變體。
++
++論文的基本方法由邊界依高度優先向內處理，求可到達邊界的最低填平面；填平與挖穿低窪是不同操作。此結論不等於地形已被施工，也不是水深／流速的物理求解。
++
++本專案重新實作最小堆與局部8鄰接分析，採獨立minimax反覆鬆弛作測試對照。平面用嚴格遞減的泛洪序處理流向，不把epsilon加到真實地形高度。沒有採用論文的FIFO加速變體，也未宣稱最優實作或直接移植Algorithm 4。
++
++重要差異：論文的NoData處理與本專案不相同。遊戲道路挖除的地形缺面代表未知／不通行區，不當成低位出口；斜向亦不得從缺面角落穿越。隔離區回報出口未決，分析視窗邊界只是候選出流位置。這些是專案限制，不能引用論文當成自然河流或工程涵洞已正確的證據。

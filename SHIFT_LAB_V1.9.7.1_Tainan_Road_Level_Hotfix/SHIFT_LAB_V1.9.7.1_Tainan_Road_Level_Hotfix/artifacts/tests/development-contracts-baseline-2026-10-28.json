@@ -1,0 +1,41 @@
+{
+  "schema": "shiftlab.development.verification.v1",
+  "recordedAt": "2026-10-28T15:46:31.071014+00:00",
+  "scope": "P0 contracts, expanded external diagnosis, native stationary baseline; full P0-P5 incomplete",
+  "goalStatus": "active",
+  "checks": {
+    "qa:all": "PASS",
+    "qa:vehicle final": "PASS",
+    "qa:performance": "PASS",
+    "build": "PASS",
+    "browser": "PASS",
+    "vehicle-diagnostics": "PASS 36 cases",
+    "production": "PASS",
+    "native GPU baseline": "PASS 3 x 60 seconds after interval fix",
+    "document references": "PASS"
+  },
+  "sourceHashes": {
+    "desktop3d/src/main.mjs": "84b17511a4c9943fa0d97b1c33301668b45695e9b8abdad1400905cb407446a1",
+    "desktop3d/src/design-data.mjs": "a2971991aedfa8487a8a0e00a56d41b07dc072a6c4512d75c4e680458715e218",
+    "desktop3d/src/tuning-profile.mjs": "8563cd93db84a0b228fb8bf2e732a755ac91e97243d2a4535fe4323faaf4501d",
+    "desktop3d/src/appearance-assembly.mjs": "2b34ecf1e85676bdb3c7162d1ff8295df4fbb6ded43f9bb19a1c99e853b2f922",
+    "desktop3d/src/surface-definition.mjs": "0ae4824f81ae2e808992feaf7cf48b9c8ebc7d5f7813df68dd6868b18a261d01",
+    "desktop3d/tests/game-driver.mjs": "8fa1a24ab222d46aa9e6fcffd0dc5c852ec1b458d46c8ade1946d4f2a8fdbeab",
+    "desktop3d/tests/performance-baseline.mjs": "9d336be7f4c7562e4c09d5bdc4603b2be827a05f5b11a6307773184245b2a551",
+    "desktop3d/tests/validate-design-contracts.mjs": "ee1dce6829f3f70b39afa02f31323f132be4b2275bf67ba042a0bdf52f623a37",
+    "desktop3d/tests/validate-performance-capture.mjs": "e84d2145f27debe33d0f5ae7d7b33ae921f4f7327679c4179314f0ec19488c3c",
+    "desktop3d/tests/validate-procedural-browser.mjs": "e5ea611125885ec483a751000ef1a5acd90165dc5b909025bd4831e2ccc07fca",
+    "desktop3d/tests/vehicle-core-fixture.mjs": "a91311e56c00ff7fdb51b1a83a3f44cd71c04f49a8ea1ee72f22d0ced52816d5",
+    "desktop3d/tests/vehicle-diagnostics/main.mjs": "c3e5f815cf45575b08a070cd342b20bf43d49be801288bafe87ead49bb730b76",
+    "desktop3d/tests/vehicle-diagnostics/index.html": "e487575401685360603fb66ce04759783142f6f1068c9611dd65576da4a98b8a",
+    "desktop3d/package.json": "5b2e7898d9f6b77db2358529818f5b9e67728b0bcc4cec44b7991ff3666e3bd1"
+  },
+  "pending": [
+    "P0 material-boundary contact diagnostics",
+    "P1 complete model/hull alignment and visual spin/steer evidence",
+    "P2 continuous terrain, slopes, materials, lighting and scenery",
+    "P3 ten-case environment quality/performance and long-session validation",
+    "P4 player tuning tools and atomic application",
+    "P5 vehicle appearance creation, asset parsing and actual save/reload"
+  ]
+}

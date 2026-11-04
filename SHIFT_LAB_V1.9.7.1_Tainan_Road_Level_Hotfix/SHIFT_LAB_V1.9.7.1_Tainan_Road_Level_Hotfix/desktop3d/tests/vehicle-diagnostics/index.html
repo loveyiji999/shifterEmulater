@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="zh-Hant"><meta charset="utf-8"><title>SHIFT LAB 車輛接地診斷</title>
+<style>body{margin:0;background:#14202a;color:#e5eeee;font:15px system-ui}header{padding:12px}button,select{font:inherit;margin:4px}canvas{width:100%;height:65vh;display:block}pre{padding:12px;white-space:pre-wrap}iframe{display:none}</style>
+<header>外部開發工具：實際 Rapier 車身、輪心與懸吊射線
+<select id="preset"><option>standard</option><option>city</option><option>turbo</option><option>diesel</option></select>
+<select id="fixture"><option value="flat">平地</option><option value="bump">單輪起伏</option><option value="roll">車身側傾</option><option value="airborne">離地／落地</option><option value="slope">V3 坡道</option><option value="crest">V3 坡頂</option><option value="bank">V3 橫坡彎道</option><option value="upper">V3 上層交會</option><option value="lower">V3 下層交會</option><option value="surface-split">左右乾濕分界</option><option value="surface-front">前後乾濕分界</option><option value="surface-upper">上層濕／下層乾</option><option value="surface-lower">下層乾／上層濕</option></select>
+<button id="reset">重建工況</button><button id="step">前進 120 步</button><button id="export">匯出實際讀值</button>
+<label><input id="collider-view" type="checkbox" checked>碰撞線框</label>
+<span id="status">初始化…</span></header>
+<canvas id="view"></canvas><pre id="readout"></pre>
+<iframe id="physics" src="/physics.html" title="物理核心"></iframe>
+<script type="module" src="./main.mjs"></script></html>

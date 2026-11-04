@@ -1,0 +1,164 @@
+{
+  "previousGoalTurnClassification": "progress",
+  "reason": "previous goal turn changed geometry upload pipeline and produced native/QA evidence",
+  "goalStatus": "active; P2 partial and P3-P5 remain required",
+  "source": {
+    "desktop3d/src/surface-materials.mjs": "856548f9e18767415844b874091d3dfc315fdb11260f0844dc341336a73f1925",
+    "desktop3d/src/terrain-surface.mjs": "a422fe32c7aaa62af8fa84de7b595de5f6d4ba17fe7bd6e63f11d1ebee10e64c",
+    "desktop3d/src/terrain-material.mjs": "d15a60683f6ef712adc32ccb81ab7855aeea3ed9f3ed1c9402f144928534d40b",
+    "desktop3d/src/terrain-world.mjs": "c04e0b66358a3b0214052d6d6a5c11bd6da88a58ad868577dd731b4cebc191c8",
+    "desktop3d/src/streaming-geometry.mjs": "168875c74326d3170c56af0aad7983149e76543d2ac635c3355bddbb65dc0258",
+    "desktop3d/src/surface-map.mjs": "e13ee5fd4fc1329c7d26cd3f4f05445b3ca036acbfeab559a9f7b9e18b23e5c5",
+    "desktop3d/src/chassis.mjs": "808412a9443a18f0a6ee466e4bde2efe114511822d22af92f0419fd1c9e41a65",
+    "desktop3d/src/road.mjs": "a7840e63eeb5ca0049e64585baa7c995580b97e4c2cbbcc85cf5f37973a6de88",
+    "desktop3d/src/main.mjs": "ef5898b3d786cbf023f6d6ce897448e4d87a818d47aed39f021cc39a0bbb2b3a",
+    "desktop3d/src/geometry-streamer.mjs": "7b1d1b83d00a07f8cf5f1fe693f99f66ed3ce95b0c97f1b7f2d217d05143848a",
+    "desktop3d/src/geometry-upload-preparer.mjs": "4e3ade4fc406f88ea27c42fe7866bc884241771e44ffaa5193e157a05ef97ae0",
+    "desktop3d/src/terrain-geometry.mjs": "6fc832cbc9ef705e435c4b061299ee8c8e6ae3faa300146184a08c945a4d8da5",
+    "desktop3d/tests/validate-terrain-surface.mjs": "d3fa38d2c43fa532e652f9d019e5195077a6f6fcdd07c21c3fd559699c7450ab",
+    "desktop3d/tests/terrain-blend-driver.mjs": "20186aab028f207b8af051a4c38ed0f54ece207bc25d3606eee9cb63e0379d96",
+    "desktop3d/tests/validate-streaming.mjs": "73a1ad400e9eb45c9ecc76de574e16169cd6f7f4f3a0f9c43bd22e5cf68ce0ee",
+    "desktop3d/tests/validate-terrain.mjs": "97a369b25cbb0af9dbc78ca3a61c55941cbe9f563b97ac5a982d52c1f605064d",
+    "desktop3d/tests/surface-driver.mjs": "01a35d4d5bc9d02c003535efc2466265e14a3c866708eaf6bf9abf6a15f1f963",
+    "desktop3d/tests/game-driver.mjs": "84435b4ae2af43a748dbbd36dcb34477d64a3a17b5191cc4444f044dd7feb727",
+    "desktop3d/tests/validate-procedural-browser.mjs": "d6e86ecd7693fbf1e4ee29c7df2d66f265334f91248a99992bba239c65e273f8",
+    "desktop3d/package.json": "708c8053105e109e54dcaf2fc9d8ce718af9cb0a6ca8a1b71923955f5cdb3c3b",
+    "desktop3d/package-lock.json": "f6acb5b69f34e0a9351be7f55f28914c490c01bee2ee9ca302435edad545ec86",
+    "desktop3d/public/physics.html": "c491cfc1ca5af23367822f87dfd27c12e122b83bf362ff6073829c75f952edbd",
+    "desktop3d/public/road-generator-v3.js": "d9d0c37bfa479bfcce098e5f86625eff36055fa04927f377b9b48cdc655a9668",
+    "docs/P2_TERRAIN_BLEND.md": "04ee88d7afd2d402dca62a7a81abfc2998f6904ef169b9e67b32f30f9630d383",
+    "docs/DEVELOPMENT_PLAN.md": "d7f20bdaf5c97b6b3121a8fbe1df68e0b730d8e65c869256ea9cbd68f29fabad",
+    "docs/DEVELOPMENT_PROGRESS.md": "820488853f9d7024c2495c3ed0a9dfbaaa6e066ad9f62ea8e4ce0088693d501f",
+    "docs/AGENT_KNOWLEDGE.md": "2c0a55fac3b35a647cac3d73b48c0627fba9aa0d19bbc662b1bfa392d3645604",
+    "docs/AGENT_VERIFICATION.md": "0b59f0ace16b56c8c5a80001a5eb9cc37133f21e4e711688c88cbdfb3fec3b39",
+    "docs/DATA_CATALOG.md": "72788105078532cfa760f77ff511db61ad97654082de0355a4a8e0f381c1a736"
+  },
+  "archive": "p2-terrain-blend-source-2026-10-29.zip",
+  "archiveSha256": "5b513697f97945e3486d2d5724c8dee0f9c27706ff40be30aa34bf292266a4d3",
+  "unchanged": [
+    "physics.html",
+    "road-generator-v3.js",
+    "package-lock.json"
+  ],
+  "chassisDelta": "only supplies existing ray hit position; source replacement equality verified",
+  "checks": [
+    {
+      "command": "node tests/validate-terrain-surface.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "npm.cmd run qa:terrain",
+      "result": "PASS"
+    },
+    {
+      "command": "npm.cmd run qa:surface",
+      "result": "PASS"
+    },
+    {
+      "command": "npm.cmd run qa:materials",
+      "result": "PASS"
+    },
+    {
+      "command": "npm.cmd run qa:streaming",
+      "result": "PASS"
+    },
+    {
+      "command": "npm.cmd run qa:all",
+      "result": "PASS"
+    },
+    {
+      "command": "npm.cmd run build",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --terrain-blend",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --production",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --road-v3",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --reveal-performance --native-gpu --warm --capture-label=p2-terrain-blend",
+      "result": "PASS"
+    }
+  ],
+  "evidence": {
+    "renderAndColliderQueries": 900,
+    "maximumWeightError": 2.070136684295676e-08,
+    "frameMs": {
+      "p50": 17.600000023841858,
+      "p95": 19.100000023841858,
+      "p99": 19.600000023841858,
+      "max": 43.09999990463257
+    },
+    "streamCpuMs": {
+      "p50": 0,
+      "p95": 0.20000004768371582,
+      "p99": 0.7999999523162842,
+      "max": 2.899999976158142
+    },
+    "waits": 0,
+    "braking6mps": [
+      {
+        "condition": "dry",
+        "stopped": true,
+        "distanceM": 9.440465315640584,
+        "timeSeconds": 3.57499999999999,
+        "lastSparseSpeed": 0.08650793527607492,
+        "collisions": 0,
+        "invalidWheelLoads": 0
+      },
+      {
+        "condition": "wet",
+        "stopped": true,
+        "distanceM": 11.74162408523944,
+        "timeSeconds": 4.09166666666666,
+        "lastSparseSpeed": 0.1053247972803816,
+        "collisions": 0,
+        "invalidWheelLoads": 0
+      },
+      {
+        "condition": "snow",
+        "stopped": true,
+        "distanceM": 17.7316711532545,
+        "timeSeconds": 10.433333333333382,
+        "lastSparseSpeed": 0.0800882697840052,
+        "collisions": 0,
+        "invalidWheelLoads": 0
+      },
+      {
+        "condition": "ice",
+        "stopped": false,
+        "distanceM": 37.032465358527006,
+        "timeSeconds": 29.999999999998938,
+        "lastSparseSpeed": 0.12523922718263586,
+        "collisions": 0,
+        "invalidWheelLoads": 0
+      }
+    ]
+  },
+  "notAchieved": [
+    "Ice terrain braking did not fully stop in 30 seconds; residual speed .125 m/s, reported rather than converted to a stop claim",
+    "12 m/s ice run had 18 obstacle collisions and is excluded from pure braking comparison",
+    "Single native 40-second trace does not prove ten-scene, cold/warm triple runs, 600-second endurance or all offroad performance",
+    "P2 water, cave lighting, remaining pavement release and far-field quality remain",
+    "P3/P4/P5 original scope remains"
+  ],
+  "artifacts": [
+    "p2-terrain-blend-browser-2026-10-29.json",
+    "p2-terrain-blend-braking-2026-10-29.json",
+    "p2-terrain-blend-braking-12mps-confounded-2026-10-29.json",
+    "p2-terrain-blend-braking-ice-15s-incomplete-2026-10-29.json",
+    "p2-terrain-blend-terrain-reveal-after-warm-2026-10-29.json",
+    "p2-terrain-blend-driving-2026-10-29.json"
+  ]
+}

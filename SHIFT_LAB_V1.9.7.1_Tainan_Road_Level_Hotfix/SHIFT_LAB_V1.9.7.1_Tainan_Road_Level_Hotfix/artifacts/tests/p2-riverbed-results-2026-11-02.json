@@ -1,0 +1,82 @@
+{
+  "scope": "actual-terrain construction proposals; not connected river network, game integration or hydraulic simulation",
+  "syntheticContacts": {
+    "queries": 210,
+    "maxError": 2.6198955538347946e-7
+  },
+  "reports": [
+    {
+      "seed": "LEVEL-1",
+      "pathPoints": 29,
+      "foundations": 8,
+      "roadProtections": 14,
+      "status": "rejected",
+      "issues": [
+        "excavation-limit",
+        "incomplete-water-path"
+      ],
+      "outletStatus": "window-continuation-required",
+      "summary": {
+        "changedVertices": 8377,
+        "maxCut": 38.45382118225098,
+        "protectedVertices": 1219,
+        "wetMaskEdges": 0,
+        "minPathCoverage": 0,
+        "waterTriangles": 2367
+      },
+      "contacts": {
+        "queries": 258,
+        "maxError": 0.000005370378676872178
+      },
+      "sourceHash": "5f729c367383c268845549cd9330d412e22e65dc763a726b90dfa9054174d3d5"
+    },
+    {
+      "seed": "LEVEL-2",
+      "pathPoints": 31,
+      "foundations": 8,
+      "roadProtections": 40,
+      "status": "rejected",
+      "issues": [
+        "excavation-limit",
+        "wet-mask-boundary",
+        "incomplete-water-path"
+      ],
+      "outletStatus": "window-continuation-required",
+      "summary": {
+        "changedVertices": 6241,
+        "maxCut": 33.00558280944824,
+        "protectedVertices": 4566,
+        "wetMaskEdges": 241,
+        "minPathCoverage": 0,
+        "waterTriangles": 3650
+      },
+      "contacts": {
+        "queries": 250,
+        "maxError": 0.0000069936116631197365
+      },
+      "sourceHash": "d64814224def5bf0b8dcb11edab05c64736c454fb410190c7041a22e0e472429"
+    },
+    {
+      "seed": "ROAD-38274CD4",
+      "pathPoints": 17,
+      "foundations": 8,
+      "roadProtections": 5,
+      "status": "geometry-candidate",
+      "issues": [],
+      "outletStatus": "window-continuation-required",
+      "summary": {
+        "changedVertices": 5493,
+        "maxCut": 21.360037207603455,
+        "protectedVertices": 518,
+        "wetMaskEdges": 0,
+        "minPathCoverage": 1,
+        "waterTriangles": 1415
+      },
+      "contacts": {
+        "queries": 261,
+        "maxError": 0.00003371621351178078
+      },
+      "sourceHash": "659912fe1710719a1b61aae17106162ead3f54423f1d5b4049e61570f296f5b7"
+    }
+  ]
+}

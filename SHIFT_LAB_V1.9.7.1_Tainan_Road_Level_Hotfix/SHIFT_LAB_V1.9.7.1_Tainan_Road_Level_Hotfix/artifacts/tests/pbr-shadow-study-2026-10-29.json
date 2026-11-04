@@ -1,0 +1,118 @@
+{
+  "scope": "functional shadow artifact comparison, not performance measurement",
+  "results": [
+    {
+      "name": "off",
+      "options": {
+        "shadows": false
+      },
+      "result": {
+        "shadow": false,
+        "bias": -0.0003,
+        "normalBias": 0.08,
+        "shadowSize": 2048,
+        "toneMapping": 4,
+        "exposure": 1.05,
+        "environment": true,
+        "materialStats": {
+          "materials": 5,
+          "textures": 12,
+          "estimatedTextureBytes": 4194304
+        },
+        "rendered": {
+          "frame": 39,
+          "calls": 105,
+          "triangles": 49246,
+          "points": 0,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "baseline",
+      "options": {
+        "shadows": true,
+        "shadowSize": 1024,
+        "bias": -0.00008,
+        "normalBias": 0.04
+      },
+      "result": {
+        "shadow": true,
+        "bias": -0.00008,
+        "normalBias": 0.04,
+        "shadowSize": 1024,
+        "toneMapping": 4,
+        "exposure": 1.05,
+        "environment": true,
+        "materialStats": {
+          "materials": 5,
+          "textures": 12,
+          "estimatedTextureBytes": 4194304
+        },
+        "rendered": {
+          "frame": 49,
+          "calls": 71,
+          "triangles": 30791,
+          "points": 0,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "tuned",
+      "options": {
+        "shadowSize": 2048,
+        "bias": -0.0003,
+        "normalBias": 0.08
+      },
+      "result": {
+        "shadow": true,
+        "bias": -0.0003,
+        "normalBias": 0.08,
+        "shadowSize": 2048,
+        "toneMapping": 4,
+        "exposure": 1.05,
+        "environment": true,
+        "materialStats": {
+          "materials": 5,
+          "textures": 12,
+          "estimatedTextureBytes": 4194304
+        },
+        "rendered": {
+          "frame": 57,
+          "calls": 71,
+          "triangles": 30791,
+          "points": 0,
+          "lines": 0
+        }
+      }
+    },
+    {
+      "name": "no-normal",
+      "options": {
+        "normalMaps": false
+      },
+      "result": {
+        "shadow": true,
+        "bias": -0.0003,
+        "normalBias": 0.08,
+        "shadowSize": 2048,
+        "toneMapping": 4,
+        "exposure": 1.05,
+        "environment": true,
+        "materialStats": {
+          "materials": 5,
+          "textures": 12,
+          "estimatedTextureBytes": 4194304
+        },
+        "rendered": {
+          "frame": 65,
+          "calls": 71,
+          "triangles": 30791,
+          "points": 0,
+          "lines": 0
+        }
+      }
+    }
+  ]
+}

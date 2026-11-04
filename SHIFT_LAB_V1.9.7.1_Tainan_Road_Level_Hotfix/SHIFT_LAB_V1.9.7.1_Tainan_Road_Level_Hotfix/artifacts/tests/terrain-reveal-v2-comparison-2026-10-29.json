@@ -1,0 +1,88 @@
+{
+  "scope": "single-scene observation; full interval retained; afterFirstSecond is explicit diagnostic subset, not full acceptance",
+  "results": {
+    "before": {
+      "source": "reveal-v2-before-terrain-reveal-after-warm-2026-10-29.json",
+      "frameMs": {
+        "p50": 17.40000009536743,
+        "p95": 19,
+        "p99": 19.700000047683716,
+        "max": 278.1999999284744
+      },
+      "streamCpuMs": {
+        "p50": 0,
+        "p95": 0.20000004768371582,
+        "p99": 1.0999999046325684,
+        "max": 3.600000023841858
+      },
+      "simulationRatio": 0.9965371168402329,
+      "droppedSteps": 2,
+      "streaming": {
+        "mode": "worker",
+        "jobs": 32,
+        "discarded": 0,
+        "commits": 31,
+        "waits": 0,
+        "maxWorkerMs": 253.79999995231628,
+        "maxPrepareMs": 3.299999952316284,
+        "maxActivateMs": 2.8000000715255737,
+        "error": null,
+        "pending": 0,
+        "prepared": 0,
+        "ready": false
+      },
+      "afterFirstSecond": {
+        "visibleUploadCalls": 548,
+        "visibleBoundsCalls": 116,
+        "hiddenUploadCalls": 0,
+        "hiddenBoundsCalls": 0,
+        "commitFrameCount": 15,
+        "commitFrameMaxMs": 20.100000023841858,
+        "commitRenderCpuMaxMs": 1.8000000715255737
+      }
+    },
+    "after": {
+      "source": "reveal-v2-after-terrain-reveal-after-warm-2026-10-29.json",
+      "frameMs": {
+        "p50": 17.5,
+        "p95": 19,
+        "p99": 19.699999928474426,
+        "max": 436.90000009536743
+      },
+      "streamCpuMs": {
+        "p50": 0,
+        "p95": 0.20000004768371582,
+        "p99": 0.7999999523162842,
+        "max": 2.700000047683716
+      },
+      "simulationRatio": 0.9930654160755712,
+      "droppedSteps": 2,
+      "streaming": {
+        "mode": "worker",
+        "jobs": 26,
+        "discarded": 1,
+        "commits": 25,
+        "waits": 0,
+        "maxWorkerMs": 387.3000000715256,
+        "maxPrepareMs": 3.200000047683716,
+        "maxActivateMs": 0.7000000476837158,
+        "maxUploadMs": 54.199999928474426,
+        "preparedMeshes": 212,
+        "error": null,
+        "pending": 0,
+        "prepared": 0,
+        "visualPending": 0,
+        "ready": false
+      },
+      "afterFirstSecond": {
+        "visibleUploadCalls": 0,
+        "visibleBoundsCalls": 0,
+        "hiddenUploadCalls": 560,
+        "hiddenBoundsCalls": 119,
+        "commitFrameCount": 16,
+        "commitFrameMaxMs": 19.600000023841858,
+        "commitRenderCpuMaxMs": 0.6000000238418579
+      }
+    }
+  }
+}

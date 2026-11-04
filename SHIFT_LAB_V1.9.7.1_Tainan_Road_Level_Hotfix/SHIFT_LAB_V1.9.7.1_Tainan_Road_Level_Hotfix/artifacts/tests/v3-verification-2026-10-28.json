@@ -1,0 +1,98 @@
+{
+  "date": "2026-10-28",
+  "generator": 3,
+  "knowledge_sources": 7,
+  "results": [
+    {
+      "command": "npm.cmd run qa:all",
+      "result": "PASS",
+      "seeds": 48,
+      "sections_per_seed": 96,
+      "min_planar_gap_m": 0,
+      "max_grade_percent": 11.98498140682932,
+      "max_curvature_rad_per_m": 0.01797211528418351,
+      "rejected_candidates": 5888,
+      "geometry_batch_ms": 320940
+    },
+    {
+      "command": "node tests/validate-road-structures.mjs",
+      "result": "PASS",
+      "real_rapier_lane_clearance_checks": 70
+    },
+    {
+      "command": "node tests/validate-road-v3.mjs --determinism",
+      "result": "PASS",
+      "checks": [
+        "centerline",
+        "topology",
+        "structure ranges",
+        "reserved terrain",
+        "transaction and tamper"
+      ]
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --road-v3 --screenshot",
+      "result": "PASS",
+      "real_vehicle_traversals": 54,
+      "runtime_exceptions": 0,
+      "http_errors": 0
+    },
+    {
+      "command": "npm.cmd run qa:map:compatibility",
+      "result": "PASS",
+      "v2_seeds": 80,
+      "sections_per_seed": 96
+    },
+    {
+      "command": "npm.cmd run build",
+      "result": "PASS",
+      "modules": 18,
+      "bundle": "index-_cJeBgRM.js",
+      "warning": "existing bundle >500 kB"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --production",
+      "result": "PASS",
+      "checks": [
+        "seed rebuild",
+        "wheel contacts",
+        "no acceptance UI/API/modules"
+      ]
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs",
+      "result": "PASS",
+      "checks": [
+        "four vehicles",
+        "V1/V2/V3 rebuild",
+        "stored preference reload",
+        "manual and automatic driving"
+      ],
+      "runtime_exceptions": 0,
+      "http_errors": 0
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --acceptance",
+      "result": "PASS",
+      "standalone_cases": 5
+    },
+    {
+      "cwd": "D:/shifterEmulater/codebase-mcp",
+      "command": "node --test",
+      "result": "PASS",
+      "tests": 10
+    },
+    {
+      "cwd": "D:/shifterEmulater/codebase-mcp",
+      "command": "node server.mjs --check",
+      "result": "PASS"
+    }
+  ],
+  "boundaries": [
+    "geometry and driving tests do not certify civil engineering",
+    "Taiwan 11507 attachment not fully available; source card metadata_only",
+    "200-seed stress and prolonged interactive driving not run"
+  ],
+  "backup": "C:\\Users\\jho\\AppData\\Local\\Temp\\shiftlab-road-v3-es_762_a\\before.zip",
+  "level_backup": "C:/Users/jho/AppData/Local/Temp/shiftlab-v3-levels-wt659ilg/before.zip"
+}

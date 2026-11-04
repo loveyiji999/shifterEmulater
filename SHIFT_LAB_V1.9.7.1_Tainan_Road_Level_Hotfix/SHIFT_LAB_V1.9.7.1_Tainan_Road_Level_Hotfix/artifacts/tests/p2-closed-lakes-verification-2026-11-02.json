@@ -1,0 +1,201 @@
+{
+  "date": "2026-11-02",
+  "objective": "進行按階段的開發直到完成建置書所要求之成果",
+  "goalStatus": "active",
+  "planVersion": "1.12",
+  "previousGoalTurnClassification": {
+    "classification": "progress",
+    "evidence": "Package 18 added connected inundation and shoreline / unknown wet boundary checks, native preview, terrain tests and immutable checkpoint."
+  },
+  "workPackage": "19: closed static lake candidates, shared water geometry and actual game Float32 terrain consistency fix",
+  "checks": {
+    "node tests/validate-closed-lake.mjs": "PASS final; analytic bowl/rim search, source/ownership, Float32 water seams, rejected unknown boundaries and degenerate faces concealing a wet hole; 48 actual tiles canonical height/normal consistency; 857 actual ground rays",
+    "npm.cmd run qa:all": "PASS terminal exit 0, session 48882; final terrain correction. qa-final log is authoritative, preceding qa-all log superseded.",
+    "npm.cmd run qa:terrain": "PASS terminal exit 0, session 41666, after the late zero-area-boundary guard; all river/lake callers verified",
+    "npm.cmd run build": "PASS 42 modules; existing chunk warning; prototype water/lake modules excluded from game; actual shared terrain fix changes main/worker assets",
+    "node tests/validate-procedural-browser.mjs --production": "PASS final terrain: settings, rebuild, wheel contact and diagnostics isolation",
+    "node tests/validate-procedural-browser.mjs": "PASS 4 presets, manual/automatic and V1/V2/V3 driving",
+    "node tests/validate-procedural-browser.mjs --road-v3": "PASS 54 real traversals; minimum ground contact ratio 1; maximum height error 0.11965620793460552m",
+    "node tests/validate-procedural-browser.mjs --riverbed-preview --preview-name=p2-closed-lakes --native-gpu": "PASS Intel UHD 770, lake kind, same camera, zero runtime/HTTP errors; final after screenshot visually inspected",
+    "nativePreviewRebuild": "PASS final HTML byte-identical to native-tested artifact",
+    "archived/current geometry comparisons": "PASS entire river proposals deeply equal on current terrain; old/current terrain XZ/indices/UV equal; only 16 ROAD vertices height changed <=0.0017mm across 48 tiles",
+    "sourceRoundtrip": "PASS 15 files",
+    "documentationLinks": "PASS",
+    "coreInvariants": "PASS main/chassis/physics.html/V3 generator/lockfile bytes unchanged",
+    "previousArtifacts": "PASS preceding frozen artifacts unchanged"
+  },
+  "sources": {
+    "desktop3d/src/riverbed-proposal.mjs": "9ba20fb3ca0a5475b74ab6de6935d8fd534ea38cc6a1925aad5a937e4c384dfc",
+    "desktop3d/src/water-geometry.mjs": "1ba167b820108af7e1cfc29cf0220a868b2e380d2b427dfa4d3ece29b41b233f",
+    "desktop3d/src/closed-lake.mjs": "92bc6227089cb6b2ae17e15099f3b5a261c6c8ad15cc8e3c06df28e126e208b2",
+    "desktop3d/src/terrain-geometry.mjs": "4751256a773c175dece77c3177f2d422eceec30008666e66a6235ef4bd8cd203",
+    "desktop3d/tests/lake-fixture.mjs": "b0627f088539eeccb1bcabeca2aae66406a459e9ffa7832f4f88a69864994e24",
+    "desktop3d/tests/validate-closed-lake.mjs": "bb060211a3330ba56787260ff617c43e137810296ce4667737055abd4b62fa72",
+    "desktop3d/tests/build-riverbed-preview.mjs": "655687c38ddd596384f53f64f570900ac04a2ef5d63d2c0775ee29f3754728a6",
+    "desktop3d/tests/riverbed-preview.mjs": "fa94ffa6993eb7b117d5b21e0b6f1371f1668f3751ccbb425765d28a672bf798",
+    "desktop3d/package.json": "f6b45c8a013983bb791850b8304dd5aeb24a6693600074e9fc08581c56a975c7",
+    "docs/P2_CLOSED_LAKES.md": "7c8bcaeff87b6dd52e391b5336955efc72b8b5a004c6d5da861cd0d53a018d0b",
+    "docs/DEVELOPMENT_PLAN.md": "f7b69899d5c6a7981aa0c9d8da3efdfbbf39c894c338f89402969eaf7d78071a",
+    "docs/DEVELOPMENT_PROGRESS.md": "e832e680777d68757b4410f8a5063c91ae7593adb000d3e7c20d94375d2a6ab3",
+    "docs/AGENT_KNOWLEDGE.md": "ed67b9826ca25caec69c01834c9b2e4db689019fdc29aa7f7b9ff9b5bf3c3963",
+    "docs/AGENT_VERIFICATION.md": "f526cd282a7bfb1f493bd84cda4fffd2f52907737da7dc233cd60d93bc139a20",
+    "docs/DATA_CATALOG.md": "3a31e66b0dbc65e33d3346f4c940d0e35ea186f2a1a77225cfbc5ab48586774f"
+  },
+  "sourceArchive": "p2-closed-lakes-source-2026-11-02.zip",
+  "sourceArchiveSha256": "fbe0a5c6df9666e418eb0a2f3faaf2f0a3646f6b47fa479cf26a9fac7598bccc",
+  "patch": "archive/patches/p2-closed-lakes-2026-11-02.patch",
+  "patchSha256": "8c2df6fcfe2a5b2240880cd1d52b2be7232fef53d7b3531a5ac31a0f480cd211",
+  "coreUnchanged": {
+    "desktop3d/src/main.mjs": "31ebb817a9bc73a130ac6f7ab58d249d4b57236f86722066d63c4af6ed220220",
+    "desktop3d/src/chassis.mjs": "808412a9443a18f0a6ee466e4bde2efe114511822d22af92f0419fd1c9e41a65",
+    "desktop3d/public/physics.html": "c491cfc1ca5af23367822f87dfd27c12e122b83bf362ff6073829c75f952edbd",
+    "desktop3d/public/road-generator-v3.js": "d9d0c37bfa479bfcce098e5f86625eff36055fa04927f377b9b48cdc655a9668",
+    "desktop3d/package-lock.json": "f6acb5b69f34e0a9351be7f55f28914c490c01bee2ee9ca302435edad545ec86"
+  },
+  "productionBefore": {
+    "index.html": "3caae9129e7cb28e137143dddb55f4b6d8cef1df5bf5deeb7b4b8ef5604ac0b2",
+    "physics.html": "c491cfc1ca5af23367822f87dfd27c12e122b83bf362ff6073829c75f952edbd",
+    "road-generator-v2.js": "09d1d2602c50d3a89e32b8d00b91cba34edc71a52a9f40e75529d63c81c2615c",
+    "road-generator-v3.js": "d9d0c37bfa479bfcce098e5f86625eff36055fa04927f377b9b48cdc655a9668",
+    "assets/index-4eUkyMqd.js": "f2c77199513aad0a097cf2b22ff4b9b890c709f0308eadb3ec663030fd82fe98",
+    "assets/streaming.worker-BprFnv2s.js": "788a7c7f1174055f672789089afcf7a5c8ee082f6dfaa222714124c75827b152"
+  },
+  "productionAfter": {
+    "index.html": "6e515b6749dcb506ff55a692c6ec66a8b74e8a989040480e514f1cb2b9547b93",
+    "physics.html": "c491cfc1ca5af23367822f87dfd27c12e122b83bf362ff6073829c75f952edbd",
+    "road-generator-v2.js": "09d1d2602c50d3a89e32b8d00b91cba34edc71a52a9f40e75529d63c81c2615c",
+    "road-generator-v3.js": "d9d0c37bfa479bfcce098e5f86625eff36055fa04927f377b9b48cdc655a9668",
+    "assets/index-CMCPmfR_.js": "659205d9f95dafd49f2fbf9281006617fe3a81ee16f2594095beda9865123255",
+    "assets/streaming.worker-CeivIzBG.js": "e0e35967c99a4f2713f4ccaf5e6f34b277190f8621e8850177f803065b988784"
+  },
+  "artifacts": {
+    "p2-closed-lakes-results-2026-11-02.json": "01c10f221bc1d698193c75b588f382100667fc23732b3c01b1755bdb768b6f70",
+    "p2-closed-lakes-terrain-comparison-2026-11-02.json": "3c27f260161527eb19243f4eda4973465bca3228be603f6923d942f5a7ab2b21",
+    "p2-closed-lakes-terrain-attempt-comparison-2026-11-02.json": "0e720eada476a689bfd4d5ea78320ffdf0c8980af42a7494bcd9a4962b28b573",
+    "p2-closed-lakes-river-comparison-2026-11-02.json": "1b95995583a28639868c19237b9889f038d2273c0f6e3e77aa8e7f91b3a5e6c8",
+    "p2-closed-lakes-preview-2026-11-02.html": "e78d3a2a3698975462b8bb86656bb4cb7905cd8c2b8c0175ae089b8d7ed12aaa",
+    "p2-closed-lakes-before-2026-11-02.png": "b852b10cd897de7bb66ecb79c10b1e1e3ef72416164617e1e3480a01fc925d27",
+    "p2-closed-lakes-after-2026-11-02.png": "572c301c3c80090b6510c595d9e06dd6789f131337c36d4bd0b402409d61d67d",
+    "p2-closed-lakes-preview-verification-2026-11-02.json": "b47c3cf49c4f3f0c14a2887d83937827879f5a13be991727a8365d2f0572697c",
+    "p2-closed-lakes-qa-final-2026-11-02.log": "bb6b0f74c5482d8652d57a65a252dae579aa81802c9cd5ef3dea8a02b995c3e8",
+    "p2-closed-lakes-terrain-final-2026-11-02.log": "2c7f19124bacf94371a2d0a2befa0cb5b1277bd99e2ca327db9a8afa8758d5c2"
+  },
+  "results": {
+    "scope": "closed static lake geometry; no regional river outlet, water contact forces or runtime integration",
+    "syntheticContacts": {
+      "queries": 134,
+      "maxError": 3.0321132271637907e-07
+    },
+    "reports": [
+      {
+        "seed": "LEVEL-1",
+        "waterY": -2.3651065826416016,
+        "spillY": -2.1151065826416016,
+        "source": {
+          "x": 0,
+          "z": 168,
+          "groundY": -18.065000534057617
+        },
+        "summary": {
+          "wetMaskEdges": 0,
+          "openWaterEdges": 0,
+          "openOuterEdges": 0,
+          "openInteriorEdges": 0,
+          "terminalWaterEdges": 0,
+          "discardedWaterTriangles": 6847,
+          "outsideCorridorTriangles": 0,
+          "minPathCoverage": null,
+          "waterTriangles": 1810,
+          "maxDepth": 15.699893951416016,
+          "sourceDepth": 15.699893951416016
+        },
+        "search": {
+          "status": "upper-level-closed",
+          "attempts": 2,
+          "maxWaterY": -2.3651065826416016
+        },
+        "sourceHash": "8125ba5f432e065268bea03d1d838b4559f0acd942af8bf24f1e65e37ea9cd6a",
+        "contacts": {
+          "queries": 269,
+          "maxError": 1.8022295975583802e-06
+        }
+      },
+      {
+        "seed": "LEVEL-2",
+        "waterY": -2.3460586071014404,
+        "spillY": -2.0960586071014404,
+        "source": {
+          "x": 0,
+          "z": 168,
+          "groundY": -18.065000534057617
+        },
+        "summary": {
+          "wetMaskEdges": 0,
+          "openWaterEdges": 0,
+          "openOuterEdges": 0,
+          "openInteriorEdges": 0,
+          "terminalWaterEdges": 0,
+          "discardedWaterTriangles": 28119,
+          "outsideCorridorTriangles": 0,
+          "minPathCoverage": null,
+          "waterTriangles": 1810,
+          "maxDepth": 15.718941688537598,
+          "sourceDepth": 15.718941926956177
+        },
+        "search": {
+          "status": "upper-level-closed",
+          "attempts": 2,
+          "maxWaterY": -2.3460586071014404
+        },
+        "sourceHash": "66edffee705217ecda945004962c316b195022c0de4a9bf0a23e87dd1b88704f",
+        "contacts": {
+          "queries": 269,
+          "maxError": 2.5174853348630677e-06
+        }
+      },
+      {
+        "seed": "ROAD-38274CD4",
+        "waterY": -1.670725703239441,
+        "spillY": -1.2917075157165527,
+        "source": {
+          "x": 0,
+          "z": 544,
+          "groundY": -18.256038665771484
+        },
+        "summary": {
+          "wetMaskEdges": 0,
+          "openWaterEdges": 0,
+          "openOuterEdges": 0,
+          "openInteriorEdges": 0,
+          "terminalWaterEdges": 0,
+          "discardedWaterTriangles": 10101,
+          "outsideCorridorTriangles": 0,
+          "minPathCoverage": null,
+          "waterTriangles": 2741,
+          "maxDepth": 16.761632919311523,
+          "sourceDepth": 16.585312962532043
+        },
+        "search": {
+          "status": "boundary-limited",
+          "attempts": 10,
+          "maxWaterY": -1.5417075157165527,
+          "firstRejectedWaterY": -1.6062166690826416
+        },
+        "sourceHash": "f7d3adac06460be1dbf105aa9c04b330ee822a59f7f8649152afe67f85ce0bb5",
+        "contacts": {
+          "queries": 319,
+          "maxError": 3.3986046545919635e-06
+        }
+      }
+    ]
+  },
+  "rejectedAttempt": {
+    "source": "p2-closed-lakes-canonical-attempt-2026-11-02.zip",
+    "comparison": "p2-closed-lakes-terrain-attempt-comparison-2026-11-02.json",
+    "reason": "Direct height resampling at Float32 coordinates crossed a layer discontinuity by up to 1.2m; not used in final source."
+  },
+  "completionAudit": {
+    "entireObjectiveAchieved": false,
+    "reason": "Lakes are still external candidates. River networks/outlets, water contact/materials/Worker/runtime, remaining P2 scenes, full P3 benchmarks, P4 and P5 remain. Player stutter root cause still requires actual manual capture."
+  }
+}

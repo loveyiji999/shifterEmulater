@@ -1,0 +1,4 @@
+segment,n,dynamic_rmse_deg_s,static_rmse_deg_s,zero_yaw_rmse_deg_s
+train_turn,65,0.4047125662,1.0769752899,25.1495132848
+holdout_turn_exit,45,1.4633146231,0.9312844593,16.4153034290
+holdout_quiet,90,1.1012488010,1.1279527406,0.8207097200

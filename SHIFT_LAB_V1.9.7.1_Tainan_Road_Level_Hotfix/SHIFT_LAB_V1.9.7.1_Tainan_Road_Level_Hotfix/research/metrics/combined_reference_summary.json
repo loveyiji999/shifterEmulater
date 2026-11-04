@@ -1,0 +1,117 @@
+{
+  "status": "Derived research summaries only. Raw samples were examined via a live public GitHub connection; raw bytes are not shipped.",
+  "dataset_licensing": "Raw redistribution not assumed; read DATA_PROVENANCE.md.",
+  "vehicle_physics_unchanged": true,
+  "all_measured_fit_metrics_exclude_synthetic_fixtures": true,
+  "recompute_original_source": "python tools/verify_public_references.py --download --output metrics_recomputed  (on a network-enabled machine)",
+  "adma": {
+    "verification_status": "AUTHENTIC SOURCE MEASUREMENTS ANALYZED VIA CONNECTED GITHUB (FULL 999 ROWS)",
+    "source": "https://github.com/MB-Team-THI/UAHL-RevStED/blob/main/ADMA_data_sample.csv",
+    "blob_sha": "2e7385074dc741dbda0a2036184923d1b4942462",
+    "raw_rows": 999,
+    "sample_hz": 100,
+    "observation_s": 9.98,
+    "gyro_column": "rate_body_hr.z (index 27)",
+    "heading_column": "ins_yaw (index 96)",
+    "time_column": "ins_time_msec (index 109)",
+    "validation_method": "centered +/-5-sample heading difference; least-squares slope + intercept on <6.5s; remaining samples held out",
+    "derived_rows": 989,
+    "train_rows": 645,
+    "holdout_rows": 344,
+    "fitted_sensor_slope": 0.9725106999509848,
+    "fitted_sensor_offset_deg_s": -0.01716340815959405,
+    "heading_rate_vs_gyro_corr": 0.9742772533578749,
+    "train_rmse_raw_deg_s": 0.09929100711052252,
+    "train_rmse_corrected_deg_s": 0.09577515354454354,
+    "holdout_rmse_raw_deg_s": 0.08510550429006164,
+    "holdout_rmse_corrected_deg_s": 0.07844328994131365,
+    "speed_value_range_unverified_units": [
+      11.305,
+      12.775
+    ],
+    "sideslip_deg_range": [
+      -0.9,
+      -0.25
+    ],
+    "applied_to_chassis_physics": false,
+    "evidence_limits": [
+      "One 9.98s ADMA/INS recording; not an independent vehicle model-validation run",
+      "Comparing gyro to the derivative of heading measured by the same sensor system is not an independent ground truth",
+      "Yaw angle quantized to about 0.01 degree in published CSV; finite differences add differentiation noise",
+      "Small fitted correction is a diagnostic sensor agreement check; not tire stiffness, steering rack or yaw inertia",
+      "Raw CSV publication on GitHub does not clearly establish redistribution rights"
+    ]
+  },
+  "civic": {
+    "verification_status": "ORIGINAL PUBLIC SEGMENT DATA INSPECTED VIA CONNECTED GITHUB",
+    "source": "https://github.com/OpenLKA/Acceleration_Dataset/blob/main/ICE/HONDA_CIVIC_segments.json",
+    "blob_sha": "cec380cf6599d93d1e560fb15b38c899c62fdb29",
+    "reported_vehicle": "Honda Civic (model/year/specifications unspecified in segment file)",
+    "segments": 63,
+    "interior_observations_with_segment_repetitions": 5969,
+    "derived_sample_rate_hz": 10.0,
+    "acceleration_vs_speed_gradient_correlation": 0.9866465361280896,
+    "acceleration_vs_speed_gradient_rmse_mps2": 0.10475251798881992,
+    "pedal_min_max_as_published": [
+      0,
+      218
+    ],
+    "may_overlap_or_reuse_indices": true,
+    "pedal_units_not_homogeneous": true,
+    "raw_rerelease_permission_unresolved": true,
+    "applied_to_drivetrain_physics": false,
+    "evidence_limits": [
+      "Strong agreement between reported a and derivative of v is not independent accelerometer validation; a may already have been derived from v",
+      "Nominal readme raw sampling is 100 Hz, but published segment t arrays average about 0.1 second (10 Hz)",
+      "Some segment index ranges overlap and can contain contradictory speeds; no independent-driver split has been validated",
+      "Published pedal signal mixes scale conventions (0..218); cannot use it to fit accelerator-to-torque maps",
+      "Readme claims MIT but links its license to a non-repository placeholder; no stand-alone LICENSE in root was verified",
+      "Observed p90 acceleration by speed represents driver demand and route, not a guaranteed full-throttle performance limit"
+    ]
+  },
+  "bucknell_p1": {
+    "source": "https://www.projects.bucknell.edu/Beal_Automotive/",
+    "status": "research-identified best-estimate P1 parameters, NOT the in-game car",
+    "mass_kg": 1724.0,
+    "yaw_inertia_kg_m2": 1300.0,
+    "a_m": 1.35,
+    "b_m": 1.1,
+    "wheelbase_m": 2.45,
+    "front_cornering_stiffness_N_per_rad": 75000.0,
+    "rear_cornering_stiffness_N_per_rad": 135000.0,
+    "linear_understeer_coefficient_s2_per_m": 0.003283809523809524,
+    "hypothetical_3deg_roadwheel_steer": [
+      {
+        "kmh": 20,
+        "roadwheel_steer_deg": 3.0,
+        "predicted_yaw_deg_s": 6.5325,
+        "predicted_ay_mps2": 0.6334
+      },
+      {
+        "kmh": 40,
+        "roadwheel_steer_deg": 3.0,
+        "predicted_yaw_deg_s": 11.6738,
+        "predicted_ay_mps2": 2.2638
+      },
+      {
+        "kmh": 60,
+        "roadwheel_steer_deg": 3.0,
+        "predicted_yaw_deg_s": 14.8714,
+        "predicted_ay_mps2": 4.3259
+      },
+      {
+        "kmh": 80,
+        "roadwheel_steer_deg": 3.0,
+        "predicted_yaw_deg_s": 16.3734,
+        "predicted_ay_mps2": 6.3505
+      },
+      {
+        "kmh": 100,
+        "roadwheel_steer_deg": 3.0,
+        "predicted_yaw_deg_s": 16.7208,
+        "predicted_ay_mps2": 8.1065
+      }
+    ],
+    "note": "Yaw predictions are analytic bicycle-model computations from published estimated parameters, NOT road measurements."
+  }
+}

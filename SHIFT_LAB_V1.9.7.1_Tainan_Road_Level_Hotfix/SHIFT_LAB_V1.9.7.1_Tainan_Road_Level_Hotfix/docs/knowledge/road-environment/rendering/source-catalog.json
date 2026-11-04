@@ -1,0 +1,161 @@
+{
+  "schema": "shiftlab.rendering.knowledge.sources.v1",
+  "updated_on": "2026-10-28",
+  "scope": "documentation_only",
+  "sources": [
+    {
+      "id": "WEBGL-PRACTICES",
+      "title": "WebGL best practices",
+      "publisher": "MDN / Mozilla",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices",
+      "retrieved_on": "2026-10-28",
+      "status": "sections_reviewed",
+      "reviewed_sections": "Avoid blocking API calls、per-pixel VRAM budget、batching、mipmaps及back buffer",
+      "primary_source": true,
+      "card": "sources/WEBGL-PRACTICES.md"
+    },
+    {
+      "id": "GPU-TIMER",
+      "title": "EXT_disjoint_timer_query_webgl2",
+      "publisher": "Khronos WebGL working group",
+      "url": "https://registry.khronos.org/webgl/extensions/EXT_disjoint_timer_query_webgl2/",
+      "retrieved_on": "2026-10-28",
+      "status": "sections_reviewed",
+      "reviewed_sections": "Revision 4，2023-06-01；Overview及結果查詢範例",
+      "primary_source": true,
+      "card": "sources/GPU-TIMER.md"
+    },
+    {
+      "id": "WEBGPU-API",
+      "title": "WebGPU API",
+      "publisher": "MDN / Mozilla",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/WebGPU_API",
+      "retrieved_on": "2026-10-28",
+      "status": "sections_reviewed",
+      "reviewed_sections": "Security requirements及可用性說明；頁面更新2026-09-02",
+      "primary_source": true,
+      "card": "sources/WEBGPU-API.md"
+    },
+    {
+      "id": "THREE-WEBGPU",
+      "title": "WebGPURenderer",
+      "publisher": "Three.js維護團隊",
+      "url": "https://threejs.org/manual/pages/webgpurenderer",
+      "retrieved_on": "2026-10-28",
+      "status": "sections_reviewed",
+      "reviewed_sections": "Overview、Usage及WebGL2 fallback；本機r180來源對照",
+      "primary_source": true,
+      "card": "sources/THREE-WEBGPU.md"
+    },
+    {
+      "id": "TERRAIN-CLIPMAP",
+      "title": "Terrain Rendering Using GPU-Based Geometry Clipmaps",
+      "publisher": "Asirvatham / Hoppe；NVIDIA GPU Gems 2",
+      "url": "https://developer.nvidia.com/gpugems/gpugems2/part-i-geometric-complexity/chapter-2-terrain-rendering-using-gpu-based-geometry",
+      "retrieved_on": "2026-10-28",
+      "status": "sections_reviewed",
+      "reviewed_sections": "2.1、2.2與過渡區段落",
+      "primary_source": true,
+      "card": "sources/TERRAIN-CLIPMAP.md"
+    },
+    {
+      "id": "TERRAIN-VOLUME",
+      "title": "Generating Complex Procedural Terrains Using the GPU",
+      "publisher": "Ryan Geiss；NVIDIA GPU Gems 3",
+      "url": "https://developer.nvidia.com/gpugems/gpugems3/part-i-geometry/chapter-1-generating-complex-procedural-terrains-using-gpu",
+      "retrieved_on": "2026-10-28",
+      "status": "sections_reviewed",
+      "reviewed_sections": "1.1–1.2、1.5、1.6.1文字",
+      "primary_source": true,
+      "card": "sources/TERRAIN-VOLUME.md"
+    },
+    {
+      "id": "KTX-GUIDE",
+      "title": "KTX 2.0 Basis Universal Developer Guide",
+      "publisher": "Khronos Group",
+      "url": "https://raw.githubusercontent.com/KhronosGroup/3D-Formats-Guidelines/main/KTXDeveloperGuide.md",
+      "retrieved_on": "2026-10-28",
+      "status": "sections_reviewed",
+      "reviewed_sections": "Container、block compression、ETC1S與UASTC overview/runtime usage",
+      "primary_source": true,
+      "card": "sources/KTX-GUIDE.md"
+    },
+    {
+      "id": "THREE-KTX2",
+      "title": "KTX2Loader",
+      "publisher": "Three.js維護團隊",
+      "url": "https://threejs.org/docs/pages/KTX2Loader.html",
+      "retrieved_on": "2026-10-28",
+      "status": "sections_reviewed",
+      "reviewed_sections": "介紹、detectSupport、transcoder path與worker limit；本機r180對照",
+      "primary_source": true,
+      "card": "sources/THREE-KTX2.md"
+    },
+    {
+      "id": "THREE-SHADOWS",
+      "title": "Shadows",
+      "publisher": "Three.js維護團隊",
+      "url": "https://threejs.org/manual/pages/shadows.html",
+      "retrieved_on": "2026-10-28",
+      "status": "sections_reviewed",
+      "reviewed_sections": "開頭shadow map成本與啟用陰影段落",
+      "primary_source": true,
+      "card": "sources/THREE-SHADOWS.md"
+    },
+    {
+      "id": "THREE-PMREM",
+      "title": "PMREMGenerator",
+      "publisher": "Three.js維護團隊",
+      "url": "https://threejs.org/docs/pages/PMREMGenerator.html",
+      "retrieved_on": "2026-10-28",
+      "status": "sections_reviewed",
+      "reviewed_sections": "類別介紹；本機r180 fromScene／fromEquirectangular對照",
+      "primary_source": true,
+      "card": "sources/THREE-PMREM.md"
+    },
+    {
+      "id": "THREE-TEXTURE",
+      "title": "Texture",
+      "publisher": "Three.js維護團隊",
+      "url": "https://threejs.org/docs/pages/Texture.html",
+      "retrieved_on": "2026-10-28",
+      "status": "sections_reviewed",
+      "reviewed_sections": "anisotropy、filter與mipmap欄位",
+      "primary_source": true,
+      "card": "sources/THREE-TEXTURE.md"
+    },
+    {
+      "id": "THREE-RENDERER",
+      "title": "WebGLRenderer",
+      "publisher": "Three.js維護團隊",
+      "url": "https://threejs.org/docs/pages/WebGLRenderer.html",
+      "retrieved_on": "2026-10-28",
+      "status": "sections_reviewed",
+      "reviewed_sections": "info memory/render、compileAsync及toneMapping；本機r180對照",
+      "primary_source": true,
+      "card": "sources/THREE-RENDERER.md"
+    },
+    {
+      "id": "WORKER-TRANSFER",
+      "title": "Transferable objects",
+      "publisher": "MDN / Mozilla",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects",
+      "retrieved_on": "2026-10-28",
+      "status": "sections_reviewed",
+      "reviewed_sections": "資源所有權、ArrayBuffer移轉及detached說明",
+      "primary_source": true,
+      "card": "sources/WORKER-TRANSFER.md"
+    },
+    {
+      "id": "THREE-CLEANUP",
+      "title": "Cleanup",
+      "publisher": "Three.js維護團隊",
+      "url": "https://threejs.org/manual/pages/cleanup.html",
+      "retrieved_on": "2026-10-28",
+      "status": "sections_reviewed",
+      "reviewed_sections": "介紹及geometry／material／texture dispose",
+      "primary_source": true,
+      "card": "sources/THREE-CLEANUP.md"
+    }
+  ]
+}

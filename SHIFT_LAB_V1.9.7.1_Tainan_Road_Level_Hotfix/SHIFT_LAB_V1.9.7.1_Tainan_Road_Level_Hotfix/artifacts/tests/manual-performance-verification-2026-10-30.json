@@ -1,0 +1,129 @@
+{
+  "date": "2026-10-30",
+  "objective": "進行按階段的開發直到完成建置書所要求之成果",
+  "goalStatus": "active",
+  "previousGoalTurnClassification": {
+    "classification": "progress",
+    "evidence": "terrain-frame-budget-verification-2026-10-30.json; partial loading budget improvement and unresolved stutter documented"
+  },
+  "workPackage": "14: P0 / P3 opt-in actual-player manual diagnostics",
+  "developmentPlanVersion": "1.7",
+  "checks": {
+    "npm.cmd run qa:performance": "PASS: original capture, initial snapshots, pause / callback restoration, manual queue / physics correlation, bounded latest buffers, observer fallback, context loss, profiler cleanup",
+    "npm.cmd run qa:all": "PASS exit 0: 48 seeds x 96 sections, 70 structure checks, 248 foundations / 4996 queries, all vehicle / terrain / transmission / safety regressions",
+    "npm.cmd run build": "PASS 42 modules; existing bundle warning retained; entire dist identical between initial and final build",
+    "node tests/validate-procedural-browser.mjs --manual-performance --native-gpu --screenshot": "PASS final native browser: normal setup, download / failure retention, pause, no duplicate after reload; launcher visually inspected",
+    "node tests/validate-procedural-browser.mjs --production": "PASS no manual / acceptance modules or API / capture markers in production",
+    "node tests/validate-procedural-browser.mjs": "PASS four presets, V1-V3, manual / automatic, zero runtime / HTTP errors"
+  },
+  "sources": {
+    "desktop3d/package.json": "08210d420e0009dc5bff0a52e0177ac661e55f123c4f7322ab1268a536e5c0da",
+    "desktop3d/tests/game-driver.mjs": "b1061d23f13471038c37d322970e169eabedda2bf8ef6db9715fab45fd75be7a",
+    "desktop3d/tests/performance-baseline.mjs": "dd20b2dad8f71990dc5324703fdf581cedae00746a1d0911ebcca5a289e0270c",
+    "desktop3d/tests/validate-performance-capture.mjs": "f14732bd7bacec45bab8d1aa098b05e5a3c182970e098c288da75710d2cfa1f3",
+    "desktop3d/tests/validate-procedural-browser.mjs": "6b93191e25b95490d8470b4f3b2e16d00cd830fce0b0f343bba89b233747b97f",
+    "desktop3d/tests/manual-performance.mjs": "f39314160046cd3e6b10bee20f0cc3df727a6c29248100d1a6a2e36c6afe264e",
+    "desktop3d/tests/validate-manual-performance.mjs": "7fb980a6d467fff890a90d7efe733f9d277b04daa9d6f02d6391a1a18e4b7c15",
+    "desktop3d/tests/performance/index.html": "733109b3d88faa371928d989547106185789cb5ffa7c4571bbc1dd7abb2717d5",
+    "docs/PERFORMANCE_MANUAL_CAPTURE.md": "53d92fa9f4822e37700204a395338fe7c226c8c3164b289cf692bf05b2228e9a",
+    "docs/DEVELOPMENT_PLAN.md": "b95d24dfe0d1eb654ace19ae6a18bf9181f354c1303574a67e141413ec84a037",
+    "docs/DATA_CATALOG.md": "82f1b3737a9d9414c8eac7c55b00ab19b8323614e239c1b9d5786a42efec3d0a",
+    "docs/AGENT_KNOWLEDGE.md": "2260608539402587b331902bdfc4e73a49025d2538317c2d34d4849bb3b829df",
+    "docs/AGENT_VERIFICATION.md": "f7a0dcb7562b795d04f6b3a9c3bd784fb16422a15c619fb298ab34563bfe910d",
+    "docs/DEVELOPMENT_PROGRESS.md": "fa417524f3d8ec5da1b737d13e2fa56346dda716512520973b0f0d7ff787b4f3"
+  },
+  "sourceArchive": "manual-performance-source-2026-10-30.zip",
+  "sourceArchiveSha256": "b83a2bcd6cd27a701d21602074d36c6aa3d4d206e924d0ef99df538f1f65d213",
+  "localDownload": "artifacts/tests/manual-performance-downloads-2026-10-30/shiftlab-performance-2026-10-30T09-31-26-316Z.json",
+  "localDownloadSha256": "947d4b4d5390f6d010151e92a7c893fb6f4fd6a39d79ef996822c6ca3707e753",
+  "downloadMetadata": {
+    "initial": {
+      "view": {
+        "width": 1440,
+        "height": 900,
+        "dpr": 1,
+        "visibility": "visible",
+        "focused": true,
+        "drawingBuffer": [
+          1440,
+          900
+        ]
+      },
+      "map": {
+        "seed": "ROAD-38274CD4",
+        "turnChance": 58,
+        "hairpinChance": 20,
+        "slopeChance": 52,
+        "leftBias": 50,
+        "upBias": 50,
+        "maxGrade": 9,
+        "generator": 3
+      },
+      "preset": "city",
+      "surface": "dry",
+      "pavement": "asphalt_dense",
+      "routeS": 70,
+      "position": {
+        "x": -1.4660841984870387e-11,
+        "y": 0.5210540890693665,
+        "z": 70
+      },
+      "collisions": 0,
+      "railHits": 0,
+      "barrierHits": 0,
+      "maxImpulse": 0,
+      "colliders": 2296,
+      "streaming": {
+        "mode": "worker",
+        "jobs": 1,
+        "discarded": 0,
+        "commits": 0,
+        "waits": 0,
+        "maxWorkerMs": 0,
+        "maxPrepareMs": 0,
+        "maxActivateMs": 0,
+        "maxUploadMs": 0,
+        "preparedMeshes": 0,
+        "preparedColliders": 0,
+        "maxColliderMs": 0,
+        "preparationYields": 0,
+        "error": null,
+        "pending": 1,
+        "prepared": 0,
+        "colliderPending": 0,
+        "visualPending": 0,
+        "ready": false
+      }
+    },
+    "view": {
+      "width": 1440,
+      "height": 900,
+      "dpr": 1
+    },
+    "observerSupport": {
+      "longtask": true,
+      "long-animation-frame": true
+    },
+    "frameCount": 61
+  },
+  "artifacts": [
+    "manual-performance-browser-latest.json",
+    "manual-performance-launcher-2026-10-30.png",
+    "manual-performance-production-hashes-2026-10-30.json"
+  ],
+  "resolvedTestSetupFailures": [
+    "Manual timing assertion used exact lower bound; replaced with 1e-8 floating-point tolerance",
+    "Reload read old ready document before new navigation; require changed performance.timeOrigin and new ready API before checking idle state"
+  ],
+  "runtimeModified": false,
+  "physicsFrequencyOrQualityModified": false,
+  "actualUserTraceReceived": false,
+  "stutterRootCauseProven": false,
+  "remainingOriginalScope": [
+    "User severe terrain / collision stutter: obtain actual manual session and resolve measured bottleneck",
+    "P2 water, exterior portal transitions and far scenery",
+    "P3 original ten scenes, cold / warm repeated measurements, quality / LOD / compression / backend decisions and >=600s endurance",
+    "P4 complete tuning / transmission configuration tools and safe apply",
+    "P5 paint, modular assembly, constrained body authoring and model import"
+  ]
+}

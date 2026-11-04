@@ -1,0 +1,85 @@
+{
+  "schema": "shiftlab.reference-vehicle.verification.v1",
+  "recordedAt": "2026-10-28T15:58:53.158Z",
+  "layoutRevision": 2,
+  "scope": "reference procedural model geometry and actual Rapier; not full vehicle creator or P3 performance",
+  "bodyHullToleranceM": 0.001,
+  "decorativeLampOverhangM": 0.01,
+  "wheelSurfaceToleranceM": 0.015,
+  "checks": [
+    "body/cabin actual bounds",
+    "unchanged mass/inertia/COM",
+    "independent steering and axle spin",
+    "pause invariance",
+    "overhead ray and 20 m/s roof collision",
+    "atomic body allocation rollback",
+    "480 Hz phase integration including airborne wheels",
+    "unique shared resource disposal"
+  ],
+  "reports": [
+    {
+      "id": "standard",
+      "calibrated": false,
+      "maxHullErrorM": 7.152557435219364e-9,
+      "massKg": 1280,
+      "roofContact": true
+    },
+    {
+      "id": "city",
+      "calibrated": false,
+      "maxHullErrorM": 7.152557435219364e-9,
+      "massKg": 1130,
+      "roofContact": true
+    },
+    {
+      "id": "turbo",
+      "calibrated": false,
+      "maxHullErrorM": 7.152557435219364e-9,
+      "massKg": 1440,
+      "roofContact": true
+    },
+    {
+      "id": "diesel",
+      "calibrated": false,
+      "maxHullErrorM": 7.152557435219364e-9,
+      "massKg": 1880,
+      "roofContact": true
+    },
+    {
+      "id": "standard",
+      "calibrated": true,
+      "maxHullErrorM": 7.152557435219364e-9,
+      "massKg": 1258.800048828125,
+      "roofContact": true
+    },
+    {
+      "id": "city",
+      "calibrated": true,
+      "maxHullErrorM": 7.152557435219364e-9,
+      "massKg": 1123.5,
+      "roofContact": true
+    },
+    {
+      "id": "turbo",
+      "calibrated": true,
+      "maxHullErrorM": 7.152557435219364e-9,
+      "massKg": 1394.800048828125,
+      "roofContact": true
+    },
+    {
+      "id": "diesel",
+      "calibrated": true,
+      "maxHullErrorM": 7.152557435219364e-9,
+      "massKg": 1925.2000732421875,
+      "roofContact": true
+    }
+  ],
+  "sourceHashes": {
+    "src/vehicle-layout.mjs": "641f41f905f11692e1ab97473da4b4708fe3c7b00bb5b630212f4974a404f9ea",
+    "src/vehicle-visual.mjs": "a10549e6dca13d189528e41a870f7b44027fb685209dd14674343f12aab2d26e",
+    "src/vehicle-definition.mjs": "303a036f2342499429ad86c1aded6d27b9e88695ff1810569a9666195816484b",
+    "src/chassis.mjs": "b3c588a866fec9f289f1d7b801fb8092632ca02f9892e55678e3b8f39c9d3540",
+    "public/physics.html": "ae8599d1e46ead1fe9a72a21134a23e99ec9b25b524bd81640214f07b68b3aed",
+    "tests/validate-vehicle-model.mjs": "09b0b77fc18480d6cf3871703adb254d15837da903a0be4c0c94efeb02e02396"
+  }
+}

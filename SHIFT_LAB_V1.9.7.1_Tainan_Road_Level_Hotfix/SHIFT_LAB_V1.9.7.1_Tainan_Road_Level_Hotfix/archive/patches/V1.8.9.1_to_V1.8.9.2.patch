@@ -1,0 +1,1089 @@
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/CHANGELOG.md SHIFT_LAB_V1.8.9.2/CHANGELOG.md
+--- _baseline_v1891/CHANGELOG.md	2026-10-21 04:54:20.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/CHANGELOG.md	2026-10-21 07:12:43.043873914 +0000
+@@ -1,3 +1,16 @@
++# SHIFT LAB v1.8.9.2 — 3D 物理整合穩定候選版（2026-10-21）
++
++- **手排設定修復**：停車且處於手排時，設定畫面選檔由原始離合器斜率、同步器及 `requestGear` 完成；移動中不強制入檔，保留倒檔安全鎖定。
++- **自排驗證**：新增四車型連續減速回一檔與既有油門／煞車／自排鍵盤隔離的回歸；保留 v1.8.9.1 的 AMT 物理方式。
++- **車型統一**：將 2.2L 柴油車加入單頁設定。
++- **道路生命週期**：清空並檢核舊 Rapier Collider 與 Three.js 道路資源；測試路障材質一併釋放；重建失敗嘗試回復原地圖。
++- **數值安全**：每次物理步進檢查剛體姿態、速度、傳動與四輪數值；異常即明確報告 FAIL／停止駕駛並提供重載。
++- **瀏覽器自動化**：更新舊測試進入單頁自由駕駛的方式；新增 `browser_v1892.py`，可執行真實 WebGL 五項驗收與 30 分鐘耐久測試。
++- **測試結果**：Node 九組模組測試通過；103 項分段 Python／Chromium 回歸中 101 通過、2 跳過；實際 Three.js／Rapier WASM 建置及端到端驗收因 npm DNS 失敗仍待用戶本機完成。
++- **架構保留**：原四輪 `physics.html`、程序化生成器與測試工況不重寫，仍維持原生網頁版本。
++
++---
++
+ # SHIFT LAB v1.8.9.1 — 自排換檔修補（2026-10-21）
+ 
+ - **修正**：自排降檔不再僅看 `engine RPM < 1200` 加速條件，而根據輪速／各檔齒比推算工作轉速，結合制動、油門、回差與換檔冷卻判斷。
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/QA_REPORT.md SHIFT_LAB_V1.8.9.2/QA_REPORT.md
+--- _baseline_v1891/QA_REPORT.md	2026-10-21 04:45:56.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/QA_REPORT.md	2026-10-21 07:15:10.442989285 +0000
+@@ -1,3 +1,12 @@
++# v1.8.9.2 Stability Integration Gate (2026-10-21)
++
++- **SOURCE QA PASSED**: segmented legacy and new Python/Chromium suites: 103 cases (101 PASS, 2 SKIP for unavailable raw measurement data). Node tests: all nine validation scripts PASS. Original four-wheel iframe core and manual Settings shift pass in Chromium.
++- **NATIVE WEBGL GATE UNVERIFIED**: npm package registry DNS error `EAI_AGAIN` blocked installing Rapier/Three/Vite. Consequently no `npm run build`, full 3D acceptance or 30-minute endurance evidence was generated in this environment.
++- **Release classification**: v1.8.9.2 source-complete stability candidate, NOT a fully browser-accepted production build.
++- Detailed evidence and manual acceptance commands: `V1892_QA.md` and `desktop3d/tests/browser_v1892.py`.
++
++---
++
+ # SHIFT//LAB V1.8.5 — Data and compatibility QA
+ 
+ ## Genuine gasoline-car source
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/README.md SHIFT_LAB_V1.8.9.2/README.md
+--- _baseline_v1891/README.md	2026-10-21 04:54:20.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/README.md	2026-10-21 07:12:43.043410014 +0000
+@@ -1,4 +1,4 @@
+-# SHIFT LAB v1.8.9.1 — 自排降檔與手／自排操作隔離
++# SHIFT LAB v1.8.9.2 — 3D 物理整合穩定版
+ 
+ 目標：**玩家駕駛畫面精簡到 3D 場景、速度／轉速儀表及檔位**；車輛、手柄和隨機地圖集中於「設定」，物理診斷和固定五項驗收集中於「測試模式」。
+ 
+@@ -19,7 +19,7 @@
+ | 設定 | 車型、操控、手柄、地圖種子／彎道與坡度機率／路線預覽 | `F1` 或選單「設定」 |
+ | 測試 | 靜止、正面、斜角、高速 CCD、坡道，含報告與即時物理監測 | `F2` 或選單「測試模式」 |
+ 
+-**自排（預設）：** `W/S` 油門／煞車，`A/D` 左右轉；變速箱依車速／齒比／油門／煞車自動升降檔。`Shift`、`1–6`、`0`、`R` 不會操作變速箱，手排檔位選單亦鎖定。**手排：** 按 `M` 切換後，可用 `Shift` 踩離合器、`1–6` 選檔、`0` 空檔、`R` 倒檔。`I` 發動、`Space` 暫停、`Backspace` 重置。設定／測試開啟後，按鍵不會穿透到駕駛輸入。
++**自排（預設）：** `W/S` 油門／煞車，`A/D` 左右轉；變速箱依車速／齒比／油門／煞車自動升降檔。`Shift`、`1–6`、`0`、`R` 不會操作變速箱，手排檔位選單亦鎖定。**手排：** 按 `M` 切換後，可用 `Shift` 踩離合器、`1–6` 選檔、`0` 空檔、`R` 倒檔。停車後在設定畫面選擇檔位，v1.8.9.2 會使用原始離合器與同步器完成掛檔，仍遵守倒檔鎖定；車輛移動中不可由設定畫面強制入檔。`I` 發動、`Space` 暫停、`Backspace` 重置。設定／測試開啟後，按鍵不會穿透到駕駛輸入。
+ 
+ ## 原始隨機地圖生成器已接到 3D
+ 
+@@ -44,7 +44,7 @@
+ cd desktop3d && npm run qa:scenarios
+ ```
+ 
+-當前交付環境無法連線 npm 套件庫（EAI_AGAIN），所以 **v1.8.9.1 的真實 Rapier WASM／WebGL3D 運行尚未完成本機驗收**，未包含 `dist`。v1.8.8 通過 3D 實測是前一版的回報，不可代替 v1.8.9 實機驗收。建議按 `V189_QA.md` 先驗證隨機新地圖、返回 QA、再回到玩家地圖，最後再測五項固定碰撞工況。
++當前交付環境無法連線 npm 套件庫（EAI_AGAIN），所以 **v1.8.9.2 的真實 Rapier WASM／WebGL3D 運行尚未完成本機驗收**，未包含 `dist` 或 `package-lock.json`。已在分段回歸中完成 103 項（101 通過、2 跳過），不能取代真實 WebGL 驗收。v1.8.8 通過 3D 實測是前一版的回報，不可代替 v1.8.9 實機驗收。建議按 `V189_QA.md` 先驗證隨機新地圖、返回 QA、再回到玩家地圖，最後再測五項固定碰撞工況。
+ 
+ - `V189_IMPLEMENTATION.md`：模組／狀態切換／物理碰撞地圖更新方案
+ - `V189_QA.md`：程式測試結果及實機驗收清單
+@@ -53,3 +53,16 @@
+ - `V1891_AUTOMATIC_TRANSMISSION.md`：本輪自排降檔、手排隔離、限制與驗收步驟
+ - `V1891_QA.md`：98+ 項回歸與四車型實際核心加減速測試
+ - `V1.8.9_to_V1.8.9.1.patch`：自排修補程式差異
++
++## v1.8.9.2 更新與正式驗收
++
++- 新增已存在於物理核心的 2.2L 柴油車配置。
++- 修復停車時設定介面的手排選檔與啟動引擎互鎖，不直接修改原始 `state.gear`。
++- 地圖重建具備碰撞資源殘留檢查、材質清除與舊地圖還原。
++- 新增 3D 剛體／輪胎／動力系統數值健康檢查，故障會呈現錯誤與重新載入入口。
++- 更新 Chromium 真實瀏覽器驗收：`python desktop3d/tests/browser_v1892.py`（先啟動 Vite）；長時間測試加 `--drive-seconds 1800`。
++- 原有四輪核心、種子生成、碰撞工況、操控與單頁架構保持不變。
++
++詳細改動及尚未完成的實機驗收請見 `V1892_IMPLEMENTATION.md`、`V1892_QA.md`、`CHANGELOG.md`。
++
++在 `desktop3d/` 可以先執行 `npm run qa:all` 進行 Node 模組測試（不需要啟動 3D 伺服器）。**完整交付仍是原始碼包；玩家網頁公開部署需先完成 `npm install && npm run build`。**
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/V1892_IMPLEMENTATION.md SHIFT_LAB_V1.8.9.2/V1892_IMPLEMENTATION.md
+--- _baseline_v1891/V1892_IMPLEMENTATION.md	1970-01-01 00:00:00.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/V1892_IMPLEMENTATION.md	2026-10-21 07:12:42.083257263 +0000
+@@ -0,0 +1,40 @@
++# SHIFT LAB v1.8.9.2 — 3D Stability & Integration
++
++Date: 2026-10-21. Source baseline: `SHIFT_LAB_V1.8.9.1_Automatic_Transmission_Fix.zip`.
++
++## Scope and implementation
++
++| Item | Code delivered | Validation status |
++|---|---|---|
++| 01 Rapier / four-wheel integration safeguards | `src/physics-health.mjs`; checks after each 120 Hz step; fail-stop and visible error | Node health checks; full WASM pending |
++| 02 Automatic transmission verification | Retains v1.8.9.1 AMT logic; new monotonic braking-to-first checks for four configurations | Node stress + real legacy-core drivetrain tests pass |
++| 03 Manual/automatic separation | Retains Shift/number/R interception and mode reset; additional regression | Chromium isolated UI and Node tests pass |
++| 04 Paused manual selector | New `src/manual-gear.mjs` slowly actuates the original clutch, calls original `requestGear`, waits for original synchro; stationary lockout; engine button interlock assistance | Mock tests + actual legacy iframe physics browser probe pass |
++| 05 Keyboard/controller input | Maintains corrected visual-to-legacy steering mapping | Existing keyboard/controller synthetic tests pass; physical gamepad pending |
++| 06 Vehicle presets | Exposes the already-implemented `diesel` preset in Settings | Static + real drivetrain 4-car regression pass |
++| 07 Map rebuild lifecycle | `RoadWorld.assertClean`/`resourceStats`, obstacle mesh material disposal; rollback old map if regeneration fails | Fake-Rapier resources + live legacy iframe route-switch browser probe pass |
++| 08 Browser acceptance automation | New `browser_v1892.py`; old `browser_v187.py` delegates to it | Script syntax passes; actual Vite/WASM pending |
++| 09 Error reporting | Finite value checks for 3D body, drivetrain and wheels; QA error records fail, game displays reload option | Node health gates pass |
++| 10 Package/deployment verification | Version uplift, launch/build scripts preserved, npm QA commands added | npm dependency download blocked by DNS `EAI_AGAIN`; no dist/lockfile created |
++| 11 Long drive endurance | Real-browser tool supports `--drive-seconds 1800` | Automation supplied, 30-minute run NOT executed here |
++
++## Compatibility constraints
++
++- The native four-wheel physics source `desktop3d/public/physics.html` and the legacy reference file are **byte-identical and unchanged** from v1.8.9.1.
++- Core vehicle dynamics, gear synchronizer, clutch, tire force calculation, collision scenarios, and seeded route generation are not rewritten.
++- `desktop3d/src/automatic-transmission.mjs` continues to describe an automatic-controlled manual gearbox (AMT), **not** a torque-converter hydraulic automatic.
++- Vite + Three.js + Rapier are loaded from npm in local development. This package is source-only, not a built offline-ready website.
++- The driver still sees only the 3D scene, speed/RPM instruments and gear; Settings and Tests remain separate.
++- Existing `shiftlab.v189.settings` and `shiftlab.v189.procedural-map` localStorage keys are preserved for migration-free preferences.
++
++## Implementation details
++
++**Paused manual gear:** In Settings, choosing gear while almost stationary briefly advances the unmodified physics engine with a fully depressed clutch and brake, then requests the target gear via the original `requestGear`. It waits up to 420 physics steps for the synchronizer. It never writes `state.gear` to bypass the drivetrain, never forces reverse at speed, and restores host pedal targets. Engine startup while in gear also respects the original clutch interlock. Dynamic shifting must still use Shift with the driving keyboard.
++
++**Map lifecycle:** acceptance obstacles are removed first; owned road collision bodies and visual meshes are cleared; no orphan collider handles may remain; next route is generated and rendered; scene query structures are updated. If the process fails, the last route is regenerated to recover. The selected map is committed to localStorage only after the vehicle reset succeeds.
++
++**Physics health:** no non-finite position, rotation, speed, wheel speed, normal load, engine speed, or control pedal value is allowed through. During 3D acceptance, the failure is graded as FAIL instead of fabricating a PASS. During free drive, the renderer stops and an error/reload action appears. Error recovery cannot guarantee restoration of a catastrophically corrupted WASM runtime; reloading is intentional.
++
++## Outstanding acceptance
++
++In a machine with network access, run `npm install` / `npm run dev` in `desktop3d/`, then `python desktop3d/tests/browser_v1892.py`. Also run the 30-minute soak with `--drive-seconds 1800` and repeat on the intended browsers and physical gamepad. The real-WebGL results are not inferred from stub tests.
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/V1892_QA.md SHIFT_LAB_V1.8.9.2/V1892_QA.md
+--- _baseline_v1891/V1892_QA.md	1970-01-01 00:00:00.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/V1892_QA.md	2026-10-21 07:12:42.085022803 +0000
+@@ -0,0 +1,29 @@
++# SHIFT LAB v1.8.9.2 — QA Evidence and Release Gate
++
++**Status:** SOURCE-VERIFIED / BROWSER-WASM NOT YET ACCEPTED. 2026-10-21.
++
++## Validation performed in this build environment
++
++- All nine `desktop3d/tests/validate-*.mjs` scripts: PASS. They cover road resources, Ray contact, scenario grades, force lifecycle, steering, map schema, four-preset automatic gearbox, paused manual gearbox and finite-value safety checks. Test doubles are labeled as such.
++- Python unit/Chromium suites run by module, one suite at a time: **103 cases total, 101 PASS, 2 SKIP**. The skips require external original measured data not in this ZIP; they are not failed tests.
++- `tests/route_switch_probe.py`: PASS with real original four-wheel iframe code and Chromium DOM — generate seeded route, switch to QA route and restore saved route; stationary manual Settings selection actuates the original clutch/synchronizer into first gear. This is not real Rapier WASM testing.
++- `node --check` of every main source and validation script: PASS, including `main.mjs`.
++- ZIP source baseline still preserves the original physics.html/legacy solver byte-for-byte.
++
++## Environment restrictions
++
++`npm install --fetch-retries=0 --fetch-timeout=8000` fails with `EAI_AGAIN` resolving `registry.npmjs.org/@dimforge/rapier3d-compat`. Therefore no external npm packages, lockfile or production Vite build could be generated here. The actual browser `Rapier.init()` → Three.js canvas → 5 native acceptance cases remains **UNVERIFIED**. Do not label this release as 3D fully accepted until these tests run on the user's machine.
++
++Running the legacy Python suites together in one long process exceeded the execution limit once. Splitting by module allowed all 13 suites to finish and produced the totals above; no failures remained. Earlier legacy hard-coded version assertions and source markers were updated to v1.8.9.2, keeping their substantive checks.
++
++## Required runtime verification on local machine
++
++1. Extract ZIP and run `START_WEB_WINDOWS.cmd`, or `sh START_WEB_UNIX.sh`. Internet is required the first time to install npm dependencies.
++2. Open `http://127.0.0.1:5173/` and check WebGL2/Rapier boot with no full-screen error.
++3. In Settings, choose diesel; check vehicle is reset and playable. Switch to Manual, park, choose first gear; confirm the original synchronizer engages. Switch back to automatic and confirm Shift + 1/6/R does not manually change gear.
++4. In Settings, regenerate several maps, enter Tests, return to Free Drive; confirm original selected seed is restored and there are no stale collisions.
++5. Run `python desktop3d/tests/browser_v1892.py` while Vite is running. Script checks real WebGL boot, keyboard, automatic isolation, parked manual shift, map rebuilding, and the full five-case Rapier acceptance suite.
++6. Run the endurance probe: `python desktop3d/tests/browser_v1892.py --drive-seconds 1800 --map-rebuilds 10`. Confirm no non-finite values, crashes, or unbounded memory growth. Repeat with actual keyboard and physical controller, not only headless Chromium.
++7. In `desktop3d`, run `npm run build`; deploy the **contents of dist/** to an HTTPS host and repeat smoke tests against the published URL.
++
++**Acceptance criterion:** The 5 native 3D tests must all PASS, with 30 minutes of normal driving and repeated road changes without irrecoverable faults. This gate is pending, not waived.
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/desktop3d/index.html SHIFT_LAB_V1.8.9.2/desktop3d/index.html
+--- _baseline_v1891/desktop3d/index.html	2026-10-21 04:54:20.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/desktop3d/index.html	2026-10-21 06:59:56.359146592 +0000
+@@ -3,7 +3,7 @@
+ <head>
+ <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+ <meta name="theme-color" content="#07121d">
+-<title>SHIFT LAB v1.8.9.1 — 3D 自由駕駛</title>
++<title>SHIFT LAB v1.8.9.2 — 3D 自由駕駛</title>
+ <style>
+ :root{color-scheme:dark;--paper:#07131f;--glass:#0a1d2eea;--line:#294756;--text:#e6f4f6;--quiet:#a7bdc7;--mint:#79eac5;--warn:#ffd59d;--danger:#ff9898}
+ *{box-sizing:border-box}[hidden]{display:none!important}
+@@ -60,7 +60,7 @@
+   <section id="menu-panel" class="panel panel--menu" role="dialog" aria-label="遊戲選單" hidden>
+     <div class="overline">SHIFT / LAB · WEB DRIVE</div>
+     <h1>駕駛選單</h1>
+-    <p class="desc">v1.8.9.1 · 三維程序化道路</p>
++    <p class="desc">v1.8.9.2 · 三維程序化道路</p>
+     <div class="menustack">
+       <button class="primary" id="resume-drive">繼續駕駛</button>
+       <button id="open-settings">設定與隨機地圖</button>
+@@ -75,7 +75,7 @@
+       <div>
+         <section class="group"><h2>駕駛與車輛</h2>
+           <label for="drive-mode">駕駛模式</label><select id="drive-mode"><option value="assisted">自排（自動起步／升降檔）</option><option value="manual">手排（自行操作離合器／換檔）</option></select>
+-          <label for="car-preset">車輛配置</label><select id="car-preset"><option value="standard">2.0L 自然進氣 · 標準六速</option><option value="city">1.6L 自然進氣 · 輕型轎車</option><option value="turbo">2.0L 渦輪增壓 · 性能車</option></select>
++          <label for="car-preset">車輛配置</label><select id="car-preset"><option value="standard">2.0L 自然進氣 · 標準六速</option><option value="city">1.6L 自然進氣 · 輕型轎車</option><option value="turbo">2.0L 渦輪增壓 · 性能車</option><option value="diesel">2.2L 渦輪柴油 · 高扭力車</option></select>
+           <label for="road-surface">路面附著力</label><select id="road-surface"><option value="dry">乾燥柏油</option><option value="wet">濕滑柏油</option><option value="snow">積雪</option><option value="ice">結冰</option></select>
+           <div class="duo"><div class="checkline"><input type="checkbox" id="abs-toggle" checked><label for="abs-toggle">ABS</label></div><div class="checkline"><input type="checkbox" id="tcs-toggle" checked><label for="tcs-toggle">TCS</label></div></div>
+           <div class="duo"><label>ESC<select id="esc"><option value="on">開啟</option><option value="off">關閉</option></select></label><label>抓地與救車手感<select id="feel"><option value="balanced">均衡</option><option value="sport">運動</option><option value="raw">原始</option></select></label></div>
+@@ -150,6 +150,6 @@
+   </section>
+ </div>
+ <iframe id="physics" src="./physics.html" title="SHIFT LAB hidden computation engine" tabindex="-1" aria-hidden="true" style="position:absolute;width:0;height:0;border:0;opacity:0;pointer-events:none"></iframe>
+-<div id="screen-overlay"><div class="message"><strong>SHIFT LAB 3D</strong><span id="overlay-message">正在啟動 WebGL / Rapier WASM…</span></div></div>
++<div id="screen-overlay"><div class="message"><strong>SHIFT LAB 3D</strong><span id="overlay-message">正在啟動 WebGL / Rapier WASM…</span><div class="btnrow"><button id="reload-game" hidden>重新載入遊戲</button></div></div></div>
+ <script type="module" src="./src/main.mjs"></script>
+ </body></html>
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/desktop3d/package.json SHIFT_LAB_V1.8.9.2/desktop3d/package.json
+--- _baseline_v1891/desktop3d/package.json	2026-10-21 04:54:20.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/desktop3d/package.json	2026-10-21 06:58:54.918769874 +0000
+@@ -1,6 +1,6 @@
+ {
+-  "name": "shift-lab-v1891-automatic-gearbox-hotfix",
+-  "version": "1.8.9-hotfix.1",
++  "name": "shift-lab-v1892-stability-integration",
++  "version": "1.8.9-hotfix.2",
+   "private": true,
+   "type": "module",
+   "scripts": {
+@@ -11,7 +11,10 @@
+     "qa:steering": "node ./tests/validate-steering.mjs",
+     "dev:open": "node ./scripts/serve-and-open.mjs",
+     "qa:map": "node ./tests/validate-procedural-map.mjs",
+-    "qa:transmission": "node ./tests/validate-auto-transmission.mjs"
++    "qa:transmission": "node ./tests/validate-auto-transmission.mjs",
++    "qa:manual": "node ./tests/validate-manual-gear.mjs",
++    "qa:all": "npm run qa:scenarios && npm run qa:transmission && npm run qa:manual && npm run qa:health",
++    "qa:health": "node ./tests/validate-physics-health.mjs"
+   },
+   "dependencies": {
+     "@dimforge/rapier3d-compat": "0.18.2",
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/desktop3d/src/automatic-transmission.mjs SHIFT_LAB_V1.8.9.2/desktop3d/src/automatic-transmission.mjs
+--- _baseline_v1891/desktop3d/src/automatic-transmission.mjs	2026-10-21 04:49:40.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/desktop3d/src/automatic-transmission.mjs	2026-10-21 07:13:34.317770173 +0000
+@@ -1,4 +1,4 @@
+-// v1.8.9.1 automatic transmission shift schedule for desktop free-drive.
++// v1.8.9.1 AMT schedule, regression revalidated in v1.8.9.2; no physical gearbox rewrite.
+ // This module only decides WHICH gear and clutch command to request. The
+ // original SHIFT LAB synchronizers, shafts, engine and tires remain authoritative.
+ const clamp=(value,low,high)=>Math.max(low,Math.min(high,value));
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/desktop3d/src/main.mjs SHIFT_LAB_V1.8.9.2/desktop3d/src/main.mjs
+--- _baseline_v1891/desktop3d/src/main.mjs	2026-10-21 04:54:20.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/desktop3d/src/main.mjs	2026-10-21 07:13:34.317546565 +0000
+@@ -8,6 +8,8 @@
+ import {REFERENCE_MAP,MAP_FIELDS,normalizeMapConfig,readMapDocument,serializeMap,sameMap,makeMapSeed,describeRoute} from './procedural-map.mjs';
+ import {createGameModes} from './game-modes.mjs';
+ import {chooseAutomaticGear,automaticClutch,isAutomaticMode} from './automatic-transmission.mjs';
++import {engageParkedManualGear} from './manual-gear.mjs';
++import {assertPhysicsHealth} from './physics-health.mjs';
+ 
+ const $=id=>document.getElementById(id);
+ const canvas=$('view'),overlay=$('screen-overlay'),message=$('overlay-message');
+@@ -20,7 +22,7 @@
+ let visualVehicleId='standard';
+ let gameModes=null,userMapConfig={...REFERENCE_MAP};
+ const MAP_STORAGE_KEY='shiftlab.v189.procedural-map';
+-const PREFERENCE_KEY='shiftlab.v189.settings';
++const PREFERENCE_KEY='shiftlab.v189.settings'; // Preserve saved v1.8.9 choices.
+ const preferenceIds=['car-preset','road-surface','abs-toggle','tcs-toggle','esc','feel',
+   'handling-balance','brake-bias','steering-preset','pad-invert','drive-mode','camera-mode'];
+ function savePreferences(){
+@@ -95,14 +97,23 @@
+ }
+ function rebuildRoad(config){
+   if(!d||!road||!obstacles)throw Error('3D 場景尚未建立');
+-  // Remove every old collision geometry before requesting the new centerline.
+-  // The original seeded generator is the only source of road truth.
+-  obstacles.dispose();obstacles.activeScenario='free';
+-  road.clear();
+-  d.generateRoad(config);d.route.gradeMode='route';
+-  road.ensure(70);
+-  if(typeof world.updateSceneQueries==='function')world.updateSceneQueries();
+-  updateMapInfo();
++  const prior={...d.route.config};
++  const priorDistance=d.route.distance;
++  // Destroy BOTH acceptance and route colliders before swapping centerlines.
++  // The source generator remains the only authority for geometry and bank.
++  const install=next=>{
++    obstacles.dispose();obstacles.activeScenario='free';
++    road.clear();road.assertClean();
++    d.generateRoad(next);d.route.gradeMode='route';
++    road.ensure(Math.max(70,Math.min(priorDistance,d.roadTotalDistance())));
++    if(typeof world.updateSceneQueries==='function')world.updateSceneQueries();
++  };
++  try{install(config);updateMapInfo();}
++  catch(error){
++    try{install(prior);updateMapInfo();}
++    catch(rollback){throw new Error('道路重建失敗，且舊道路無法還原：'+error.message+' / '+rollback.message);}
++    throw new Error('道路重建失敗；已還原原始地圖：'+error.message);
++  }
+ }
+ function ensureScenarioMap(id){
+   const desired=id==='free'?userMapConfig:REFERENCE_MAP;
+@@ -111,9 +122,12 @@
+ function applyMap(config){
+   if(locked||!labReady)throw Error('正在驗收或 3D 引擎未就緒');
+   const normalized=normalizeMapConfig(config,true);
++  const previous={...userMapConfig};
+   rebuildRoad(normalized);userMapConfig=normalized;
++  try{resetDriving('free');}
++  catch(error){userMapConfig=previous;rebuildRoad(previous);resetDriving('free');throw error;}
+   try{localStorage.setItem(MAP_STORAGE_KEY,JSON.stringify(normalized));}catch{}
+-  resetDriving('free');setPause(true);
++  setPause(true);
+   fillMapForm(normalized);
+   mapMessage('地圖已更新，車輛回到起點。返回駕駛即可遊玩。');
+ }
+@@ -147,8 +161,8 @@
+   // Do not expose a second/manual gear controller while in automatic mode.
+   gearSelect.disabled=locked||automatic;
+   $('gear-mode-hint').textContent=automatic?
+-    '自排：由車速、檔位與油門／煞車決定升降檔；數字鍵、R 與 Shift 不會手動排檔。':
+-    '手排：按住 Shift 踩離合器，再按 1–6、0 或 R 選檔。';
++    '自排：依車速與負載升降檔，Shift、數字鍵與 R 不會介入排檔。':
++    '手排：駕駛時按住 Shift + 數字鍵／R；在設定畫面停穩後選檔，會經原始離合器及同步器入檔。';
+ }
+ function requestDriverGear(gear){
+   if(!d||locked||isAutomaticMode($('drive-mode').value))return false;
+@@ -164,11 +178,12 @@
+ const trackedKeys=new Set();
+ 
+ function failure(e){
+-  labReady=false;console.error('v1.8.9.1 game:',e);
++  labReady=false;console.error('v1.8.9.2 game:',e);
+   $('status').textContent='載入或執行失敗';
+   message.textContent='無法啟動 3D 驗收：'+(e?.message||String(e))+'。請確認 npm install / npm run dev，並使用支援 WebGL2 的桌面瀏覽器。';
+   if(!overlay.isConnected)document.body.append(overlay);
+   overlay.hidden=false;
++  const reload=$('reload-game');if(reload)reload.hidden=false;
+ }
+ function waitIframe(){
+   return new Promise((resolve,reject)=>{
+@@ -313,6 +328,8 @@
+   if(!labReady)return {ready:false,error:$('status').textContent};
+   const b=bridge.rigidBody,v=b.linvel(),t=b.translation();
+   return {ready:true,scenario:scenarioId,paused,step:d.state.time,
++    gear:d.state.gear,pendingGear:d.state.pendingGear,clutch:d.state.clutch,
++    engineOn:d.state.engineOn,driveMode:$('drive-mode').value,
+     x:t.x,y:t.y,z:t.z,vx:v.x,vy:v.y,vz:v.z,
+     speed:Math.hypot(v.x,v.y,v.z),yaw:d.vehicleMotion.yawRate,
+     roll:d.vehicleMotion.roll,pitch:d.vehicleMotion.pitch,
+@@ -327,7 +344,7 @@
+     driverMode:$('drive-mode').value,inputKeys:[...trackedKeys],mapSeed:d.route.config.seed,uiMode:gameModes?.mode||'drive',
+     driverSteer:visualSteeringFromLegacy(d.vehicleMotion.steerInput),
+     legacySteer:d.vehicleMotion.steerInput,roadSurface:d.state.surface,
+-    vehiclePreset:visualVehicleId,
++    vehiclePreset:visualVehicleId,roadResources:road.resourceStats(),
+     focus:document.activeElement?.id||document.activeElement?.tagName||'none'};
+ }
+ function htmlMetric(id,text){$(id).textContent=text;}
+@@ -450,6 +467,7 @@
+   const begin=performance.now();
+   updateAutoDrive();
+   d.advancePhysics(FIXED_DT);
++  assertPhysicsHealth(bridge.rigidBody,d);
+   physicsMs=performance.now()-begin;
+ }
+ function measureBaseline(){
+@@ -507,7 +525,9 @@
+     const startTime=performance.now();
+     // Deterministic stepping independent of render FPS. Simulated time is fixed.
+     for(let n=0,total=Math.round(setting.duration/FIXED_DT);n<total;n++){
+-      stepOnce();
++      try{stepOnce();}
++      catch(error){data.finite=false;data.nonFiniteSteps++;
++        data.abortReason='物理健康檢查失敗：'+error.message;break;}
+       if(!observe(data,start))break;
+       // Fail visibly and stop this test if the rigid body catastrophically
+       // accelerates; do not continue simulating a car launched into the sky.
+@@ -520,7 +540,7 @@
+     const graded=gradeScenario(id,data);
+     const result={scenario:id,pass:graded.pass,checks:graded.checks,
+       metrics:{...data},runtimeMs:data.runtimeMs,
+-      engine:'Rapier 0.18 + SHIFT LAB four-wheel, 120 Hz / 4 microsteps, v1.8.9.1 automatic transmission / unchanged vehicle steering adapter',
++      engine:'Rapier 0.18 + SHIFT LAB four-wheel, 120 Hz / 4 microsteps, v1.8.9.2 automatic mode and physical shifter',
+       events:bridge.eventHistory.map(e=>({...e}))};
+     lastResult=result;displayResult('qa-results',result);updateHud(true);
+     $('status').textContent=(result.pass?'PASS':'FAIL')+' · '+setting.name+' · '+graded.checks.filter(x=>x.passed).length+'/'+graded.checks.length;
+@@ -552,18 +572,19 @@
+   return suiteResults.map(r=>({...r}));
+ }
+ function exportReport(){
+-  const bundle={version:'1.8.9.1',createdAt:new Date().toISOString(),
++  const bundle={version:'1.8.9.2',createdAt:new Date().toISOString(),
+     userAgent:navigator.userAgent,
+     physics:'Four-wheel SHIFT LAB v1.8.6 bridge / Rapier 3D 0.18',
+     suite:suiteResults.map(r=>({...r})),lastResult,
+     snapshot:currentSnapshot(),qaScope:'simulator only, not real-vehicle validation'};
+   const blob=new Blob([JSON.stringify(bundle,null,2)],{type:'application/json'});
+   const href=URL.createObjectURL(blob),link=document.createElement('a');
+-  link.href=href;link.download='SHIFT_LAB_V1891_Physics_QA_'+new Date().toISOString().slice(0,10)+'.json';
++  link.href=href;link.download='SHIFT_LAB_V1892_Physics_QA_'+new Date().toISOString().slice(0,10)+'.json';
+   link.click();setTimeout(()=>URL.revokeObjectURL(href),3000);
+ }
+ function installEvents(){
+   selectOptions();restorePreferences();syncTransmissionUI();
++  $('reload-game')?.addEventListener('click',()=>window.location.reload());
+   gameModes=createGameModes(document,{onModeChange(next){
+     trackedKeys.clear();if(d)d.inputKeys.clear();
+     if(d)Object.assign(d.hostControls,{steer:0,throttle:0,brake:0,clutch:0});
+@@ -656,11 +677,41 @@
+   });
+   canvas.addEventListener('pointerdown',driveFocus);
+   $('step').addEventListener('click',()=>{if(!locked&&paused){stepOnce();updateHud(true);}});
+-  $('engine').addEventListener('click',()=>{if(!locked)d?.startEngine();});
+-  gearSelect.addEventListener('change',()=>{
++  $('engine').addEventListener('click',async()=>{
++    if(!d||locked)return;
++    // The paused Settings panel may contain a parked car already in gear.
++    // Press the physical clutch before using the unmodified starter interlock.
++    if(gameModes?.mode==='settings'&&d.state.gear!==0&&
++      Math.abs(d.state.velocity)<.28&&d.state.clutch<.85){
++      setBusy(true);
++      const before=d.hostControls.clutch;
++      try{
++        d.hostControls.clutch=1;
++        for(let i=0;i<42&&d.state.clutch<.86;i++)stepOnce();
++        d.startEngine();
++        driveStatus(d.state.engineOn?'離合器已分離並成功發動引擎':'發動失敗；請檢查原始引擎互鎖');
++      }catch(error){driveStatus('發動失敗：'+error.message);}
++      finally{d.hostControls.clutch=before;setBusy(false);updateHud(true);}
++    }else d.startEngine();
++  });
++  gearSelect.addEventListener('change',async()=>{
+     if(!d||locked)return;
+-    if(!requestDriverGear(Number(gearSelect.value)))
+-      gearSelect.value=String(d.state.pendingGear??d.state.gear);
++    const target=Number(gearSelect.value);
++    if(isAutomaticMode($('drive-mode').value)){
++      gearSelect.value=String(d.state.pendingGear??d.state.gear);return;
++    }
++    if(gameModes?.mode!=='settings'){
++      requestDriverGear(target);gearSelect.value=String(d.state.pendingGear??d.state.gear);return;
++    }
++    setBusy(true);
++    try{
++      const velocity=bridge?.rigidBody?.linvel();
++      const extraSpeed=velocity?Math.hypot(velocity.x,velocity.y,velocity.z):0;
++      const result=await engageParkedManualGear({core:d,gear:target,step:stepOnce,
++        extraSpeed,yieldFrame:()=>new Promise(resolve=>requestAnimationFrame(resolve))});
++      driveStatus((result.ok?'手排：':'未完成排檔：')+result.reason);
++    }catch(error){driveStatus('手排操作失敗：'+error.message);}
++    finally{setBusy(false);gearSelect.value=String(d.state.pendingGear??d.state.gear);updateHud(true);}
+   });
+   $('esc').addEventListener('change',()=>{d?.setESCEnabled($('esc').value==='on');});
+   $('feel').addEventListener('change',()=>{d?.setHandlingFeel($('feel').value);});
+@@ -758,7 +809,7 @@
+   overlay.remove();
+   prevFrame=performance.now();requestAnimationFrame(render);
+   window.__SHIFT_LAB_3D_QA__={
+-    version:'1.8.9.1',steeringMapping:{visualLeft:legacyDirectionalKey('a'),
++    version:'1.8.9.2',steeringMapping:{visualLeft:legacyDirectionalKey('a'),
+       visualRight:legacyDirectionalKey('d'),visualPadRight:legacySteerFromVisualAxis(1)},
+     get ready(){return labReady;},get paused(){return paused;},snapshot:currentSnapshot,
+     loadScenario(id){if(!(id in SCENARIOS))throw Error('未知工況 '+id);if(locked)throw Error('正在執行自動驗收');
+@@ -772,6 +823,6 @@
+     openMode:openGameMode,
+     get report(){return {lastResult,suiteResults:[...suiteResults]};}
+   };
+-  $('status').textContent='v1.8.9.1 已初始化 · 自排／手排隔離 / 隨機道路 / 獨立測試模式';
++  $('status').textContent='v1.8.9.2 已初始化 · 手自排操作隔離 / 程序化道路 / 測試模式';
+ }
+ boot().catch(failure);
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/desktop3d/src/manual-gear.mjs SHIFT_LAB_V1.8.9.2/desktop3d/src/manual-gear.mjs
+--- _baseline_v1891/desktop3d/src/manual-gear.mjs	1970-01-01 00:00:00.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/desktop3d/src/manual-gear.mjs	2026-10-21 06:56:58.212301705 +0000
+@@ -0,0 +1,44 @@
++// Gear selection from the PAUSED settings panel. Do not bypass SHIFT LAB's
++// clutch, synchronizers, shaft inertia or reverse lockout to set state.gear.
++// A request is only automated while the vehicle is nearly stationary.
++export async function engageParkedManualGear({core,gear,step,yieldFrame=async()=>{},
++  maxSteps=420,extraSpeed=0}){
++  if(!core?.state||!core?.hostControls||typeof core.requestGear!=='function'||typeof step!=='function')
++    throw Error('缺少原始傳動系統或物理步進器');
++  if(!Number.isInteger(gear)||gear < -1||gear > 6)throw Error('無效的手排檔位');
++  if(core.state.pendingGear!==null)return {ok:false,reason:'同步器正在換檔，請稍候'};
++  const speed=Math.max(Math.abs(core.state.velocity||0),Math.abs(extraSpeed));
++  if(gear!==0&&speed>.28)return {ok:false,reason:'車輛尚未完全停穩；禁止從設定畫面強制入檔'};
++  if(gear===0){
++    const ok=core.requestGear(0);
++    return {ok,reason:ok?'已排入空檔':'原始變速箱拒絕空檔請求'};
++  }
++  if(core.state.gear===gear)return {ok:true,reason:'目前已在該檔位'};
++  const host=core.hostControls;
++  const before={active:host.active,clutch:host.clutch,throttle:host.throttle,brake:host.brake};
++  try{
++    host.active=true;host.clutch=1;host.throttle=0;host.brake=1;
++    // Let the ORIGINAL pedal slew dynamics reach the fully-separated clutch.
++    let ready=false;
++    for(let i=0;i<45;i++){
++      step();
++      if(core.state.clutch>=.85){ready=true;break;}
++      if(i%20===19)await yieldFrame();
++    }
++    if(!ready)return {ok:false,reason:'離合器未能分離，已取消排檔'};
++    if(!core.requestGear(gear))return {ok:false,reason:'原始變速箱拒絕此檔位（可能為倒檔鎖定或同步器條件）'};
++    for(let i=0;i<maxSteps;i++){
++      step();
++      if(core.state.gear===gear&&core.state.pendingGear===null)
++        return {ok:true,reason:'已透過原始離合器及同步器排入 '+(gear===-1?'R':gear)+' 檔'};
++      if(core.state.pendingGear===null)
++        return {ok:false,reason:'原始同步器未能完成排檔'};
++      if(i%20===19)await yieldFrame();
++    }
++    // If the original synchronizer is still pending, DO NOT force an engagement.
++    return {ok:false,reason:'同步器逾時；請排回空檔重新操作'};
++  }finally{
++    host.active=before.active;
++    host.clutch=before.clutch;host.throttle=before.throttle;host.brake=before.brake;
++  }
++}
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/desktop3d/src/obstacles.mjs SHIFT_LAB_V1.8.9.2/desktop3d/src/obstacles.mjs
+--- _baseline_v1891/desktop3d/src/obstacles.mjs	2026-10-21 02:52:56.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/desktop3d/src/obstacles.mjs	2026-10-21 06:58:54.918544577 +0000
+@@ -72,7 +72,14 @@
+       this.road.barrierHandles.delete(o.collider.handle);
+       if(o.ground)this.road.groundHandles.delete(o.collider.handle);
+       this.world.removeCollider(o.collider,true);this.scene.remove(o.mesh);
+-      o.mesh.traverse(mesh=>{if(mesh.geometry)mesh.geometry.dispose();});
++      const materials=new Set();
++      o.mesh.traverse(mesh=>{
++        if(mesh.geometry)mesh.geometry.dispose();
++        if(mesh.material){
++          for(const material of (Array.isArray(mesh.material)?mesh.material:[mesh.material]))materials.add(material);
++        }
++      });
++      for(const material of materials)material.dispose();
+     }
+     this.objects=[];
+   }
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/desktop3d/src/physics-health.mjs SHIFT_LAB_V1.8.9.2/desktop3d/src/physics-health.mjs
+--- _baseline_v1891/desktop3d/src/physics-health.mjs	1970-01-01 00:00:00.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/desktop3d/src/physics-health.mjs	2026-10-21 06:59:55.407719081 +0000
+@@ -0,0 +1,26 @@
++// Fail closed on non-finite dynamics before corrupt values reach WebGL or QA.
++// A valid crash is reported rather than silently teleported away.
++export function assertPhysicsHealth(body,core,{maxPosition=100000,maxSpeed=1000}={}){
++  if(!body||!core)throw Error('3D 物理核心未建立');
++  for(const [label,vector] of [
++    ['position',body.translation()],['linearVelocity',body.linvel()],
++    ['angularVelocity',body.angvel()],['rotation',body.rotation()]]){
++    if(!vector||!['x','y','z'].every(axis=>Number.isFinite(vector[axis]))||
++      (label==='rotation'&&!Number.isFinite(vector.w)))
++      throw new Error('3D 剛體 '+label+' 出現非有限數值');
++  }
++  const p=body.translation(),v=body.linvel();
++  if(Math.max(Math.abs(p.x),Math.abs(p.y),Math.abs(p.z))>maxPosition)
++    throw new Error('3D 剛體超出安全空間界限');
++  if(Math.hypot(v.x,v.y,v.z)>maxSpeed)
++    throw new Error('3D 剛體速度異常');
++  const state=core.state;
++  for(const key of ['velocity','engineOmega','clutch','throttle','brake'])
++    if(!Number.isFinite(state[key]))throw new Error('傳動系統 '+key+' 出現非有限數值');
++  for(const id of core.WHEEL_IDS||[]){
++    const wheel=core.wheelModel[id];
++    for(const key of ['omega','normal'])
++      if(!Number.isFinite(wheel?.[key]))throw new Error('車輪 '+id+'.'+key+' 出現非有限數值');
++  }
++  return true;
++}
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/desktop3d/src/road.mjs SHIFT_LAB_V1.8.9.2/desktop3d/src/road.mjs
+--- _baseline_v1891/desktop3d/src/road.mjs	2026-10-21 04:30:48.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/desktop3d/src/road.mjs	2026-10-21 06:58:54.918372452 +0000
+@@ -138,6 +138,17 @@
+     // AcceptanceObstacles.dispose() must run before clear(); foreign ground
+     // handles (e.g. ramp) are never silently deleted by this RoadWorld.
+   }
++  resourceStats(){
++    return {chunks:this.chunks.size,ground:this.groundHandles.size,
++      rails:this.railHandles.size,barriers:this.barrierHandles.size,
++      obstacles:this.obstacleHandles.size};
++  }
++  assertClean(){
++    const stats=this.resourceStats();
++    if(Object.values(stats).some(count=>count!==0))
++      throw new Error('道路重建後仍殘留碰撞資源：'+JSON.stringify(stats));
++    return true;
++  }
+   ensure(s){
+     const here=Math.floor(Math.max(0,s)/100);
+     const begin=Math.max(0,here-2),end=here+4;
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/desktop3d/tests/browser_v187.py SHIFT_LAB_V1.8.9.2/desktop3d/tests/browser_v187.py
+--- _baseline_v1891/desktop3d/tests/browser_v187.py	2026-10-21 02:57:24.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/desktop3d/tests/browser_v187.py	2026-10-21 07:01:26.124420140 +0000
+@@ -1,57 +1,9 @@
+-"""Actual Chromium+Rapier+WebGL smoke/acceptance check (requires npm install + npm run dev).
++"""Compatibility command for older v1.8.7 browser QA documentation.
+ 
+-Usage: python desktop3d/tests/browser_v187.py --url http://127.0.0.1:5173/
+-
+-Returns nonzero on launch/scene/QA failures. This is a REAL runtime browser test,
+-unlike source-only checks. JSON and screenshot output are kept under desktop3d/tests/artifacts.
++All real-browser test coverage now lives in browser_v1892.py and uses the
++single-page modes instead of clicking an invisible #drive-now button.
+ """
+-import argparse,json,sys,time
+-from pathlib import Path
+-from playwright.sync_api import sync_playwright
+-
+-def main():
+-    ap=argparse.ArgumentParser()
+-    ap.add_argument('--url',default='http://127.0.0.1:5173/')
+-    ap.add_argument('--browser',default='/usr/bin/chromium',help='Chromium executable, empty for Playwright bundled version')
+-    ap.add_argument('--timeout',type=int,default=180000)
+-    args=ap.parse_args()
+-    out=Path(__file__).resolve().parent/'artifacts';out.mkdir(exist_ok=True)
+-    errors=[]
+-    with sync_playwright() as p:
+-        options={'headless':True,'args':['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-webgl','--enable-unsafe-swiftshader']}
+-        if args.browser and Path(args.browser).is_file():options['executable_path']=args.browser
+-        browser=p.chromium.launch(**options)
+-        page=browser.new_page(viewport={'width':1600,'height':920})
+-        page.on('pageerror',lambda error:errors.append(str(error)))
+-        try:
+-            page.goto(args.url,wait_until='domcontentloaded',timeout=30000)
+-            page.wait_for_function("window.__SHIFT_LAB_3D_QA__?.ready===true",timeout=30000)
+-            # Diagnostic only: capture whether free mode actually exposes keyboard input
+-            # and viable suspension BEFORE running the collision suite.
+-            page.locator('#drive-now').click()
+-            page.keyboard.down('w')
+-            page.wait_for_timeout(1500)
+-            free_snapshot=page.evaluate('window.__SHIFT_LAB_3D_QA__.snapshot()')
+-            page.keyboard.up('w')
+-            (out/'v187_free_drive_probe.json').write_text(json.dumps(free_snapshot,indent=2,ensure_ascii=False))
+-            print('Free drive probe:',{k:free_snapshot.get(k) for k in
+-                ['contacts','rayHits','invalidWheelLoads','speed','driverMode','focus','inputKeys']})
+-            report=page.evaluate('async()=>await window.__SHIFT_LAB_3D_QA__.runSuite()')
+-            (out/'v187_browser_report.json').write_text(json.dumps(report,indent=2,ensure_ascii=False))
+-            page.screenshot(path=str(out/'v187_browser_screenshot.png'),full_page=False)
+-            for item in report:
+-                print(('PASS' if item['pass'] else 'FAIL')+' '+item['scenario'],
+-                      {k:round(v,3) if isinstance(v,float) else v for k,v in item['metrics'].items()
+-                       if k in ['barrierHits','railHits','maxImpactImpulse','maxBarrierPenetration','maxBeyondBarrier','nonFiniteSteps']})
+-            assert not errors,errors
+-            assert len(report)==5,report
+-            assert all(x['pass'] for x in report),[(x['scenario'],[c for c in x['checks'] if not c['passed']]) for x in report]
+-            print('PASS: REAL WebGL / Rapier v1.8.7 browser acceptance')
+-        except Exception as exc:
+-            page.screenshot(path=str(out/'v187_browser_failure.png'))
+-            (out/'v187_errors.json').write_text(json.dumps({'error':str(exc),'pageErrors':errors,
+-                'status':page.locator('#status').inner_text() if page.locator('#status').count() else None},ensure_ascii=False,indent=2))
+-            raise
+-        finally:browser.close()
++from browser_v1892 import main
+ 
+-if __name__=='__main__':main()
++if __name__ == '__main__':
++    main()
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/desktop3d/tests/browser_v1892.py SHIFT_LAB_V1.8.9.2/desktop3d/tests/browser_v1892.py
+--- _baseline_v1891/desktop3d/tests/browser_v1892.py	1970-01-01 00:00:00.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/desktop3d/tests/browser_v1892.py	2026-10-21 07:01:26.122135531 +0000
+@@ -0,0 +1,128 @@
++"""Real Chromium/WebGL2/Rapier v1.8.9.2 end-to-end acceptance.
++
++Needs installed npm dependencies, running Vite server, Playwright + Chromium.
++python desktop3d/tests/browser_v1892.py --url http://127.0.0.1:5173/ \
++    --drive-seconds 8 --map-rebuilds 3
++For a 30-minute soak, pass --drive-seconds 1800.
++
++This checks the real WASM instance; JS mock/unit tests cannot replace it.
++"""
++import argparse
++import json
++from datetime import datetime, timezone
++from pathlib import Path
++from playwright.sync_api import sync_playwright
++
++HERE = Path(__file__).resolve().parent
++
++
++def main():
++    parser = argparse.ArgumentParser()
++    parser.add_argument('--url', default='http://127.0.0.1:5173/')
++    parser.add_argument('--browser', default='/usr/bin/chromium')
++    parser.add_argument('--timeout', type=int, default=180000)
++    parser.add_argument('--drive-seconds', type=int, default=8)
++    parser.add_argument('--map-rebuilds', type=int, default=3)
++    parser.add_argument('--skip-suite', action='store_true')
++    args = parser.parse_args()
++    out = HERE / 'artifacts'
++    out.mkdir(parents=True, exist_ok=True)
++    errors = []
++    results = {'version': '1.8.9.2', 'started': datetime.now(timezone.utc).isoformat(),
++               'url': args.url, 'driveSeconds': args.drive_seconds,
++               'mapRebuilds': args.map_rebuilds}
++    with sync_playwright() as pw:
++        opts = {'headless': True, 'args': ['--no-sandbox', '--use-gl=angle',
++                '--use-angle=swiftshader', '--enable-webgl', '--enable-unsafe-swiftshader']}
++        if args.browser and Path(args.browser).is_file():
++            opts['executable_path'] = args.browser
++        browser = pw.chromium.launch(**opts)
++        page = browser.new_page(viewport={'width': 1600, 'height': 920})
++        page.on('pageerror', lambda error: errors.append(str(error)))
++        try:
++            page.goto(args.url, wait_until='domcontentloaded', timeout=30000)
++            page.wait_for_function('window.__SHIFT_LAB_3D_QA__?.ready===true', timeout=args.timeout)
++            version = page.evaluate('window.__SHIFT_LAB_3D_QA__.version')
++            assert version == '1.8.9.2', f'Unexpected runtime {version}'
++
++            # Switch through the actual mode controller, not an invisible QA button.
++            page.evaluate("window.__SHIFT_LAB_3D_QA__.openMode('drive')")
++            page.locator('#view').click(position={'x': 130, 'y': 110})
++            page.keyboard.down('w')
++            page.wait_for_timeout(1200)
++            page.keyboard.up('w')
++            free = page.evaluate('window.__SHIFT_LAB_3D_QA__.snapshot()')
++            results['freeDrive'] = free
++            assert free['ready'] and free['uiMode'] == 'drive', free
++            assert free['invalidWheelLoads'] == 0, free
++            assert free['rayHits'] > 0, free
++            assert free['driverMode'] == 'assisted', free
++            # Backed by live keyboard events: automatic ignores manual gearbox.
++            page.keyboard.press('Shift+6')
++            page.keyboard.press('2')
++            snap = page.evaluate('window.__SHIFT_LAB_3D_QA__.snapshot()')
++            assert 'shift' not in snap['inputKeys'], snap
++
++            page.evaluate("window.__SHIFT_LAB_3D_QA__.openMode('settings')")
++            page.locator('#car-preset').select_option('diesel')
++            assert page.locator('#car-preset').input_value() == 'diesel'
++            page.locator('#drive-mode').select_option('manual')
++            page.locator('#gear').select_option('1')
++            page.wait_for_function("document.querySelector('#input-status').textContent.includes('已透過原始離合器')", timeout=30000)
++            manual = page.evaluate('window.__SHIFT_LAB_3D_QA__.snapshot()')
++            results['parkedManualShift'] = manual
++            assert manual['gear'] == 1 and manual['pendingGear'] is None, manual
++
++            base = page.evaluate('window.__SHIFT_LAB_3D_QA__.savedMap.seed')
++            for i in range(args.map_rebuilds):
++                seed = f'V1892-SMOKE-{i:03}'
++                page.evaluate('(seed)=>window.__SHIFT_LAB_3D_QA__.applyMap({...window.__SHIFT_LAB_3D_QA__.map,seed})', seed)
++                snap = page.evaluate('window.__SHIFT_LAB_3D_QA__.snapshot()')
++                assert snap['mapSeed'] == seed, snap
++                assert snap['roadResources']['chunks'] >= 2, snap
++                assert snap['roadResources']['obstacles'] == 0, snap
++            results['mapRebuildsComplete'] = args.map_rebuilds
++            results['previousSeed'] = base
++
++            # Return to automatic and prove a prolonged drive does not corrupt the body.
++            page.locator('#drive-mode').select_option('assisted')
++            page.evaluate("window.__SHIFT_LAB_3D_QA__.openMode('drive')")
++            page.locator('#view').click(position={'x': 130, 'y': 110})
++            page.keyboard.down('w')
++            seconds = max(0, args.drive_seconds)
++            for _ in range(seconds):
++                page.wait_for_timeout(1000)
++                snap = page.evaluate('window.__SHIFT_LAB_3D_QA__.snapshot()')
++                assert snap['ready'] and snap['invalidWheelLoads'] == 0, snap
++                assert snap['speed'] < 280, snap
++            page.keyboard.up('w')
++            results['enduranceFinal'] = page.evaluate('window.__SHIFT_LAB_3D_QA__.snapshot()')
++
++            if not args.skip_suite:
++                page.evaluate("window.__SHIFT_LAB_3D_QA__.openMode('tests')")
++                report = page.evaluate('async()=>await window.__SHIFT_LAB_3D_QA__.runSuite()')
++                results['suite'] = report
++                assert len(report) == 5, report
++                assert all(item['pass'] for item in report), [
++                    (item['scenario'], [x for x in item['checks'] if not x['passed']])
++                    for item in report]
++            assert not errors, errors
++            print('PASS v1.8.9.2 real Chromium/WebGL2/Rapier acceptance')
++        except Exception as exc:
++            results['failure'] = str(exc)
++            try:
++                page.screenshot(path=str(out / 'v1892_browser_failure.png'))
++                results['visibleStatus'] = page.locator('#status').inner_text()
++            except Exception:
++                pass
++            raise
++        finally:
++            results['pageErrors'] = errors
++            results['finished'] = datetime.now(timezone.utc).isoformat()
++            (out / 'v1892_browser_report.json').write_text(
++                json.dumps(results, ensure_ascii=False, indent=2), encoding='utf-8')
++            browser.close()
++
++
++if __name__ == '__main__':
++    main()
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/desktop3d/tests/validate-auto-transmission.mjs SHIFT_LAB_V1.8.9.2/desktop3d/tests/validate-auto-transmission.mjs
+--- _baseline_v1891/desktop3d/tests/validate-auto-transmission.mjs	2026-10-21 04:50:48.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/desktop3d/tests/validate-auto-transmission.mjs	2026-10-21 07:05:03.990348300 +0000
+@@ -30,4 +30,18 @@
+ }
+ assert.equal(isAutomaticMode('assisted'),true);
+ assert.equal(isAutomaticMode('manual'),false);
+-console.log('PASS v1.8.9.1 automatic transmission: 4 vehicles, shifts on braking, starting, pending, stall guard, no hunting');
++// Monotonic braking from high speed must return to launch gear for every preset.
++for(const name of Object.keys(cars)){
++  let current=6;
++  for(let speed=34;speed>=0;speed-=.25){
++    const requested=decide(name,current,speed,{throttle:0,brake:1});
++    if(requested!==null){
++      assert.ok(requested<=current,`${name}: braking should not upshift at ${speed} m/s`);
++      assert.ok(requested===current-1||requested===1,
++        `${name}: downshift step cannot skip intermediate gears except near halt`);
++      current=requested;
++    }
++  }
++  assert.equal(current,1,`${name}: braking to a stop must reach first gear`);
++}
++console.log('PASS v1.8.9.2 automatic transmission: 4 vehicles, braking to first, no manual override, no hunting');
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/desktop3d/tests/validate-manual-gear.mjs SHIFT_LAB_V1.8.9.2/desktop3d/tests/validate-manual-gear.mjs
+--- _baseline_v1891/desktop3d/tests/validate-manual-gear.mjs	1970-01-01 00:00:00.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/desktop3d/tests/validate-manual-gear.mjs	2026-10-21 06:56:58.214815788 +0000
+@@ -0,0 +1,33 @@
++import assert from 'node:assert/strict';
++import {engageParkedManualGear} from '../src/manual-gear.mjs';
++const makeCore=()=>({
++  state:{gear:0,pendingGear:null,velocity:0,clutch:0},
++  hostControls:{active:false,clutch:0,brake:0,throttle:0},requests:[],ticks:0,
++  requestGear(g){this.requests.push(g);
++    if(g===0){this.state.pendingGear=null;this.state.gear=0;return true;}
++    if(this.state.clutch<.78)return false;
++    this.state.gear=0;this.state.pendingGear=g;return true;},
++  step(){this.ticks++;
++    const s=this.state,h=this.hostControls;
++    s.clutch=Math.min(1,s.clutch+(h.clutch-s.clutch)*.16);
++    if(s.pendingGear!==null&&this.ticks>22){s.gear=s.pendingGear;s.pendingGear=null;}
++  }
++});
++let c=makeCore(),result=await engageParkedManualGear({core:c,gear:3,step:()=>c.step()});
++assert.equal(result.ok,true,result.reason);assert.equal(c.state.gear,3);
++assert.deepEqual(c.requests,[3]);assert.equal(c.hostControls.clutch,0);
++assert.ok(c.ticks>=22,'physical clutch and synchronizer must progress');
++c=makeCore();c.state.velocity=4;
++result=await engageParkedManualGear({core:c,gear:1,step:()=>c.step()});
++assert.equal(result.ok,false);assert.deepEqual(c.requests,[]);assert.equal(c.ticks,0);
++c=makeCore();c.state.pendingGear=4;
++result=await engageParkedManualGear({core:c,gear:2,step:()=>c.step()});
++assert.equal(result.ok,false);assert.equal(c.ticks,0);
++c=makeCore();result=await engageParkedManualGear({core:c,gear:0,step:()=>c.step()});
++assert.equal(result.ok,true);assert.equal(c.ticks,0);
++c=makeCore();c.requestGear=()=>false;
++result=await engageParkedManualGear({core:c,gear:-1,step:()=>c.step()});
++assert.equal(result.ok,false);assert.equal(c.hostControls.brake,0);
++c=makeCore();result=await engageParkedManualGear({core:c,gear:1,step:()=>c.step(),extraSpeed:1});
++assert.equal(result.ok,false);assert.equal(c.ticks,0);
++console.log('PASS v1.8.9.2 manual selector: stationary clutch actuation, synchro, lockout, no direct gear mutation');
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/desktop3d/tests/validate-physics-health.mjs SHIFT_LAB_V1.8.9.2/desktop3d/tests/validate-physics-health.mjs
+--- _baseline_v1891/desktop3d/tests/validate-physics-health.mjs	1970-01-01 00:00:00.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/desktop3d/tests/validate-physics-health.mjs	2026-10-21 06:59:55.408618613 +0000
+@@ -0,0 +1,17 @@
++import assert from 'node:assert/strict';
++import {assertPhysicsHealth} from '../src/physics-health.mjs';
++const body={translation:()=>({x:0,y:.5,z:70}),linvel:()=>({x:0,y:0,z:0}),
++  angvel:()=>({x:0,y:0,z:0}),rotation:()=>({x:0,y:0,z:0,w:1})};
++const core={state:{velocity:0,engineOmega:100,clutch:0,throttle:0,brake:0},
++  WHEEL_IDS:['FL','FR','RL','RR'],wheelModel:Object.fromEntries(
++    ['FL','FR','RL','RR'].map(x=>[x,{omega:0,normal:3200}]))};
++assert.equal(assertPhysicsHealth(body,core),true);
++const bad={...body,translation:()=>({x:NaN,y:0,z:0})};
++assert.throws(()=>assertPhysicsHealth(bad,core),/position/);
++assert.throws(()=>assertPhysicsHealth({...body,linvel:()=>({x:1001,y:0,z:0})},core),/速度異常/);
++assert.throws(()=>assertPhysicsHealth({...body,rotation:()=>({x:0,y:0,z:0,w:NaN})},core),/rotation/);
++core.wheelModel.FL.normal=Infinity;
++assert.throws(()=>assertPhysicsHealth(body,core),/FL.normal/);
++core.wheelModel.FL.normal=3200;core.state.engineOmega=NaN;
++assert.throws(()=>assertPhysicsHealth(body,core),/engineOmega/);
++console.log('PASS v1.8.9.2 3D/non-finite health gate: pose, velocity, rotation, drivetrain, each wheel');
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/desktop3d/tests/validate-road-reset.mjs SHIFT_LAB_V1.8.9.2/desktop3d/tests/validate-road-reset.mjs
+--- _baseline_v1891/desktop3d/tests/validate-road-reset.mjs	2026-10-21 04:29:20.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/desktop3d/tests/validate-road-reset.mjs	2026-10-21 07:05:03.990203765 +0000
+@@ -53,13 +53,15 @@
+ assert.equal(road.groundHandles.size,0);
+ assert.equal(road.railHandles.size,0);
+ assert.equal(road.chunks.size,0);
++assert.equal(road.assertClean(),true);
++assert.deepEqual(road.resourceStats(),{chunks:0,ground:0,rails:0,barriers:0,obstacles:0});
+ assert.ok([...firstHandles].every(h=>removed.has(h)));
+ physics.route.seedHash=998;
+ road.ensure(70);
+ assert.ok(road.groundHandles.size>=3);
+ assert.ok([...active.keys()].every(h=>!firstHandles.has(h)),'reused or leaked handles');
+-road.clear();
++road.clear();road.assertClean();
+ assert.equal(active.size,0);
+ assert.equal(view.size,0);
+ assert.ok(created.size>removed.size-1 && created.size===removed.size);
+-console.log('PASS v1.8.9 road generation/rebuild clears every collider and visual chunk');
++console.log('PASS v1.8.9.2 road generation/rebuild: zero orphan colliders and render chunks');
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/index.html SHIFT_LAB_V1.8.9.2/index.html
+--- _baseline_v1891/index.html	2026-10-21 04:54:20.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/index.html	2026-10-21 06:59:54.888625164 +0000
+@@ -1,8 +1,8 @@
+ <!doctype html>
+ <html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+-<title>SHIFT LAB v1.8.9.1 · 單一遊玩入口</title>
++<title>SHIFT LAB v1.8.9.2 · 單一遊玩入口</title>
+ <style>body{font:16px/1.7 system-ui,'Microsoft JhengHei',sans-serif;background:#081622;color:#dcefee;max-width:660px;margin:12vh auto;padding:28px}a{color:#8fe9ca}h1{font-size:25px}</style></head>
+-<body><h1>SHIFT LAB v1.8.9.1</h1><p>本專案現在只有一個玩家操作介面：純遊戲畫面、統一設定、獨立物理測試及隨機地圖生成整合在同一網頁。</p>
++<body><h1>SHIFT LAB v1.8.9.2</h1><p>本專案現在只有一個玩家操作介面：純遊戲畫面、統一設定、獨立物理測試及隨機地圖生成整合在同一網頁。</p>
+ <p>如正在使用本機 Vite 服務，請開啟 <a href="./desktop3d/">3D 網頁遊戲</a>。
+ 部署到網站後，請使用 <code>desktop3d/dist/</code> 作為網站根目錄，進站後即可遊玩。</p>
+ <p id="file-advice">Windows 本機初次啟動可執行 <code>START_WEB_WINDOWS.cmd</code>（需安裝 Node.js），或於 desktop3d 目錄執行 npm install、npm run dev。</p>
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/tests/RUN_V1892_QA.sh SHIFT_LAB_V1.8.9.2/tests/RUN_V1892_QA.sh
+--- _baseline_v1891/tests/RUN_V1892_QA.sh	1970-01-01 00:00:00.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/tests/RUN_V1892_QA.sh	2026-10-21 07:13:33.399889177 +0000
+@@ -0,0 +1,10 @@
++#!/bin/sh
++# Source / legacy-browser regressions. The true Rapier WASM test is separate.
++set -eu
++cd "$(dirname "$0")/.."
++for test in desktop3d/tests/validate-*.mjs; do node "$test"; done
++for test in tests/test_v*.py; do
++  echo "=== $(basename "$test") ==="
++  python -m unittest discover -s tests -p "$(basename "$test")" -v
++done
++echo "PASS: source + legacy iframe QA. Run desktop3d/tests/browser_v1892.py for REAL WASM/WebGL acceptance."
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/tests/RUN_V1892_QA_WINDOWS.cmd SHIFT_LAB_V1.8.9.2/tests/RUN_V1892_QA_WINDOWS.cmd
+--- _baseline_v1891/tests/RUN_V1892_QA_WINDOWS.cmd	1970-01-01 00:00:00.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/tests/RUN_V1892_QA_WINDOWS.cmd	2026-10-21 07:13:33.400450149 +0000
+@@ -0,0 +1,13 @@
++@echo off
++setlocal
++cd /d "%~dp0.."
++for %%F in (desktop3d\tests\validate-*.mjs) do (
++  node "%%F"
++  if errorlevel 1 exit /b 1
++)
++for %%F in (tests\test_v*.py) do (
++  echo ==== %%~nxF ====
++  python -m unittest discover -s tests -p "%%~nxF" -v
++  if errorlevel 1 exit /b 1
++)
++echo Source and legacy iframe QA finished. Browser/WebGL checks: python desktop3d\tests\browser_v1892.py
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/tests/route_switch_probe.py SHIFT_LAB_V1.8.9.2/tests/route_switch_probe.py
+--- _baseline_v1891/tests/route_switch_probe.py	2026-10-21 04:51:20.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/tests/route_switch_probe.py	2026-10-21 07:10:39.828326935 +0000
+@@ -3,8 +3,8 @@
+ from playwright.sync_api import sync_playwright
+ D=Path(__file__).resolve().parents[1]/'desktop3d'
+ html=(D/'index.html').read_text().replace('src="./physics.html"','src="about:blank"').replace('<script type="module" src="./src/main.mjs"></script>','')
+-helper='\n'.join((D/'src'/name).read_text().replace('export const','const').replace('export function','function') for name in ['steering-input.mjs','procedural-map.mjs','game-modes.mjs','automatic-transmission.mjs'])
+-sc=(D/'src/scenarios.mjs').read_text().replace('export const','const').replace('export function','function')
++helper='\n'.join((D/'src'/name).read_text().replace('export const','const').replace('export async function','async function').replace('export function','function') for name in ['steering-input.mjs','procedural-map.mjs','game-modes.mjs','automatic-transmission.mjs','manual-gear.mjs','physics-health.mjs'])
++sc=(D/'src/scenarios.mjs').read_text().replace('export const','const').replace('export async function','async function').replace('export function','function')
+ main=re.sub(r'^import .*?;\s*$', '', (D/'src/main.mjs').read_text(), flags=re.MULTILINE).replace('boot().catch(failure);','')
+ extra='''
+ window.__V189_ROUTE_PROBE__={
+@@ -12,13 +12,16 @@
+     d=document.getElementById('physics').contentWindow.__SHIFT_LAB_DEBUG__;
+     labReady=true;let p;
+     const self=this;
+-    road={clear(){self.calls.push('clear');},ensure(s){self.calls.push('ensure:'+Math.floor(s));},
++    road={clear(){self.calls.push('clear');},assertClean(){self.calls.push('assertClean');return true;},
++      resourceStats(){return {chunks:6,ground:6,rails:20,barriers:0,obstacles:0};},
++      ensure(s){self.calls.push('ensure:'+Math.floor(s));},
+       position(s,side){const q=d.roadPointAt(s);return {x:q.x,y:q.y,z:q.z}}};
+     obstacles={activeScenario:'free',barrierCenter:{z:104},dispose(){self.calls.push('dispose');},
+       configure(id){self.calls.push('scenario:'+id)}};
+     world={updateSceneQueries(){self.calls.push('updateQueries')}};
+     const fakeBody={mass(){return d.params.mass},translation(){return {x:0,y:2,z:0}},
+-      linvel(){return {x:0,y:0,z:0}},angvel(){return {x:0,y:0,z:0}}};
++      linvel(){return {x:0,y:0,z:0}},angvel(){return {x:0,y:0,z:0}},
++      rotation(){return {x:0,y:0,z:0,w:1}}};
+     bridge={rigidBody:fakeBody,collider:{},maxExternalForceN:0,maxExternalTorqueNm:0,
+       invalidWheelLoads:0,wheelCastHits:0,wheelCastMisses:0,
+       railHits:0,barrierHits:0,maxImpactImpulse:0,maxBarrierPenetration:0,
+@@ -30,7 +33,9 @@
+   calls:[],
+   regenerate(seed){applyMap({...REFERENCE_MAP,seed});return {...d.route.config};},
+   qa(){resetDriving('settle');return d.route.config.seed;},
+-  free(){resetDriving('free');return d.route.config.seed;}
++  free(){resetDriving('free');return d.route.config.seed;},
++  gear(){return {gear:d.state.gear,pending:d.state.pendingGear,clutch:d.state.clutch};}
++
+ };
+ '''
+ with sync_playwright() as pw:
+@@ -50,5 +55,14 @@
+  assert page.evaluate('window.__V189_ROUTE_PROBE__.qa()')=='SHIFT-2026-MOUNTAIN-07'
+  assert page.evaluate('window.__V189_ROUTE_PROBE__.free()')=='V189-CHOSEN'
+  calls=page.evaluate('window.__V189_ROUTE_PROBE__.calls');assert calls.count('clear')==3 and calls.count('dispose')==3 and calls.count('updateQueries')==3,calls
++ # Test the actual legacy clutch/synchronizer with the paused settings UI.
++ page.evaluate("document.getElementById('drive-mode').value='manual'; document.getElementById('drive-mode').dispatchEvent(new Event('change'))")
++ page.evaluate("window.__V189_ROUTE_PROBE__.free()")
++ page.evaluate("openGameMode('settings')")
++ page.locator('#gear').select_option('1')
++ page.wait_for_function("document.getElementById('input-status').textContent.includes('已透過原始離合器')",timeout=18000)
++ gear=page.evaluate('window.__V189_ROUTE_PROBE__.gear()')
++ assert gear['gear']==1 and gear['pending'] is None,gear
++ print('PASS real four-wheel iframe physics: paused manual settings -> clutch -> synchronizer -> first gear')
+  print('PASS 3D-host map regenerate -> reference QA -> restored user route')
+  b.close()
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/tests/test_v187.py SHIFT_LAB_V1.8.9.2/tests/test_v187.py
+--- _baseline_v1891/tests/test_v187.py	2026-10-21 04:54:20.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/tests/test_v187.py	2026-10-21 07:07:08.812302132 +0000
+@@ -75,7 +75,7 @@
+ 
+     def test_version_and_start_scripts_exist(self):
+         package=json.loads((THREE/'package.json').read_text())
+-        self.assertEqual(package['version'],'1.8.9-hotfix.1')
++        self.assertEqual(package['version'],'1.8.9-hotfix.2')
+         self.assertIn('rapier3d-compat',str(package['dependencies']))
+         self.assertTrue((THREE/'START_WINDOWS.cmd').exists())
+         self.assertTrue((THREE/'START_UNIX.sh').exists())
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/tests/test_v188.py SHIFT_LAB_V1.8.9.2/tests/test_v188.py
+--- _baseline_v1891/tests/test_v188.py	2026-10-21 04:54:20.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/tests/test_v188.py	2026-10-21 07:07:08.813880704 +0000
+@@ -47,7 +47,7 @@
+ 
+     def test_web_dependency_contract(self):
+         pkg=json.loads((WEB/'package.json').read_text())
+-        self.assertEqual(pkg['version'],'1.8.9-hotfix.1')
++        self.assertEqual(pkg['version'],'1.8.9-hotfix.2')
+         self.assertEqual(pkg['dependencies']['three'],'0.180.0')
+         self.assertEqual(pkg['dependencies']['@dimforge/rapier3d-compat'],'0.18.2')
+         self.assertTrue((ROOT/'START_WEB_WINDOWS.cmd').is_file())
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/tests/test_v189.py SHIFT_LAB_V1.8.9.2/tests/test_v189.py
+--- _baseline_v1891/tests/test_v189.py	2026-10-21 04:33:26.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/tests/test_v189.py	2026-10-21 07:07:08.814104668 +0000
+@@ -14,7 +14,7 @@
+     def test_road_rebuild_clears_all_physics_and_visual_objects(self):
+         p=subprocess.run(['node',str(WEB/'tests/validate-road-reset.mjs')],capture_output=True,text=True)
+         self.assertEqual(p.returncode,0,p.stderr)
+-        self.assertIn('PASS v1.8.9 road',p.stdout)
++        self.assertIn('PASS v1.8.9.2 road',p.stdout)
+ 
+     def test_physics_solver_and_qa_scenarios_unmodified(self):
+         base=Path('/mnt/data/SHIFT_LAB_V1.8.8_Unified_Web_Drive/desktop3d')
+@@ -27,7 +27,7 @@
+         self.assertIn('const desired=id===\'free\'?userMapConfig:REFERENCE_MAP',code)
+         self.assertIn('obstacles.dispose();',code)
+         self.assertIn('road.clear();',code)
+-        self.assertIn('d.generateRoad(config)',code)
++        self.assertIn('d.generateRoad(next)',code)
+         road=(WEB/'src/road.mjs').read_text()
+         self.assertIn('this.world.removeCollider(chunk.collider,true)',road)
+         self.assertIn('this.scene.remove(chunk.mesh)',road)
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/tests/test_v1891.py SHIFT_LAB_V1.8.9.2/tests/test_v1891.py
+--- _baseline_v1891/tests/test_v1891.py	2026-10-21 04:51:20.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/tests/test_v1891.py	2026-10-21 07:09:13.063702498 +0000
+@@ -14,7 +14,7 @@
+         done=subprocess.run(['node',str(WEB/'tests/validate-auto-transmission.mjs')],
+                             capture_output=True,text=True,timeout=15)
+         self.assertEqual(done.returncode,0,done.stdout+done.stderr)
+-        self.assertIn('PASS v1.8.9.1',done.stdout)
++        self.assertIn('PASS v1.8.9.2',done.stdout)
+     def test_physics_and_collision_solver_unchanged(self):
+         old=Path('/mnt/data/SHIFT_LAB_V1.8.9_Procedural_Map_Game_UI/desktop3d')
+         if old.exists():
+diff -urN '--exclude=RELEASE_FILE_MANIFEST.json' '--exclude=V1.8.9.1_to_V1.8.9.2.patch' '--exclude=__pycache__' _baseline_v1891/tests/test_v1892.py SHIFT_LAB_V1.8.9.2/tests/test_v1892.py
+--- _baseline_v1891/tests/test_v1892.py	1970-01-01 00:00:00.000000000 +0000
++++ SHIFT_LAB_V1.8.9.2/tests/test_v1892.py	2026-10-21 07:05:46.891928190 +0000
+@@ -0,0 +1,54 @@
++"""SHIFT LAB v1.8.9.2 source integration and deterministic Node policies.
++
++Browser/Rapier acceptance is a separate test: desktop3d/tests/browser_v1892.py.
++"""
++from pathlib import Path
++import subprocess
++import unittest
++
++ROOT = Path(__file__).resolve().parents[1]
++WEB = ROOT / 'desktop3d'
++
++
++class StableIntegration(unittest.TestCase):
++    def test_new_transmission_and_health_guards(self):
++        for script in ('validate-auto-transmission.mjs', 'validate-manual-gear.mjs',
++                       'validate-physics-health.mjs', 'validate-road-reset.mjs'):
++            with self.subTest(script=script):
++                result = subprocess.run(['node', str(WEB / 'tests' / script)],
++                                        capture_output=True, text=True, timeout=15)
++                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
++                self.assertIn('PASS', result.stdout)
++
++    def test_single_page_and_diesel_preset_available(self):
++        html = (WEB / 'index.html').read_text(encoding='utf-8')
++        core = (WEB / 'public' / 'physics.html').read_text(encoding='utf-8')
++        self.assertIn('<option value="diesel">', html)
++        self.assertIn("diesel:{name:", core)
++        self.assertIn('id="gear"', html)
++        self.assertIn('id="tests-panel"', html)
++        self.assertIn('id="reload-game"', html)
++        self.assertIn('v1.8.9.2', html)
++
++    def test_live_main_integration_and_fail_closed(self):
++        source = (WEB / 'src' / 'main.mjs').read_text(encoding='utf-8')
++        for token in ('engageParkedManualGear', 'assertPhysicsHealth',
++                      'road.assertClean()', 'road.resourceStats()',
++                      "version:'1.8.9.2'", "if(!observe(data,start))break"):
++            with self.subTest(token=token):
++                self.assertIn(token, source)
++        self.assertNotIn("console.error('v1.8.9.1 game:'", source)
++
++    def test_current_real_browser_qa_not_hidden_button(self):
++        original = (WEB / 'tests' / 'browser_v187.py').read_text(encoding='utf-8')
++        current = (WEB / 'tests' / 'browser_v1892.py').read_text(encoding='utf-8')
++        self.assertIn('from browser_v1892 import main', original)
++        self.assertIn("openMode('drive')", current)
++        self.assertNotIn("locator('#drive-now').click()", current)
++        self.assertIn('runSuite()', current)
++        self.assertIn('map-rebuilds', current)
++        self.assertIn('drive-seconds', current)
++
++
++if __name__ == '__main__':
++    unittest.main(verbosity=2)

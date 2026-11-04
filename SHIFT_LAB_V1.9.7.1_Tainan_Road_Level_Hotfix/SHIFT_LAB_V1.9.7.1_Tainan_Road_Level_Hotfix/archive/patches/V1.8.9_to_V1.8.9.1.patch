@@ -1,0 +1,876 @@
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,3 +1,13 @@
++# SHIFT LAB v1.8.9.1 — 自排換檔修補（2026-10-21）
++
++- **修正**：自排降檔不再僅看 `engine RPM < 1200` 加速條件，而根據輪速／各檔齒比推算工作轉速，結合制動、油門、回差與換檔冷卻判斷。
++- **修正**：接近停車時直接回 1 檔、低轉速自動分離離合器避免熄火，維持原手排同步器和傳動物理。
++- **隔離**：自排時忽略 `Shift`（手排離合器）、數字鍵／小鍵盤檔位、`R`，並停用手排檔位下拉選單；不再因更改下拉檔位偷偷切成手排。
++- **保留**：手排模式完整的 Shift、1–6、0、R 換檔操作；單頁網頁、地圖、四輪力學、Rapier 碰撞和五項 QA 情境保持不變。
++- **驗證**：Node 四車型獨立自排策略測試、Chromium 真鍵盤隔離測試，以及真實 SHIFT LAB 引擎加速／制動／再加速回歸；3D WASM 仍需用戶瀏覽器複驗。
++
++---
++
+ # SHIFT LAB v1.8.9 · 程序化地圖與遊戲模式介面
+ 
+ - **新增**：全螢幕自由駕駛（速度／RPM／檔位 HUD）、集中設定與獨立 QA 測試抽屜。
+--- a/README.md
++++ b/README.md
+@@ -1,10 +1,10 @@
+-# SHIFT LAB v1.8.9 — 3D 網頁駕駛 × 種子隨機道路
++# SHIFT LAB v1.8.9.1 — 自排降檔與手／自排操作隔離
+ 
+ 目標：**玩家駕駛畫面精簡到 3D 場景、速度／轉速儀表及檔位**；車輛、手柄和隨機地圖集中於「設定」，物理診斷和固定五項驗收集中於「測試模式」。
+ 
+ ## Windows：在 Chrome／Edge 遊玩
+ 
+-1. 解壓縮 ZIP 到新資料夾，先關閉之前啟動的 v1.8.8 Vite 終端機。
++1. 解壓縮 ZIP 到新資料夾，先關閉之前啟動的舊版 Vite 終端機。
+ 2. 使用 Node.js 22+ 或 20.19+，雙擊根目錄 `START_WEB_WINDOWS.cmd`。
+ 3. 第一次需下載 npm 套件；成功後自動開啟 `http://127.0.0.1:5173/`。
+ 4. 在頁面直接按 `W/A/S/D` 駕駛。面板按鈕或 `Esc` 可開啟主選單。
+@@ -19,7 +19,7 @@
+ | 設定 | 車型、操控、手柄、地圖種子／彎道與坡度機率／路線預覽 | `F1` 或選單「設定」 |
+ | 測試 | 靜止、正面、斜角、高速 CCD、坡道，含報告與即時物理監測 | `F2` 或選單「測試模式」 |
+ 
+-`W/S` 油門／煞車；`A/D` 左右轉；`I` 發動；`M` 切換快速駕駛／手排；`Shift` 離合器；`1–6` 換檔，`0` 空檔，`R` 倒檔；`Space` 暫停；`Backspace` 重置車輛。設定／測試開啟後，鍵盤操作不會穿透到駕駛輸入。
++**自排（預設）：** `W/S` 油門／煞車，`A/D` 左右轉；變速箱依車速／齒比／油門／煞車自動升降檔。`Shift`、`1–6`、`0`、`R` 不會操作變速箱，手排檔位選單亦鎖定。**手排：** 按 `M` 切換後，可用 `Shift` 踩離合器、`1–6` 選檔、`0` 空檔、`R` 倒檔。`I` 發動、`Space` 暫停、`Backspace` 重置。設定／測試開啟後，按鍵不會穿透到駕駛輸入。
+ 
+ ## 原始隨機地圖生成器已接到 3D
+ 
+@@ -44,8 +44,12 @@
+ cd desktop3d && npm run qa:scenarios
+ ```
+ 
+-當前交付環境無法連線 npm 套件庫（EAI_AGAIN），所以 **v1.8.9 的真實 Rapier WASM／WebGL3D 運行尚未完成本機驗收**，未包含 `dist`。v1.8.8 通過 3D 實測是前一版的回報，不可代替 v1.8.9 實機驗收。建議按 `V189_QA.md` 先驗證隨機新地圖、返回 QA、再回到玩家地圖，最後再測五項固定碰撞工況。
++當前交付環境無法連線 npm 套件庫（EAI_AGAIN），所以 **v1.8.9.1 的真實 Rapier WASM／WebGL3D 運行尚未完成本機驗收**，未包含 `dist`。v1.8.8 通過 3D 實測是前一版的回報，不可代替 v1.8.9 實機驗收。建議按 `V189_QA.md` 先驗證隨機新地圖、返回 QA、再回到玩家地圖，最後再測五項固定碰撞工況。
+ 
+ - `V189_IMPLEMENTATION.md`：模組／狀態切換／物理碰撞地圖更新方案
+ - `V189_QA.md`：程式測試結果及實機驗收清單
+ - `V1.8.8_to_V1.8.9.patch`：本版程式改動
++
++- `V1891_AUTOMATIC_TRANSMISSION.md`：本輪自排降檔、手排隔離、限制與驗收步驟
++- `V1891_QA.md`：98+ 項回歸與四車型實際核心加減速測試
++- `V1.8.9_to_V1.8.9.1.patch`：自排修補程式差異
+--- /dev/null
++++ b/V1891_AUTOMATIC_TRANSMISSION.md
+@@ -0,0 +1,41 @@
++# SHIFT LAB v1.8.9.1 — 自排修補工程紀錄
++
++日期：2026-10-21　基準：v1.8.9　環境：桌面網頁 Three.js／Rapier + 隱藏四輪物理求解器。
++
++## 一、根因
++
++1. `desktop3d/src/main.mjs::updateAutoDrive()` 先前採用 `engineRPM < 1200` 且車速 `> 1.5m/s` 進行降檔。引擎怠速調節和離合器打滑可能讓引擎 RPM 與輪速脫鉤，因而錯過需要降檔的時間；接近停車時又被 `speed > 1.5m/s` 排除。
++2. `window.keydown` 對 `Digit1..6`、`Digit0`、`KeyR` 沒有模式檢查；`Shift` 又會透過隱藏計算核心的 `inputKeys` 直接踩離合器。即使選擇自排，Shift+數字鍵仍可觸發 `requestGear()`。
++3. 手排檔位下拉選單在自排下會**偷偷將模式切成手排**，造成模式污染。
++
++## 二、修補方式
++
++- 新增 `src/automatic-transmission.mjs`：獨立純函式排檔決策。輪速 x 齒比 x 終傳比 / 車輪半徑換算等效引擎 RPM，依目前檔位、油門、煞車與各車型怠速／紅線轉速計算目標檔位。
++- 升檔與降檔採不同門檻（遲滯），搭配 1 秒一般換檔冷卻，防止兩檔之間來回切換；車速小於 2.5m/s 時可直接選擇 1 檔，避免從高檔逐檔慢慢退到停車後仍未完成。
++- 加強低速熄火保護。自排用 `hostControls.clutch` 控制離合器，真正的排檔仍呼叫舊核心 `d.requestGear()`，保留齒輪同步器與傳動軸動力學；絕不直接賦值給 `state.gear`。
++- `requestDriverGear()` 集中處理**使用者**手排請求：自排模式直接拒絕手動排檔；完整保留手排模式的 Shift（離合器）、數字／小鍵盤 0–6 與 R（倒車）。
++- `syncTransmissionUI()` 根據模式鎖定／開放手排選單，並顯示提示。不再因選單 `change` 而隱式切換駕駛模式。切換模式使用原有 M 鍵或設定下拉選單，保留原本切換後重置車輛行為。
++- 三維道路、RAPIER 剛體、輪胎力、懸吊、ESC、車型、隨機地圖與五項固定碰撞情境的實作不變。
++
++## 三、使用方式
++
++- **自排（預設）**：W 油門、S 煞車；系統會根據駕駛操作升降檔。Shift、數字檔位及 R 不可直接排檔，也不會操作手排離合器。
++- **手排**：設定中選擇「手排」或在駕駛時按 M。按住 Shift 踩離合器，再用數字鍵 1–6、0、R 或手排檔位下拉選單排檔（仍受舊同步器和速度互鎖規則限制）。
++- 設定與測試模式不允許一般駕駛鍵盤事件穿透；`F1` 設定、`F2` 測試、`Esc` 選單行為維持。
++
++## 四、已驗證
++
++- 策略：標準／城市／渦輪／柴油四種車型，起步、加速升檔、煞車降檔、低速回 1 檔、同步器忙碌防重複、齒比適配、換檔遲滯。
++- Chromium 事件：自排下 Shift+1、Shift+6、2、0、R、小鍵盤 3 不觸發手排要求；切換手排後 Shift 和數字鍵恢復正常；手排選單不會悄悄改變模式。
++- 真實四輪原始求解器：四車型的 15 秒全油門 → 10 秒煞車 → 15 秒再加速，均曾升至 2 檔以上、煞車降至 1 檔、接近靜止、再加速升檔；未出現引擎意外熄火。
++- 不變性：已檢查 `desktop3d/public/physics.html`、`chassis.mjs`、`road.mjs`、`obstacles.mjs`、`scenarios.mjs` 等與 v1.8.9 位元一致。
++
++## 五、限制與實機驗收
++
++這是 **離線 Chromium 實際原四輪求解器驗證**，並非 Three.js + Rapier WASM 真正 3D 瀏覽器駕駛實測。本執行環境未安裝 npm 相依套件，尚未完成本版 `npm run build` 和五項 3D 實機碰撞重驗。請在本機瀏覽器執行：
++
++1. 自排由 1 檔起步，加速至至少 3 檔，松油門／踩煞車減速至完全停止，確認逐步降至 1 檔。
++2. 停車後重新起步，確認不熄火且能再升檔。
++3. 自排時按 Shift+1、Shift+6、R、0，確認沒有被手動插入檔位；設定的手排下拉應為停用。
++4. 切成手排再試 Shift+1／2、0、R，確認回復原本手排限制；完成後再切回自排。
++5. 最後跑一次原本的五項 3D 碰撞驗收，確認傳動控制修改未造成意外回歸。
+--- /dev/null
++++ b/V1891_QA.md
+@@ -0,0 +1,36 @@
++# SHIFT LAB v1.8.9.1 — QA 驗證報告
++
++## 範圍
++
++本次僅修改桌面 3D 宿主的自動傳動控制策略與手／自排輸入隔離，未修改四輪物理核心、Rapier 車身與地形碰撞程式。
++
++## 執行命令
++
++```bash
++python -m unittest discover -s tests -p 'test_*.py' -v
++cd desktop3d
++npm run qa:transmission
++npm run qa:scenarios
++```
++
++`tests/test_v1891_drivetrain.py` 使用 Chromium 直接載入**真實** `physics.html`，以 `d.advancePhysics(1/120)` 執行原四輪物理及齒輪同步器；Three.js 與 Rapier 由於離線依賴缺失未執行。
++
++## 新增重要驗證
++
++| 測試 | 涵蓋範圍 |
++|---|---|
++| Node 純排檔策略 | 4 車型下升降檔、分離時機、回 1 檔、換檔冷卻、同步器互斥、遲滯 |
++| Chromium 真鍵盤事件 | 自排 Shift+數字、R、0、Numpad 不入檔，手排 Shift+數字仍可用 |
++| Chromium 模擬換檔要求 | 煞車時自排透過原 `d.requestGear()` 提出降檔、持續同步中不得重複要求 |
++| Chromium 真四輪傳動積分 | 標準、城市、渦輪、柴油各 40 秒加速 → 煞車 → 再加速，均降回 1 檔並成功重啟加速 |
++| 原核心保護 | physics.html、chassis.mjs、road.mjs、obstacles.mjs、scenarios.mjs 等不變 |
++
++## 保留限制
++
++- 兩項選擇性實車原始量測驗證會因缺少授權原始檔而跳過，與變速箱無關。
++- 真正 Three.js／Rapier WASM 的本機 3D 操作及碰撞測試 **尚待玩家執行**；本報告不會將純程式測試誤稱為 3D 實機驗收。
++- `Shift+數字` 被取消的是 **自排模式** 下的手動強制排檔；切換手排後，舊同步器的離合器條件、入檔時間及倒檔鎖定仍然有效。
++
++## 完整回歸結果
++
++2026-10-21 執行 `python -m unittest discover -s tests -p 'test_*.py' -v`：**99 項；97 通過、2 因缺少原始實車檔案跳過、0 失敗**。另執行 `npm run qa:transmission` 與 `npm run qa:scenarios` 均通過。詳見 `V1891_QA_RESULT.log`。
+--- /dev/null
++++ b/V1891_QA_RESULT.log
+@@ -0,0 +1,104 @@
++test_browser_debug_data_and_no_physics_override (test_v183.BrowserIntegrationTests.test_browser_debug_data_and_no_physics_override) ... ok
++test_desktop_reference_panel_render (test_v183.BrowserIntegrationTests.test_desktop_reference_panel_render) ... ok
++test_mobile_render_without_horizontal_overflow (test_v183.BrowserIntegrationTests.test_mobile_render_without_horizontal_overflow) ... ok
++test_adma_fields_hz_holdout_and_numeric_fit (test_v183.SourceProcessingTests.test_adma_fields_hz_holdout_and_numeric_fit) ... ok
++test_adma_irregular_timestamps_fail (test_v183.SourceProcessingTests.test_adma_irregular_timestamps_fail) ... ok
++test_adma_schema_drift_fails (test_v183.SourceProcessingTests.test_adma_schema_drift_fails) ... ok
++test_civic_bins_and_gradient (test_v183.SourceProcessingTests.test_civic_bins_and_gradient) ... ok
++test_civic_missing_groups_fail_closed (test_v183.SourceProcessingTests.test_civic_missing_groups_fail_closed) ... ok
++test_fixture_sha_must_not_match_actual (test_v183.SourceProcessingTests.test_fixture_sha_must_not_match_actual) ... ok
++test_git_blob_hash_rejects_modified_file (test_v183.SourceProcessingTests.test_git_blob_hash_rejects_modified_file) ... ok
++test_p1_theoretical_not_measured (test_v183.SourceProcessingTests.test_p1_theoretical_not_measured) ... ok
++test_read_only_bundle_results_and_provenance (test_v183.SourceProcessingTests.test_read_only_bundle_results_and_provenance) ... ok
++test_desktop_real_p1_panel (test_v184.BrowserTests.test_desktop_real_p1_panel) ... ok
++test_mobile_real_p1_panel_and_no_overflow (test_v184.BrowserTests.test_mobile_real_p1_panel_and_no_overflow) ... ok
++test_physics_debug_unchanged_and_fitting_readonly (test_v184.BrowserTests.test_physics_debug_unchanged_and_fitting_readonly) ... ok
++test_all_required_source_ids_are_grounded (test_v184.ModelAndProvenance.test_all_required_source_ids_are_grounded) ... ok
++test_calibration_results_match_table (test_v184.ModelAndProvenance.test_calibration_results_match_table) ... ok
++test_default_and_historical_rear_b_produce_different_lateral_response (test_v184.ModelAndProvenance.test_default_and_historical_rear_b_produce_different_lateral_response) ... ok
++test_fixed_training_holdout_protocol (test_v184.ModelAndProvenance.test_fixed_training_holdout_protocol) ... ok
++test_force_zero_at_zero_steer_zero_rate (test_v184.ModelAndProvenance.test_force_zero_at_zero_steer_zero_rate) ... ok
++test_holdout_failure_not_concealed (test_v184.ModelAndProvenance.test_holdout_failure_not_concealed) ... ok
++test_html_no_full_car_application (test_v184.ModelAndProvenance.test_html_no_full_car_application) ... ok
++test_integration_finite (test_v184.ModelAndProvenance.test_integration_finite) ... ok
++test_lateral_force_saturates_under_large_input (test_v184.ModelAndProvenance.test_lateral_force_saturates_under_large_input) ... ok
++test_measured_mat_file_replay_when_available (test_v184.ModelAndProvenance.test_measured_mat_file_replay_when_available) ... skipped 'Raw P1 file not bundled; supply P1_RAW_DIR to reproduce'
++test_raw_originals_not_in_release_directory (test_v184.ModelAndProvenance.test_raw_originals_not_in_release_directory) ... ok
++test_reject_bad_source_header (test_v184.ModelAndProvenance.test_reject_bad_source_header) ... ok
++test_reject_source_hash_drift (test_v184.ModelAndProvenance.test_reject_source_hash_drift) ... ok
++test_require_raw_does_not_make_up_measurements (test_v184.ModelAndProvenance.test_require_raw_does_not_make_up_measurements) ... ok
++test_source_download_script_never_bypasses_hash (test_v184.ModelAndProvenance.test_source_download_script_never_bypasses_hash) ... ok
++test_symmetric_wheel_tire_sign (test_v184.ModelAndProvenance.test_symmetric_wheel_tire_sign) ... ok
++test_two_source_geometry_sensitivity_is_explicit (test_v184.ModelAndProvenance.test_two_source_geometry_sensitivity_is_explicit) ... ok
++test_mobile_responsive_and_visible (test_v185.BrowserReference.test_mobile_responsive_and_visible) ... ok
++test_no_automatic_transfer_and_physics_unchanged (test_v185.BrowserReference.test_no_automatic_transfer_and_physics_unchanged) ... ok
++test_original_p1_and_reference_panels_preserved (test_v185.BrowserReference.test_original_p1_and_reference_panels_preserved) ... ok
++test_real_gasoline_panel (test_v185.BrowserReference.test_real_gasoline_panel) ... ok
++test_all_p1_force_channels_flagged_unfit (test_v185.EvidenceIntegrity.test_all_p1_force_channels_flagged_unfit) ... ok
++test_bmw_candidate_grid_is_predeclared (test_v185.EvidenceIntegrity.test_bmw_candidate_grid_is_predeclared) ... ok
++test_bmw_model_training_selected_and_holdout_disclosed (test_v185.EvidenceIntegrity.test_bmw_model_training_selected_and_holdout_disclosed) ... ok
++test_bmw_no_fake_yaw_or_tire_transfer (test_v185.EvidenceIntegrity.test_bmw_no_fake_yaw_or_tire_transfer) ... ok
++test_bmw_public_raw_checksum_rejects_tampered_data (test_v185.EvidenceIntegrity.test_bmw_public_raw_checksum_rejects_tampered_data) ... ok
++test_bmw_real_observation_identity (test_v185.EvidenceIntegrity.test_bmw_real_observation_identity) ... ok
++test_constant_input_fit_rejected (test_v185.EvidenceIntegrity.test_constant_input_fit_rejected) ... ok
++test_fitted_formula_is_signed_and_unbounded_speeds_guarded (test_v185.EvidenceIntegrity.test_fitted_formula_is_signed_and_unbounded_speeds_guarded) ... ok
++test_force_channel_group_indices (test_v185.EvidenceIntegrity.test_force_channel_group_indices) ... ok
++test_prevent_raw_csv_redistribution (test_v185.EvidenceIntegrity.test_prevent_raw_csv_redistribution) ... ok
++test_real_p1_force_channels_when_available (test_v185.EvidenceIntegrity.test_real_p1_force_channels_when_available) ... skipped 'Optional authentic Bucknell source files not supplied'
++test_real_source_meta_branches (test_v185.EvidenceIntegrity.test_real_source_meta_branches) ... ok
++test_regression_least_squares_correct (test_v185.EvidenceIntegrity.test_regression_least_squares_correct) ... ok
++test_reject_missing_real_mat (test_v185.EvidenceIntegrity.test_reject_missing_real_mat) ... ok
++test_temporal_purge (test_v185.EvidenceIntegrity.test_temporal_purge) ... ok
++test_esc_corrects_split_mu_straightline (test_v186.BrowserDriving.test_esc_corrects_split_mu_straightline) ... ok
++test_high_yaw_no_old_clamp (test_v186.BrowserDriving.test_high_yaw_no_old_clamp) ... ok
++test_keyboard_reverse_and_release (test_v186.BrowserDriving.test_keyboard_reverse_and_release) ... ok
++test_original_v185_panels_preserved (test_v186.BrowserDriving.test_original_v185_panels_preserved) ... ok
++test_planar_disabled_guardrail_is_passable (test_v186.BrowserDriving.test_planar_disabled_guardrail_is_passable) ... ok
++test_planar_guardrail_impulse_no_speed_growth (test_v186.BrowserDriving.test_planar_guardrail_impulse_no_speed_growth) ... ok
++test_single_authority_external_chassis (test_v186.BrowserDriving.test_single_authority_external_chassis) ... ok
++test_tire_friction_peak_and_recovery (test_v186.BrowserDriving.test_tire_friction_peak_and_recovery) ... ok
++test_3d_uses_same_physics_page (test_v186.Native3DSource.test_3d_uses_same_physics_page) ... ok
++test_js_syntax (test_v186.Native3DSource.test_js_syntax) ... ok
++test_collider_labels_and_real_impulse_sampling (test_v187.V187QA.test_collider_labels_and_real_impulse_sampling) ... ok
++test_every_explicit_dom_selector_exists (test_v187.V187QA.test_every_explicit_dom_selector_exists) ... ok
++test_guardrail_chassis_uses_four_point_forces (test_v187.V187QA.test_guardrail_chassis_uses_four_point_forces) ... ok
++test_keyboard_works_after_clicking_control_buttons (test_v187.V187QA.test_keyboard_works_after_clicking_control_buttons) ... ok
++test_module_syntax (test_v187.V187QA.test_module_syntax) ... ok
++test_old_python_tests_still_bundled (test_v187.V187QA.test_old_python_tests_still_bundled) ... ok
++test_original_model_not_duplicated (test_v187.V187QA.test_original_model_not_duplicated) ... ok
++test_qa_host_has_single_controlled_stepping_path (test_v187.V187QA.test_qa_host_has_single_controlled_stepping_path) ... ok
++test_scenarios_fail_safe_when_telemetry_is_bad (test_v187.V187QA.test_scenarios_fail_safe_when_telemetry_is_bad) ... ok
++test_version_and_start_scripts_exist (test_v187.V187QA.test_version_and_start_scripts_exist) ... ok
++test_focus_assisted_driving_controls (test_v1871.HotfixContracts.test_focus_assisted_driving_controls) ... ok
++test_free_road_has_no_test_barrier (test_v1871.HotfixContracts.test_free_road_has_no_test_barrier) ... ok
++test_ray_hit_property_is_fixed (test_v1871.HotfixContracts.test_ray_hit_property_is_fixed) ... ok
++test_wheel_qa_catches_invalid_loads (test_v1871.HotfixContracts.test_wheel_qa_catches_invalid_loads) ... ok
++test_diagnostic_force_metrics_and_static_gate (test_v1872.ForceLifecycleQA.test_diagnostic_force_metrics_and_static_gate) ... ok
++test_real_chassis_bridge_mock_dynamics (test_v1872.ForceLifecycleQA.test_real_chassis_bridge_mock_dynamics) ... ok
++test_controls_are_present_and_wired (test_v188.UnifiedWebQA.test_controls_are_present_and_wired) ... ok
++test_legacy_solver_and_collision_stay_byte_identical (test_v188.UnifiedWebQA.test_legacy_solver_and_collision_stay_byte_identical) ... ok
++test_one_entry_and_hidden_engine_only (test_v188.UnifiedWebQA.test_one_entry_and_hidden_engine_only) ... ok
++test_visual_left_right_unit (test_v188.UnifiedWebQA.test_visual_left_right_unit) ... ok
++test_web_dependency_contract (test_v188.UnifiedWebQA.test_web_dependency_contract) ... ok
++test_keyboard_arrows_translate_to_visual_left_right (test_v188_interaction.SteeringInputBrowser.test_keyboard_arrows_translate_to_visual_left_right) ... ok
++test_menu_settings_test_mode_block_driving_keys (test_v188_interaction.SteeringInputBrowser.test_menu_settings_test_mode_block_driving_keys) ... ok
++test_standard_gamepad_and_optional_extra_inversion (test_v188_interaction.SteeringInputBrowser.test_standard_gamepad_and_optional_extra_inversion) ... ok
++test_all_scripts_parse (test_v189.V189Contracts.test_all_scripts_parse) ... ok
++test_full_host_route_switch_restores_player_seed (test_v189.V189Contracts.test_full_host_route_switch_restores_player_seed) ... ok
++test_game_is_one_canvas_with_separate_modes (test_v189.V189Contracts.test_game_is_one_canvas_with_separate_modes) ... ok
++test_generated_map_validation (test_v189.V189Contracts.test_generated_map_validation) ... ok
++test_physics_solver_and_qa_scenarios_unmodified (test_v189.V189Contracts.test_physics_solver_and_qa_scenarios_unmodified) ... ok
++test_road_rebuild_clears_all_physics_and_visual_objects (test_v189.V189Contracts.test_road_rebuild_clears_all_physics_and_visual_objects) ... ok
++test_original_seeded_generator_reproduces_route (test_v189.V189SeededRouteBrowser.test_original_seeded_generator_reproduces_route) ... ok
++test_auto_downshift_on_braking_through_original_request_interface (test_v1891.TransmissionBrowserQA.test_auto_downshift_on_braking_through_original_request_interface) ... ok
++test_auto_mode_ignores_keyboard_gear_commands_and_clutch (test_v1891.TransmissionBrowserQA.test_auto_mode_ignores_keyboard_gear_commands_and_clutch) ... ok
++test_manual_mode_retains_shift_and_number_keys (test_v1891.TransmissionBrowserQA.test_manual_mode_retains_shift_and_number_keys) ... ok
++test_manual_selector_does_not_silently_switch_auto_to_manual (test_v1891.TransmissionBrowserQA.test_manual_selector_does_not_silently_switch_auto_to_manual) ... ok
++test_physics_and_collision_solver_unchanged (test_v1891.TransmissionPolicyQA.test_physics_and_collision_solver_unchanged) ... ok
++test_real_policy_across_four_vehicle_presets (test_v1891.TransmissionPolicyQA.test_real_policy_across_four_vehicle_presets) ... ok
++test_continuous_accel_brake_reaccelerate_four_real_vehicle_presets (test_v1891_drivetrain.RealCoreAutoShift.test_continuous_accel_brake_reaccelerate_four_real_vehicle_presets) ... ok
++
++----------------------------------------------------------------------
++Ran 99 tests in 28.391s
++
++OK (skipped=2)
+--- a/desktop3d/index.html
++++ b/desktop3d/index.html
+@@ -3,7 +3,7 @@
+ <head>
+ <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+ <meta name="theme-color" content="#07121d">
+-<title>SHIFT LAB v1.8.9 — 3D 自由駕駛</title>
++<title>SHIFT LAB v1.8.9.1 — 3D 自由駕駛</title>
+ <style>
+ :root{color-scheme:dark;--paper:#07131f;--glass:#0a1d2eea;--line:#294756;--text:#e6f4f6;--quiet:#a7bdc7;--mint:#79eac5;--warn:#ffd59d;--danger:#ff9898}
+ *{box-sizing:border-box}[hidden]{display:none!important}
+@@ -60,7 +60,7 @@
+   <section id="menu-panel" class="panel panel--menu" role="dialog" aria-label="遊戲選單" hidden>
+     <div class="overline">SHIFT / LAB · WEB DRIVE</div>
+     <h1>駕駛選單</h1>
+-    <p class="desc">v1.8.9 · 三維程序化道路</p>
++    <p class="desc">v1.8.9.1 · 三維程序化道路</p>
+     <div class="menustack">
+       <button class="primary" id="resume-drive">繼續駕駛</button>
+       <button id="open-settings">設定與隨機地圖</button>
+@@ -74,7 +74,7 @@
+     <div class="settings-layout">
+       <div>
+         <section class="group"><h2>駕駛與車輛</h2>
+-          <label for="drive-mode">駕駛模式</label><select id="drive-mode"><option value="assisted">快速駕駛（自動離合器／換檔）</option><option value="manual">手排（自行操作離合器／換檔）</option></select>
++          <label for="drive-mode">駕駛模式</label><select id="drive-mode"><option value="assisted">自排（自動起步／升降檔）</option><option value="manual">手排（自行操作離合器／換檔）</option></select>
+           <label for="car-preset">車輛配置</label><select id="car-preset"><option value="standard">2.0L 自然進氣 · 標準六速</option><option value="city">1.6L 自然進氣 · 輕型轎車</option><option value="turbo">2.0L 渦輪增壓 · 性能車</option></select>
+           <label for="road-surface">路面附著力</label><select id="road-surface"><option value="dry">乾燥柏油</option><option value="wet">濕滑柏油</option><option value="snow">積雪</option><option value="ice">結冰</option></select>
+           <div class="duo"><div class="checkline"><input type="checkbox" id="abs-toggle" checked><label for="abs-toggle">ABS</label></div><div class="checkline"><input type="checkbox" id="tcs-toggle" checked><label for="tcs-toggle">TCS</label></div></div>
+@@ -82,7 +82,8 @@
+           <div class="duo"><label>操控平衡<select id="handling-balance"><option value="neutral">中性</option><option value="understeer">轉向不足</option><option value="oversteer">轉向過度</option></select></label><label>前軸煞車比例<select id="brake-bias"><option value="0.60">60%</option><option value="0.64">64%</option><option value="0.68" selected>68%</option><option value="0.72">72%</option><option value="0.76">76%</option></select></label></div>
+           <div class="duo"><label>轉向回應<select id="steering-preset"><option value="balanced">均衡</option><option value="precision">精準</option><option value="quick">靈敏</option></select></label><label>攝影機<select id="camera-mode"><option value="chase">追尾</option><option value="side">側視</option><option value="top">俯視</option></select></label></div>
+           <div class="duo"><label>手排檔位<select id="gear"><option value="0">N 空檔</option><option value="1">1 檔</option><option value="2">2 檔</option><option value="3">3 檔</option><option value="4">4 檔</option><option value="5">5 檔</option><option value="6">6 檔</option><option value="-1">R 倒檔</option></select></label><div><label>引擎</label><button id="engine">啟動引擎 [I]</button></div></div>
+-          <p id="input-status" class="desc">W/A/S/D 駕駛，Shift 離合器，數字鍵排檔，M 切換自排／手排。</p>
++          <p id="gear-mode-hint" class="desc">自排模式由控制器管理升降檔；手排模式才開放 Shift／數字鍵。</p>
++          <p id="input-status" class="desc">W/A/S/D 駕駛，M 切換自排／手排。</p>
+         </section>
+         <section class="group"><h2>手柄設定</h2>
+           <label>手柄<select id="pad"><option value="off">不使用</option><option value="auto" selected>自動偵測</option></select></label>
+--- a/desktop3d/package.json
++++ b/desktop3d/package.json
+@@ -1,6 +1,6 @@
+ {
+-  "name": "shift-lab-v189-procedural-map-game-ui",
+-  "version": "1.8.9",
++  "name": "shift-lab-v1891-automatic-gearbox-hotfix",
++  "version": "1.8.9-hotfix.1",
+   "private": true,
+   "type": "module",
+   "scripts": {
+@@ -10,7 +10,8 @@
+     "qa:scenarios": "node ./tests/validate-scenarios.mjs && node ./tests/validate-ray-contact.mjs && node ./tests/validate-force-lifecycle.mjs && node ./tests/validate-steering.mjs && node ./tests/validate-procedural-map.mjs && node ./tests/validate-road-reset.mjs",
+     "qa:steering": "node ./tests/validate-steering.mjs",
+     "dev:open": "node ./scripts/serve-and-open.mjs",
+-    "qa:map": "node ./tests/validate-procedural-map.mjs"
++    "qa:map": "node ./tests/validate-procedural-map.mjs",
++    "qa:transmission": "node ./tests/validate-auto-transmission.mjs"
+   },
+   "dependencies": {
+     "@dimforge/rapier3d-compat": "0.18.2",
+--- /dev/null
++++ b/desktop3d/src/automatic-transmission.mjs
+@@ -0,0 +1,63 @@
++// v1.8.9.1 automatic transmission shift schedule for desktop free-drive.
++// This module only decides WHICH gear and clutch command to request. The
++// original SHIFT LAB synchronizers, shafts, engine and tires remain authoritative.
++const clamp=(value,low,high)=>Math.max(low,Math.min(high,value));
++
++export function gearSpeedRPM(speedMps,gear,params){
++  if(!params || !(Number(params.wheelRadius)>0) || !(Number(params.finalDrive)>0))return 0;
++  const ratio=Math.abs(Number(params.ratios?.[gear])||0);
++  return Math.abs(Number(speedMps)||0)*ratio*params.finalDrive/params.wheelRadius*60/(2*Math.PI);
++}
++
++export function isAutomaticMode(mode){return mode==='assisted';}
++
++export function chooseAutomaticGear({gear,pendingGear,speedMps,throttle=0,brake=0,
++  params,secondsSinceShift=Infinity}){
++  if(!params||pendingGear!==null&&pendingGear!==undefined)return null;
++  if(!Number.isInteger(gear)||gear<0||gear>6)return null;
++  const speed=Math.abs(Number(speedMps)||0);
++  const pedal=clamp(Number(throttle)||0,0,1);
++  const brakePedal=clamp(Number(brake)||0,0,1);
++  const idle=Math.max(500,Number(params.idleRPM)||800);
++  const redline=Math.max(idle*2.4,Number(params.redlineRPM)||6800);
++  const downRPM=Math.max(idle*1.75,redline*(.215+.12*pedal))+380*brakePedal;
++  const upRPM=redline*(.47+.36*pedal);
++  const rpm=gearSpeedRPM(speed,gear,params);
++  const ready=secondsSinceShift>=1.0;
++
++  // A stalled or manually neutralized car can re-engage without being forced
++  // into first at motorway speed. The free-drive mode starts from neutral.
++  if(gear===0){
++    for(let candidate=1;candidate<=6;candidate++){
++      if(gearSpeedRPM(speed,candidate,params)<=redline*.72)return candidate;
++    }
++    return 6;
++  }
++
++  // Approaching a halt, select first promptly; otherwise shifting every gear
++  // one by one can leave a stalled engine in sixth while the car is stopped.
++  if(gear>1&&speed<2.5&&gearSpeedRPM(speed,1,params)<redline*.88)return 1;
++
++  // Use wheel-speed/gear-ratio RPM rather than the idle-governed engine RPM:
++  // the latter can stay above 1200 while the clutch slips during deceleration.
++  if(gear>1&&rpm<downRPM){
++    const lower=gear-1;
++    if(gearSpeedRPM(speed,lower,params)<redline*.89 &&
++      (ready||rpm<idle*1.12))return lower;
++  }
++  if(ready&&brakePedal<.15&&gear<6&&rpm>upRPM &&
++    gearSpeedRPM(speed,gear+1,params)>idle*1.32)return gear+1;
++  return null;
++}
++
++export function automaticClutch({gear,pendingGear,shiftRequested,speedMps,
++  throttle=0,engineOn=true,engineRPM=0,params}){
++  if(!engineOn||pendingGear!==null&&pendingGear!==undefined||shiftRequested||gear<=0)return 1;
++  const speed=Math.abs(Number(speedMps)||0);
++  const pedal=clamp(Number(throttle)||0,0,1);
++  const idle=Number(params?.idleRPM)||800;
++  if(gear>1&&engineRPM<idle*1.12)return 1; // stall protection during heavy deceleration
++  if(speed<.55&&pedal<.05)return 1;
++  if(gear===1&&speed<4)return Math.max(.09,.66-speed*.135-pedal*.09);
++  return 0;
++}
+--- a/desktop3d/src/main.mjs
++++ b/desktop3d/src/main.mjs
+@@ -7,6 +7,7 @@
+ import {legacyDirectionalKey,legacySteerFromVisualAxis,visualSteeringFromLegacy,visualDirectionLabel} from './steering-input.mjs';
+ import {REFERENCE_MAP,MAP_FIELDS,normalizeMapConfig,readMapDocument,serializeMap,sameMap,makeMapSeed,describeRoute} from './procedural-map.mjs';
+ import {createGameModes} from './game-modes.mjs';
++import {chooseAutomaticGear,automaticClutch,isAutomaticMode} from './automatic-transmission.mjs';
+ 
+ const $=id=>document.getElementById(id);
+ const canvas=$('view'),overlay=$('screen-overlay'),message=$('overlay-message');
+@@ -141,6 +142,18 @@
+   canvas.focus({preventScroll:true});
+ }
+ function driveStatus(text){$('input-status').textContent=text;}
++function syncTransmissionUI(){
++  const automatic=isAutomaticMode($('drive-mode').value);
++  // Do not expose a second/manual gear controller while in automatic mode.
++  gearSelect.disabled=locked||automatic;
++  $('gear-mode-hint').textContent=automatic?
++    '自排：由車速、檔位與油門／煞車決定升降檔；數字鍵、R 與 Shift 不會手動排檔。':
++    '手排：按住 Shift 踩離合器，再按 1–6、0 或 R 選檔。';
++}
++function requestDriverGear(gear){
++  if(!d||locked||isAutomaticMode($('drive-mode').value))return false;
++  return d.requestGear(gear);
++}
+ function setPause(value){
+   paused=!!value;accumulator=0;
+   $('pause').textContent=paused?'繼續':'暫停';
+@@ -151,7 +164,7 @@
+ const trackedKeys=new Set();
+ 
+ function failure(e){
+-  labReady=false;console.error('v1.8.9 game:',e);
++  labReady=false;console.error('v1.8.9.1 game:',e);
+   $('status').textContent='載入或執行失敗';
+   message.textContent='無法啟動 3D 驗收：'+(e?.message||String(e))+'。請確認 npm install / npm run dev，並使用支援 WebGL2 的桌面瀏覽器。';
+   if(!overlay.isConnected)document.body.append(overlay);
+@@ -223,37 +236,31 @@
+ // gearbox stay authoritative: this host automates clutch/shift commands only.
+ // QA scenarios never use this aid, including when the UI selector says assisted.
+ function updateAutoDrive(){
+-  if(!d||scenarioId!=='free'||$('drive-mode').value!=='assisted'||locked)return;
+-  const s=d.state, speed=Math.abs(s.velocity),rps=s.engineOmega*60/(2*Math.PI);
+-  const throttle=(d.inputKeys.has('w')?1:d.hostControls.throttle)||0;
+-  // Hold clutch fully down until the engine/gearbox can be coupled safely.
+-  if(!s.engineOn){
+-    d.hostControls.clutch=1;
+-    if(s.clutch>.84||s.gear===0)d.startEngine();
+-  }
+-  const upshift=s.gear>=1&&s.gear<6&&rps>5650&&speed>5&&
+-    s.time-autoDrive.lastShiftTime>1.15;
+-  const downshift=s.gear>1&&rps<1200&&speed>1.5&&
+-    s.time-autoDrive.lastShiftTime>1.15;
+-  const desired=s.gear===0?1:upshift?s.gear+1:downshift?s.gear-1:0;
+-  if(s.pendingGear!==null||desired){
+-    d.hostControls.clutch=1;
+-    if(desired&&s.pendingGear===null&&s.clutch>=.83){
+-      if(d.requestGear(desired)){
+-        autoDrive.lastShiftTime=s.time;autoDrive.shiftTarget=desired;
+-      }
+-    }
+-  }else if(s.gear>0){
+-    // Engage progressively on launch; do not stall just because W is released.
+-    const pedal=Math.max(0,Math.min(1,throttle));
+-    d.hostControls.clutch=speed<.55&&pedal<.05?1:
+-      speed<4?Math.max(.09,.66-speed*.135-pedal*.09):0;
+-  }else{
+-    d.hostControls.clutch=1;
+-  }
+-  $('input-status').textContent='快速駕駛 · '+
++  if(!d||scenarioId!=='free'||!isAutomaticMode($('drive-mode').value)||locked)return;
++  const s=d.state,speed=Math.abs(s.velocity),rpm=s.engineOmega*60/(2*Math.PI);
++  const throttle=Math.max(s.throttle||0,d.inputKeys.has('w')?1:d.hostControls.throttle||0);
++  const brake=Math.max(s.brake||0,d.inputKeys.has('s')?1:d.hostControls.brake||0);
++  const desired=chooseAutomaticGear({gear:s.gear,pendingGear:s.pendingGear,
++    speedMps:speed,throttle,brake,params:d.params,
++    secondsSinceShift:s.time-autoDrive.lastShiftTime});
++  // Start/shift through the original real clutch and synchronizer. Never
++  // directly assign state.gear: that would bypass the gearbox and its inertia.
++  const shiftRequested=desired!==null;
++  d.hostControls.clutch=automaticClutch({gear:s.gear,pendingGear:s.pendingGear,
++    shiftRequested,speedMps:speed,throttle,engineOn:s.engineOn,
++    engineRPM:rpm,params:d.params});
++  if(!s.engineOn && (s.clutch>.84 || s.gear===0))d.startEngine();
++  if(shiftRequested&&s.pendingGear===null&&s.clutch>=.83){
++    if(d.requestGear(desired)){
++      autoDrive.lastShiftTime=s.time;
++      autoDrive.shiftTarget=desired;
++    }
++  }
++  // UI status is only visible within Settings; the actual drive HUD stays
++  // clean (speed, RPM, gear, game view) as required by v1.8.9.
++  if(s.time%1<1/120)driveStatus('自排 · '+
+     (s.pendingGear!==null?'換檔中':s.gear===0?'準備入檔':s.gear+' 檔')+
+-    ' · 使用 W/A/S/D，按 M 切換手排';
++    ' · 自動升降檔；按 M 切換手排');
+ }
+ function makeCar(){
+   const P=d.params,group=new THREE.Group();
+@@ -431,6 +438,7 @@
+   d.vehicleMotion.routeS=point.s;
+   d.route.distance=point.s;
+   gearSelect.value='0';dropSteps=0;accumulator=0;
++  syncTransmissionUI();
+   scenarioId=id;
+   $('scenario').value=id;
+   $('scenario-brief').textContent=setting.description;
+@@ -484,6 +492,7 @@
+   locked=value;
+   for(const id of ['scenario','drive-now','load-scenario','run-case','run-suite','reset',
+     'pause','step','gear','engine','drive-mode',...preferenceIds])$(id).disabled=value;
++  if(!value)syncTransmissionUI();
+ }
+ async function runScenario(id,options={}){
+   if(!labReady)throw new Error('3D 引擎尚未就緒');
+@@ -511,7 +520,7 @@
+     const graded=gradeScenario(id,data);
+     const result={scenario:id,pass:graded.pass,checks:graded.checks,
+       metrics:{...data},runtimeMs:data.runtimeMs,
+-      engine:'Rapier 0.18 + SHIFT LAB four-wheel, 120 Hz / 4 microsteps, v1.8.9 game UI / unchanged vehicle steering adapter',
++      engine:'Rapier 0.18 + SHIFT LAB four-wheel, 120 Hz / 4 microsteps, v1.8.9.1 automatic transmission / unchanged vehicle steering adapter',
+       events:bridge.eventHistory.map(e=>({...e}))};
+     lastResult=result;displayResult('qa-results',result);updateHud(true);
+     $('status').textContent=(result.pass?'PASS':'FAIL')+' · '+setting.name+' · '+graded.checks.filter(x=>x.passed).length+'/'+graded.checks.length;
+@@ -543,18 +552,18 @@
+   return suiteResults.map(r=>({...r}));
+ }
+ function exportReport(){
+-  const bundle={version:'1.8.9',createdAt:new Date().toISOString(),
++  const bundle={version:'1.8.9.1',createdAt:new Date().toISOString(),
+     userAgent:navigator.userAgent,
+     physics:'Four-wheel SHIFT LAB v1.8.6 bridge / Rapier 3D 0.18',
+     suite:suiteResults.map(r=>({...r})),lastResult,
+     snapshot:currentSnapshot(),qaScope:'simulator only, not real-vehicle validation'};
+   const blob=new Blob([JSON.stringify(bundle,null,2)],{type:'application/json'});
+   const href=URL.createObjectURL(blob),link=document.createElement('a');
+-  link.href=href;link.download='SHIFT_LAB_V189_Physics_QA_'+new Date().toISOString().slice(0,10)+'.json';
++  link.href=href;link.download='SHIFT_LAB_V1891_Physics_QA_'+new Date().toISOString().slice(0,10)+'.json';
+   link.click();setTimeout(()=>URL.revokeObjectURL(href),3000);
+ }
+ function installEvents(){
+-  selectOptions();restorePreferences();
++  selectOptions();restorePreferences();syncTransmissionUI();
+   gameModes=createGameModes(document,{onModeChange(next){
+     trackedKeys.clear();if(d)d.inputKeys.clear();
+     if(d)Object.assign(d.hostControls,{steer:0,throttle:0,brake:0,clutch:0});
+@@ -634,7 +643,7 @@
+     if(locked||!labReady)return;
+     resetDriving('free');openGameMode('drive');setPause(false);driveFocus();
+     driveStatus($('drive-mode').value==='manual'?'手排模式 · 按 I 發動，踩 Shift 入 1 檔後鬆開離合器':
+-      '快速駕駛 · 車輛將自動起步並換檔，使用 W/A/S/D');
++      '自排模式 · 車輛會依車速與負載自動升降檔，使用 W/A/S/D');
+   }
+   $('drive-now').addEventListener('click',goFree);
+   $('load-scenario').addEventListener('click',()=>{if(locked)return;
+@@ -642,16 +651,17 @@
+   $('reset').addEventListener('click',()=>{if(!locked){resetDriving(scenarioId);setPause(gameModes?.mode!=='drive');}});
+   $('pause').addEventListener('click',()=>{if(locked)return;setPause(!paused);driveFocus();});
+   $('drive-mode').addEventListener('change',()=>{
++    syncTransmissionUI();
+     if(!locked&&scenarioId==='free'){resetDriving('free');setPause(gameModes?.mode!=='drive');}
+   });
+   canvas.addEventListener('pointerdown',driveFocus);
+   $('step').addEventListener('click',()=>{if(!locked&&paused){stepOnce();updateHud(true);}});
+   $('engine').addEventListener('click',()=>{if(!locked)d?.startEngine();});
+-  gearSelect.addEventListener('change',()=>{if(!d||locked)return;
+-    if(scenarioId==='free'&&$('drive-mode').value==='assisted'){
+-      $('drive-mode').value='manual';driveStatus('已切換為手排模式，請自行操作離合器及換檔');
+-    }
+-    if(!d.requestGear(Number(gearSelect.value)))gearSelect.value=String(d.state.gear);});
++  gearSelect.addEventListener('change',()=>{
++    if(!d||locked)return;
++    if(!requestDriverGear(Number(gearSelect.value)))
++      gearSelect.value=String(d.state.pendingGear??d.state.gear);
++  });
+   $('esc').addEventListener('change',()=>{d?.setESCEnabled($('esc').value==='on');});
+   $('feel').addEventListener('change',()=>{d?.setHandlingFeel($('feel').value);});
+   for(const id of ['pad-axis','pad-gas','pad-brake','pad-clutch','camera-mode']){
+@@ -672,18 +682,26 @@
+     const editing=['INPUT','SELECT','TEXTAREA'].includes(e.target?.tagName);
+     if(editing||locked)return;
+     const key=keys[e.code];
+-    if(key){e.preventDefault();trackedKeys.add(key);if(d)d.inputKeys.add(legacyDirectionalKey(key));return;}
++    if(key){
++      e.preventDefault();
++      // Shift is ONLY the manual clutch. Letting it reach the hidden engine
++      // in automatic mode interferes with the automatic clutch actuator.
++      if(key==='shift'&&isAutomaticMode($('drive-mode').value))return;
++      trackedKeys.add(key);if(d)d.inputKeys.add(legacyDirectionalKey(key));return;
++    }
+     if(e.repeat)return;
+     if(e.code==='Space'){e.preventDefault();setPause(!paused);}
+     else if(e.code==='KeyI'){e.preventDefault();d?.startEngine();}
+     else if(e.code==='Backspace'){e.preventDefault();resetDriving('free');driveFocus();}
+     else if(e.code==='KeyM'){
+       e.preventDefault();$('drive-mode').value=$('drive-mode').value==='manual'?'assisted':'manual';
++      savePreferences();syncTransmissionUI();
+       resetDriving('free');setPause(false);driveFocus();
+     }
+-    else if(/^Digit[1-6]$/.test(e.code)){e.preventDefault();d?.requestGear(Number(e.code.slice(-1)));}
+-    else if(e.code==='Digit0'){e.preventDefault();d?.requestGear(0);}
+-    else if(e.code==='KeyR'){e.preventDefault();d?.requestGear(-1);}
++    else if(/^(Digit|Numpad)[0-6]$/.test(e.code)){
++      e.preventDefault();requestDriverGear(Number(e.code.slice(-1)));
++    }
++    else if(e.code==='KeyR'){e.preventDefault();requestDriverGear(-1);}
+   });
+   window.addEventListener('keyup',e=>{
+     const key=keys[e.code];if(key){
+@@ -740,7 +758,7 @@
+   overlay.remove();
+   prevFrame=performance.now();requestAnimationFrame(render);
+   window.__SHIFT_LAB_3D_QA__={
+-    version:'1.8.9',steeringMapping:{visualLeft:legacyDirectionalKey('a'),
++    version:'1.8.9.1',steeringMapping:{visualLeft:legacyDirectionalKey('a'),
+       visualRight:legacyDirectionalKey('d'),visualPadRight:legacySteerFromVisualAxis(1)},
+     get ready(){return labReady;},get paused(){return paused;},snapshot:currentSnapshot,
+     loadScenario(id){if(!(id in SCENARIOS))throw Error('未知工況 '+id);if(locked)throw Error('正在執行自動驗收');
+@@ -754,6 +772,6 @@
+     openMode:openGameMode,
+     get report(){return {lastResult,suiteResults:[...suiteResults]};}
+   };
+-  $('status').textContent='v1.8.9 已初始化 · 自由駕駛 / 隨機道路 / 獨立測試模式';
++  $('status').textContent='v1.8.9.1 已初始化 · 自排／手排隔離 / 隨機道路 / 獨立測試模式';
+ }
+ boot().catch(failure);
+--- /dev/null
++++ b/desktop3d/tests/validate-auto-transmission.mjs
+@@ -0,0 +1,33 @@
++import assert from 'node:assert/strict';
++import {chooseAutomaticGear,gearSpeedRPM,automaticClutch,isAutomaticMode} from '../src/automatic-transmission.mjs';
++
++const cars={
++  standard:{wheelRadius:.31,finalDrive:3.9,idleRPM:850,redlineRPM:6800,ratios:{1:3.55,2:2.06,3:1.40,4:1.03,5:.84,6:.72}},
++  city:{wheelRadius:.295,finalDrive:4.12,idleRPM:800,redlineRPM:6400,ratios:{1:3.71,2:2.10,3:1.40,4:1.06,5:.85,6:.72}},
++  turbo:{wheelRadius:.325,finalDrive:3.58,idleRPM:820,redlineRPM:7100,ratios:{1:3.36,2:2.08,3:1.45,4:1.12,5:.91,6:.74}},
++  diesel:{wheelRadius:.355,finalDrive:3.71,idleRPM:750,redlineRPM:4450,ratios:{1:4.03,2:2.25,3:1.50,4:1.08,5:.83,6:.64}}
++};
++const decide=(car,gear,speed,extra={})=>chooseAutomaticGear({params:cars[car],gear,
++  pendingGear:null,speedMps:speed,throttle:0,brake:0,secondsSinceShift:2,...extra});
++for(const [name,p] of Object.entries(cars)){
++  assert.equal(decide(name,0,0),1,`${name}: neutral -> first`);
++  assert.equal(decide(name,6,0.05),1,`${name}: complete stop -> first`);
++  assert.equal(decide(name,5,1.9,{brake:1}),1,`${name}: near stop -> first`);
++  assert.equal(decide(name,2,3,{brake:.8}),1,`${name}: downshift near stop`);
++  assert.equal(decide(name,5,12,{brake:1}),4,`${name}: decelerating -> lower gear`);
++  assert.equal(decide(name,5,12,{brake:1,pendingGear:4}),null,`${name}: no overlap during synchro`);
++  assert.equal(decide(name,5,12,{brake:1,secondsSinceShift:.1}),null,`${name}: non-urgent shift debounce`);
++  const firstUp=Array.from({length:400},(_,i)=>i/10).find(speed=>decide(name,1,speed,{throttle:1})===2);
++  assert.ok(firstUp>6&&firstUp<28,`${name}: full throttle first upshift: ${firstUp}`);
++  assert.ok(gearSpeedRPM(firstUp,1,p)<=p.redlineRPM*1.0,`${name}: shift before overrev`);
++  const nextAfter=decide(name,2,firstUp,{throttle:1});
++  assert.notEqual(nextAfter,1,`${name}: no immediate gear hunting`);
++  assert.equal(automaticClutch({gear:6,pendingGear:null,shiftRequested:false,
++    speedMps:0.2,throttle:0,engineOn:true,engineRPM:650,params:p}),1,`${name}: protect engine from stall`);
++  assert.equal(automaticClutch({gear:3,pendingGear:2,shiftRequested:false,
++    speedMps:15,throttle:0,engineOn:true,engineRPM:2000,params:p}),1,`${name}: clutch open during synchro`);
++  assert.equal(decide(name,2,15,{secondsSinceShift:0,pendingGear:3}),null,`${name}: busy -> no second request`);
++}
++assert.equal(isAutomaticMode('assisted'),true);
++assert.equal(isAutomaticMode('manual'),false);
++console.log('PASS v1.8.9.1 automatic transmission: 4 vehicles, shifts on braking, starting, pending, stall guard, no hunting');
+--- a/index.html
++++ b/index.html
+@@ -1,8 +1,8 @@
+ <!doctype html>
+ <html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+-<title>SHIFT LAB v1.8.9 · 單一遊玩入口</title>
++<title>SHIFT LAB v1.8.9.1 · 單一遊玩入口</title>
+ <style>body{font:16px/1.7 system-ui,'Microsoft JhengHei',sans-serif;background:#081622;color:#dcefee;max-width:660px;margin:12vh auto;padding:28px}a{color:#8fe9ca}h1{font-size:25px}</style></head>
+-<body><h1>SHIFT LAB v1.8.9</h1><p>本專案現在只有一個玩家操作介面：純遊戲畫面、統一設定、獨立物理測試及隨機地圖生成整合在同一網頁。</p>
++<body><h1>SHIFT LAB v1.8.9.1</h1><p>本專案現在只有一個玩家操作介面：純遊戲畫面、統一設定、獨立物理測試及隨機地圖生成整合在同一網頁。</p>
+ <p>如正在使用本機 Vite 服務，請開啟 <a href="./desktop3d/">3D 網頁遊戲</a>。
+ 部署到網站後，請使用 <code>desktop3d/dist/</code> 作為網站根目錄，進站後即可遊玩。</p>
+ <p id="file-advice">Windows 本機初次啟動可執行 <code>START_WEB_WINDOWS.cmd</code>（需安裝 Node.js），或於 desktop3d 目錄執行 npm install、npm run dev。</p>
+--- a/tests/route_switch_probe.py
++++ b/tests/route_switch_probe.py
+@@ -3,7 +3,7 @@
+ from playwright.sync_api import sync_playwright
+ D=Path(__file__).resolve().parents[1]/'desktop3d'
+ html=(D/'index.html').read_text().replace('src="./physics.html"','src="about:blank"').replace('<script type="module" src="./src/main.mjs"></script>','')
+-helper='\n'.join((D/'src'/name).read_text().replace('export const','const').replace('export function','function') for name in ['steering-input.mjs','procedural-map.mjs','game-modes.mjs'])
++helper='\n'.join((D/'src'/name).read_text().replace('export const','const').replace('export function','function') for name in ['steering-input.mjs','procedural-map.mjs','game-modes.mjs','automatic-transmission.mjs'])
+ sc=(D/'src/scenarios.mjs').read_text().replace('export const','const').replace('export function','function')
+ main=re.sub(r'^import .*?;\s*$', '', (D/'src/main.mjs').read_text(), flags=re.MULTILINE).replace('boot().catch(failure);','')
+ extra='''
+--- a/tests/test_v187.py
++++ b/tests/test_v187.py
+@@ -75,7 +75,7 @@
+ 
+     def test_version_and_start_scripts_exist(self):
+         package=json.loads((THREE/'package.json').read_text())
+-        self.assertEqual(package['version'],'1.8.9')
++        self.assertEqual(package['version'],'1.8.9-hotfix.1')
+         self.assertIn('rapier3d-compat',str(package['dependencies']))
+         self.assertTrue((THREE/'START_WINDOWS.cmd').exists())
+         self.assertTrue((THREE/'START_UNIX.sh').exists())
+--- a/tests/test_v188.py
++++ b/tests/test_v188.py
+@@ -47,7 +47,7 @@
+ 
+     def test_web_dependency_contract(self):
+         pkg=json.loads((WEB/'package.json').read_text())
+-        self.assertEqual(pkg['version'],'1.8.9')
++        self.assertEqual(pkg['version'],'1.8.9-hotfix.1')
+         self.assertEqual(pkg['dependencies']['three'],'0.180.0')
+         self.assertEqual(pkg['dependencies']['@dimforge/rapier3d-compat'],'0.18.2')
+         self.assertTrue((ROOT/'START_WEB_WINDOWS.cmd').is_file())
+--- a/tests/test_v188_interaction.py
++++ b/tests/test_v188_interaction.py
+@@ -24,7 +24,7 @@
+         html=html.replace('<script type="module" src="./src/main.mjs"></script>','')
+         self.page.set_content(html,wait_until='load')
+         self.page.eval_on_selector('#screen-overlay','el=>el.remove()')
+-        helper='\n'.join((D/'src'/name).read_text().replace('export const','const').replace('export function','function') for name in ['steering-input.mjs','procedural-map.mjs','game-modes.mjs'])
++        helper='\n'.join((D/'src'/name).read_text().replace('export const','const').replace('export function','function') for name in ['steering-input.mjs','procedural-map.mjs','game-modes.mjs','automatic-transmission.mjs'])
+         main=(D/'src/main.mjs').read_text()
+         main=re.sub(r'^import .*?;\s*$', '', main,flags=re.MULTILINE)
+         main=main.replace('boot().catch(failure);','')
+--- /dev/null
++++ b/tests/test_v1891.py
+@@ -0,0 +1,110 @@
++"""v1.8.9.1 automatic mode and manual shifter separation.
++
++Uses actual Chromium keyboard/DOM events and the production automatic decision
++module but a simulated gearbox; it does not claim Rapier collision validation.
++"""
++from pathlib import Path
++import re, subprocess, unittest
++from playwright.sync_api import sync_playwright
++ROOT=Path(__file__).resolve().parents[1]
++WEB=ROOT/'desktop3d'
++
++class TransmissionPolicyQA(unittest.TestCase):
++    def test_real_policy_across_four_vehicle_presets(self):
++        done=subprocess.run(['node',str(WEB/'tests/validate-auto-transmission.mjs')],
++                            capture_output=True,text=True,timeout=15)
++        self.assertEqual(done.returncode,0,done.stdout+done.stderr)
++        self.assertIn('PASS v1.8.9.1',done.stdout)
++    def test_physics_and_collision_solver_unchanged(self):
++        old=Path('/mnt/data/SHIFT_LAB_V1.8.9_Procedural_Map_Game_UI/desktop3d')
++        if old.exists():
++            for item in ['public/physics.html','src/chassis.mjs','src/road.mjs','src/obstacles.mjs',
++                         'src/scenarios.mjs','src/steering-input.mjs']:
++                self.assertEqual((WEB/item).read_bytes(),(old/item).read_bytes(),item)
++
++class TransmissionBrowserQA(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        cls.pw=sync_playwright().start()
++        cls.browser=cls.pw.chromium.launch(executable_path='/usr/bin/chromium',headless=True,
++                                            args=['--no-sandbox'])
++    @classmethod
++    def tearDownClass(cls):
++        cls.browser.close();cls.pw.stop()
++    def setUp(self):
++        self.page=self.browser.new_page()
++        self.addCleanup(self.page.close)
++        page=(WEB/'index.html').read_text().replace('src="./physics.html"','src="about:blank"')
++        page=page.replace('<script type="module" src="./src/main.mjs"></script>','')
++        self.page.set_content(page,wait_until='load')
++        self.page.eval_on_selector('#screen-overlay','e=>e.remove()')
++        modules='\n'.join((WEB/'src'/name).read_text().replace('export const','const')
++           .replace('export function','function') for name in
++           ['steering-input.mjs','procedural-map.mjs','game-modes.mjs','automatic-transmission.mjs'])
++        main=re.sub(r'^import .*?;\s*$','',(WEB/'src/main.mjs').read_text(),flags=re.MULTILINE)
++        main=main.replace('boot().catch(failure);','')
++        injected='''
++const SCENARIOS={free:{description:'free'}};
++window.__GEAR_QA__={
++    init(){
++      d={inputKeys:new Set(),hostControls:{steer:0,throttle:0,brake:0,clutch:0},requests:[],
++        params:{ratios:{1:3.55,2:2.06,3:1.40,4:1.03,5:.84,6:.72},finalDrive:3.9,
++          wheelRadius:.31,idleRPM:850,redlineRPM:6800},
++        state:{gear:5,pendingGear:null,velocity:12,engineOmega:1700*2*Math.PI/60,
++          time:4,clutch:.95,engineOn:true,throttle:0,brake:1},
++        requestGear(g){this.requests.push(g);this.state.pendingGear=g;this.state.gear=0;return true;},
++        startEngine(){this.state.engineOn=true;}};
++      labReady=true;installEvents();driveFocus();
++    },
++    get(){return {mode:$('drive-mode').value,clutch:d.hostControls.clutch,
++      disabled:gearSelect.disabled,coreKeys:[...d.inputKeys],requests:[...d.requests],
++      pendingGear:d.state.pendingGear};},
++    autoStep(){updateAutoDrive();return this.get()},
++    clear(){d.requests=[];d.state.pendingGear=null;d.state.gear=5;},
++    mode(m){$('drive-mode').value=m;$('drive-mode').dispatchEvent(new Event('change',{bubbles:true}));
++        driveFocus();return this.get();}
++};'''
++        self.page.add_script_tag(content=modules+'\n'+main+'\n'+injected)
++        self.page.evaluate('window.__GEAR_QA__.init()')
++    def test_auto_mode_ignores_keyboard_gear_commands_and_clutch(self):
++        initial=self.page.evaluate('window.__GEAR_QA__.get()')
++        self.assertEqual(initial['mode'],'assisted')
++        self.assertTrue(initial['disabled'])
++        for keys in ['Shift+1','Shift+6','2','0','r','Numpad3']:
++            with self.subTest(keys=keys):
++                self.page.keyboard.press(keys)
++                data=self.page.evaluate('window.__GEAR_QA__.get()')
++                self.assertEqual(data['requests'],[])
++                self.assertNotIn('shift',data['coreKeys'])
++        self.page.keyboard.down('Shift')
++        self.assertNotIn('shift',self.page.evaluate('window.__GEAR_QA__.get().coreKeys'))
++        self.page.keyboard.up('Shift')
++    def test_auto_downshift_on_braking_through_original_request_interface(self):
++        state=self.page.evaluate('window.__GEAR_QA__.autoStep()')
++        self.assertEqual(state['requests'],[4])
++        self.assertEqual(state['pendingGear'],4)
++        self.assertEqual(state['clutch'],1)
++        state=self.page.evaluate('window.__GEAR_QA__.autoStep()')
++        self.assertEqual(state['requests'],[4])
++    def test_manual_mode_retains_shift_and_number_keys(self):
++        state=self.page.evaluate("window.__GEAR_QA__.mode('manual')")
++        self.assertEqual(state['mode'],'manual')
++        self.assertFalse(state['disabled'])
++        self.page.keyboard.down('Shift')
++        self.assertIn('shift',self.page.evaluate('window.__GEAR_QA__.get().coreKeys'))
++        self.page.keyboard.press('4')
++        state=self.page.evaluate('window.__GEAR_QA__.get()')
++        self.assertEqual(state['requests'],[4])
++        self.page.keyboard.up('Shift')
++        self.assertNotIn('shift',self.page.evaluate('window.__GEAR_QA__.get().coreKeys'))
++    def test_manual_selector_does_not_silently_switch_auto_to_manual(self):
++        self.page.evaluate('''()=>{
++          const g=document.getElementById('gear');g.value='3';
++          g.dispatchEvent(new Event('change',{bubbles:true}));
++        }''')
++        state=self.page.evaluate('window.__GEAR_QA__.get()')
++        self.assertEqual(state['mode'],'assisted')
++        self.assertEqual(state['requests'],[])
++        self.assertTrue(state['disabled'])
++
++if __name__=='__main__':unittest.main(verbosity=2)
+--- /dev/null
++++ b/tests/test_v1891_drivetrain.py
+@@ -0,0 +1,70 @@
++"""Accelerate -> brake to stop -> accelerate again using the actual SHIFT LAB
++four-wheel and drivetrain engine, without Vite/Three/Rapier dependencies.
++This validates automatic gear-control integration, NOT the 3D collision world.
++"""
++import re, unittest
++from pathlib import Path
++from playwright.sync_api import sync_playwright
++ROOT=Path(__file__).resolve().parents[1]
++WEB=ROOT/'desktop3d'
++
++class RealCoreAutoShift(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        cls.pw=sync_playwright().start()
++        cls.browser=cls.pw.chromium.launch(executable_path='/usr/bin/chromium',headless=True,
++                                           args=['--no-sandbox'])
++        cls.page=cls.browser.new_page()
++        html=(WEB/'index.html').read_text().replace('src="./physics.html"','src="about:blank"')
++        cls.page.set_content(html.replace('<script type="module" src="./src/main.mjs"></script>',''),
++                             wait_until='load')
++        iframe=cls.page.locator('#physics').element_handle().content_frame()
++        iframe.set_content((WEB/'public/physics.html').read_text(),wait_until='load')
++        helpers='\n'.join((WEB/'src'/name).read_text().replace('export const','const')
++                            .replace('export function','function') for name in
++                            ['steering-input.mjs','procedural-map.mjs','game-modes.mjs','automatic-transmission.mjs'])
++        main=re.sub(r'^import .*?;\s*$','',(WEB/'src/main.mjs').read_text(),flags=re.MULTILINE)
++        main=main.replace('boot().catch(failure);','')
++        extension='''
++window.__DRIVETRAIN_QA__={
++  init(){d=$('physics').contentWindow.__SHIFT_LAB_DEBUG__;d.setExternalClock(true);
++    scenarioId='free';labReady=true;installEvents();},
++  run(preset){
++    d.reset();d.applyVehicle(preset);d.hostControls.active=true;
++    autoDrive.lastShiftTime=-100;autoDrive.shiftTarget=0;
++    d.inputKeys.clear();$('drive-mode').value='assisted';syncTransmissionUI();
++    const records=[];
++    for(let i=0;i<4800;i++){
++      if(i===0)d.inputKeys.add('w');
++      if(i===1800){d.inputKeys.delete('w');d.inputKeys.add('s');}
++      if(i===3000){d.inputKeys.delete('s');d.inputKeys.add('w');}
++      updateAutoDrive();d.advancePhysics(1/120);
++      if(i%120===0)records.push({time:i/120,gear:d.state.gear,
++        pendingGear:d.state.pendingGear,kmh:d.state.velocity*3.6,
++        engineOn:d.state.engineOn,rpm:d.state.engineOmega*60/(2*Math.PI)});
++    }
++    return records;
++  }
++};'''
++        cls.page.add_script_tag(content=helpers+'\n'+main+'\n'+extension)
++        cls.page.evaluate('window.__DRIVETRAIN_QA__.init()')
++    @classmethod
++    def tearDownClass(cls):
++        cls.browser.close();cls.pw.stop()
++
++    def test_continuous_accel_brake_reaccelerate_four_real_vehicle_presets(self):
++        for car in ['standard','city','turbo','diesel']:
++            with self.subTest(car=car):
++                samples=self.page.evaluate('(car)=>window.__DRIVETRAIN_QA__.run(car)',car)
++                acceleration=[s for s in samples if s['time']<15]
++                braking=[s for s in samples if 15<=s['time']<=25]
++                return_accel=[s for s in samples if s['time']>=25]
++                self.assertGreater(max(x['kmh'] for x in acceleration),30,car+' acceleration')
++                self.assertTrue(any(x['gear']>=2 for x in acceleration),car+' upshift')
++                self.assertTrue(any(x['gear']==1 for x in braking),car+' braking -> first')
++                self.assertLess(min(abs(x['kmh']) for x in braking),3,car+' near stop')
++                self.assertTrue(any(x['gear']>=2 for x in return_accel),car+' restart and upshift')
++                self.assertTrue(all(x['engineOn'] for x in samples[2:]),car+' engine stability')
++                self.assertTrue(all(abs(x['kmh'])<250 for x in samples),car+' velocity finite/safe')
++
++if __name__=='__main__': unittest.main(verbosity=2)

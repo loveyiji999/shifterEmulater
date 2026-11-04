@@ -1,0 +1,43 @@
+{
+  "schema": "shiftlab.phase-gate.verification.v1",
+  "recordedAt": "2026-10-28T16:47:36.909534+00:00",
+  "phase": "P1",
+  "scope": "reference procedural vehicle gate; entire P0-P5 goal remains active",
+  "status": "reference_gate_passed",
+  "wheelPoses": 4576,
+  "wheelColliderQueries": 183040,
+  "minimumShellClearanceM": 0.020000100135803223,
+  "maximumBumpExcessM": 0,
+  "maximumSettledTirePlaneErrorM": 0.005947381038555468,
+  "physicsCoreUnchanged": true,
+  "checks": {
+    "qa:all": "PASS, then final render/verification changes covered by qa:vehicle and browser",
+    "qa:vehicle final": "PASS",
+    "browser final": "PASS",
+    "36 diagnostics final": "PASS",
+    "54 V3 drives": "PASS",
+    "5 standalone acceptance": "PASS",
+    "build": "PASS 21 modules",
+    "production screenshot": "PASS; visually inspected"
+  },
+  "sourceHashes": {
+    "desktop3d/src/vehicle-layout.mjs": "1c5dd5b952c2152570ea800c6d67f1979de3e2f50b456c65e0320ae88047d15a",
+    "desktop3d/src/vehicle-visual.mjs": "6e13e4595886cc58206d8b9d4d5b0a14cbd001ecc7703d38f00a918959158c74",
+    "desktop3d/src/vehicle-definition.mjs": "38dfc32c7e82070720ff8fe1908dc164721a02b42cb2c25f249e7eeaa11f0902",
+    "desktop3d/src/chassis.mjs": "b843de6b6c8937d47af06b27af9f401f6e57614eb475afe11e0be84aefd313cf",
+    "desktop3d/tests/validate-wheel-wells.mjs": "fffd692f38dfdcf9daf8167ce7d9ef80e28619dacb5279f7d3d50ebdc46c6483",
+    "desktop3d/tests/validate-bump-stops.mjs": "ac94e3553c67731f1a80b87a225037cf77a12a2e6468da62f563742f87929099",
+    "desktop3d/tests/validate-vehicle-model.mjs": "6b3b6fdd2e8e63adc3bf035e946f953d0fe04eba1229392ac5eefd741ee81536",
+    "desktop3d/tests/vehicle-diagnostics/main.mjs": "2e144786bf7f1980917a5c772a3ccf79bfa62e0457220a31669a3589ec23c45f",
+    "desktop3d/tests/validate-procedural-browser.mjs": "5dafed052d7503cb8bedee01de0bb9672127450e278f378ada518dc807c3d0d8",
+    "desktop3d/tests/game-driver.mjs": "ec153d9e86713fb126d3061b831d5d7210997dd7cd8a35174e70e6f92219bcae"
+  },
+  "remainingPhases": [
+    "P0 material-boundary integration",
+    "P2 terrain/materials/lighting/scenery",
+    "P3 ten-case native GPU quality/performance",
+    "P4 tuning UI and atomic application",
+    "P5 appearance creation/import/save/reload"
+  ],
+  "sourceSnapshot": "p1-gate-source-2026-10-29.zip"
+}

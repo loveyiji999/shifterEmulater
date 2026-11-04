@@ -1,0 +1,11 @@
+{
+  "model": "measured-steering-wheel-to-yaw-rate first-order surrogate",
+  "source": "https://github.com/MB-Team-THI/UAHL-RevStED/blob/main/OBD_Sample.csv",
+  "source_blob_sha": "84189261768649e0c8eb0d62d474631ff401f3ea",
+  "gain_per_m": 0.025675154963018698,
+  "time_constant_s": 0.11317488964212404,
+  "steering_zero_deg": 11.025295726260032,
+  "application": "diagnostic_reference_only",
+  "compatible_full_chassis_params": null,
+  "reason": "full four-wheel chassis and suspension parameters are not identifiable from this measured fragment"
+}

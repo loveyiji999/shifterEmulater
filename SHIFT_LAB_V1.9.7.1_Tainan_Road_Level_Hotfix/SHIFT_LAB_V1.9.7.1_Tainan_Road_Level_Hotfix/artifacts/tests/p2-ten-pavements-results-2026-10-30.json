@@ -1,0 +1,444 @@
+{
+  "scope": "40 original-core braking experiments, author coefficients only; native single steel scene not P3 completion",
+  "cases": 40,
+  "oldThreeMaterialExactMatches": [
+    [
+      "asphalt_dense",
+      "dry",
+      12.365852355957031
+    ],
+    [
+      "asphalt_dense",
+      "wet",
+      15.634937286376953
+    ],
+    [
+      "asphalt_dense",
+      "snow",
+      29.54511260986328
+    ],
+    [
+      "asphalt_dense",
+      "ice",
+      62.39452362060547
+    ],
+    [
+      "concrete",
+      "dry",
+      12.520225524902344
+    ],
+    [
+      "concrete",
+      "wet",
+      16.260921478271484
+    ],
+    [
+      "concrete",
+      "snow",
+      29.545394897460938
+    ],
+    [
+      "concrete",
+      "ice",
+      59.26524353027344
+    ],
+    [
+      "gravel",
+      "dry",
+      14.671829223632812
+    ],
+    [
+      "gravel",
+      "wet",
+      19.080810546875
+    ],
+    [
+      "gravel",
+      "snow",
+      29.371368408203125
+    ],
+    [
+      "gravel",
+      "ice",
+      62.243743896484375
+    ]
+  ],
+  "braking": [
+    {
+      "material": "asphalt_dense",
+      "condition": "dry",
+      "distanceM": 12.365852355957031,
+      "seconds": 2.291666666666661,
+      "steps": 274,
+      "collisions": 0
+    },
+    {
+      "material": "asphalt_dense",
+      "condition": "wet",
+      "distanceM": 15.634937286376953,
+      "seconds": 2.9833333333333254,
+      "steps": 357,
+      "collisions": 0
+    },
+    {
+      "material": "asphalt_dense",
+      "condition": "snow",
+      "distanceM": 29.54511260986328,
+      "seconds": 5.6833333333334055,
+      "steps": 681,
+      "collisions": 0
+    },
+    {
+      "material": "asphalt_dense",
+      "condition": "ice",
+      "distanceM": 62.39452362060547,
+      "seconds": 11.991666666666626,
+      "steps": 1438,
+      "collisions": 0
+    },
+    {
+      "material": "asphalt_open",
+      "condition": "dry",
+      "distanceM": 12.460861206054688,
+      "seconds": 2.316666666666661,
+      "steps": 277,
+      "collisions": 0
+    },
+    {
+      "material": "asphalt_open",
+      "condition": "wet",
+      "distanceM": 15.260810852050781,
+      "seconds": 2.9249999999999923,
+      "steps": 350,
+      "collisions": 0
+    },
+    {
+      "material": "asphalt_open",
+      "condition": "snow",
+      "distanceM": 28.818504333496094,
+      "seconds": 5.508333333333397,
+      "steps": 660,
+      "collisions": 0
+    },
+    {
+      "material": "asphalt_open",
+      "condition": "ice",
+      "distanceM": 59.26524353027344,
+      "seconds": 11.283333333333333,
+      "steps": 1353,
+      "collisions": 0
+    },
+    {
+      "material": "concrete",
+      "condition": "dry",
+      "distanceM": 12.520225524902344,
+      "seconds": 2.3333333333333277,
+      "steps": 279,
+      "collisions": 0
+    },
+    {
+      "material": "concrete",
+      "condition": "wet",
+      "distanceM": 16.260921478271484,
+      "seconds": 3.1499999999999915,
+      "steps": 377,
+      "collisions": 0
+    },
+    {
+      "material": "concrete",
+      "condition": "snow",
+      "distanceM": 29.545394897460938,
+      "seconds": 5.6500000000000705,
+      "steps": 677,
+      "collisions": 0
+    },
+    {
+      "material": "concrete",
+      "condition": "ice",
+      "distanceM": 59.26524353027344,
+      "seconds": 11.283333333333333,
+      "steps": 1353,
+      "collisions": 0
+    },
+    {
+      "material": "concrete_paver",
+      "condition": "dry",
+      "distanceM": 12.767826080322266,
+      "seconds": 2.399999999999994,
+      "steps": 287,
+      "collisions": 0
+    },
+    {
+      "material": "concrete_paver",
+      "condition": "wet",
+      "distanceM": 17.249099731445312,
+      "seconds": 3.3083333333333242,
+      "steps": 396,
+      "collisions": 0
+    },
+    {
+      "material": "concrete_paver",
+      "condition": "snow",
+      "distanceM": 29.85582733154297,
+      "seconds": 5.7166666666667405,
+      "steps": 685,
+      "collisions": 0
+    },
+    {
+      "material": "concrete_paver",
+      "condition": "ice",
+      "distanceM": 60.963523864746094,
+      "seconds": 11.658333333333312,
+      "steps": 1398,
+      "collisions": 0
+    },
+    {
+      "material": "clay_paver",
+      "condition": "dry",
+      "distanceM": 13.117691040039062,
+      "seconds": 2.4666666666666606,
+      "steps": 295,
+      "collisions": 0
+    },
+    {
+      "material": "clay_paver",
+      "condition": "wet",
+      "distanceM": 18.518268585205078,
+      "seconds": 3.4833333333333236,
+      "steps": 417,
+      "collisions": 0
+    },
+    {
+      "material": "clay_paver",
+      "condition": "snow",
+      "distanceM": 30.39916229248047,
+      "seconds": 5.775000000000077,
+      "steps": 692,
+      "collisions": 0
+    },
+    {
+      "material": "clay_paver",
+      "condition": "ice",
+      "distanceM": 60.963523864746094,
+      "seconds": 11.658333333333312,
+      "steps": 1398,
+      "collisions": 0
+    },
+    {
+      "material": "natural_stone",
+      "condition": "dry",
+      "distanceM": 12.906517028808594,
+      "seconds": 2.4166666666666607,
+      "steps": 289,
+      "collisions": 0
+    },
+    {
+      "material": "natural_stone",
+      "condition": "wet",
+      "distanceM": 17.90091323852539,
+      "seconds": 3.3666666666666574,
+      "steps": 403,
+      "collisions": 0
+    },
+    {
+      "material": "natural_stone",
+      "condition": "snow",
+      "distanceM": 29.60926055908203,
+      "seconds": 5.658333333333404,
+      "steps": 678,
+      "collisions": 0
+    },
+    {
+      "material": "natural_stone",
+      "condition": "ice",
+      "distanceM": 60.963523864746094,
+      "seconds": 11.658333333333312,
+      "steps": 1398,
+      "collisions": 0
+    },
+    {
+      "material": "gravel",
+      "condition": "dry",
+      "distanceM": 14.671829223632812,
+      "seconds": 2.774999999999993,
+      "steps": 332,
+      "collisions": 0
+    },
+    {
+      "material": "gravel",
+      "condition": "wet",
+      "distanceM": 19.080810546875,
+      "seconds": 3.59999999999999,
+      "steps": 431,
+      "collisions": 0
+    },
+    {
+      "material": "gravel",
+      "condition": "snow",
+      "distanceM": 29.371368408203125,
+      "seconds": 5.600000000000068,
+      "steps": 671,
+      "collisions": 0
+    },
+    {
+      "material": "gravel",
+      "condition": "ice",
+      "distanceM": 62.243743896484375,
+      "seconds": 11.924999999999963,
+      "steps": 1430,
+      "collisions": 0
+    },
+    {
+      "material": "earth",
+      "condition": "dry",
+      "distanceM": 16.169532775878906,
+      "seconds": 3.033333333333325,
+      "steps": 363,
+      "collisions": 0
+    },
+    {
+      "material": "earth",
+      "condition": "wet",
+      "distanceM": 23.196651458740234,
+      "seconds": 4.325000000000005,
+      "steps": 518,
+      "collisions": 0
+    },
+    {
+      "material": "earth",
+      "condition": "snow",
+      "distanceM": 30.718536376953125,
+      "seconds": 5.808333333333412,
+      "steps": 696,
+      "collisions": 0
+    },
+    {
+      "material": "earth",
+      "condition": "ice",
+      "distanceM": 62.243743896484375,
+      "seconds": 11.924999999999963,
+      "steps": 1430,
+      "collisions": 0
+    },
+    {
+      "material": "timber",
+      "condition": "dry",
+      "distanceM": 14.502925872802734,
+      "seconds": 2.758333333333326,
+      "steps": 330,
+      "collisions": 0
+    },
+    {
+      "material": "timber",
+      "condition": "wet",
+      "distanceM": 22.168846130371094,
+      "seconds": 4.166666666666663,
+      "steps": 499,
+      "collisions": 0
+    },
+    {
+      "material": "timber",
+      "condition": "snow",
+      "distanceM": 31.79656219482422,
+      "seconds": 6.05000000000009,
+      "steps": 725,
+      "collisions": 0
+    },
+    {
+      "material": "timber",
+      "condition": "ice",
+      "distanceM": 62.243743896484375,
+      "seconds": 11.924999999999963,
+      "steps": 1430,
+      "collisions": 0
+    },
+    {
+      "material": "steel",
+      "condition": "dry",
+      "distanceM": 14.762931823730469,
+      "seconds": 2.8416666666666592,
+      "steps": 340,
+      "collisions": 0
+    },
+    {
+      "material": "steel",
+      "condition": "wet",
+      "distanceM": 23.772197723388672,
+      "seconds": 4.550000000000016,
+      "steps": 545,
+      "collisions": 0
+    },
+    {
+      "material": "steel",
+      "condition": "snow",
+      "distanceM": 36.36224365234375,
+      "seconds": 6.966666666666803,
+      "steps": 835,
+      "collisions": 0
+    },
+    {
+      "material": "steel",
+      "condition": "ice",
+      "distanceM": 70.32377624511719,
+      "seconds": 13.483333333333208,
+      "steps": 1617,
+      "collisions": 0
+    }
+  ],
+  "native": {
+    "file": "p2-ten-pavements-steel-performance-2026-10-30.json",
+    "metadata": {
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+      "device": "ANGLE (Intel, Intel(R) UHD Graphics 770 (0x00004680) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "backend": "WebGL2",
+      "drawingBuffer": [
+        1440,
+        900
+      ],
+      "devicePixelRatio": 1,
+      "hardwareConcurrency": 20,
+      "deviceMemoryGiB": 32,
+      "map": {
+        "seed": "STREAM-TIMING-V1",
+        "turnChance": 0,
+        "hairpinChance": 0,
+        "slopeChance": 0,
+        "leftBias": 50,
+        "upBias": 50,
+        "maxGrade": 9,
+        "generator": 3
+      },
+      "scenery": {
+        "trees": 235,
+        "rocks": 29,
+        "batches": 27,
+        "colliders": 264
+      },
+      "pavementMaterial": "steel",
+      "preset": "standard",
+      "warmupSeconds": 10,
+      "captureSeconds": 40
+    },
+    "frameMs": {
+      "p50": 16.799999997019768,
+      "p95": 18.899999998509884,
+      "p99": 19.600000001490116,
+      "max": 49
+    },
+    "gpuRenderMs": {
+      "p50": 12.105625,
+      "p95": 13.192916,
+      "p99": 13.879791,
+      "max": 15.166354
+    },
+    "streamCpuMs": {
+      "p50": 0.09999999403953552,
+      "p95": 0.30000000447034836,
+      "p99": 1,
+      "max": 3.2999999970197678
+    },
+    "simulationRatio": 1.001340675803795,
+    "drops": 1,
+    "waits": 0
+  }
+}

@@ -1,0 +1,534 @@
+--- SHIFT_LAB_V1.8.5/index.html
++++ SHIFT_LAB_V1.8.6/index.html
+@@ -2,9 +2,9 @@
+ <html lang="zh-Hant">
+ <head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width,initial-scale=1">
+-<title>SHIFT//LAB V1.5 · 輪胎熱態、胎壓與回正力矩</title>
++<title>SHIFT//LAB V1.8.6 · 桌面駕駛物理改良版</title>
+ <style>
+ :root{color-scheme:dark;--bg:#080d14;--panel:#121a27;--panel2:#182435;--border:#2a3848;--muted:#92a3b6;--text:#ecf3f6;--mint:#77f0c4;--mint2:#2fb994;--amber:#ffd17c;--red:#ff776f;--blue:#80bafa}
+ *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(ellipse at 10% 0%,#183144 0%,transparent 39%),radial-gradient(ellipse at 98% 0%,#222537 0%,transparent 35%),var(--bg);font-family:Inter,'Noto Sans TC','Microsoft JhengHei',system-ui,sans-serif;color:var(--text)}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:2px solid var(--mint);outline-offset:3px}body{padding:23px}.wrap{max-width:1460px;margin:auto}header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:17px;flex-wrap:wrap}.brand{font-size:24px;font-weight:850;letter-spacing:.15em;line-height:1}.brand b{color:var(--mint)}.brand small{display:block;font-size:10px;font-weight:600;letter-spacing:.29em;color:var(--muted);margin-top:10px}.head-right{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.tag{border:1px solid var(--border);border-radius:100px;padding:9px 13px;letter-spacing:.07em;font-size:11px;color:var(--muted)}.tag strong{color:var(--mint)}.btn{border:1px solid #3b5368;color:#e6f2f8;background:#1b3044;padding:11px 15px;border-radius:10px;font-weight:750;transition:background .2s,transform .12s}.btn:hover{background:#27465c}.btn:active{transform:scale(.97)}.btn.start{color:#03150e;background:var(--mint);border-color:var(--mint)}.btn.start:hover{background:#b3ffe1}.btn.off{border-color:#6d4850}.layout{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:16px;align-items:start}.panel{background:linear-gradient(155deg,rgba(22,33,47,.98),rgba(11,17,27,.98));border:1px solid var(--border);border-radius:16px;box-shadow:0 13px 35px #0003;min-width:0}.main{padding:19px}.section-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 15px}.eyebrow{font-size:11px;letter-spacing:.19em;color:var(--mint);font-weight:800}.description{color:var(--muted);font-size:11px}.gauges{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center}.gauge-wrap{position:relative;text-align:center;min-width:0}.gauge{width:100%;max-width:360px;aspect-ratio:1.17;display:block;margin:auto}.gauge-label{font-size:11px;letter-spacing:.15em;color:var(--muted);font-weight:700;margin-top:-9px}.gauge-value{font-family:Consolas,'Roboto Mono',monospace;position:absolute;top:68%;left:50%;transform:translate(-50%,-50%);font-size:clamp(21px,3.4vw,42px);font-weight:750;white-space:nowrap;text-shadow:0 2px 16px #000}.gauge-value small{font-size:12px;color:var(--muted);margin-left:2px}.gauge-tag{position:absolute;top:84%;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted);white-space:nowrap}.car-visual{margin-top:16px;position:relative;border:1px solid #2c4050;background:#111c2a;border-radius:12px;overflow:hidden;height:192px}.car-visual canvas{width:100%;height:100%;display:block}.road-hud{position:absolute;top:12px;left:15px;font-size:10px;font-weight:800;letter-spacing:.16em;color:#cbd6de;text-shadow:0 2px 10px #000}.road-hud b{color:var(--mint)}.road-hint{position:absolute;bottom:12px;right:15px;color:#e0edf3cc;font-size:11px;background:#0c1627ac;padding:7px 10px;border:1px solid #30475c;border-radius:7px}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.metric{background:#0b1522;border:1px solid #2b3848;border-radius:11px;padding:12px 9px}.metric span{display:block;font-size:11px;color:var(--muted);margin-bottom:8px}.metric strong{font-size:19px;font-family:Consolas,monospace;color:#eaf4f7}.metric strong small{font-size:10px;color:var(--muted);font-family:inherit}.metric strong.warning{color:var(--amber)}.metric strong.error{color:var(--red)}.footer-panel{margin-top:15px;background:#0b1420;border-radius:11px;padding:13px;border:1px solid #293747}.event{font-size:13px;display:flex;align-items:center;gap:9px;line-height:1.5}.event .pulse{width:8px;height:8px;min-width:8px;background:var(--mint);border-radius:50%;box-shadow:0 0 10px #77f0c466}.event.warn .pulse{background:var(--amber)}.event.error .pulse{background:var(--red)}.event span{color:#e1eaf1}.event-history{margin:9px 0 0;padding:0;color:#8799aa;list-style:none;font-size:11px;line-height:1.55}.side{display:flex;flex-direction:column;gap:15px}.side .panel{padding:17px}.shifter-top{display:flex;justify-content:space-between;align-items:center}.gear-readout{border:1px solid var(--mint2);border-radius:9px;background:#0e2825;color:var(--mint);font-size:21px;font-family:Consolas,monospace;font-weight:800;padding:5px 16px;min-width:55px;text-align:center}.gate{height:282px;position:relative;margin-top:12px;background:radial-gradient(circle at 49% 43%,#1b2e3e 0%,#0a141e 72%);border:1px solid #27394c;border-radius:14px;touch-action:none;user-select:none}.gate svg{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}.gear-button{position:absolute;transform:translate(-50%,-50%);width:47px;height:44px;background:#162838;border:1px solid #3d5061;border-radius:10px;color:#bed0de;font-weight:800;font-size:17px}.gear-button:hover{border-color:var(--mint);color:var(--mint)}.gear-button.active{border-color:var(--mint);background:#0d3b32;color:var(--mint);box-shadow:0 0 23px #3ecbab22}.gear-button.pending{border-color:var(--amber);color:var(--amber)}.gear-button.reverse{border-color:#855253;color:#ffae9b}.lever{position:absolute;pointer-events:none;left:49%;top:51%;width:29px;height:29px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at 32% 26%,#eff9fd,#869cae 51%,#304354);border:3px solid #101b27;box-shadow:0 4px 14px #0009,0 0 0 2px #d0dee422;transition:left .18s,top .18s;z-index:2}.gate-note{font-size:11px;color:var(--muted);margin:12px 0 0;line-height:1.6}.pedals{display:grid;gap:15px;margin-top:18px}.pedal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;font-size:13px}.pedal-top b{font-size:14px}.pedal-top span{color:var(--muted);font-family:Consolas,monospace}.pedal-top kbd{font:inherit;font-size:10px;border:1px solid #44546a;background:#1b2739;padding:3px 7px;border-radius:5px;color:#a9c1d3}input[type=range]{width:100%;accent-color:var(--mint);height:19px;cursor:ew-resize}.pedal-row[data-type=brake] input{accent-color:#ff8d76}.pedal-row[data-type=clutch] input{accent-color:#8abfff}.underbar{height:4px;border-radius:3px;background:#253246;margin-top:4px;overflow:hidden}.underbar div{height:100%;background:var(--mint);width:0;transition:width .08s}.pedal-row[data-type=brake] .underbar div{background:#ff8d76}.pedal-row[data-type=clutch] .underbar div{background:#8abfff}.hint{border:1px solid #344757;background:#0b1827;border-radius:10px;padding:13px;line-height:1.6;color:#b8c9d7;font-size:11.5px}.hint b{color:#dcebf0}.hint .highlight{color:var(--mint)}.shortcuts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}kbd{padding:3px 6px;background:#1e2d3e;border:1px solid #3f5364;border-radius:5px;font-family:Consolas,monospace;font-size:11px}.switchline{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted);gap:10px;margin-top:12px}.switchline input{accent-color:var(--mint)}.bottom{color:var(--muted);font-size:11px;text-align:center;margin:20px 0 0;line-height:1.7}.backdrop-line{height:1px;background:linear-gradient(90deg,transparent,#3b505b,transparent);margin:13px 0}.status-pill{font-size:10px;color:var(--amber);border:1px solid #674f31;border-radius:100px;padding:5px 9px;white-space:nowrap}#warning{min-height:24px}.audio-status{color:var(--muted);font-size:10px;margin-top:8px}@media(max-width:1080px){.layout{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr}.side .panel:last-child{grid-column:1/-1}.gate{max-width:390px;margin:12px auto 0;width:100%}}@media(max-width:640px){.gauge-value{font-size:20px!important;top:61%;background:#101926bc;border-radius:6px;padding:2px 5px}.gauge-value small{font-size:8px}.gauge-tag{font-size:8px;top:78%}body{padding:12px}.main{padding:12px}.side{grid-template-columns:1fr}.side .panel:last-child{grid-column:auto}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.gauge-value{font-size:26px}.gauges{gap:3px}.car-visual{height:146px}.tag{display:none}.brand{font-size:21px}.btn{font-size:12px;padding:10px 11px}}
+ .drive-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:9px}.drive-stat{border:1px solid #2a3e51;border-radius:10px;background:#0e1c2b;padding:11px 9px;min-width:0}.drive-stat span{display:block;color:var(--muted);font-size:10px;letter-spacing:.015em;margin-bottom:7px}.drive-stat strong{display:block;color:var(--mint);font:750 13px Consolas,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.drive-stat strong.alert{color:var(--amber)}.drag-feedback{margin-top:10px;border-radius:9px;padding:9px 11px;background:#15312b;border:1px solid #336452;font-size:11px;color:#9ff3d4;line-height:1.5}.gate{cursor:grab}.gate.dragging{cursor:grabbing;box-shadow:inset 0 0 0 1px #70e6c355}.gate.dragging .lever{transition:none}.lever{z-index:4}.gear-button{z-index:1}.gate .gear-button{touch-action:none}.terrain-title{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:750;margin-bottom:12px}.terrain-title output{font-family:Consolas,monospace;color:var(--mint)}.terrain-help,.qa-tip{font-size:11px;color:var(--muted);line-height:1.7}.qa-tip{margin-top:11px;padding:9px;border:1px dashed #344b5e;border-radius:8px}.metric strong{white-space:nowrap}@media(max-width:850px){.drive-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:390px){.drive-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.drive-stat strong{font-size:12px}}
+@@ -308,9 +308,9 @@
+   <button id="shift-failure-close" type="button" aria-label="關閉換檔提示" title="關閉提示">×</button>
+ </div>
+ 
+ <header>
+-  <div class="brand">SHIFT<b>//</b>LAB <small>MANUAL TRANSMISSION · TIRE · DRIVELINE · VEHICLE PROFILES · COACH · REPLAY · STEERING · CAMERA · BODY DYNAMICS V1.8.5</small></div>
++  <div class="brand">SHIFT<b>//</b>LAB <small>MANUAL TRANSMISSION · TIRE · DRIVELINE · VEHICLE PROFILES · COACH · REPLAY · STEERING · CAMERA · BODY DYNAMICS V1.8.5 · HANDLING V1.8.6</small></div>
+   <div class="head-right"><div class="tag">物理模擬 <strong>120 Hz</strong> · <span id="header-vehicle">2.0L NA / 6MT</span></div><button type="button" class="btn start" id="ignition">⏻　發動引擎　[I]</button><button type="button" class="btn" id="audio">♫　啟用音效</button><button type="button" class="btn off" id="reset">重置</button></div>
+ </header>
+ <div class="layout">
+ <main class="panel main">
+@@ -426,18 +426,21 @@
+           <label>前軸煞車分配
+             <select id="handling-brake-bias"><option value="0.60">60%（後軸較高）</option><option value="0.68" selected>68%（標準）</option><option value="0.75">75%（前軸較高）</option></select>
+           </label>
+           <label>偏航穩定輔助
+-            <select id="handling-esc"><option value="off">OFF · 純手動（預設）</option><option value="on">ON · ESC 單輪煞車示範</option></select>
++            <select id="handling-esc"><option value="off">OFF · 純手動（預設）</option><option value="on">ON · ESC 實際單輪制動</option></select>
++          </label>
++          <label>輪胎極限 / 救車手感
++            <select id="handling-feel"><option value="balanced" selected>均衡 · 峰值後溫和衰減</option><option value="sport">靈敏 · 明確抓地極限</option><option value="raw">原始物理 · V1.8.5 基準</option></select>
+           </label>
+         </div>
+         <div class="handling-stats" aria-label="偏航與 ESC 即時診斷">
+           <div class="handling-stat"><small>目標偏航率 / yaw ref</small><strong id="handling-yaw-ref">0.0 °/s</strong></div>
+           <div class="handling-stat"><small>偏航差 / yaw error</small><strong id="handling-yaw-error">0.0 °/s</strong></div>
+           <div class="handling-stat"><small>車身側滑角 β</small><strong id="handling-beta">0.0°</strong></div>
+           <div class="handling-stat" id="handling-esc-box"><small>動態傾向 / ESC 介入</small><strong id="handling-mode">中性 · OFF</strong></div>
+         </div>
+-        <p class="handling-note">前／後抓地倍率、煞車分配與 ESC 均為示範調校，不是特定車款的實測值。ESC 透過單輪煞車扭矩改變實際輪胎力，不直接修改偏航率；僅在有行駛速度且偏航差足夠時介入。使用無輔助模式可比較原始極限操控。</p>
++        <p class="handling-note">前／後抓地倍率、煞車分配與 ESC 均為示範調校，不是特定車款的實測值。ESC 透過單輪煞車扭矩改變輪胎力，不直接修改偏航率；直線突發偏航和 Split-μ 煞車也會判斷。輪胎手感不會提升乾地摩擦係數峰值，只改變峰值後抓地衰減。使用無輔助模式可比較原始極限操控。</p>
+       </details>
+       <details class="tire-thermal-group" id="tire-thermal-group">
+         <summary>V1.5 / 輪胎熱態、胎壓與自回正力矩</summary>
+         <div class="tire-thermal-fields">
+@@ -769,9 +772,9 @@
+     </div>
+     </div>
+   </details>
+ </section>
+-<div class="bottom">LOCAL / OFFLINE DEMO V1.8.5 · V1.8.5 具有實車資料參照，但完整四輪模型仍未取得跨車款實測認證 · 教學與物理概念驗證版本，並非特定車款實測動力模型 · 真實駕駛與機械手感需專用控制器或硬體。</div>
++<div class="bottom">LOCAL / OFFLINE DEMO V1.8.6 · V1.8.5 具有實車資料參照，但完整四輪模型仍未取得跨車款實測認證 · 教學與物理概念驗證版本，並非特定車款實測動力模型 · 真實駕駛與機械手感需專用控制器或硬體。</div>
+ </div>
+ <script>
+ (() => {
+ 'use strict';
+@@ -1112,8 +1115,10 @@
+   rollAngularAccel:0,pitchAngularAccel:0,
+   gripUsageFront:0,gripUsageRear:0,guardrailHits:0,contactCooldown:0,
+   offroad:false,contact:false,synced:true};
+ const steeringSettings={assist:false,cameraMode:'dynamic'};
++// Host inputs are used only by the explicit desktop 3D bridge; standalone UI remains unchanged.
++const hostControls={active:false,steer:null,throttle:null,brake:null,clutch:null};
+ // V1.6: steering-axis-equivalent dynamic rack, separated from driver commands.
+ // This is not an actual multi-link steering linkage or a USB force-feedback driver.
+ const steeringRack={mode:'comfort',feel:1,angle:0,rate:0,commandAngle:0,
+   driverTorqueNm:0,assistTorqueNm:0,pneumaticNm:0,mechanicalNm:0,
+@@ -1223,12 +1228,18 @@
+   const direction=Number(keys.has('d'))-Number(keys.has('a'));
+   if(direction!==0){
+     keyboardSteering.active=true;
+     const speedPenalty=1+advancedSpeedFactor()*advancedSteering.keyboardSpeed*.70;
+-    keyboardSteering.value=moveToward(keyboardSteering.value,direction,dt/(keyboardSteering.turnSeconds*speedPenalty));
++    // Reversing steering while countersteering must not take as long as
++    // steering from center to full lock: the rack still enforces physical rate.
++    const reverse=keyboardSteering.value*direction<0?1.32:1;
++    keyboardSteering.value=moveToward(keyboardSteering.value,direction,
++      dt*reverse/(keyboardSteering.turnSeconds*speedPenalty));
+   }else if(keyboardSteering.active){
+     const speedReturn=1+advancedSpeedFactor()*advancedSteering.keyboardSpeed*.35;
+-    keyboardSteering.value=moveToward(keyboardSteering.value,0,dt*speedReturn/keyboardSteering.returnSeconds);
++    // Rate-limited centering avoids the frame-rate-dependent input snap.
++    keyboardSteering.value=moveToward(keyboardSteering.value,0,
++      dt*speedReturn/keyboardSteering.returnSeconds);
+     if(Math.abs(keyboardSteering.value)<1e-7){keyboardSteering.value=0;keyboardSteering.active=false;}
+   }
+ }
+ function bufferedKeyboardInput(){
+@@ -1353,16 +1364,24 @@
+   }
+   s.normalized=normalizedAdvancedAxis(raw,s);
+   const alpha=s.padFilter<=0?1:1-Math.exp(-Math.max(0,dt)/s.padFilter);
+   s.filtered=clamp(s.filtered+(s.normalized-s.filtered)*alpha,-1,1);
++  // A calibrated center hysteresis eliminates analog-stick idle chatter
++  // without creating an abrupt notch around the edge of the deadzone.
++  if(Math.abs(s.normalized)<.012 && Math.abs(s.filtered)<.012)s.filtered=0;
+   const speed=advancedSpeedFactor();
+   const scaled=s.filtered*(1-.43*s.padSpeed*speed);
+   const maximumRate=4.5-2.0*s.padSpeed*speed;
+   s.output=moveToward(s.output,scaled,Math.max(0,dt)*maximumRate);
+   s.active=true;s.status='搖桿轉向已啟用；鍵盤 A / D 可暫時接管。';
+   return true;
+ }
+ function advancedSteeringTarget(dt){
++  if(hostControls.active){
++    if(keyboardSteering.active){advancedSteering.source='keyboard';return advancedKeyboardInput();}
++    advancedSteering.source='gamepad';
++    return clamp(Number.isFinite(hostControls.steer)?hostControls.steer:0,-1,1);
++  }
+   pollAdvancedGamepadSteering(dt);
+   if(keyboardSteering.active){advancedSteering.source='keyboard';return advancedKeyboardInput();}
+   if(advancedSteering.padDevice){
+     advancedSteering.source=advancedSteering.active?'gamepad':'gamepad-neutral';
+@@ -1423,8 +1442,9 @@
+     rollAngularAccel:0,pitchAngularAccel:0,
+     guardrailHits:0,contactCooldown:0,contact:false,offroad:false,synced:true});
+   route.distance=p.s;
+   if(typeof resetSuspension==='function')resetSuspension();
++  if(chassisBridge)chassisBridge.reset(p,P);
+   resetSteeringRack();
+ }
+ function maximumSteerAngle(speed){
+   // Road wheel angle decreases at high speed; steering-wheel input remains [-1, 1].
+@@ -1539,10 +1559,10 @@
+     // into body Y before updating lateral momentum and yaw acceleration.
+     const frontBody=front*Math.cos(m.steerAngle)+fDrive*Math.sin(m.steerAngle);
+     const ay=(frontBody+rear)/P.mass;
+     const yawAcceleration=(a*frontBody-b*rear)/P.yawInertia;
+-    m.lateralVelocity=clamp(v+(ay-u*r)*h,-34,34);
+-    m.yawRate=clamp(r+yawAcceleration*h,-1.65,1.65);
++    m.lateralVelocity=clamp(v+(ay-u*r)*h,-90,90);
++    m.yawRate=clamp(r+yawAcceleration*h,-8,8);
+   }else{
+     // Reverse / walking speed regularization: no 1/u singularity.
+     const targetYaw=u*Math.tan(m.steerAngle)/P.wheelbase;
+     m.yawRate=moveToward(r,targetYaw,h*(.8+Math.abs(u)*.9));
+@@ -1564,39 +1584,90 @@
+   suspensionStep('roll','rollRate',m.lateralAccel,h);
+   suspensionStep('pitch','pitchRate',state.accel,h);
+   m.contactCooldown=Math.max(0,m.contactCooldown-h);
+ }
++// An impulse in the road-normal direction changes BOTH chassis linear and
++// angular momentum. The contact point lies on the vehicle body footprint.
++// This is the non-Rapier/offline fallback, not a full mesh collision solver.
++function resolvePlanarGuardrail(snap){
++  const m=vehicleMotion;
++  const side=Math.sign(snap.offset)||1;
++  if(!roadRailEnabled(snap.road,side))return false;
++  const relative=angleDifference(m.heading,snap.road.heading);
++  const halfWidth=.88,halfLength=Math.max(1.65,P.wheelbase*.72);
++  const widthOnNormal=Math.abs(Math.cos(relative))*halfWidth+
++    Math.abs(Math.sin(relative))*halfLength;
++  const innerFace=4.96-.14;
++  const permitted=Math.max(0,innerFace-widthOnNormal);
++  const depth=side*snap.offset-permitted;
++  if(depth<=0)return false;
++  const outX=side*Math.cos(snap.road.heading),outZ=-side*Math.sin(snap.road.heading);
++  // Surface contact: the leading body corner can induce yaw on impact.
++  const localX=side*Math.sign(Math.cos(relative)||1)*halfWidth;
++  const localZ=side*Math.sign(Math.sin(relative)||1)*halfLength;
++  const cosH=Math.cos(m.heading),sinH=Math.sin(m.heading);
++  const rx=localX*cosH+localZ*sinH,rz=-localX*sinH+localZ*cosH;
++  let vx=state.velocity*sinH+m.lateralVelocity*cosH;
++  let vz=state.velocity*cosH-m.lateralVelocity*sinH;
++  const nx=outX,nz=outZ,lever=rz*nx-rx*nz;
++  const outward=(vx+m.yawRate*rz)*nx+(vz-m.yawRate*rx)*nz;
++  if(outward>.02){
++    const impulse=(1+.14)*outward/(1/P.mass+lever*lever/P.yawInertia);
++    const jx=-impulse*nx,jz=-impulse*nz;
++    vx+=jx/P.mass;vz+=jz/P.mass;
++    m.yawRate+=lever*(-impulse)/P.yawInertia;
++    // Tangential contact friction cannot add kinetic energy.
++    const tangentX=-nz,tangentZ=nx;
++    const tangentV=(vx+m.yawRate*rz)*tangentX+(vz-m.yawRate*rx)*tangentZ;
++    const tangentialLever=rz*tangentX-rx*tangentZ;
++    const desired=-tangentV/(1/P.mass+tangentialLever*tangentialLever/P.yawInertia);
++    const jt=clamp(desired,-.35*impulse,.35*impulse);
++    vx+=jt*tangentX/P.mass;vz+=jt*tangentZ/P.mass;
++    m.yawRate+=tangentialLever*jt/P.yawInertia;
++    state.velocity=vx*sinH+vz*cosH;
++    m.lateralVelocity=vx*cosH-vz*sinH;
++    if(m.contactCooldown<=0){
++      m.guardrailHits++;m.contactCooldown=.8;
++      recordEvent('guardrail','車輛碰觸護欄（動量碰撞）');
++      log('護欄碰撞：線速度與偏航角速度依接觸衝量更新。','warn');
++    }
++  }
++  // Geometric depenetration prevents tunneling at low velocities, but never
++  // changes wheel speeds or yaw directly as the previous wall clamp did.
++  const correction=depth+.005;
++  m.x-=outX*correction;m.z-=outZ*correction;
++  m.contact=true;m.offset=side*permitted;
++  return true;
++}
++let chassisBridge=null,externalClock=false;
++function setChassisBridge(bridge){
++  if(bridge!==null && !(bridge&&typeof bridge.beforeForces==='function'&&
++    typeof bridge.stepForces==='function'&&typeof bridge.reset==='function'))return false;
++  chassisBridge=bridge;
++  // Internal suspension continues to be used by standalone mode only.
++  suspension.enabled=!bridge;
++  if(bridge){bridge.reset(roadPointAt(route.distance),P);}
++  else resetSuspension();
++  return true;
++}
++function setExternalClock(enabled){externalClock=!!enabled;}
+ function updateVehicleRoadPosition(dt){
+   const m=vehicleMotion;
+   const prediction=clamp(route.distance+state.velocity*dt*Math.cos(m.headingError),0,roadTotalDistance());
+-  let snap=nearestRoadPosition(m.x,m.z,prediction);
++  const snap=nearestRoadPosition(m.x,m.z,prediction);
+   route.distance=snap.s;m.routeS=snap.s;m.offset=snap.offset;
+   m.headingError=angleDifference(m.heading,snap.road.heading);
+-  m.y=snap.road.y+roadCrossElevation(snap.road,clamp(m.offset,-6.2,6.2));
++  if(!chassisBridge){
++    m.y=snap.road.y+roadCrossElevation(snap.road,clamp(m.offset,-6.2,6.2));
++    m.contact=false;
++    resolvePlanarGuardrail(snap);
++  }
+   m.offroad=Math.abs(m.offset)>3.65;
+-  m.contact=false;
+-  if(Math.abs(m.offset)>4.62 && roadRailEnabled(snap.road,Math.sign(m.offset))){
+-    // Deliberately simple barrier stop/bounce, not a crashworthiness/deformation model.
+-    const side=Math.sign(m.offset),shift=side*4.61;
+-    m.x=snap.road.x+Math.cos(snap.road.heading)*shift;
+-    m.z=snap.road.z-Math.sin(snap.road.heading)*shift;
+-    const outward=m.lateralVelocity*Math.cos(m.headingError)+state.velocity*Math.sin(m.headingError);
+-    if(outward*side>.15){
+-      const loss=clamp(Math.abs(outward)/25,.02,.28);
+-      state.velocity*=(1-loss);
+-      m.lateralVelocity-=side*clamp(Math.abs(outward)*.95,.2,15);
+-      m.yawRate*=.55;
+-      if(m.contactCooldown<=0){m.guardrailHits++;m.contactCooldown=.8;
+-        recordEvent('guardrail','車輛碰觸護欄（簡化碰撞）');log('碰觸護欄：車速下降，請減速並修正方向。','warn');}
+-    }
+-    m.contact=true;m.offset=shift;
+-  }
+   if(roadTotalDistance()-route.distance<1550){extendRoad(36);updateRoadStats();}
+   const yawTarget=m.heading+clamp(m.yawRate*.16,-.13,.13);
+   m.cameraYaw+=angleDifference(yawTarget,m.cameraYaw)*(1-Math.exp(-dt*5.2));
+ }
+ function synchronizeRoadPose(){
+-  // Legacy/debug tools can seek the route by assigning route.distance. Respect that seek.
+   if(Math.abs(route.distance-vehicleMotion.routeS)>7)resetVehiclePose(route.distance);
+ }
+ // SHIFT//LAB V0.7 seeded procedural route. Units: meters, radians, percent grades.
+ // Deterministic algorithm version 1; output depends solely on seed and control values.
+@@ -2856,11 +2927,14 @@
+   state.tcsEnabled=$('tcs-enabled').checked;
+   state.absEnabled=$('abs-enabled').checked;
+   pollController();
+   const targets={
+-    clutch:keys.has('shift')?1:controllerTarget('clutch',+$('clutch-slider').value/100),
+-    throttle:keys.has('w')?1:controllerTarget('throttle',+$('throttle-slider').value/100),
+-    brake:keys.has('s')?1:controllerTarget('brake',+$('brake-slider').value/100)
++    clutch:keys.has('shift')?1:(hostControls.active&&hostControls.clutch!==null?
++      clamp(hostControls.clutch,0,1):controllerTarget('clutch',+$('clutch-slider').value/100)),
++    throttle:keys.has('w')?1:(hostControls.active&&hostControls.throttle!==null?
++      clamp(hostControls.throttle,0,1):controllerTarget('throttle',+$('throttle-slider').value/100)),
++    brake:keys.has('s')?1:(hostControls.active&&hostControls.brake!==null?
++      clamp(hostControls.brake,0,1):controllerTarget('brake',+$('brake-slider').value/100))
+   };
+   // A foot can depress the clutch faster than it can smoothly release it.
+   state.clutch=moveToward(state.clutch,targets.clutch,dt*(targets.clutch>state.clutch?9:1.6));
+   state.throttle=moveToward(state.throttle,targets.throttle,dt*(targets.throttle>state.throttle?3.4:4));
+@@ -2975,11 +3049,28 @@
+ const suspension={road:'smooth',intensity:.50,bodyMass:0,contacts:4,
+   maxTravel:0,initialized:false,enabled:true,oscillation:0};
+ const wheelModel={FL:{},FR:{},RL:{},RR:{},drive:'FWD',differential:'open',splitMu:'same'};
+ // Calibration panel does not bypass physical tire/vehicle integration.
+-const handling={balance:'neutral',escEnabled:false,yawReference:0,yawError:0,
++const handling={balance:'neutral',feel:'balanced',escEnabled:false,yawReference:0,yawError:0,
+   beta:0,phase:'中性',escWheel:'',escDemand:0,escTarget:0,
+-  escBrakeNm:0,activeTime:0};
++  escBrakeNm:0,escTrimSide:'',escTrim:0,activeTime:0};
++const HANDLING_FEELS=Object.freeze({
++  balanced:{latBonus:.085,longBonus:.045},
++  sport:{latBonus:.035,longBonus:.015},
++  raw:{latBonus:0,longBonus:0}
++});
++function setHandlingFeel(name){
++  if(!Object.hasOwn(HANDLING_FEELS,name))return false;
++  handling.feel=name;
++  const select=document.getElementById('handling-feel');if(select)select.value=name;
++  return true;
++}
++function effectiveTireSlideRetention(axis){
++  const current=axis==='long'?P.tireLongSlideRetention:P.tireLatSlideRetention;
++  const extra=HANDLING_FEELS[handling.feel][axis==='long'?'longBonus':'latBonus'];
++  // Never increase the coefficient of adhesion / peak available tire force.
++  return clamp(current+extra,0,.97);
++}
+ const HANDLING_BALANCES=Object.freeze({
+   neutral:{front:1,rear:1},
+   understeer:{front:.88,rear:1.05},
+   oversteer:{front:1.06,rear:.87}
+@@ -3001,15 +3092,17 @@
+   return true;
+ }
+ function setESCEnabled(value){
+   handling.escEnabled=!!value;
+-  if(!handling.escEnabled){handling.escWheel='';handling.escDemand=0;handling.escTarget=0;handling.escBrakeNm=0;}
++  if(!handling.escEnabled){handling.escWheel='';handling.escDemand=0;handling.escTarget=0;
++    handling.escBrakeNm=0;handling.escTrimSide='';handling.escTrim=0;}
+   const select=document.getElementById('handling-esc');
+   if(select)select.value=handling.escEnabled?'on':'off';
+   return handling.escEnabled;
+ }
+ function resetHandlingDynamics(){
+-  Object.assign(handling,{yawReference:0,yawError:0,beta:0,phase:'中性',escWheel:'',escDemand:0,escTarget:0,escBrakeNm:0,activeTime:0});
++  Object.assign(handling,{yawReference:0,yawError:0,beta:0,phase:'中性',escWheel:'',escDemand:0,escTarget:0,
++    escBrakeNm:0,escTrimSide:'',escTrim:0,activeTime:0});
+ }
+ // Bicycle steady-state reference (NOT an imposed yaw), capped by tire friction.
+ // delta = L*r/u + m*(wf/Cf-wr/Cr)*u*r; u may be negative in reverse.
+ function steadyYawReference(speed,steer,friction){
+@@ -3030,28 +3123,50 @@
+   handling.beta=Math.atan2(m.lateralVelocity,Math.max(2,Math.abs(speed)));
+   const desired=handling.yawReference,actual=m.yawRate;
+   const threshold=Math.max(.065,Math.abs(desired)*.25);
+   const signedError=Math.sign(desired)*(actual-desired);
+-  handling.phase=Math.abs(desired)<.05?'中性':signedError>threshold?'轉向過度':signedError<-threshold?'轉向不足':'中性';
++  handling.phase=Math.abs(desired)<.05?
++    (Math.abs(actual)>threshold?'偏航偏離':'中性'):
++    signedError>threshold?'轉向過度':signedError<-threshold?'轉向不足':'中性';
+   let wheel='',target=0;
+   if(handling.escEnabled && speed>P.escMinSpeed && suspension.contacts>=3 &&
+-      Math.abs(handling.yawError)>threshold && Math.abs(m.steerAngle)>.018 &&
+-      Math.abs(m.offset)<7.5 && m.contactCooldown<=0){
+-    // Desired positive right yaw: brake right-rear for understeer.
+-    // Excess right yaw: brake left-front to create a negative yaw moment.
++      Math.abs(handling.yawError)>threshold && Math.abs(m.offset)<7.5 &&
++      m.contactCooldown<=0){
++    // Correct even with centered steering: split-mu braking generates yaw
++    // although the driver's desired yaw is zero. Never force-set yawRate.
+     const needPositive=handling.yawError>0;
+-    const under=Math.sign(handling.yawError)===Math.sign(desired);
++    const under=Math.abs(desired)>.05 &&
++      Math.sign(handling.yawError)===Math.sign(desired);
+     wheel=(under?'R':'F')+(needPositive?'R':'L');
+-    const authority=clamp(mu/.30,0,1);
++    // The actuated wheel must have grip or the controller has no authority.
++    const available=wheelModel[wheel]?.mu??mu;
++    const authority=clamp(available/.30,0,1);
+     target=clamp((Math.abs(handling.yawError)-threshold)*P.escCorrectionGain,0,.85)*authority;
+   }
+   // Avoid pulse transfer between opposite wheels in one physics substep.
+   if(wheel && handling.escWheel!==wheel)handling.escDemand=0;
+   handling.escWheel=wheel;
+   handling.escTarget=target;
+   handling.escDemand=moveToward(handling.escDemand,target,h*(target>handling.escDemand?4:7));
+   handling.escBrakeNm=P.escBrakeMaxNm*handling.escDemand;
+-  if(handling.escBrakeNm>5)handling.activeTime+=h;
++  // Split-mu braking: braking only the low-grip wheel cannot undo yaw.
++  // Reduce high-grip-side driver brake torque to avoid creating extra yaw;
++  // this is a brake-balance intervention, not an artificial yaw impulse.
++  let trimSide='',trimTarget=0;
++  if(handling.escEnabled && speed>P.escMinSpeed && state.brake>.20 &&
++    wheelModel.splitMu!=='same' && suspension.contacts>=3 &&
++    Math.abs(handling.yawError)>threshold && Math.abs(desired)<.08){
++    const candidate=handling.yawError<0?'R':'L';
++    const highSide=wheelModel.splitMu.startsWith('left_')?'R':'L';
++    if(candidate===highSide){
++      trimSide=candidate;
++      trimTarget=clamp((Math.abs(handling.yawError)-threshold)*1.6,0,.70);
++    }
++  }
++  if(trimSide!==handling.escTrimSide)handling.escTrim=0;
++  handling.escTrimSide=trimSide;
++  handling.escTrim=moveToward(handling.escTrim,trimTarget,h*(trimTarget>handling.escTrim?4.2:7));
++  if(handling.escBrakeNm>5 || handling.escTrim>.01)handling.activeTime+=h;
+   return {wheel:handling.escWheel,torque:handling.escBrakeNm,yawReference:desired};
+ }
+ function wheelName(id){return id==='FL'?'左前':id==='FR'?'右前':id==='RL'?'左後':'右後';}
+ function resetFourWheels(){
+@@ -3099,9 +3214,9 @@
+ function tireForce(omega,velocity,normal,mu){
+   if(normal<=0||mu<=0)return 0;
+   const slip=regularizedTireSlip(omega,velocity);
+   const forceRatio=peakSlipCurve(slip/Math.max(.02,P.tirePeakLongSlip),
+-    P.tireLongSlideRetention,P.tireLongSlideWidth);
++    effectiveTireSlideRetention('long'),P.tireLongSlideWidth);
+   return mu*normal*forceRatio;
+ }
+ // Clamp the resultant, not each Cartesian component separately. In prolonged
+ // full sliding, the effective envelope contracts toward kinetic friction.
+@@ -3109,10 +3224,10 @@
+   if(!(capacity>0))return {fx:0,fy:0,limit:0,severity:0};
+   const longSeverity=roadSmooth(longExcess/Math.max(.01,P.tireLongSlideWidth));
+   const latSeverity=roadSmooth(latExcess/Math.max(.01,P.tireLatSlideWidth));
+   const limit=capacity*Math.min(
+-    1-(1-P.tireLongSlideRetention)*longSeverity,
+-    1-(1-P.tireLatSlideRetention)*latSeverity);
++    1-(1-effectiveTireSlideRetention('long'))*longSeverity,
++    1-(1-effectiveTireSlideRetention('lat'))*latSeverity);
+   const mag=Math.hypot(fx,fy);
+   const scale=mag>limit?limit/Math.max(1e-9,mag):1;
+   return {fx:fx*scale,fy:fy*scale,limit,severity:Math.max(longSeverity,latSeverity)};
+ }
+@@ -3350,9 +3465,9 @@
+   const camberDemand=camberK*alignment.camber*Math.tanh(vx/1.6);
+   const lateralDemand=c*Math.tan(clamp(alpha,-1.30,1.30))+camberDemand;
+   const normalizedLat=lateralDemand/Math.max(1e-9,3*capacity);
+   const targetFy=capacity*peakSlipCurve(normalizedLat,
+-    P.tireLatSlideRetention,P.tireLatSlideWidth);
++    effectiveTireSlideRetention('lat'),P.tireLatSlideWidth);
+   const relaxation=w.front?P.lateralRelaxationFront:P.lateralRelaxationRear;
+   const smooth=1-Math.exp(-Math.max(Math.abs(vx),2)*h/Math.max(.25,relaxation));
+   let fy=w.fy+(targetFy-w.fy)*smooth;
+   const slip=contactSlip(w.omega,vx);
+@@ -3385,9 +3500,9 @@
+   return {x,z};
+ }
+ function fourCornerForces(nFront,nRear,mu,h){
+   const m=vehicleMotion;
+-  const loads=suspension.enabled?{
++  const loads=(suspension.enabled||chassisBridge)?{
+     FL:wheelModel.FL.normal,FR:wheelModel.FR.normal,
+     RL:wheelModel.RL.normal,RR:wheelModel.RR.normal,
+     frontTransfer:(wheelModel.FL.normal-wheelModel.FR.normal)/2,
+     rearTransfer:(wheelModel.RL.normal-wheelModel.RR.normal)/2
+@@ -3438,17 +3553,25 @@
+ function integrateFourCornerChassis(totalFx,totalFy,yawMoment,h){
+   const m=vehicleMotion,u=state.velocity,v=m.lateralVelocity,r=m.yawRate;
+   const ax=(totalFx+resistForce(u))/P.mass+v*r;
+   let ay=totalFy/P.mass;
+-  if(Math.abs(u)>2){
+-    m.yawRate=clamp(r+(yawMoment/P.yawInertia)*h,-1.65,1.65);
+-    m.lateralVelocity=clamp(v+(ay-u*r)*h,-34,34);
+-  }else{
+-    // Near zero speed regularize the singular tire side-slip equations.
+-    const desired=u*Math.tan(m.steerAngle)/P.wheelbase;
+-    m.yawRate=moveToward(r,desired,h*(.8+Math.abs(u)*.9));
+-    m.lateralVelocity=moveToward(v,0,h*(1.3+Math.abs(u)*2.3));
+-  }
++  if(chassisBridge){
++    // Rapier is the sole pose/velocity integrator in desktop 3D mode.
++    // The existing four-wheel solver only supplies tire forces and torque.
++    const before=state.accel;
++    chassisBridge.stepForces(totalFx,totalFy,yawMoment,resistForce(u)+
++      P.mass*9.81*Math.sin(Math.atan(state.grade/100)),h);
++    m.contactCooldown=Math.max(0,m.contactCooldown-h);
++    state.accel=clamp((state.velocity-u)/h,-200,200);
++    state.jerk=clamp((state.accel-before)/h,-500,500);
++    return;
++  }
++  // Integrate tire forces at all speeds. The old 1.65-rad/s hard ceiling
++  // clamped real spins and concealed ESC failures; 8 is only a safety guard.
++  const atRest=1-smooth01(Math.abs(u)/1.5);
++  const yawDamping=atRest*.60*r;
++  m.yawRate=clamp(r+(yawMoment/P.yawInertia-yawDamping)*h,-8,8);
++  m.lateralVelocity=clamp(v+(ay-u*r)*h,-90,90);
+   m.lateralAccel=ay;
+   m.heading+=m.yawRate*h;
+   m.x+=(u*Math.sin(m.heading)+m.lateralVelocity*Math.cos(m.heading))*h;
+   m.z+=(u*Math.cos(m.heading)-m.lateralVelocity*Math.sin(m.heading))*h;
+@@ -3469,9 +3592,10 @@
+   const frontAvg=(wheelModel.FL.omega+wheelModel.FR.omega)/2;
+   const totalNormal=P.mass*9.81;
+   const nFront=clamp(totalNormal*P.frontStaticLoad-P.mass*state.accel*P.cgHeight/P.wheelbase,totalNormal*.17,totalNormal*.83);
+   const nRear=totalNormal-nFront;
+-  if(suspension.enabled)cornerSuspensionStep(h);
++  if(chassisBridge)chassisBridge.beforeForces(h);
++  else if(suspension.enabled)cornerSuspensionStep(h);
+   const forces=fourCornerForces(nFront,nRear,mu,h);
+   const esc=updateHandlingControl(h);
+   const frontFx=wheelModel.FL.fx+wheelModel.FR.fx;
+   const rearFx=wheelModel.RL.fx+wheelModel.RR.fx;
+@@ -3517,9 +3641,11 @@
+   for(const id of WHEEL_IDS){
+     const w=wheelModel[id],isFront=w.front;
+     const requested=fullBraking*(isFront?P.frontBrakeBias:1-P.frontBrakeBias)*.5;
+     const escTorque=id===esc.wheel?esc.torque:0;
+-    const budget=requested+escTorque;
++    const trimSide=handling.escTrimSide;
++    const trimmed=trimSide&&(w.left?'L':'R')===trimSide;
++    const budget=requested*(trimmed?1-handling.escTrim:1)+escTorque;
+     const localV=w.vx;
+     w.absPressure=updateABS(w.absPressure,w.slip,localV,h,budget>1);
+     const reaction=w.fx*P.wheelRadius;
+     const brake=brakeTorqueForAxle(w.omega,reaction,drivenNm[id],budget,w.absPressure);
+@@ -3839,9 +3965,11 @@
+   $('dyn-yaw').textContent=(m.yawRate*180/Math.PI).toFixed(1)+' °/s';
+   $('handling-yaw-ref').textContent=(handling.yawReference*180/Math.PI).toFixed(1)+' °/s';
+   $('handling-yaw-error').textContent=(handling.yawError*180/Math.PI).toFixed(1)+' °/s';
+   $('handling-beta').textContent=(handling.beta*180/Math.PI).toFixed(1)+'°';
+-  $('handling-mode').textContent=handling.phase+' · '+(handling.escEnabled?(handling.escWheel && handling.escBrakeNm>5?'ESC '+handling.escWheel+' '+Math.round(handling.escBrakeNm)+'Nm':'ESC 待命'):'ESC OFF');
++  $('handling-mode').textContent=handling.phase+' · '+(handling.escEnabled?
++    (handling.escTrim>.01?'ESC '+handling.escTrimSide+'側卸壓 '+Math.round(handling.escTrim*100)+'%':
++    handling.escWheel && handling.escBrakeNm>5?'ESC '+handling.escWheel+' '+Math.round(handling.escBrakeNm)+'Nm':'ESC 待命'):'ESC OFF');
+   $('handling-esc-box').classList.toggle('warning',handling.phase!=='中性');
+   $('dyn-lat-g').textContent=(m.lateralAccel/9.81).toFixed(2)+' g';
+   $('dyn-body').textContent=(m.roll*180/Math.PI).toFixed(1)+'° / '+(m.pitch*180/Math.PI).toFixed(1)+'°';
+   $('dyn-offset').textContent=(m.offset>0?'+':'')+m.offset.toFixed(1)+' m';
+@@ -3931,8 +4059,11 @@
+   drawGauge($('speed-gauge'),Math.abs(speed)/220,Math.abs(speed),220,20,'#80bafa',null);
+   refreshRoadUI();drawRoad();drawRouteMap();drawRouteMap('mini-map',560);updateTrainingUI();updateReplayUI();
+ }
+ function frame(now){
++  // A same-origin Three/Rapier host can step this exact powertrain and tire
++  // solver without racing a second animation-frame simulation loop.
++  if(externalClock){window.requestAnimationFrame(frame);return;}
+   if(!lastFrame)lastFrame=now;
+   const elapsed=Math.min(.065,(now-lastFrame)/1000);lastFrame=now;
+   acc+=elapsed;
+   const dt=1/120;let count=0;
+@@ -4119,8 +4250,9 @@
+ });
+ $('handling-brake-bias').addEventListener('change',ev=>{
+   if(setBrakeBias(ev.target.value))log('已設定前軸煞車分配 '+Math.round(P.frontBrakeBias*100)+'%。');
+ });
++$('handling-feel').addEventListener('change',ev=>setHandlingFeel(ev.target.value));
+ $('handling-esc').addEventListener('change',ev=>{
+   setESCEnabled(ev.target.value==='on');log('ESC 單輪煞車示範：'+(handling.escEnabled?'已開啟':'已關閉')+'。');
+ });
+ for(const [id,field] of [['tire-compound','compound'],['tire-ambient','ambientC'],
+@@ -4142,10 +4274,12 @@
+   advancedSteering,ADV_STEER_DEFAULTS,ADV_STEER_PRESETS,validatedAdvancedSteering,
+   advancedSpeedFactor,advancedKeyboardInput,normalizedAdvancedAxis,
+   pollAdvancedGamepadSteering,refreshAdvancedGamepadUI,advancedSteeringTarget,
+   restoreAdvancedSteering,calibrateAdvancedAxis,resetAdvancedGamepad,
+-  setHandlingBalance,setBrakeBias,setESCEnabled,resetHandlingDynamics,
+-  steadyYawReference,updateHandlingControl};
++  setHandlingBalance,setBrakeBias,setESCEnabled,setHandlingFeel,HANDLING_FEELS,
++  effectiveTireSlideRetention,resetHandlingDynamics,
++  steadyYawReference,updateHandlingControl,
++  resolvePlanarGuardrail,setChassisBridge,setExternalClock,inputKeys:keys,hostControls,roadRailEnabled};
+ window.requestAnimationFrame(frame);
+ })();
+ </script>
+ </body>

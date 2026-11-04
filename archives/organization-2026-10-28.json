@@ -1,0 +1,904 @@
+{
+  "date": "2026-10-28",
+  "backup": "C:\\Users\\jho\\AppData\\Local\\Temp\\shiftlab-organize-luvllfdu",
+  "project": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix\\SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix",
+  "moves": [
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/current_inline.js",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/current_inline.js",
+      "sha256_before": "659febd00ce85c24f64b590241a2a354638fd005e257ae0449a17d5b4c2d23f6",
+      "sha256_after": "659febd00ce85c24f64b590241a2a354638fd005e257ae0449a17d5b4c2d23f6",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/DATA_PROVENANCE.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/docs/reference/DATA_PROVENANCE.md",
+      "sha256_before": "d6b97a6c8144b9b4754b5a9186703a510a3e0d63e82abcab869fd738517272da",
+      "sha256_after": "911eb21847b1151e80ab44c99cf89d13128c63d067dd4e6ac049f6e3f9afbba2",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/IMPLEMENTATION_NOTES.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/docs/reference/IMPLEMENTATION_NOTES.md",
+      "sha256_before": "c489803fac1fafce631bdb9d1235f092e8eab91e04041c322efcfc97e302a43a",
+      "sha256_after": "c489803fac1fafce631bdb9d1235f092e8eab91e04041c322efcfc97e302a43a",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/PUBLISH_WEB_UNIX.sh",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/scripts/distribution/PUBLISH_WEB_UNIX.sh",
+      "sha256_before": "449d61fe29ff3870618952769330ef98997a0caa33d72b20690eb3b90c699b5f",
+      "sha256_after": "76fac26f4d5688075bac7f64ffec3b66fd626d1cbfb17c40d3b13d7cc4f71eb5",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/PUBLISH_WEB_WINDOWS.cmd",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/scripts/distribution/PUBLISH_WEB_WINDOWS.cmd",
+      "sha256_before": "127b579b338e87a1fe07072d5b996737de44fb95c61c3974aaa8a83acf805be3",
+      "sha256_after": "f5ee199a4d767039c20bcd540739a29eaf2cf603d786100375ba187c6e3b61ba",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/QA_REPORT.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/releases/QA_REPORT.md",
+      "sha256_before": "2e3df4527901c11b672884c5123edaed50a11ce3de01be196596675762eb551e",
+      "sha256_after": "113aab35f1656049ce38ae915bd791288e34f8adb1e22c2486d313ccc1e08798",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/README_V186_ARCHIVE.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/releases/README_V186_ARCHIVE.md",
+      "sha256_before": "a4322d96d7a130ca16308e1c75f73f6dafe813e21de4261a8f8e645b042bc1c0",
+      "sha256_after": "76d5eaeb3456beb860b14ec0c99aec2198525f7d26336868e66d7095f0e9b833",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/README_V1872_ARCHIVE.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/releases/README_V1872_ARCHIVE.md",
+      "sha256_before": "f70a9aabb5acb94a755f37d4fed3fd577b6e956bb9bd6c373e1ff0fde8724e29",
+      "sha256_after": "16ff6b21371cb7b662e3280df05e320eb3d502f2adf707a639bda090e09f8345",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/README_V188_ARCHIVE.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/releases/README_V188_ARCHIVE.md",
+      "sha256_before": "f749fb2c868576d281bf865af2a5df3540995b54d01766126416344ee1f62b5c",
+      "sha256_after": "3ae5766efec002a5981424dcb28c5fa688d4989217403c129a4870cfec5ff5df",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V1.8.4_to_V1.8.5.patch",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/patches/V1.8.4_to_V1.8.5.patch",
+      "sha256_before": "e9191e28efebe24f3a3bef2515e92251169cb4cb945ab4af8a7e4146ffe2af83",
+      "sha256_after": "e9191e28efebe24f3a3bef2515e92251169cb4cb945ab4af8a7e4146ffe2af83",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V1.8.5_to_V1.8.6.patch",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/patches/V1.8.5_to_V1.8.6.patch",
+      "sha256_before": "1782247e1f77cd3cc3bcb7cda0ade57cf58282b30da4d435f79434f3e0cfea2b",
+      "sha256_after": "1782247e1f77cd3cc3bcb7cda0ade57cf58282b30da4d435f79434f3e0cfea2b",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V1.8.6_to_V1.8.7.patch",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/patches/V1.8.6_to_V1.8.7.patch",
+      "sha256_before": "f4fe0b65bc97241be300eeb2106e2e40b426264974dc3c41a40cec17dfeb496e",
+      "sha256_after": "f4fe0b65bc97241be300eeb2106e2e40b426264974dc3c41a40cec17dfeb496e",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V1.8.7.1_to_V1.8.7.2.patch",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/patches/V1.8.7.1_to_V1.8.7.2.patch",
+      "sha256_before": "edececef79cdacb6b6f03de02b61279464d0a35c96e44704c6988cbde9e8eb0e",
+      "sha256_after": "edececef79cdacb6b6f03de02b61279464d0a35c96e44704c6988cbde9e8eb0e",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V1.8.7.2_to_V1.8.8.patch",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/patches/V1.8.7.2_to_V1.8.8.patch",
+      "sha256_before": "f359734387ad2aa0cdcf53ab8c72f3587b3dddf2925adbca432b71b7c4c1153d",
+      "sha256_after": "f359734387ad2aa0cdcf53ab8c72f3587b3dddf2925adbca432b71b7c4c1153d",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V1.8.7_to_V1.8.7.1.patch",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/patches/V1.8.7_to_V1.8.7.1.patch",
+      "sha256_before": "c3bfd2833b9f5f0a8fbc2826bc73249afc25f6c284c3242b030742efa5ea4967",
+      "sha256_after": "c3bfd2833b9f5f0a8fbc2826bc73249afc25f6c284c3242b030742efa5ea4967",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V1.8.8_to_V1.8.9.patch",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/patches/V1.8.8_to_V1.8.9.patch",
+      "sha256_before": "cec69caec91ffc1630d9ca308ec77d574f53cc291220432471076f7fcb06e573",
+      "sha256_after": "cec69caec91ffc1630d9ca308ec77d574f53cc291220432471076f7fcb06e573",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V1.8.9.1_to_V1.8.9.2.patch",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/patches/V1.8.9.1_to_V1.8.9.2.patch",
+      "sha256_before": "1e6289371f845e2c27c8b13bb955618847ee98c9c258e908a6f985e3f6a3efd6",
+      "sha256_after": "1e6289371f845e2c27c8b13bb955618847ee98c9c258e908a6f985e3f6a3efd6",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V1.8.9.2_to_V1.8.9.3.patch",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/patches/V1.8.9.2_to_V1.8.9.3.patch",
+      "sha256_before": "8c6d99426f8d6cb57765fc0ed83184ce6119407fd9069ce6df5e3cc0750352be",
+      "sha256_after": "8c6d99426f8d6cb57765fc0ed83184ce6119407fd9069ce6df5e3cc0750352be",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V1.8.9.3_to_V1.9.0.patch",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/patches/V1.8.9.3_to_V1.9.0.patch",
+      "sha256_before": "feba0b4627c1cffbb7d251a939580e1ef5f9ec51d04d041187e3e94f66375a16",
+      "sha256_after": "feba0b4627c1cffbb7d251a939580e1ef5f9ec51d04d041187e3e94f66375a16",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V1.8.9_to_V1.8.9.1.patch",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/patches/V1.8.9_to_V1.8.9.1.patch",
+      "sha256_before": "f81060e7177a0a4564ae4ef9d8ade7f778be523df18d6a0fd7d9f1778db5b145",
+      "sha256_after": "f81060e7177a0a4564ae4ef9d8ade7f778be523df18d6a0fd7d9f1778db5b145",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V186_DESKTOP_IMPLEMENTATION.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/releases/V186_DESKTOP_IMPLEMENTATION.md",
+      "sha256_before": "b50fec661a45556ce2eec1dd3d4abe41a7d4d1f3c8ff8d7802d45506fe1ea1c6",
+      "sha256_after": "b50fec661a45556ce2eec1dd3d4abe41a7d4d1f3c8ff8d7802d45506fe1ea1c6",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V186_DESKTOP_QA.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/releases/V186_DESKTOP_QA.md",
+      "sha256_before": "b7d20a7a3f8e5322479edf1a2ee47a3981c71ffaeb384ad730e58262e6cb8b93",
+      "sha256_after": "115143ddb40f324ddf398c5e568e28e7275c88030973012d75216b32c94a84b5",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V1871_HOTFIX_NOTES.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/releases/V1871_HOTFIX_NOTES.md",
+      "sha256_before": "ce158984316bdef9a59498a5f2af79867ae014c37009083cfc5c5a6b577af136",
+      "sha256_after": "ce158984316bdef9a59498a5f2af79867ae014c37009083cfc5c5a6b577af136",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V1872_FORCE_STABILITY_FIX_NOTES.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/releases/V1872_FORCE_STABILITY_FIX_NOTES.md",
+      "sha256_before": "75db5b88fcbff05b0e3b6f2b187985cd122e06ec34a8316fb89c698746c75ad8",
+      "sha256_after": "75db5b88fcbff05b0e3b6f2b187985cd122e06ec34a8316fb89c698746c75ad8",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V187_3D_IMPLEMENTATION.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/releases/V187_3D_IMPLEMENTATION.md",
+      "sha256_before": "70a8d448aada6d9a6f8cccc9e10459c6596035032b4424ccc91f6509ddd34e23",
+      "sha256_after": "70a8d448aada6d9a6f8cccc9e10459c6596035032b4424ccc91f6509ddd34e23",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V187_3D_QA.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/releases/V187_3D_QA.md",
+      "sha256_before": "f4c9bdd710f80f73fef99babb4c02af7255d0f0f167aa414917f173ad419bc7c",
+      "sha256_after": "ec375d4677518cf7b7eb8e79076d7a635addb9fed1b72845920b4d017c2ae0bc",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V188_IMPLEMENTATION.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/releases/V188_IMPLEMENTATION.md",
+      "sha256_before": "e4adf03178ffde21027179227de3b20d7419f7e1989931466460a7ae49ff67fd",
+      "sha256_after": "06897dab705fb06c7a00554b008ae3e6604bc6d90c6526ee7c29e6b64ff96cd3",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V188_QA.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/releases/V188_QA.md",
+      "sha256_before": "90be40ca255ba07a64c590ab464a2fd84d903a22cd875f8d9e5cde7bd9512fd2",
+      "sha256_after": "90be40ca255ba07a64c590ab464a2fd84d903a22cd875f8d9e5cde7bd9512fd2",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V1891_AUTOMATIC_TRANSMISSION.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/releases/V1891_AUTOMATIC_TRANSMISSION.md",
+      "sha256_before": "4042f787908a209490da8d7d30678674ac9c905d148411f69fb17eb807db62c5",
+      "sha256_after": "4042f787908a209490da8d7d30678674ac9c905d148411f69fb17eb807db62c5",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V1891_QA.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/releases/V1891_QA.md",
+      "sha256_before": "78052cedbd1130e52d5d08523e62affafd7afdf0994a359ae168d0de2f25cb65",
+      "sha256_after": "4e60635f7b0f74c84e39d57e10701cfd6cbe1a792cc58a8fd5606d9acddec887",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V1891_QA_RESULT.log",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/logs/V1891_QA_RESULT.log",
+      "sha256_before": "168acda99a0811b36ef3909ba70143ede27a63c7c2d3ebeff17de7e50b1caa45",
+      "sha256_after": "168acda99a0811b36ef3909ba70143ede27a63c7c2d3ebeff17de7e50b1caa45",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V1892_IMPLEMENTATION.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/releases/V1892_IMPLEMENTATION.md",
+      "sha256_before": "370d287c2d9ff2f4625dad256888cdefbe2a0e84da304eee066ad70a1535bac3",
+      "sha256_after": "370d287c2d9ff2f4625dad256888cdefbe2a0e84da304eee066ad70a1535bac3",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V1892_QA.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/releases/V1892_QA.md",
+      "sha256_before": "414b0c18a0f749272b6fd12b23667448e1ef73b599b9e94afb13b8cd2098881e",
+      "sha256_after": "888706545afa0077e4d76e507e9ad28874cf4b4e75c56bc2294327c772f7ca33",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V1893_IMPLEMENTATION.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/releases/V1893_IMPLEMENTATION.md",
+      "sha256_before": "e0f23383948a0d6b576a9f6b55f3044354eb81dd11cd95a989105cb59c6f40e0",
+      "sha256_after": "8d0846e038c07951b83f5fe275995ba2c975862d479a0e7ace96afbd1399b8f8",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V1893_QA.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/releases/V1893_QA.md",
+      "sha256_before": "bd1ce5be2d924b23e1af3fd00753c763def43d213ba195f53575aa8be68870fa",
+      "sha256_after": "75d2c6926577cddd8a6a65cb10dc1a22da6b0d70821b42d8f340cbb1d80c17fd",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V189_IMPLEMENTATION.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/releases/V189_IMPLEMENTATION.md",
+      "sha256_before": "c54757b68e71f89ee06d4a2f77c357a43460d5d08ddccdd270d2f7cb56036e66",
+      "sha256_after": "c54757b68e71f89ee06d4a2f77c357a43460d5d08ddccdd270d2f7cb56036e66",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V189_QA.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/releases/V189_QA.md",
+      "sha256_before": "612fce7bebe97217ef6e2324e1f3c41a44ce7b498dc9ae6854caee041c4c5f34",
+      "sha256_after": "226ab12daf81ae1c621c764eb20349522906a05c67a594bbd552286f5a4a7472",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V190_IMPLEMENTATION.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/releases/V190_IMPLEMENTATION.md",
+      "sha256_before": "4d4bbac232866d0822d76dc571b6e9b4af83d5bf39882d2f02f38dd47b8482ed",
+      "sha256_after": "771c10226fe42c954246fd3e1f017085f6b827db8a0cfa9d08524065797e2934",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/V190_QA.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/releases/V190_QA.md",
+      "sha256_before": "cb8af05a3a7efde84a26efaeb9e90fba5e4a65a3db3d96a7175a9367ea2a696d",
+      "sha256_after": "cb8af05a3a7efde84a26efaeb9e90fba5e4a65a3db3d96a7175a9367ea2a696d",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/calibration/fit_p1_real_runs.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/calibration/fit_p1_real_runs.py",
+      "sha256_before": "6efe54622911418b552d728b2e69673f187cdc79792ca1b30bf3d4e942b385d2",
+      "sha256_after": "7d4248bc42996e0c893f651a8674ba46728cf1a974740d6b0851dfafef47fd3a",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/calibration/get_public_p1.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/calibration/get_public_p1.py",
+      "sha256_before": "be01a2a072df397fb7a12770b7f7c5610c69216949de86e113e58c8f624b3f65",
+      "sha256_after": "be01a2a072df397fb7a12770b7f7c5610c69216949de86e113e58c8f624b3f65",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/calibration/NEXT_DATA_PRIORITY.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/calibration/NEXT_DATA_PRIORITY.md",
+      "sha256_before": "6fddaf3e5efda76fce23af14c3211c0596db72a68fd5cc26a18ddc777885505d",
+      "sha256_after": "6fddaf3e5efda76fce23af14c3211c0596db72a68fd5cc26a18ddc777885505d",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/calibration/P1_DATA_PROVENANCE.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/calibration/P1_DATA_PROVENANCE.md",
+      "sha256_before": "90e25252d5fce4d1fd3ecde733acb1819f76c2584f12bcde160b2479cae7d07a",
+      "sha256_after": "8c0f80da97fc4cf4253b406518f67202bdc4af63fa15be36aa92d05db54f226e",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/calibration/plot_geometry_sensitivity.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/calibration/plot_geometry_sensitivity.py",
+      "sha256_before": "acd436b39b4b54869d66a306ecae5bf508377c82d18f5cb3778a195a85f63bad",
+      "sha256_after": "acd436b39b4b54869d66a306ecae5bf508377c82d18f5cb3778a195a85f63bad",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/calibration/plot_v185_evidence.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/calibration/plot_v185_evidence.py",
+      "sha256_before": "b70e70fdb1a9c5a21c4148cb3e22d00521935e4c96581f5309fb9206f9a39e63",
+      "sha256_after": "b70e70fdb1a9c5a21c4148cb3e22d00521935e4c96581f5309fb9206f9a39e63",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/calibration/README.md",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/calibration/README.md",
+      "sha256_before": "5f7b71a7f48333ee5b6b2a5a56ece6a0ecc0e9d25bd0ef888cc9348cb9ffaf13",
+      "sha256_after": "9b431cb09eb123428b56fc52ca3c1e6ef958ac9abf1c4efb76049e5ce1fef976",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/calibration/validate_bmw_m235i.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/calibration/validate_bmw_m235i.py",
+      "sha256_before": "6ad7f185e4592e8bcdab8e082664c57970eaa7987297903eae1ea0e99bc18b88",
+      "sha256_after": "a1aee0b4d19b3ca56d774bc966539ded86506fd4ea1f6b4389fe9df691e11912",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/calibration/validate_p1_force_channels.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/calibration/validate_p1_force_channels.py",
+      "sha256_before": "7421ef943275076f42d3b4cccd27ebc5389ce47ef107b51237c999fbeb58bcfc",
+      "sha256_after": "c84157ebeede7e4960556f9645082b34a65381c6fa05c8a5bab27226c4ac84c1",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/calibration/geometry_b115/p1_fit_results.json",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/calibration/geometry_b115/p1_fit_results.json",
+      "sha256_before": "3622115b97d98f023ee14021822de78be46783f8d99b6097892882a266503714",
+      "sha256_after": "3622115b97d98f023ee14021822de78be46783f8d99b6097892882a266503714",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/calibration/geometry_b115/p1_source_manifest.json",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/calibration/geometry_b115/p1_source_manifest.json",
+      "sha256_before": "1a2015c5df9d6c057f8ab0f2f898b9575d19a4c2d177454fb2a5a391b37e97a3",
+      "sha256_after": "1a2015c5df9d6c057f8ab0f2f898b9575d19a4c2d177454fb2a5a391b37e97a3",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/calibration/geometry_b115/p1_train_holdout_metrics.csv",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/calibration/geometry_b115/p1_train_holdout_metrics.csv",
+      "sha256_before": "39c5c0ebe20642d576d83556380292cf0ebafd0909625e025558b1e080e347ef",
+      "sha256_after": "39c5c0ebe20642d576d83556380292cf0ebafd0909625e025558b1e080e347ef",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/calibration/results/p1_fit_results.json",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/calibration/results/p1_fit_results.json",
+      "sha256_before": "ce69d0669352b0c88e3d046221655c78dd12d8c7f40acae0d2cc4b9c3996f77d",
+      "sha256_after": "ce69d0669352b0c88e3d046221655c78dd12d8c7f40acae0d2cc4b9c3996f77d",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/calibration/results/p1_geometry_sensitivity.json",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/calibration/results/p1_geometry_sensitivity.json",
+      "sha256_before": "ccba87618babffae57a82fd9a6b32d9b7a68674a1bb159c5f65dd3c9d3974cdb",
+      "sha256_after": "ccba87618babffae57a82fd9a6b32d9b7a68674a1bb159c5f65dd3c9d3974cdb",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/calibration/results/p1_geometry_sensitivity.png",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/calibration/results/p1_geometry_sensitivity.png",
+      "sha256_before": "83b127a9b4b9c792dd3592e8256529a0521f3b13c89eea079ba2abd918705a67",
+      "sha256_after": "83b127a9b4b9c792dd3592e8256529a0521f3b13c89eea079ba2abd918705a67",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/calibration/results/p1_measured_yaw_and_ay.png",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/calibration/results/p1_measured_yaw_and_ay.png",
+      "sha256_before": "2b2d054bf5976ff446da76fbdf393650a84db84502aba5717de4d195e60235c6",
+      "sha256_after": "2b2d054bf5976ff446da76fbdf393650a84db84502aba5717de4d195e60235c6",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/calibration/results/p1_source_manifest.json",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/calibration/results/p1_source_manifest.json",
+      "sha256_before": "1a2015c5df9d6c057f8ab0f2f898b9575d19a4c2d177454fb2a5a391b37e97a3",
+      "sha256_after": "1a2015c5df9d6c057f8ab0f2f898b9575d19a4c2d177454fb2a5a391b37e97a3",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/calibration/results/p1_train_holdout_metrics.csv",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/calibration/results/p1_train_holdout_metrics.csv",
+      "sha256_before": "79debe748b50fc075f82cc8c32d853f633402ca1c2395ad1b97060174607d178",
+      "sha256_after": "79debe748b50fc075f82cc8c32d853f633402ca1c2395ad1b97060174607d178",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/desktop3d/tests/browser_v187.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/browser-tests/browser_v187.py",
+      "sha256_before": "c2b11f07f923ca4ae02ff38a9ee57366eab3c6d4d5b7d9b769f1b7df47a7f951",
+      "sha256_after": "c2b11f07f923ca4ae02ff38a9ee57366eab3c6d4d5b7d9b769f1b7df47a7f951",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/desktop3d/tests/browser_v1892.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/browser-tests/browser_v1892.py",
+      "sha256_before": "6bd88503f2f31ddf4d5477e60bd5785ab02c54d189141bd86b857216e81003b8",
+      "sha256_after": "be64d1b416326833a904ac3d7531df80f29d42e5aeb65c9fbf860d1b7e6c5a3d",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/desktop3d/tests/browser_v1893.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/browser-tests/browser_v1893.py",
+      "sha256_before": "cd5f41ae59002ad0f6a41124afbfa70440352003fd2d7a8e2735fa2faadcda5a",
+      "sha256_after": "1a72b026b763b6384d363fa96fab2f0701bb6bfefebaf2fc08a43ae0894184db",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/desktop3d/tests/browser_v190.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/browser-tests/browser_v190.py",
+      "sha256_before": "3bd06c0032037b4f041d8a1415b34fddd3b4f6bbaebd237f757bc709a3c8f4db",
+      "sha256_after": "a3d29635c1080c4d73e7d17392b5d638ae31021470211764140bf0bdd3e5782b",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/desktop3d/tests/browser_v190_core.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/browser-tests/browser_v190_core.py",
+      "sha256_before": "3ce0f933f52cc2bc7e8381d919571fef12a35c006ca3ac478ef1d13871438ed6",
+      "sha256_after": "ca1221c3ccae2c9d791d4fb3ff8f82d1a76a44f9621e23ae3f7ceacee6525af1",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/desktop3d/tests/artifacts/procedural-only.png",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/artifacts/tests/browser/procedural-only.png",
+      "sha256_before": "494787e8881162667240bcea838e46493884f5051da590bfee1e188b5ef3d024",
+      "sha256_after": "494787e8881162667240bcea838e46493884f5051da590bfee1e188b5ef3d024",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/desktop3d/tests/artifacts/production-game.png",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/artifacts/tests/browser/production-game.png",
+      "sha256_before": "0ec45fcc95cbe7be93bbecff19c504c389b0e59874a09eef5817263fc41e8bf3",
+      "sha256_after": "0ec45fcc95cbe7be93bbecff19c504c389b0e59874a09eef5817263fc41e8bf3",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/figures/previous_v183_panel.png",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/artifacts/research/figures/previous_v183_panel.png",
+      "sha256_before": "79fbe50de8c8b87ba877d2b4e3917cf0752662e3ee806aeb550d04f02ae3e100",
+      "sha256_after": "79fbe50de8c8b87ba877d2b4e3917cf0752662e3ee806aeb550d04f02ae3e100",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/figures/v183_reference_panel_desktop.png",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/artifacts/research/figures/v183_reference_panel_desktop.png",
+      "sha256_before": "4d87c49cc1a71e77273dd92179ff98032f31104c5a5524f21c457a25b5989cef",
+      "sha256_after": "4d87c49cc1a71e77273dd92179ff98032f31104c5a5524f21c457a25b5989cef",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/figures/v183_reference_panel_mobile.png",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/artifacts/research/figures/v183_reference_panel_mobile.png",
+      "sha256_before": "a1cea3ddf17ced8e68bdffaf65b09a101a833414e3f86d0a55ebc36ba9444381",
+      "sha256_after": "a1cea3ddf17ced8e68bdffaf65b09a101a833414e3f86d0a55ebc36ba9444381",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/figures/v184_p1_desktop.png",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/artifacts/research/figures/v184_p1_desktop.png",
+      "sha256_before": "b0464b702848bb5496a97ce12ac664993337967328588fa57f6dfb85d40d3b0f",
+      "sha256_after": "b0464b702848bb5496a97ce12ac664993337967328588fa57f6dfb85d40d3b0f",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/figures/v184_p1_mobile.png",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/artifacts/research/figures/v184_p1_mobile.png",
+      "sha256_before": "ed683aca2426b72501588fd6923fdb791729ab8fac3619573de3b843c902075b",
+      "sha256_after": "ed683aca2426b72501588fd6923fdb791729ab8fac3619573de3b843c902075b",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/legacy/shiftlab-2d-reference.html",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/shiftlab-2d-reference.html",
+      "sha256_before": "ae4bb3cf86e5ac8a190c8b84fa1e121c3c4e78bb091d4f284a7d736588b329f3",
+      "sha256_after": "ae4bb3cf86e5ac8a190c8b84fa1e121c3c4e78bb091d4f284a7d736588b329f3",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/metrics/adma_metrics.json",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/metrics/adma_metrics.json",
+      "sha256_before": "1e0dc3cd589a6f8d6972658f0a641982e0410099d5a33480aed66a34053b3d70",
+      "sha256_after": "1e0dc3cd589a6f8d6972658f0a641982e0410099d5a33480aed66a34053b3d70",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/metrics/bucknell_p1_reference.json",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/metrics/bucknell_p1_reference.json",
+      "sha256_before": "ddd6bdd80ce84276a36671a25184b1fc52add7b4d1c3f23a03623a6b062db1c2",
+      "sha256_after": "ddd6bdd80ce84276a36671a25184b1fc52add7b4d1c3f23a03623a6b062db1c2",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/metrics/bucknell_p1_steady_yaw.csv",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/metrics/bucknell_p1_steady_yaw.csv",
+      "sha256_before": "0f422834f35079259ea556a515ffb6c2e9b25daf5d69de6bb6ce59d582d5b2b9",
+      "sha256_after": "0f422834f35079259ea556a515ffb6c2e9b25daf5d69de6bb6ce59d582d5b2b9",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/metrics/civic_metrics.json",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/metrics/civic_metrics.json",
+      "sha256_before": "d3117a722c29351417a92ecf287f5086e07807f7b3a9d8003fb049a0a9d8341b",
+      "sha256_after": "d3117a722c29351417a92ecf287f5086e07807f7b3a9d8003fb049a0a9d8341b",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/metrics/civic_observed_bins.csv",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/metrics/civic_observed_bins.csv",
+      "sha256_before": "646297fcdfc8ef7228df248b0a73749a41f87daee84d5d5c33e5b1b90ce81f47",
+      "sha256_after": "646297fcdfc8ef7228df248b0a73749a41f87daee84d5d5c33e5b1b90ce81f47",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/metrics/combined_reference_summary.json",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/metrics/combined_reference_summary.json",
+      "sha256_before": "eecc26771c9e77f13aa83ebccb61438110e1e4cf3e26342b513e4838036b746a",
+      "sha256_after": "eecc26771c9e77f13aa83ebccb61438110e1e4cf3e26342b513e4838036b746a",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/metrics/fitted_reference_coefficients.json",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/metrics/fitted_reference_coefficients.json",
+      "sha256_before": "88e56b2a3439f1fcabeaed0f90152af3e4a322096b8346076ee1ba0a724bf1b6",
+      "sha256_after": "88e56b2a3439f1fcabeaed0f90152af3e4a322096b8346076ee1ba0a724bf1b6",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/metrics/fit_metrics.json",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/metrics/fit_metrics.json",
+      "sha256_before": "b1082f3bc330ac0dad92cd355138c06cb89a81739284b55e442c6119386da26b",
+      "sha256_after": "b1082f3bc330ac0dad92cd355138c06cb89a81739284b55e442c6119386da26b",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/metrics/source_assessment.json",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/metrics/source_assessment.json",
+      "sha256_before": "967a5f2bb5e0c711e2ca1c49b2d9b306d73795dec1a97f9af979b00a35dcc39a",
+      "sha256_after": "967a5f2bb5e0c711e2ca1c49b2d9b306d73795dec1a97f9af979b00a35dcc39a",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/metrics/summary_comparison.csv",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/metrics/summary_comparison.csv",
+      "sha256_before": "01724469f3c0737d7268b4f0f26a4bcd44b3c81994b6c3a4089ee6e29fd3023b",
+      "sha256_after": "01724469f3c0737d7268b4f0f26a4bcd44b3c81994b6c3a4089ee6e29fd3023b",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/results/bmw_fit_comparison.csv",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/results/bmw_fit_comparison.csv",
+      "sha256_before": "8996603be5915230c70165a4c95efc3e58343385e70874eaa2fb12eae94e80b1",
+      "sha256_after": "8996603be5915230c70165a4c95efc3e58343385e70874eaa2fb12eae94e80b1",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/results/bmw_gasoline_fit.json",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/results/bmw_gasoline_fit.json",
+      "sha256_before": "0fe38949f26e2c1065882c3e9e57ef641ecefa02f07ee07c55cc56a9452420c1",
+      "sha256_after": "0fe38949f26e2c1065882c3e9e57ef641ecefa02f07ee07c55cc56a9452420c1",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/results/bmw_holdout_model_comparison.png",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/results/bmw_holdout_model_comparison.png",
+      "sha256_before": "436e0062b83876e421e5f682bca9e97ed55a171e1e6d3e6560e697a96b232c25",
+      "sha256_after": "436e0062b83876e421e5f682bca9e97ed55a171e1e6d3e6560e697a96b232c25",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/results/p1_force_channel_quality.json",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/results/p1_force_channel_quality.json",
+      "sha256_before": "93ae14dec6ad498a28763088a4567a7275954b371f1191d5936f7e8ee3bf65b9",
+      "sha256_after": "93ae14dec6ad498a28763088a4567a7275954b371f1191d5936f7e8ee3bf65b9",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/results/p1_force_quality.csv",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/results/p1_force_quality.csv",
+      "sha256_before": "4934e0ec811848b3185e2a07bc42df8c254922badb5c6ca1f4379a59170f6be2",
+      "sha256_after": "4934e0ec811848b3185e2a07bc42df8c254922badb5c6ca1f4379a59170f6be2",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/results/p1_force_quality_gate.png",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/results/p1_force_quality_gate.png",
+      "sha256_before": "1e76f3f14025657786dbc6df0f69f50aa9a7a542582e874508d71f776a4b790c",
+      "sha256_after": "1e76f3f14025657786dbc6df0f69f50aa9a7a542582e874508d71f776a4b790c",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/results/v185_validated_reference.json",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/results/v185_validated_reference.json",
+      "sha256_before": "37289c8cbc329f41026122af439c03ccfa13405a1e6208d4330e2ab264e42f78",
+      "sha256_after": "37289c8cbc329f41026122af439c03ccfa13405a1e6208d4330e2ab264e42f78",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/screenshots/v185_bmw_reference_desktop.png",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/artifacts/research/screenshots/v185_bmw_reference_desktop.png",
+      "sha256_before": "f94da2a2100ffb9db4c5ca597d4cde070e8d654993638fa47731427adde85775",
+      "sha256_after": "f94da2a2100ffb9db4c5ca597d4cde070e8d654993638fa47731427adde85775",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/screenshots/v185_bmw_reference_mobile.png",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/artifacts/research/screenshots/v185_bmw_reference_mobile.png",
+      "sha256_before": "520b5a39078bb1b8c5750563b477800450033e242ff5c4a1e6bd3acd0c925cbf",
+      "sha256_after": "520b5a39078bb1b8c5750563b477800450033e242ff5c4a1e6bd3acd0c925cbf",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/full_run_v185.log",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/logs/full_run_v185.log",
+      "sha256_before": "89cf30223089cb6ce13c05ff6c936ca844b1bab5486bc62809e7753cab049e49",
+      "sha256_after": "89cf30223089cb6ce13c05ff6c936ca844b1bab5486bc62809e7753cab049e49",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/route_switch_probe.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/route_switch_probe.py",
+      "sha256_before": "e0d796bedbb44a6083742a3eabe2594d97b8d5166e1982cf6331dad12e5b6733",
+      "sha256_after": "0ebc5a51e94396633fbb29baca00ada5bbbeec6d59f18a07801a8efeb902114c",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/RUN_V185_QA.sh",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/RUN_V185_QA.sh",
+      "sha256_before": "2eedc19b12b34b9ce9e475f6e28cb666026106b9c7a065999f48c35cde02376f",
+      "sha256_after": "1bcfbf9d0d34b189dabfc9f9ba25dfe5109969091f0235c6d695176927a2e1e0",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/RUN_V186_QA.sh",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/RUN_V186_QA.sh",
+      "sha256_before": "f49e384b4ab4149a4fb7b259e85088d808af0a1a6fd4baa45d85eb641e344008",
+      "sha256_after": "3a50863b119cc3ab67495468c2ffbf6b46667274302520e399a1b56a3dfa4874",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/RUN_V187_QA.sh",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/RUN_V187_QA.sh",
+      "sha256_before": "c064e13cd5ec3e0a64e5c94e161218b6709552ce691bf1f8cdad7b351857a7a5",
+      "sha256_after": "b6e9902bd89dd827ff381e8d522a00ab57c56d2d6927ea8b2c9f4c810b5ccbba",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/RUN_V1892_QA.sh",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/RUN_V1892_QA.sh",
+      "sha256_before": "edbda056db09fced164c75b72ca4ab48ef49ba322bff28cf8c34a055e514be0b",
+      "sha256_after": "2d1b53551740d64f77db1c02f5587a694f9e673ecedeb5e987eb241bdc3b397b",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/RUN_V1892_QA_WINDOWS.cmd",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/RUN_V1892_QA_WINDOWS.cmd",
+      "sha256_before": "2be956bcb210ee68e41607975eee7be69ee278847d8d6a71d623ada46adb7283",
+      "sha256_after": "55a6dfaceb494cc0aba5ae5417703f2c12cd2f1e1db2dbbe6b3a8c72f86ad43d",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/RUN_V1893_QA.sh",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/RUN_V1893_QA.sh",
+      "sha256_before": "35efd8cd6b9dd58ebf5974ac323aa288d1718e0973cb149e3d08738db232da9a",
+      "sha256_after": "81b752a68ad2583e18fea32c0f951811901147d74608bb554ca792305d9b521a",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/RUN_V1893_QA_WINDOWS.cmd",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/RUN_V1893_QA_WINDOWS.cmd",
+      "sha256_before": "2660583b4c7d2e8bd6bd5ecd134b0f78c462570f27b1b056c85159aa14f8ebc0",
+      "sha256_after": "ae5a56ae4ac095e920a6de85a0e3480e28d6e2074ae521cf0acefe28644423c2",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/RUN_V190_QA.sh",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/RUN_V190_QA.sh",
+      "sha256_before": "822fc4dbb1185c27d22ca755355b2c4f292ac21b2610b05f9afceacb036bacf7",
+      "sha256_after": "110ff0cc98133d31398e589df32b494ab724c07f9e61c4149f9b5b9f261309fc",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/RUN_V190_QA_WINDOWS.cmd",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/RUN_V190_QA_WINDOWS.cmd",
+      "sha256_before": "de1ca1004048454777cbc590a2f47e42ca497a1bb9281ea246f573bb018c7f6a",
+      "sha256_after": "f815d2b554715a0cf850eed73de5b89e4cec18f2bbd9d27795d53f1e9751298c",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/test_v183.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/test_v183.py",
+      "sha256_before": "cd67d7fb50404079e1ed02aede980d307e391290d65fca0c33e8f6ddd6b21095",
+      "sha256_after": "07a32f5776e974cc4ec16ed0ea6750cec07b8d111f95418e246afb844a9c294e",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/test_v184.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/test_v184.py",
+      "sha256_before": "af0038f9dc90d5a2c11512176c81ae5a9e346935d9cb44d9fc0c1cf43e61ee06",
+      "sha256_after": "087e2526c407e0b59753924b4ae0cc10849efa6111704a41ee0bccd5e962e6b4",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/test_v185.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/test_v185.py",
+      "sha256_before": "d444e0ba198ce4ae138b4ac344b50adf3e2168588e5f59a27f239ba8ecacdfd4",
+      "sha256_after": "9b139826bb6d05031906d6ad85fed5c493ef49ef7aeb46b068100fdd440d8a39",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/test_v186.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/test_v186.py",
+      "sha256_before": "c3beae825fb5f8723da097b1d4dc7ddc879e68bc925cf4181ab94a398c4e7b85",
+      "sha256_after": "a14cfbb47dbc492422b756c8c9d20423b4321391b9e3dc0101f7b238cd549e1f",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/test_v187.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/test_v187.py",
+      "sha256_before": "3dce8f41c0bf556b3e8df1af35695e2a27cb75a38fbdf45f0eab651d55afbf6b",
+      "sha256_after": "b7749b8b0207e93e89de44266935b20746eef2c687f33dc8cc4145e2108e8f9c",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/test_v1871.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/test_v1871.py",
+      "sha256_before": "61c3c007c43793221fb6cc07b8f0977f65dc04c5edac4d7a365abfd7e458a8fb",
+      "sha256_after": "d91c784aea801ba4bc69d95afcf51f21b67246c9224a65e7680c782e21f099a6",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/test_v1872.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/test_v1872.py",
+      "sha256_before": "415f2426c13e479c1d3ff171bfc54d5fbcfc210bb1937857b81f3b5be97de4f7",
+      "sha256_after": "587761355531ee3d0512b92b630bab18ebfa87d0851f3e36fd36e22d3998ca75",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/test_v188.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/test_v188.py",
+      "sha256_before": "7ce48195b1b9e412d6d7fb478a727ea6989437c8197f841d6efcd1b9e1f874bb",
+      "sha256_after": "5ec4ac28f0f1ba49b56423aca53dd3e40b5cba04f380a9ed99a4685de2b248a8",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/test_v188_interaction.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/test_v188_interaction.py",
+      "sha256_before": "7a21cd44b5cf482bdaddc42106520a8f3c3deeec5264c699a8b3981fb3216368",
+      "sha256_after": "a064d583b0f822e09c7f365806e71212dc9928eec1b699860f58f0688f52f91c",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/test_v189.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/test_v189.py",
+      "sha256_before": "3e81172ba6e8f83df0b96837befc4a5fdf1005bc1e7d4e56058ff755e1e5e350",
+      "sha256_after": "6f100eef2a04dfee757682cb8f3b320c95b13bb0709c8f09f80c9f731b0961ad",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/test_v1891.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/test_v1891.py",
+      "sha256_before": "5d2305430a934f97f45c29ede534675d52ae95ff6ffbeb0b7a7a40ca2875bc77",
+      "sha256_after": "a7fec7f5b48d3b38cbb333642f577bca45ec09f082b1a39eba0b5832b395eb1e",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/test_v1891_drivetrain.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/test_v1891_drivetrain.py",
+      "sha256_before": "5d5de051a33cfd5ed7faea1081087120cbdd23ee9e2345e4a7459315d2edfb3b",
+      "sha256_after": "f40445bbcca3dc63efa2e7c04bebfaaccc8c5552ca05a9ed7cff8caae78f69e0",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/test_v1892.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/test_v1892.py",
+      "sha256_before": "00d11d24b7e244e8d881d4d0ab602df816a971d2502350b39b5d7f102f911b53",
+      "sha256_after": "a3fc5198a5ab2d3e220032e49804412ac3fd83a8b6a4eccab8375ef157e4503f",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/test_v1893.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/test_v1893.py",
+      "sha256_before": "95fa888ff9faf7c3a00a74bd75abb3f51f1bbed7bb2b025f791335b01745c650",
+      "sha256_after": "6c5c857825b7066f54f7ebd24fe2921968186683c33af4b2e49aee33eeffd50c",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/test_v1893_core_prnd.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/test_v1893_core_prnd.py",
+      "sha256_before": "2b0e0f2059d1896ef98bc2ae901c2f7ed6b47f6b6792cfcdd838b3832b9a45c9",
+      "sha256_after": "2b3d50f2e18f353021963560e57f8a8fd51e30f3200056e0a5452b4b1accebd7",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/test_v190.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/test_v190.py",
+      "sha256_before": "502a4633731094b8a336bc458848044ecd926fe8f2df688cc74fd7eaba6bf3ca",
+      "sha256_after": "1afe5b6d6425015595de6434adcba35bda1f55b42d3fc21dc2c6a81d9739d79e",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/v185_qa.log",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/logs/v185_qa.log",
+      "sha256_before": "68f5b2b1dc972a461ee1e197eaa8e1b4104256cfcac069a1d638632bf1c7378f",
+      "sha256_after": "68f5b2b1dc972a461ee1e197eaa8e1b4104256cfcac069a1d638632bf1c7378f",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/v186_qa.log",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/logs/v186_qa.log",
+      "sha256_before": "62c8cb6143dc285b94c4a3eb6dd3f1bec50c4caffec0833dd7d3d271cae584d0",
+      "sha256_after": "62c8cb6143dc285b94c4a3eb6dd3f1bec50c4caffec0833dd7d3d271cae584d0",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/v187_inherited_v186_qa.log",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/logs/v187_inherited_v186_qa.log",
+      "sha256_before": "41b26453410142dec5bfe70577d7347993e01ae08c9ac5a5e73d980b77de0d36",
+      "sha256_after": "41b26453410142dec5bfe70577d7347993e01ae08c9ac5a5e73d980b77de0d36",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/v187_qa.log",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/logs/v187_qa.log",
+      "sha256_before": "eaa9201f8adec9a899bc67985d308998ab6bbbabaea6085ae946235ecf705947",
+      "sha256_after": "eaa9201f8adec9a899bc67985d308998ab6bbbabaea6085ae946235ecf705947",
+      "content_unchanged": true
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tests/v190_compat.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/archive/legacy/tests/v190_compat.py",
+      "sha256_before": "5479d19d4bb50fc0584b5e2ad7a9f8193a04fa0b32ec582ecb3b325a045af3ab",
+      "sha256_after": "1a9b5598850bea13cd8c9d5c8a49728b5e695e9443c0c31aabe8804af23072e4",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tools/aggregate_verified_metrics.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/tools/aggregate_verified_metrics.py",
+      "sha256_before": "6b51778edf29f3484949b0b53adadd35d2a70f7702b62e07d3f9e69e844b7ea3",
+      "sha256_after": "75af1ffb4916a23716ffbd26c6cac41a9f2e9c1f9f2912f78316ea062beb0dce",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tools/download_public_obd.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/tools/download_public_obd.py",
+      "sha256_before": "12acbc9f4f6b56b9353523206de70f100f7c5b442fb388eea2f5dfae11030601",
+      "sha256_after": "6614912913c88583cc5111420b149eba62d73f25c85f9492b5132b7fe1e10048",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tools/fit_real_obd.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/tools/fit_real_obd.py",
+      "sha256_before": "401db244e8bf2b31eb8008d36f86a984bf4144b93e6704830bf56be3f3918cbe",
+      "sha256_after": "d9aaee1f84cd43fb2ce940bb055547434a0be599ed1aa3c663b7c6c54d7f6b92",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tools/plot_reference_evidence.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/tools/plot_reference_evidence.py",
+      "sha256_before": "379ee1a09a9fadd5a3f9887b897059aced12e0980b9911d0851d48b8ea4b5127",
+      "sha256_after": "13290a5c26b1dbb3344484373617ac0a3bd2292ea838312bd2dbed882a75b3ce",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/tools/verify_public_references.py",
+      "to": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/research/tools/verify_public_references.py",
+      "sha256_before": "2639445a91c9b92c2fdb406c029d7f78d3a5a29f7db4f6f5791415cee22c5cfc",
+      "sha256_after": "ab59d96411b6400f0fb8b2ee874fb827535171b24e06bdd660a30ca8e8d186ec",
+      "content_unchanged": false
+    },
+    {
+      "from": "SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix.zip",
+      "to": "archives/packages/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix.zip",
+      "sha256_before": "821c04a7f74e1f9966a934bca0eeddb523c03855f5b70e4de79bcd0891f47578",
+      "sha256_after": "821c04a7f74e1f9966a934bca0eeddb523c03855f5b70e4de79bcd0891f47578",
+      "content_unchanged": true
+    }
+  ],
+  "verified": {
+    "all_original_files_present": 176,
+    "runtime_unchanged": true,
+    "patches_unchanged": 11,
+    "research_values_unchanged": true,
+    "original_zip_unchanged": true,
+    "browser_screenshot": "artifacts/tests/browser/production-game-organization-2026-10-28.png"
+  }
+}

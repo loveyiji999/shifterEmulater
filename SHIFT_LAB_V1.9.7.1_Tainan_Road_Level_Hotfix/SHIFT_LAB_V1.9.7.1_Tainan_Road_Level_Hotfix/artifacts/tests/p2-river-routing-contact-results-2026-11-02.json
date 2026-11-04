@@ -1,0 +1,77 @@
+{
+  "scope": "actual-terrain construction proposals; not connected river network, game integration or hydraulic simulation",
+  "syntheticContacts": {
+    "queries": 210,
+    "maxError": 2.6198955538347946e-7
+  },
+  "reports": [
+    {
+      "seed": "LEVEL-1",
+      "pathPoints": 20,
+      "foundations": 8,
+      "roadProtections": 14,
+      "status": "geometry-candidate",
+      "issues": [],
+      "outletStatus": "window-continuation-required",
+      "summary": {
+        "changedVertices": 5477,
+        "maxCut": 20.90858829021454,
+        "protectedVertices": 1219,
+        "wetMaskEdges": 0,
+        "minPathCoverage": 1,
+        "waterTriangles": 1323
+      },
+      "contacts": {
+        "queries": 290,
+        "maxError": 0.000006681972898547883
+      },
+      "sourceHash": "5f729c367383c268845549cd9330d412e22e65dc763a726b90dfa9054174d3d5"
+    },
+    {
+      "seed": "LEVEL-2",
+      "pathPoints": 20,
+      "foundations": 8,
+      "roadProtections": 40,
+      "status": "rejected",
+      "issues": [
+        "wet-mask-boundary"
+      ],
+      "outletStatus": "window-continuation-required",
+      "summary": {
+        "changedVertices": 5517,
+        "maxCut": 20.820564776659012,
+        "protectedVertices": 4566,
+        "wetMaskEdges": 11,
+        "minPathCoverage": 1,
+        "waterTriangles": 1317
+      },
+      "contacts": {
+        "queries": 258,
+        "maxError": 0.000041846589812877255
+      },
+      "sourceHash": "d64814224def5bf0b8dcb11edab05c64736c454fb410190c7041a22e0e472429"
+    },
+    {
+      "seed": "ROAD-38274CD4",
+      "pathPoints": 20,
+      "foundations": 8,
+      "roadProtections": 5,
+      "status": "geometry-candidate",
+      "issues": [],
+      "outletStatus": "window-continuation-required",
+      "summary": {
+        "changedVertices": 6384,
+        "maxCut": 22.200616359710693,
+        "protectedVertices": 518,
+        "wetMaskEdges": 0,
+        "minPathCoverage": 1,
+        "waterTriangles": 1631
+      },
+      "contacts": {
+        "queries": 228,
+        "maxError": 4.825492325721825e-7
+      },
+      "sourceHash": "659912fe1710719a1b61aae17106162ead3f54423f1d5b4049e61570f296f5b7"
+    }
+  ]
+}

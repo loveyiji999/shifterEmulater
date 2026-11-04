@@ -1,0 +1,13 @@
+{
+  "desktop3d/src/main.mjs": "84b17511a4c9943fa0d97b1c33301668b45695e9b8abdad1400905cb407446a1",
+  "desktop3d/src/chassis.mjs": "3897972d844464bf8d435ac4f59ef09991d8f477aa30239f251adf92578b4542",
+  "desktop3d/src/road.mjs": "a01ba2595d4c75b7045597c06bac9c840acfd104a183947978af2c330d0e5f56",
+  "desktop3d/src/road-geometry-v3.mjs": "9f6c33ef0e66af54582f6c5f19f35d8860b2376252d240e73e37b802e918a5d6",
+  "desktop3d/src/vehicle-definition.mjs": "ab4099fdc3d61c6842246ded64e7444c28f26eeff1acd3d21d65fa66f32fb6dd",
+  "desktop3d/tests/game-driver.mjs": "8fa1a24ab222d46aa9e6fcffd0dc5c852ec1b458d46c8ade1946d4f2a8fdbeab",
+  "desktop3d/tests/performance-baseline.mjs": "9d336be7f4c7562e4c09d5bdc4603b2be827a05f5b11a6307773184245b2a551",
+  "desktop3d/public/physics.html": "ae8599d1e46ead1fe9a72a21134a23e99ec9b25b524bd81640214f07b68b3aed",
+  "desktop3d/public/road-generator-v3.js": "d9d0c37bfa479bfcce098e5f86625eff36055fa04927f377b9b48cdc655a9668",
+  "desktop3d/index.html": "9d8eecda3036806e1554c18fd312a37ac074f13e0ba7da15b1cde322e43b98e1",
+  "desktop3d/package-lock.json": "f6acb5b69f34e0a9351be7f55f28914c490c01bee2ee9ca302435edad545ec86"
+}

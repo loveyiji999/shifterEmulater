@@ -1,0 +1,207 @@
+{
+  "disclaimer": "Empirical TWO-DOF surrogate fitted to measured actual front steering + longitudinal speed; NOT a full-car SHIFT//LAB physical coefficient set.",
+  "research_vehicle": "Bucknell University P1, electric drive-by-wire experimental vehicle",
+  "source_page": "https://www.projects.bucknell.edu/Beal_Automotive/",
+  "geometry_provenance_warning": "Institution website b=1.10 m; historical P1 MATLAB parameter script b=1.15 m. Results are highly sensitive; axle stiffness not independently identified.",
+  "published_reference": {
+    "mass_kg": 1724.0,
+    "yaw_inertia_kg_m2": 1300.0,
+    "cg_to_front_m": 1.35,
+    "cg_to_rear_m": 1.1,
+    "front_axle_cornering_stiffness_N_rad": 75000.0,
+    "rear_axle_cornering_stiffness_N_rad": 135000.0
+  },
+  "nominal_model": "coupled lateral velocity + yaw rate with Fy = mu*N*tanh(Calpha/(mu*N)); mu nominal 1; measured speed and actual Ackermann angle replayed",
+  "selected_fit_model": "front/rear stiffness share ONE scale; common effective saturated adhesion; left ramp 40-93s only",
+  "fit": {
+    "stiffness_multiplier": 0.8226312265517104,
+    "effective_mu_in_surrogate": 0.877869116016438,
+    "front_effective_axle_stiffness_N_rad": 61697.34199137828,
+    "rear_effective_axle_stiffness_N_rad": 111055.2155844809,
+    "optimizer_cost": 119.21851092190781,
+    "optimizer_nfev": 6,
+    "bounds": {
+      "stiffness": [
+        0.5,
+        2.5
+      ],
+      "mu": [
+        0.6,
+        1.6
+      ]
+    }
+  },
+  "metrics": {
+    "left_training": {
+      "source": "craig_2018-07-19_ab",
+      "split": "train",
+      "start_time_s": 40.0,
+      "end_time_s": 93.0,
+      "sample_hz": 50,
+      "rows": 2651,
+      "speed_min_m_s": 9.92580540229698,
+      "speed_max_m_s": 10.254651713964142,
+      "published_chassis_nominal_tanh": {
+        "yaw_rmse_deg_s": 3.3364335173887048,
+        "yaw_mae_deg_s": 2.6194193437945903,
+        "yaw_bias_deg_s": 2.617533281454368,
+        "lateral_accel_rmse_m_s2": 0.48599979040254165
+      },
+      "fitted_tanh": {
+        "yaw_rmse_deg_s": 0.6143571495902024,
+        "yaw_mae_deg_s": 0.46373188148563854,
+        "yaw_bias_deg_s": 0.1990840807133157,
+        "lateral_accel_rmse_m_s2": 0.16331365148345356
+      },
+      "yaw_rmse_improvement_percent": 81.58641116664494
+    },
+    "left_release": {
+      "source": "craig_2018-07-19_ab",
+      "split": "holdout",
+      "start_time_s": 93.0,
+      "end_time_s": 116.0,
+      "sample_hz": 50,
+      "rows": 1151,
+      "speed_min_m_s": 9.919912610094931,
+      "speed_max_m_s": 10.239627395545558,
+      "published_chassis_nominal_tanh": {
+        "yaw_rmse_deg_s": 4.061673196764304,
+        "yaw_mae_deg_s": 3.482508947402204,
+        "yaw_bias_deg_s": 3.482508947402204,
+        "lateral_accel_rmse_m_s2": 0.6305886390431005
+      },
+      "fitted_tanh": {
+        "yaw_rmse_deg_s": 1.085954622159129,
+        "yaw_mae_deg_s": 0.9521942176426134,
+        "yaw_bias_deg_s": 0.8992180986493524,
+        "lateral_accel_rmse_m_s2": 0.17932584534159768
+      },
+      "yaw_rmse_improvement_percent": 73.263367840026
+    },
+    "right_ramp": {
+      "source": "craig_2018-07-19_ac",
+      "split": "holdout",
+      "start_time_s": 30.0,
+      "end_time_s": 126.0,
+      "sample_hz": 50,
+      "rows": 4801,
+      "speed_min_m_s": 9.836563444227707,
+      "speed_max_m_s": 10.4242813596943,
+      "published_chassis_nominal_tanh": {
+        "yaw_rmse_deg_s": 3.7959968454758632,
+        "yaw_mae_deg_s": 3.650355130707935,
+        "yaw_bias_deg_s": -3.650355130707935,
+        "lateral_accel_rmse_m_s2": 0.5198447482853429
+      },
+      "fitted_tanh": {
+        "yaw_rmse_deg_s": 2.370194425585821,
+        "yaw_mae_deg_s": 2.2316868367790423,
+        "yaw_bias_deg_s": -1.596726019834135,
+        "lateral_accel_rmse_m_s2": 0.3673122467407466
+      },
+      "yaw_rmse_improvement_percent": 37.56068505666276
+    },
+    "step_steer": {
+      "source": "craig_2018-07-19_ai",
+      "split": "holdout",
+      "start_time_s": 42.0,
+      "end_time_s": 75.0,
+      "sample_hz": 50,
+      "rows": 1651,
+      "speed_min_m_s": 6.391953171059338,
+      "speed_max_m_s": 11.651594126712656,
+      "published_chassis_nominal_tanh": {
+        "yaw_rmse_deg_s": 1.197018859985148,
+        "yaw_mae_deg_s": 0.9894792671962499,
+        "yaw_bias_deg_s": 0.9094250622006326,
+        "lateral_accel_rmse_m_s2": 1.217082254476293
+      },
+      "fitted_tanh": {
+        "yaw_rmse_deg_s": 0.8590131286897382,
+        "yaw_mae_deg_s": 0.6442723370976925,
+        "yaw_bias_deg_s": 0.5550390297008209,
+        "lateral_accel_rmse_m_s2": 1.1539511084934053
+      },
+      "yaw_rmse_improvement_percent": 28.23729371311689
+    },
+    "increasing_speed_circle": {
+      "source": "craig_2018-07-19_ak",
+      "split": "holdout",
+      "start_time_s": 48.0,
+      "end_time_s": 116.0,
+      "sample_hz": 50,
+      "rows": 3401,
+      "speed_min_m_s": 5.461367730603439,
+      "speed_max_m_s": 16.82678022067847,
+      "published_chassis_nominal_tanh": {
+        "yaw_rmse_deg_s": 2.0845974791512547,
+        "yaw_mae_deg_s": 1.6766309428093444,
+        "yaw_bias_deg_s": 1.6766210534315584,
+        "lateral_accel_rmse_m_s2": 0.5431944907813943
+      },
+      "fitted_tanh": {
+        "yaw_rmse_deg_s": 0.8791849426956116,
+        "yaw_mae_deg_s": 0.6963613171014874,
+        "yaw_bias_deg_s": 0.5212764108977351,
+        "lateral_accel_rmse_m_s2": 0.2881856250813905
+      },
+      "yaw_rmse_improvement_percent": 57.824714291913445
+    },
+    "test_track_loop": {
+      "source": "craig_2018-07-19_ad",
+      "split": "holdout",
+      "start_time_s": 28.0,
+      "end_time_s": 152.0,
+      "sample_hz": 50,
+      "rows": 6201,
+      "speed_min_m_s": 10.109543125878774,
+      "speed_max_m_s": 10.255833661210517,
+      "published_chassis_nominal_tanh": {
+        "yaw_rmse_deg_s": 0.6540764645689605,
+        "yaw_mae_deg_s": 0.6165988393506305,
+        "yaw_bias_deg_s": -0.6163654295380356,
+        "lateral_accel_rmse_m_s2": 0.13122831716290972
+      },
+      "fitted_tanh": {
+        "yaw_rmse_deg_s": 0.7131265481642217,
+        "yaw_mae_deg_s": 0.6723682117219629,
+        "yaw_bias_deg_s": -0.6723107169809307,
+        "lateral_accel_rmse_m_s2": 0.14083572767661207
+      },
+      "yaw_rmse_improvement_percent": -9.028009230415513
+    },
+    "low_speed_straight": {
+      "source": "craig_2018-07-19_aa",
+      "split": "holdout",
+      "start_time_s": 38.0,
+      "end_time_s": 61.0,
+      "sample_hz": 50,
+      "rows": 1151,
+      "speed_min_m_s": 5.711747948665155,
+      "speed_max_m_s": 6.718074005932939,
+      "published_chassis_nominal_tanh": {
+        "yaw_rmse_deg_s": 0.4540840507373558,
+        "yaw_mae_deg_s": 0.43837144155458996,
+        "yaw_bias_deg_s": -0.43837144155458996,
+        "lateral_accel_rmse_m_s2": 0.0652385385104733
+      },
+      "fitted_tanh": {
+        "yaw_rmse_deg_s": 0.44972977972384254,
+        "yaw_mae_deg_s": 0.43370330040459193,
+        "yaw_bias_deg_s": -0.43369504241499085,
+        "lateral_accel_rmse_m_s2": 0.06438552562677453
+      },
+      "yaw_rmse_improvement_percent": 0.9589130044190423
+    }
+  },
+  "known_limitations": [
+    "not independent road slope/camber input",
+    "road-wheel sensor/INS offsets possible",
+    "effective tanh mu not measured tire rig coefficient",
+    "test each P1 run initialized at first observed yaw and lateral velocity",
+    "roll/pitch/load-transfer and drivetrain excluded from surrogate",
+    "P1 electric dual rear motors; not a manual-transmission production vehicle",
+    "published chassis stiffness values are earlier research estimates, not a fixed tire production spec",
+    "drive files public but explicit reuse license not established; source matrices not redistributed"
+  ]
+}

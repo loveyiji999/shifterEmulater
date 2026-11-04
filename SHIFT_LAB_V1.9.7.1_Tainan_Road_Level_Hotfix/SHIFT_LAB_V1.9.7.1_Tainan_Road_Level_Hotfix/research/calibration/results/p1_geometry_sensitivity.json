@@ -1,0 +1,26 @@
+{
+  "primary_webpage_rear_b_m": 1.1,
+  "historical_script_rear_b_m": 1.15,
+  "published_script_sha256": "da94d8ae54d6b73cc6d58864f72e92972317d82fd79642f8f83b8a849799c760",
+  "cases": [
+    {
+      "rear_b_m": 1.1,
+      "cornering_stiffness_common_multiplier": 0.8226312265517104,
+      "effective_mu_tanh": 0.877869116016438,
+      "front_cornering_stiffness_N_rad": 61697.34199137828,
+      "rear_cornering_stiffness_N_rad": 111055.2155844809,
+      "independent_test_right_rmse_deg_s": 2.370194425585821,
+      "independent_test_track_rmse_deg_s": 0.7131265481642217
+    },
+    {
+      "rear_b_m": 1.15,
+      "cornering_stiffness_common_multiplier": 1.0001435572300823,
+      "effective_mu_tanh": 0.8732505506007653,
+      "front_cornering_stiffness_N_rad": 75010.76679225617,
+      "rear_cornering_stiffness_N_rad": 135019.3802260611,
+      "independent_test_right_rmse_deg_s": 2.346708729187624,
+      "independent_test_track_rmse_deg_s": 0.7270564478242748
+    }
+  ],
+  "conclusion": "5-cm CG-rear prior change alters tire stiffness fit strongly, so fitted physical coefficients cannot be transferred to SHIFT LAB without independent geometry and tire calibration."
+}

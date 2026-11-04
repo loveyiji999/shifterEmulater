@@ -1,0 +1,21 @@
+{
+  "pass": true,
+  "reports": [
+    {
+      "seed": "LEVEL-1",
+      "anchorGroundRangesM": [
+        2.825669963411542,
+        2.022953497500154
+      ],
+      "maximumHalfMeterStepM": 0.44872641347385667
+    },
+    {
+      "seed": "LEVEL-2",
+      "anchorGroundRangesM": [
+        2.1023598769910166,
+        2.141703348698485
+      ],
+      "maximumHalfMeterStepM": 0.52916593516224
+    }
+  ]
+}

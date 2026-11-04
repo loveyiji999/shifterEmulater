@@ -1,0 +1,143 @@
+{
+  "scope": "40s single-seed native GPU high-speed streaming comparison; CCD enabled in BOTH shipping-path captures; not P3 completion",
+  "before": {
+    "metadata": {
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+      "device": "ANGLE (Intel, Intel(R) UHD Graphics 770 (0x00004680) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "backend": "WebGL2",
+      "drawingBuffer": [
+        1440,
+        900
+      ],
+      "devicePixelRatio": 1,
+      "hardwareConcurrency": 20,
+      "deviceMemoryGiB": 32,
+      "map": {
+        "seed": "STREAM-TIMING-V1",
+        "turnChance": 0,
+        "hairpinChance": 0,
+        "slopeChance": 0,
+        "leftBias": 50,
+        "upBias": 50,
+        "maxGrade": 9,
+        "generator": 3
+      },
+      "preset": "standard",
+      "warmupSeconds": 10,
+      "captureSeconds": 40
+    },
+    "frameMs": {
+      "p50": 17.100000023841858,
+      "p95": 80.40000009536743,
+      "p99": 304.89999997615814,
+      "max": 378.89999997615814
+    },
+    "physicsCpuMs": {
+      "p50": 7.699999928474426,
+      "p95": 78.20000004768372,
+      "p99": 301.2000002861023,
+      "max": 376.1999999284744
+    },
+    "streamCpuMs": {
+      "p50": 0.10000002384185791,
+      "p95": 0.30000007152557373,
+      "p99": 1.0999999046325684,
+      "max": 4.299999952316284
+    },
+    "gpuRenderMs": {
+      "p50": 6.518333,
+      "p95": 7.456041,
+      "p99": 8.159114,
+      "max": 9.470989
+    },
+    "simulationRatio": 0.7623786045854518,
+    "droppedSteps": 86,
+    "distanceM": 805.1055297851562,
+    "streaming": {
+      "mode": "worker",
+      "jobs": 23,
+      "discarded": 0,
+      "commits": 23,
+      "waits": 0,
+      "maxWorkerMs": 456.2000000476837,
+      "maxPrepareMs": 4.199999928474426,
+      "maxActivateMs": 0.5,
+      "error": null,
+      "pending": 0,
+      "prepared": 0,
+      "ready": false
+    },
+    "framesOver33ms": 119,
+    "framesOver50ms": 109
+  },
+  "after": {
+    "metadata": {
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+      "device": "ANGLE (Intel, Intel(R) UHD Graphics 770 (0x00004680) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "backend": "WebGL2",
+      "drawingBuffer": [
+        1440,
+        900
+      ],
+      "devicePixelRatio": 1,
+      "hardwareConcurrency": 20,
+      "deviceMemoryGiB": 32,
+      "map": {
+        "seed": "STREAM-TIMING-V1",
+        "turnChance": 0,
+        "hairpinChance": 0,
+        "slopeChance": 0,
+        "leftBias": 50,
+        "upBias": 50,
+        "maxGrade": 9,
+        "generator": 3
+      },
+      "preset": "standard",
+      "warmupSeconds": 10,
+      "captureSeconds": 40
+    },
+    "frameMs": {
+      "p50": 16.600000023841858,
+      "p95": 21.100000023841858,
+      "p99": 22.300000071525574,
+      "max": 72.69999992847443
+    },
+    "physicsCpuMs": {
+      "p50": 4.899999976158142,
+      "p95": 7.399999976158142,
+      "p99": 8.49999988079071,
+      "max": 69.49999988079071
+    },
+    "streamCpuMs": {
+      "p50": 0.10000002384185791,
+      "p95": 0.2999999523162842,
+      "p99": 1.2000000476837158,
+      "max": 3.0999999046325684
+    },
+    "gpuRenderMs": {
+      "p50": 6.48875,
+      "p95": 7.305937,
+      "p99": 8.17375,
+      "max": 9.497135
+    },
+    "simulationRatio": 1.0003949091696418,
+    "droppedSteps": 2,
+    "distanceM": 914.9187622070312,
+    "streaming": {
+      "mode": "worker",
+      "jobs": 28,
+      "discarded": 0,
+      "commits": 28,
+      "waits": 0,
+      "maxWorkerMs": 467,
+      "maxPrepareMs": 3.899999976158142,
+      "maxActivateMs": 1.399999976158142,
+      "error": null,
+      "pending": 0,
+      "prepared": 0,
+      "ready": false
+    },
+    "framesOver33ms": 6,
+    "framesOver50ms": 4
+  }
+}

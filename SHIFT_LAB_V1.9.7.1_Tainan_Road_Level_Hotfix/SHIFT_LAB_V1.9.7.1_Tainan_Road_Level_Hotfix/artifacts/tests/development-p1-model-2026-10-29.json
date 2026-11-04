@@ -1,0 +1,34 @@
+{
+  "schema": "shiftlab.development.verification.v1",
+  "recordedAt": "2026-10-28T16:04:56.381245+00:00",
+  "scope": "P1 body/cabin and wheel display; P1 wheel wells and P0-P5 remain incomplete",
+  "goalStatus": "active",
+  "checks": {
+    "qa:all": "PASS",
+    "vehicle model final": "PASS",
+    "build": "PASS 21 modules",
+    "browser": "PASS after correcting pause fixture order",
+    "vehicle diagnostics": "PASS 36 cases, 144 tire plane checks",
+    "V3 driving": "PASS 54 cases",
+    "acceptance": "PASS 5/5",
+    "production vehicle screenshot": "PASS"
+  },
+  "maxVisibleTireGapM": 0.006187954121258319,
+  "physicsCoreUnchanged": true,
+  "sourceHashes": {
+    "src/vehicle-layout.mjs": "641f41f905f11692e1ab97473da4b4708fe3c7b00bb5b630212f4974a404f9ea",
+    "src/vehicle-visual.mjs": "a10549e6dca13d189528e41a870f7b44027fb685209dd14674343f12aab2d26e",
+    "src/vehicle-definition.mjs": "303a036f2342499429ad86c1aded6d27b9e88695ff1810569a9666195816484b",
+    "src/chassis.mjs": "b3c588a866fec9f289f1d7b801fb8092632ca02f9892e55678e3b8f39c9d3540",
+    "public/physics.html": "ae8599d1e46ead1fe9a72a21134a23e99ec9b25b524bd81640214f07b68b3aed",
+    "tests/validate-vehicle-model.mjs": "9688b633ee30f7ea3d91cb1e3998758af164eb0f05ba455ead3da84332d260a9"
+  },
+  "remaining": [
+    "P1 wheel wells and full travel/steering shell clearance",
+    "P0 material boundary contact diagnostics",
+    "P2 continuous terrain, materials, slopes, lighting and environment",
+    "P3 environment GPU benchmarking and quality selection",
+    "P4 player tuning and atomic apply",
+    "P5 appearance creator and actual asset import/save/reload"
+  ]
+}

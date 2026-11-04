@@ -1,0 +1,92 @@
+{
+  "date": "2026-10-29",
+  "goal": "P0-P5 staged development active, not complete",
+  "scope": "P2 drivable concrete/gravel and pavement selection",
+  "sourceHashes": {
+    "desktop3d/index.html": "c25bd16bbd98dea670dd5c917ef97f7f328d87c1d6d4be12e99aca661e8145f2",
+    "desktop3d/package.json": "e449de3d1d4cf58e8762de320ac67973bc99b3bf0b967d0e900c87b34028ceb9",
+    "desktop3d/package-lock.json": "f6acb5b69f34e0a9351be7f55f28914c490c01bee2ee9ca302435edad545ec86",
+    "desktop3d/src/main.mjs": "34bf757c2f6825e3c1b0aa4d26a815c43ba7890804c80cdf11a32af457ec0cb7",
+    "desktop3d/src/road.mjs": "87ac541915d07f698a9e9e4d83b5fa437c11fabedc95d7952f534bc0a235e869",
+    "desktop3d/src/surface-map.mjs": "0079973c3cccf585d80922c55b52150a2ef0da811e04cb18eba8c268f3e68eed",
+    "desktop3d/src/geometry-streamer.mjs": "cc8e88dedccc5655df95d62d75c860538b6d0309731db3a52279e149fb5ae295",
+    "desktop3d/src/surface-definition.mjs": "e53b8a843ced5db2cb733ec09a38b8a314d015a14ced4571cf55df906a132845",
+    "desktop3d/src/surface-materials.mjs": "c953a63c6aa10dc9108311f3a027858bd10548608279b742a09c8c981c2098ec",
+    "desktop3d/src/chassis.mjs": "249539c37109de8359530819a045e70b6f1f2c0f48fde6b56f33eec8d641ac80",
+    "desktop3d/public/physics.html": "c491cfc1ca5af23367822f87dfd27c12e122b83bf362ff6073829c75f952edbd",
+    "desktop3d/public/road-generator-v3.js": "d9d0c37bfa479bfcce098e5f86625eff36055fa04927f377b9b48cdc655a9668",
+    "desktop3d/tests/validate-pavement.mjs": "f675c8e3f228b4e46a84cb5b69769bc48c2ee2c39357d49bb22a4928bff598bc",
+    "desktop3d/tests/validate-surface-map.mjs": "56e0daad415c210e43cfc994c64ac5df114194df5eedf89a39e2473d95f16ada",
+    "desktop3d/tests/validate-streaming.mjs": "115f4945278eb1ba0bffb036f61a9f6d24a4d6a20cebb710e54febcdbdf12edc",
+    "desktop3d/tests/surface-driver.mjs": "cd4bead7d9cd676303a7c1b977d6e902ddb967183f8bfcca9f1b27a416eb9239",
+    "desktop3d/tests/game-driver.mjs": "25f7c747c7e2de51fb6e47fb914f7fdc10ee6dad4516f723470e2dfcf29569c3",
+    "desktop3d/tests/performance-baseline.mjs": "c8b1eddaa887dab790bc522d822cc266bb03225b126c35b803cc07a697e1bf8d",
+    "desktop3d/tests/validate-performance-capture.mjs": "22cab26ca734ddb110a5d50f4656b84cd091d39cc275a9c48772ddad7687c88e",
+    "desktop3d/tests/validate-procedural-browser.mjs": "57b294aa393d773f9cde2776955699712e8c1ce32e2ff923c7bed23915d8d6d9",
+    "docs/P2_DRIVABLE_PAVEMENTS.md": "d467d439bf31668ead1dac1a25e1021dbae45ca465d428767cb324d0a23309bb",
+    "docs/DEVELOPMENT_PLAN.md": "7c772def8721c8c88c2cc6b6cea695c7cb72f1fb88bf78d456811094997a5b5a",
+    "docs/DEVELOPMENT_PROGRESS.md": "59754157f2c51118832834f4919de5a88251e84209431c012488f52cc2061c94",
+    "docs/AGENT_KNOWLEDGE.md": "ddd4e0ab73eedefb01d25ce0005df8c01767dbcb188ef478566eb5c0199194f2",
+    "docs/AGENT_VERIFICATION.md": "93320a832db42172610e3bdec755b167953f78420a3f382c993d7eed42d64161",
+    "docs/DATA_CATALOG.md": "4bc2352056525c580ff91a194f3c6be5d5af7385f741c0c07ba2b16974a0986c"
+  },
+  "archiveSha256": "39904273056f2e6f0bbfef099abe014d876d62ff2464b9b2688b7c3121f0bd77",
+  "checks": [
+    {
+      "command": "node tests/validate-pavement.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-surface-map.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-streaming.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-performance-capture.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "npm.cmd run qa:all",
+      "result": "PASS"
+    },
+    {
+      "command": "npm.cmd run build",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --production",
+      "result": "PASS"
+    },
+    {
+      "command": "node tests/validate-procedural-browser.mjs --pavement-contact --screenshot",
+      "result": "PASS"
+    }
+  ],
+  "actualStoppingCases": 12,
+  "asphaltStoppingMatchesSavedBaselineExactly": true,
+  "unchangedSourceHashesAgainstPreviousSnapshot": [
+    "desktop3d/package-lock.json",
+    "desktop3d/src/chassis.mjs",
+    "desktop3d/public/physics.html",
+    "desktop3d/public/road-generator-v3.js"
+  ],
+  "visualReview": [
+    "asphalt_dense",
+    "concrete",
+    "gravel; no painted lane markers"
+  ],
+  "limitations": [
+    "new coefficients authored gameplay assumptions, not field calibration",
+    "legacy shoulders remain unclassified",
+    "new material native GPU performance not measured",
+    "P2 environment blending/scenery and P3-P5 still incomplete"
+  ],
+  "resolvedTestIssue": "reload guard now verifies localStorage and new performance.timeOrigin before ready; original actual-contact assertions retained"
+}

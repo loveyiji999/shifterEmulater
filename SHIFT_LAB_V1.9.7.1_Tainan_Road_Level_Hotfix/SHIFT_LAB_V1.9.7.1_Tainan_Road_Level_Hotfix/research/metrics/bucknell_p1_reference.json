@@ -1,0 +1,45 @@
+{
+  "source": "https://www.projects.bucknell.edu/Beal_Automotive/",
+  "status": "research-identified best-estimate P1 parameters, NOT the in-game car",
+  "mass_kg": 1724.0,
+  "yaw_inertia_kg_m2": 1300.0,
+  "a_m": 1.35,
+  "b_m": 1.1,
+  "wheelbase_m": 2.45,
+  "front_cornering_stiffness_N_per_rad": 75000.0,
+  "rear_cornering_stiffness_N_per_rad": 135000.0,
+  "linear_understeer_coefficient_s2_per_m": 0.003283809523809524,
+  "hypothetical_3deg_roadwheel_steer": [
+    {
+      "kmh": 20,
+      "roadwheel_steer_deg": 3.0,
+      "predicted_yaw_deg_s": 6.5325,
+      "predicted_ay_mps2": 0.6334
+    },
+    {
+      "kmh": 40,
+      "roadwheel_steer_deg": 3.0,
+      "predicted_yaw_deg_s": 11.6738,
+      "predicted_ay_mps2": 2.2638
+    },
+    {
+      "kmh": 60,
+      "roadwheel_steer_deg": 3.0,
+      "predicted_yaw_deg_s": 14.8714,
+      "predicted_ay_mps2": 4.3259
+    },
+    {
+      "kmh": 80,
+      "roadwheel_steer_deg": 3.0,
+      "predicted_yaw_deg_s": 16.3734,
+      "predicted_ay_mps2": 6.3505
+    },
+    {
+      "kmh": 100,
+      "roadwheel_steer_deg": 3.0,
+      "predicted_yaw_deg_s": 16.7208,
+      "predicted_ay_mps2": 8.1065
+    }
+  ],
+  "note": "Yaw predictions are analytic bicycle-model computations from published estimated parameters, NOT road measurements."
+}

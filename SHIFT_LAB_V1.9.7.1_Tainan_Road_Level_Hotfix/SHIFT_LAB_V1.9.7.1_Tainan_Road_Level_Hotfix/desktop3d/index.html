@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#07121d">
+<title>SHIFT LAB v1.9.7.1 · 種子地圖與車輛駕駛</title>
+<style>
+:root{color-scheme:dark;--paper:#07131f;--glass:#0a1d2eea;--line:#294756;--text:#e6f4f6;--quiet:#a7bdc7;--mint:#79eac5;--warn:#ffd59d;--danger:#ff9898}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html,body{height:100%;margin:0;background:#081522;color:var(--text);font:13px/1.55 system-ui,'Noto Sans TC','Microsoft JhengHei',sans-serif;overflow:hidden}
+#view{position:fixed;inset:0;width:100vw;height:100vh;display:block;outline:none;touch-action:none}
+#dashboard{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);display:flex;align-items:end;gap:10px;pointer-events:none;z-index:3;user-select:none}
+.dial{width:154px;height:154px;border-radius:50%;position:relative;display:grid;place-items:center;background:conic-gradient(from 220deg,var(--mint) 0deg var(--arc,0deg),#193748 var(--arc,0deg) 255deg,transparent 255deg 360deg);filter:drop-shadow(0 9px 18px #03101bb3)}
+.dial:before{content:'';position:absolute;inset:8px;border-radius:50%;background:radial-gradient(circle at 50% 25%,#153348,#061725 78%);border:1px solid #375367}
+.dial .data{position:relative;text-align:center;line-height:1.1}.dial .number{font:800 37px/1.1 ui-monospace,Consolas,monospace;letter-spacing:-.07em;white-space:nowrap}.dial .unit{font:750 10px/1.7 system-ui;letter-spacing:.13em;color:#9dbac6}.dial .fine{font:700 12px/1.7 ui-monospace;color:#d6e8ef}.dial .number.tiny{font-size:28px}
+.gear-widget{width:130px;min-height:143px;border:1px solid #446a76;border-radius:22px;background:linear-gradient(155deg,#103047eb,#061522ee);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 10px 30px #00101bb0}
+.gear-widget small{font-size:10px;letter-spacing:.22em;color:#aec9cf}.gear-widget strong{font:900 58px/1 ui-monospace,Consolas,monospace;color:var(--mint)}
+.auto-shifter{display:flex;gap:3px;margin:5px 0 3px;pointer-events:auto}
+.auto-shifter button{min-width:25px;padding:3px 5px;border-radius:6px;font-size:11px;line-height:1.25}
+.auto-shifter button[aria-pressed="true"]{background:#237a68;color:#fff;border-color:#78eac5}
+.range-message{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);min-width:190px;max-width:330px;padding:6px 9px;border-radius:8px;background:#102c40eb;border:1px solid #537589;text-align:center;font-size:11px;color:var(--warn);pointer-events:none}
+.range-message:empty{display:none}
+#hud-menu{pointer-events:auto;align-self:end;border:1px solid #446373;background:#0b2238ec;color:#dffaf1;border-radius:14px;min-width:43px;height:43px;padding:8px;font-size:20px;cursor:pointer}
+#hud-menu:hover{background:#1e4a57}
+#panel-overlay{position:fixed;inset:0;z-index:8;background:#010b14aa;backdrop-filter:blur(12px);display:grid;place-items:center;padding:24px;overflow:auto}
+.panel{width:min(990px,100%);max-height:min(90vh,950px);overflow:auto;border:1px solid #416474;background:linear-gradient(152deg,#102b3ceF,#071624f7);border-radius:22px;padding:24px;box-shadow:0 20px 85px #000b;scrollbar-color:#3c6170 transparent}
+.panel--menu{width:min(460px,100%);text-align:center;padding:38px 30px}
+.overline{color:var(--mint);font-size:10px;font-weight:800;letter-spacing:.24em;text-transform:uppercase}
+h1{font-size:27px;letter-spacing:-.02em;margin:8px 0 10px;line-height:1.2}h2{font-size:16px;color:#e5f6f2;margin:18px 0 10px}h3{font-size:13px;color:var(--mint);margin:13px 0 8px}p{margin:7px 0 12px}.desc{font-size:12px;line-height:1.7;color:var(--quiet)}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:14px}
+.panel-head h1{margin:0}.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}.btnrow button{flex:1 1 140px}.menustack{display:grid;gap:11px;margin-top:24px}
+button,select,input{font:inherit}button,select{background:#173548;border:1px solid #446a7b;border-radius:10px;color:var(--text);padding:10px 13px}
+button{cursor:pointer;font-weight:700}button:hover:not(:disabled){background:#22516a;border-color:#99dbc9}button.primary{background:#237a68;color:#fff;border-color:#66cbaa}button.ghost{background:transparent}button:disabled{cursor:not-allowed;opacity:.4}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
+select{display:block;width:100%}input[type=text],input[type=number]{display:block;width:100%;color:var(--text);background:#0b2334;border:1px solid #406177;border-radius:8px;padding:9px 10px}
+input[type=range]{display:block;width:100%;accent-color:var(--mint)}input[type=checkbox]{accent-color:#43b690;width:16px;height:16px}
+label{display:block;color:#cedfe7;font-size:11px;margin:9px 0 5px}.duo,.trio{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.trio{grid-template-columns:repeat(3,minmax(0,1fr))}
+.group{background:#0a2030a9;border:1px solid #294756;border-radius:14px;padding:15px;margin-top:13px}.group h2{margin:0 0 9px}.checkline{display:flex;align-items:center;gap:8px;margin:10px 0}.checkline label{margin:0;font-size:12px}
+.settings-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}.settings-layout .wide{grid-column:1 / -1}
+#route-preview{width:100%;height:194px;display:block;border-radius:10px;background:#071723;border:1px solid #315061}
+.mapstats{display:flex;flex-wrap:wrap;gap:13px;color:#b5cdd5;font-size:11px;margin:9px 0}.mapstats strong{color:#d7fff1}.map-message{min-height:21px;color:var(--mint);font-size:12px}
+#screen-overlay{position:fixed;inset:0;z-index:15;display:grid;place-items:center;background:#061725ea}.message{max-width:530px;border:1px solid #4b7b81;border-radius:15px;background:#102b3a;padding:24px;text-align:center}.message strong{display:block;font-size:20px;margin-bottom:9px}#overlay-message{color:#b7d4de}
+kbd{border:1px solid #4a6875;border-radius:4px;background:#173448;padding:1px 5px;font:11px ui-monospace,monospace}
+@media(max-width:780px){.panel{padding:15px;max-height:96vh}.settings-layout{grid-template-columns:1fr}.settings-layout .wide{grid-column:auto}.trio{grid-template-columns:repeat(2,minmax(0,1fr))}.dial{width:116px;height:116px}.dial .number{font-size:28px}.dial .number.tiny{font-size:22px}.gear-widget{width:114px;min-height:118px}.gear-widget strong{font-size:43px}.auto-shifter button{min-width:23px;font-size:10px;padding:3px 4px}#dashboard{gap:6px;bottom:10px}#hud-menu{min-width:35px;height:35px;font-size:15px}}
+@media(max-width:490px){.dial{width:91px;height:91px}.dial .number{font-size:23px}.dial .number.tiny{font-size:18px}.dial .unit{font-size:8px}.gear-widget{width:104px;min-height:106px}.gear-widget strong{font-size:37px}.auto-shifter button{min-width:21px;font-size:10px;padding:2px 3px}.duo{grid-template-columns:1fr}#panel-overlay{padding:8px}}
+</style>
+</head>
+<body>
+<canvas id="view" tabindex="0" aria-label="3D 駕駛遊戲畫面"></canvas>
+<!-- Normal drive shows only the world, two instruments and gear. -->
+<div id="dashboard" aria-label="駕駛儀表">
+  <div class="dial" id="speed-dial"><div class="data"><div class="unit">SPEED</div><div class="number" id="dash-speed">0</div><div class="unit">km/h</div></div></div>
+  <div class="gear-widget"><small>GEAR</small><strong id="dash-gear">P</strong>
+    <nav class="auto-shifter" id="auto-shifter" aria-label="自排排檔">
+      <button type="button" data-range="P" aria-pressed="true" title="P 駐車（停穩並踩煞車）">P</button>
+      <button type="button" data-range="R" aria-pressed="false" title="R 倒車（停穩並踩煞車）">R</button>
+      <button type="button" data-range="N" aria-pressed="false" title="N 空檔">N</button>
+      <button type="button" data-range="D" aria-pressed="false" title="D 前進（停穩並踩煞車）">D</button>
+    </nav>
+  </div>
+  <div id="range-message" class="range-message" role="status" aria-live="polite"></div>
+  <div class="dial" id="rpm-dial"><div class="data"><div class="unit">RPM</div><div class="number tiny" id="dash-rpm">0</div><div class="unit">× 1000</div></div></div>
+  <button type="button" id="hud-menu" title="遊戲選單（Esc）" aria-label="開啟遊戲選單">☰</button>
+</div>
+<div id="panel-overlay" hidden>
+  <section id="menu-panel" class="panel panel--menu" role="dialog" aria-label="遊戲選單" hidden>
+    <div class="overline">SHIFT / LAB · WEB DRIVE</div>
+    <h1>駕駛選單</h1>
+    <p class="desc">v1.9.7.1 · 種子生成地圖 / 四輪物理</p>
+    <div class="menustack">
+      <button class="primary" id="resume-drive">繼續駕駛</button>
+      <button id="drive-procedural">重新開始種子地圖</button>
+      <button id="open-settings">車輛與種子地圖設定</button>
+      <button id="menu-reset">重置車輛</button>
+    </div>
+    <p class="desc"><kbd>Esc</kbd> 選單 · <kbd>F1</kbd> 設定</p>
+  </section>
+  <section id="settings-panel" class="panel" role="dialog" aria-label="遊戲設定" hidden>
+    <header class="panel-head"><div><div class="overline">GAME CONFIGURATION</div><h1>設定</h1></div><button class="primary" id="close-settings">返回駕駛</button></header>
+    <div class="settings-layout">
+      <div>
+        <section class="group"><h2>駕駛與車輛</h2>
+          <label for="drive-mode">駕駛模式</label><select id="drive-mode"><option value="assisted">自排（自動起步／升降檔）</option><option value="manual">手排（自行操作離合器／換檔）</option></select>
+          <label for="car-preset">車輛配置</label><select id="car-preset"><option value="standard">2.0L 自然進氣 · 標準六速</option><option value="city">1.6L 自然進氣 · 輕型轎車</option><option value="turbo">2.0L 渦輪增壓 · 性能車</option><option value="diesel">2.2L 渦輪柴油 · 高扭力車</option></select>
+          <label for="road-material">道路材質</label><select id="road-material"><option value="asphalt_dense">密級配柏油</option><option value="asphalt_open">開放級配柏油</option><option value="concrete">混凝土</option><option value="concrete_paver">混凝土鋪面磚</option><option value="clay_paver">黏土鋪面磚</option><option value="natural_stone">天然石鋪面</option><option value="gravel">碎石</option><option value="earth">壓實土路</option><option value="timber">木板鋪面</option><option value="steel">實心鋼板</option></select>
+          <p class="desc">新增材質使用遊戲假設係數；鋼板與木板為實心鋪面，不含陷沙或破壞模擬。舊版地圖沿用柏油。</p>
+          <label for="road-surface">路面狀態</label><select id="road-surface"><option value="dry">乾燥</option><option value="wet">濕滑</option><option value="snow">積雪</option><option value="ice">結冰</option></select>
+          <div class="duo"><div class="checkline"><input type="checkbox" id="abs-toggle" checked><label for="abs-toggle">ABS</label></div><div class="checkline"><input type="checkbox" id="tcs-toggle" checked><label for="tcs-toggle">TCS</label></div></div>
+          <div class="duo"><label>ESC<select id="esc"><option value="on">開啟</option><option value="off">關閉</option></select></label><label>抓地與救車手感<select id="feel"><option value="balanced">均衡</option><option value="sport">運動</option><option value="raw">原始</option></select></label></div>
+          <div class="duo"><label>操控平衡<select id="handling-balance"><option value="neutral">中性</option><option value="understeer">轉向不足</option><option value="oversteer">轉向過度</option></select></label><label>前軸煞車比例<select id="brake-bias"><option value="0.60">60%</option><option value="0.64">64%</option><option value="0.68" selected>68%</option><option value="0.72">72%</option><option value="0.76">76%</option></select></label></div>
+          <div class="duo"><label>轉向回應<select id="steering-preset"><option value="balanced">均衡</option><option value="precision">精準</option><option value="quick">靈敏</option></select></label><label>攝影機<select id="camera-mode"><option value="chase">追尾</option><option value="side">側視</option><option value="top">俯視</option></select></label></div>
+          <div class="duo"><label>自排檔位<select id="auto-range"><option value="P">P · 駐車</option><option value="R">R · 倒車</option><option value="N">N · 空檔</option><option value="D">D · 前進（自動換檔）</option></select></label><div></div></div>
+          <div class="duo"><label>手排檔位<select id="gear"><option value="0">N 空檔</option><option value="1">1 檔</option><option value="2">2 檔</option><option value="3">3 檔</option><option value="4">4 檔</option><option value="5">5 檔</option><option value="6">6 檔</option><option value="-1">R 倒檔</option></select></label><div><label>引擎</label><button id="engine">啟動引擎 [I]</button></div></div>
+          <p id="gear-mode-hint" class="desc">自排模式使用 P／R／N／D 選檔；手排模式才開放 Shift／數字鍵。</p>
+          <p id="input-status" class="desc">W/A/S/D 駕駛；自排按 F 前進、R 倒車、N 空檔、P 駐車；M 切換手排。</p>
+        </section>
+        <section class="group"><h2>手柄設定</h2>
+          <label>手柄<select id="pad"><option value="off">不使用</option><option value="auto" selected>自動偵測</option></select></label>
+          <div class="duo"><label>轉向軸<select id="pad-axis"></select></label><label>油門鍵<select id="pad-gas"></select></label><label>煞車鍵<select id="pad-brake"></select></label><label>離合器鍵<select id="pad-clutch"></select></label></div>
+          <div class="checkline"><input type="checkbox" id="pad-invert"><label for="pad-invert">反轉水平軸（特殊手柄）</label></div>
+          <p id="pad-status" class="desc">預設：左搖桿轉向，RT 油門，LT 煞車。</p>
+        </section>
+      </div>
+      <div>
+        <section class="group"><h2>程序化隨機道路</h2>
+          <p class="desc">V3 以連續線形、引道與淨空規劃路口、橋梁、地下道、隧道及吊橋。新建地圖固定使用 V3；舊圖按原版本相容重現。3D 路面與物理碰撞共用幾何。</p>
+          <p class="desc">道路生成器：<strong>V3</strong></p>
+          <input type="hidden" id="map-generator" value="3">
+          <label for="map-seed">地圖種子</label><input type="text" id="map-seed" maxlength="64" spellcheck="false" value="SHIFT-2026-MOUNTAIN-07">
+          <div class="duo">
+            <label>彎道機率 <output id="map-turnChance-val">58%</output><input type="range" id="map-turnChance" min="0" max="100" value="58"></label>
+            <label>髮夾彎比例 <output id="map-hairpinChance-val">20%</output><input type="range" id="map-hairpinChance" min="0" max="100" value="20"></label>
+            <label>起伏機率 <output id="map-slopeChance-val">52%</output><input type="range" id="map-slopeChance" min="0" max="100" value="52"></label>
+            <label>左彎偏向 <output id="map-leftBias-val">50%</output><input type="range" id="map-leftBias" min="0" max="100" value="50"></label>
+            <label>上坡偏向 <output id="map-upBias-val">50%</output><input type="range" id="map-upBias" min="0" max="100" value="50"></label>
+            <label>最大坡度 <output id="map-maxGrade-val">9%</output><input type="range" id="map-maxGrade" min="3" max="12" value="9"></label>
+          </div>
+          <div class="btnrow"><button id="map-random" class="primary">隨機新地圖</button><button id="map-generate">按設定生成</button></div>
+          <div class="btnrow"><button id="map-next-bend">預覽下一彎</button><button id="map-export">匯出 JSON</button><button id="map-import">匯入 JSON</button><input id="map-import-file" type="file" accept=".json,application/json" hidden></div>
+          <canvas id="route-preview" width="470" height="194" aria-label="地圖路線預覽"></canvas>
+          <div class="mapstats" id="map-stats"></div><p class="map-message" id="map-message" role="status"></p>
+        </section>
+      </div>
+    </div>
+  </section>
+</div>
+<iframe id="physics" src="./physics.html" title="SHIFT LAB hidden computation engine" tabindex="-1" aria-hidden="true" style="position:absolute;width:0;height:0;border:0;opacity:0;pointer-events:none"></iframe>
+<div id="screen-overlay"><div class="message"><strong>SHIFT LAB 3D</strong><span id="overlay-message">正在啟動 WebGL / Rapier WASM…</span><div class="btnrow"><button id="reload-game" hidden>重新載入遊戲</button></div></div></div>
+<script type="module" src="./src/main.mjs"></script>
+</body></html>

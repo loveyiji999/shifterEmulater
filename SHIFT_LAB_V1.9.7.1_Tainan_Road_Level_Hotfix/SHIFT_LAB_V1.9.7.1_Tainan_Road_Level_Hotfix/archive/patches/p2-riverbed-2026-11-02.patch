@@ -1,0 +1,542 @@
+--- /dev/null
++++ b/desktop3d/src/riverbed-proposal.mjs
+@@ -0,0 +1,168 @@
++// Construction proposal only. Authored dimensions are not hydraulic calibration.
++// Unconnected window outlets cannot be published as a completed river network.
++const key=p=>p.x+','+p.z;
++const cross=(a,b,p)=>(b.x-a.x)*(p.z-a.z)-(b.z-a.z)*(p.x-a.x);
++const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
++function intersects(a,b){
++  for(const polygon of [a,b])for(let i=0;i<polygon.length;i++){
++    const p=polygon[i],q=polygon[(i+1)%polygon.length],nx=q.z-p.z,nz=p.x-q.x;
++    const project=points=>points.map(v=>v.x*nx+v.z*nz),x=project(a),y=project(b);
++    if(Math.max(...x)<Math.min(...y)-1e-7||Math.max(...y)<Math.min(...x)-1e-7)return false;
++  }
++  return true;
++}
++function interval(a,b,tri){
++  const sign=Math.sign(cross(tri[0],tri[1],tri[2]));if(!sign)return null;
++  let low=0,high=1;
++  for(let i=0;i<3;i++){
++    const p=tri[i],q=tri[(i+1)%3],u=cross(p,q,a)*sign,v=cross(p,q,b)*sign;
++    if(u<0&&v<0)return null;
++    if(u<0)low=Math.max(low,u/(u-v));if(v<0)high=Math.min(high,u/(u-v));
++  }
++  return high>=low?[low,high]:null;
++}
++function clip(polygon,field){
++  const out=[];
++  for(let i=0;i<polygon.length;i++){
++    const p=polygon[i],q=polygon[(i+1)%polygon.length],u=p[field],v=q[field];
++    if(u>=0)out.push(p);
++    if(u<0&&v>0||u>0&&v<0){const [a,b]=p.x<q.x||p.x===q.x&&p.z<=q.z?[p,q]:[q,p],t=a[field]/(a[field]-b[field]),hit={};
++      for(const name of Object.keys(p))hit[name]=a[name]+(b[name]-a[name])*t;
++      hit[field]=0;out.push(hit);
++    }
++  }
++  return out;
++}
++const point=(vertices,i)=>({x:vertices[i*3],y:vertices[i*3+1],z:vertices[i*3+2]});
++const face=(mesh,offset)=>[0,1,2].map(k=>point(mesh.vertices,mesh.indices[offset+k]));
++
++export function planRiverbed(path,{depth=3,halfWidth=12,bankWidth=16,minGrade=.003,waterDepth=.65,maxCut=32}={}){
++  if(path.status!=='window-boundary'||!Array.isArray(path.points)||path.points.length<2||path.points.length>4096)
++    throw Error('A resolved local drainage path is required');
++  for(const [name,value,lo,hi] of [['depth',depth,.25,8],['halfWidth',halfWidth,2,40],['bankWidth',bankWidth,2,64],
++    ['minGrade',minGrade,.0001,.08],['waterDepth',waterDepth,.05,2],['maxCut',maxCut,.5,64]])
++    if(!Number.isFinite(value)||value<lo||value>hi)throw Error('Invalid riverbed '+name);
++  if(waterDepth>=depth)throw Error('Water depth must be below incision depth');
++  const points=path.points.map(p=>({x:p.x,z:p.z,groundY:p.groundY}));
++  if(points.some(p=>Object.values(p).some(v=>!Number.isFinite(v)||Math.abs(v)>1e7)))throw Error('Invalid riverbed point');
++  const segments=[];let length=0;
++  for(let i=1;i<points.length;i++){
++    const a=points[i-1],b=points[i],distance=Math.hypot(b.x-a.x,b.z-a.z);
++    if(distance<.01)throw Error('Duplicate riverbed point');
++    if(i>1&&Math.abs(cross(points[i-2],a,b))<1e-8&&
++      (a.x-points[i-2].x)*(b.x-a.x)+(a.z-points[i-2].z)*(b.z-a.z)<0)throw Error('Backtracking riverbed path');
++    for(let j=0;j<i-2;j++){
++      const p=points[j],q=points[j+1],u=cross(a,b,p),v=cross(a,b,q),w=cross(p,q,a),z=cross(p,q,b);
++      const on=(p,a,b)=>Math.abs(cross(a,b,p))<1e-8&&p.x>=Math.min(a.x,b.x)-1e-8&&p.x<=Math.max(a.x,b.x)+1e-8&&p.z>=Math.min(a.z,b.z)-1e-8&&p.z<=Math.max(a.z,b.z)+1e-8;
++      if(u*v<0&&w*z<0||on(p,a,b)||on(q,a,b)||on(a,p,q)||on(b,p,q))throw Error('Self-intersecting riverbed path');
++    }
++    segments.push({a,b,length:distance,start:length});length+=distance;
++  }
++  return {schema:'shiftlab.riverbed-plan.v1',segments,length,sourceBedY:points[0].groundY-depth,
++    depth,halfWidth,bankWidth,minGrade,waterDepth,maxCut,outletStatus:'window-continuation-required'};
++}
++
++function at(plan,x,z){
++  let best=null;
++  for(let i=0;i<plan.segments.length;i++){
++    const s=plan.segments[i],dx=s.b.x-s.a.x,dz=s.b.z-s.a.z;
++    const raw=((x-s.a.x)*dx+(z-s.a.z)*dz)/(s.length*s.length);
++    // Endpoint rays keep a proposal open across its analysis window. Their
++    // connection to a larger network remains explicitly unresolved.
++    const t=clamp(raw,i===0?-Infinity:0,i===plan.segments.length-1?Infinity:1);
++    const distance=Math.hypot(x-s.a.x-dx*t,z-s.a.z-dz*t),station=s.start+t*s.length;
++    if(!best||distance<best.distance){const bedY=plan.sourceBedY-plan.minGrade*station;
++      best={distance,bedY,waterY:bedY+plan.waterDepth,flowX:dx/s.length,flowZ:dz/s.length};}
++  }
++  return best;
++}
++
++export function buildRiverbedProposal(input,plan,{protectedPolygons=[]}={}){
++  if(plan.schema!=='shiftlab.riverbed-plan.v1'||!Array.isArray(input)||!input.length||input.length>16)throw Error('Invalid riverbed proposal');
++  if(!Array.isArray(plan.segments)||!plan.segments.length||plan.segments.length>4095)throw Error('Invalid riverbed plan');
++  const canonical=planRiverbed({status:'window-boundary',points:[plan.segments[0].a,...plan.segments.map(s=>s.b)]},plan);
++  if(plan.sourceBedY!==canonical.sourceBedY||plan.length!==canonical.length||plan.outletStatus!==canonical.outletStatus||
++    plan.segments.some((s,i)=>s.start!==canonical.segments[i].start||s.length!==canonical.segments[i].length||
++      s.a.x!==canonical.segments[i].a.x||s.a.z!==canonical.segments[i].a.z))throw Error('Inconsistent riverbed plan');
++  plan=canonical;
++  if(!Array.isArray(protectedPolygons)||protectedPolygons.length>4096)throw Error('Invalid protected polygons');
++  for(const p of protectedPolygons){
++    if(!Array.isArray(p)||p.length<3||p.length>8||p.some(q=>!Number.isFinite(q.x)||!Number.isFinite(q.z)))throw Error('Invalid protected footprint');
++    const signs=p.map((v,i)=>Math.sign(cross(v,p[(i+1)%p.length],p[(i+2)%p.length]))).filter(Boolean);
++    if(!signs.length||signs.some(s=>s!==signs[0]))throw Error('Protected footprint must be convex');
++  }
++  const sources=input.slice().sort((a,b)=>a.tx-b.tx||a.tz-b.tz),ids=new Set(),sourceHeights=new Map();let count=0;
++  for(const mesh of sources){
++    const id=mesh.tx+','+mesh.tz;
++    if(!Number.isInteger(mesh.tx)||!Number.isInteger(mesh.tz)||ids.has(id)||!(mesh.vertices instanceof Float32Array)||
++      !(mesh.indices instanceof Uint32Array)||mesh.vertices.length%3||mesh.indices.length%3)throw Error('Invalid terrain proposal mesh');
++    ids.add(id);count+=mesh.vertices.length/3;
++    if(count>1000000||mesh.indices.length>3000000)throw Error('Riverbed mesh budget exceeded');
++    if(!mesh.vertices.every(Number.isFinite)||!mesh.indices.every(i=>i<mesh.vertices.length/3))throw Error('Invalid terrain proposal buffers');
++    if(mesh.normals&&(!(mesh.normals instanceof Float32Array)||mesh.normals.length!==mesh.vertices.length||!mesh.normals.every(Number.isFinite)))throw Error('Invalid terrain proposal normals');
++    for(let i=0;i<mesh.vertices.length/3;i++){const p=point(mesh.vertices,i),previous=sourceHeights.get(key(p));
++      if(previous!==undefined&&previous!==p.y)throw Error('Source terrain seam or multiple height layers');sourceHeights.set(key(p),p.y);}
++  }
++  const triangles=sources.reduce((n,m)=>n+m.indices.length/3,0);
++  if(count*plan.segments.length>8000000||triangles*protectedPolygons.length>8000000)throw Error('Riverbed work budget exceeded');
++  const protectedVertices=new Set();
++  for(const mesh of sources)for(let i=0;i<mesh.indices.length;i+=3){const tri=face(mesh,i);
++    if(protectedPolygons.some(p=>intersects(tri,p)))for(const p of tri)protectedVertices.add(key(p));}
++  let changedVertices=0,maxCut=0,wetMaskEdges=0;const normalSums=new Map(),modified=new Set(),normalAffected=new Set(),issues=[];
++  const ground=sources.map(source=>{
++    const vertices=source.vertices.slice();
++    for(let i=0;i<vertices.length;i+=3){const p={x:vertices[i],z:vertices[i+2]},q=at(plan,p.x,p.z);
++      if(protectedVertices.has(key(p))||q.distance>=plan.halfWidth+plan.bankWidth)continue;
++      const t=clamp((q.distance-plan.halfWidth)/plan.bankWidth,0,1),weight=1-t*t*(3-2*t);
++      const y=vertices[i+1],next=Math.min(y,y+(q.bedY-y)*weight);vertices[i+1]=next;
++      if(vertices[i+1]<y){modified.add(key(p));changedVertices++;maxCut=Math.max(maxCut,y-vertices[i+1]);}
++    }
++    const mesh={tx:source.tx,tz:source.tz,vertices,indices:source.indices.slice(),normals:new Float32Array(vertices.length),uv:source.uv?.slice()};
++    for(let i=0;i<mesh.indices.length;i+=3){const [a,b,c]=face(mesh,i),ab={x:b.x-a.x,y:b.y-a.y,z:b.z-a.z},ac={x:c.x-a.x,y:c.y-a.y,z:c.z-a.z};
++      const normal=[ab.y*ac.z-ab.z*ac.y,ab.z*ac.x-ab.x*ac.z,ab.x*ac.y-ab.y*ac.x];
++      if([a,b,c].some(p=>modified.has(key(p))))for(const p of [a,b,c])normalAffected.add(key(p));
++      for(const p of [a,b,c]){const k=key(p),sum=normalSums.get(k)||[0,0,0];normal.forEach((v,j)=>sum[j]+=v);normalSums.set(k,sum);}
++    }
++    return mesh;
++  });
++  for(let part=0;part<ground.length;part++){
++    const mesh=ground[part];
++    for(let i=0;i<mesh.vertices.length/3;i++){
++      const p=point(mesh.vertices,i),k=key(p);
++      if(sources[part].normals&&!normalAffected.has(k))mesh.normals.set(sources[part].normals.subarray(i*3,i*3+3),i*3);
++      else{const normal=normalSums.get(k)||[0,1,0],length=Math.hypot(...normal)||1;mesh.normals.set(normal.map(v=>v/length),i*3);}
++    }
++  }
++  const water=ground.map(mesh=>{
++    const vertices=[],indices=[],uv=[],depths=[],flows=[],normals=[],sourceFaces=[];
++    for(let i=0;i<mesh.indices.length;i+=3){
++      let polygon=face(mesh,i).map(p=>{const q=at(plan,p.x,p.z);return {x:p.x,z:p.z,ground:p.y,water:q.waterY,
++        depth:q.waterY-p.y,margin:plan.halfWidth+plan.bankWidth-q.distance,fx:q.flowX,fz:q.flowZ};});
++      polygon=clip(clip(polygon,'margin'),'depth');
++      if(polygon.some(p=>Math.abs(p.margin)<1e-6&&p.depth>.001))wetMaskEdges++;
++      for(let k=1;k+1<polygon.length;k++){
++        const tri=[polygon[0],polygon[k],polygon[k+1]];if(Math.abs(cross(...tri))<1e-8)continue;
++        const [a,b,c]=tri,ab=[b.x-a.x,b.water-a.water,b.z-a.z],ac=[c.x-a.x,c.water-a.water,c.z-a.z];
++        const normal=[ab[1]*ac[2]-ab[2]*ac[1],ab[2]*ac[0]-ab[0]*ac[2],ab[0]*ac[1]-ab[1]*ac[0]],L=Math.hypot(...normal)||1;
++        for(const p of tri){indices.push(vertices.length/3);vertices.push(p.x,p.water,p.z);uv.push(p.x/8,p.z/8);depths.push(Math.max(0,p.depth));
++          const flowLength=Math.hypot(p.fx,p.fz)||1;flows.push(p.fx/flowLength,p.fz/flowLength);normals.push(...normal.map(v=>v/L));}
++        sourceFaces.push(i/3);
++      }
++    }
++    return {tx:mesh.tx,tz:mesh.tz,vertices:new Float32Array(vertices),indices:Uint32Array.from(indices),
++      normals:new Float32Array(normals),uv:new Float32Array(uv),depths:new Float32Array(depths),flows:new Float32Array(flows),sourceFaces:Uint32Array.from(sourceFaces)};
++  });
++  const waterTriangles=water.flatMap(mesh=>Array.from({length:mesh.indices.length/3},(_,i)=>face(mesh,i*3)));
++  const coverage=plan.segments.map(s=>{
++    const spans=waterTriangles.map(tri=>interval(s.a,s.b,tri)).filter(Boolean).sort((a,b)=>a[0]-b[0]);
++    let covered=0,end=0;for(const [a,b] of spans)if(b>end){covered+=b-Math.max(a,end);end=b;}
++    return covered;
++  });
++  if(maxCut>plan.maxCut)issues.push('excavation-limit');
++  if(wetMaskEdges)issues.push('wet-mask-boundary');
++  if(coverage.some(value=>value<.99999))issues.push('incomplete-water-path');
++  return {schema:'shiftlab.riverbed-proposal.v1',status:issues.length?'rejected':'geometry-candidate',issues,
++    outletStatus:plan.outletStatus,requiresSurfaceRebake:true,ground,water,
++    summary:{changedVertices,maxCut,protectedVertices:protectedVertices.size,wetMaskEdges,minPathCoverage:Math.min(...coverage),
++      waterTriangles:waterTriangles.length},coverage};
++}
+--- /dev/null
++++ b/desktop3d/tests/validate-riverbed.mjs
+@@ -0,0 +1,76 @@
++import assert from 'node:assert/strict';
++import {writeFileSync} from 'node:fs';
++import RAPIER from '@dimforge/rapier3d-compat';
++import {planRiverbed,buildRiverbedProposal} from '../src/riverbed-proposal.mjs';
++import {riverbedFixture} from './riverbed-fixture.mjs';
++import {rayContactDistance} from '../src/ray-contact.mjs';
++await RAPIER.init();
++function flat(tx){
++  const vertices=[],indices=[];
++  for(let z=0;z<=8;z++)for(let x=0;x<=8;x++)vertices.push(tx*64+x*8,0,z*8);
++  for(let z=0;z<8;z++)for(let x=0;x<8;x++){const a=z*9+x;indices.push(a,a+9,a+1,a+1,a+9,a+10);}
++  return {tx,tz:0,vertices:new Float32Array(vertices),indices:new Uint32Array(indices)};
++}
++const route=points=>({status:'window-boundary',points:points.map(([x,z])=>({x,z,groundY:0}))});
++const left=flat(0),right=flat(1),source=left.vertices.slice(),plan=planRiverbed(route([[8,24],[120,40]]));
++const proposal=buildRiverbedProposal([left,right],plan);
++assert.equal(proposal.status,'geometry-candidate',JSON.stringify(proposal.summary));
++assert.equal(proposal.outletStatus,'window-continuation-required');assert.equal(proposal.requiresSurfaceRebake,true);
++assert.deepEqual(proposal,buildRiverbedProposal([right,left],plan),'input tile order cannot change geometry or normals');
++assert.deepEqual(left.vertices,source);assert.ok(proposal.summary.changedVertices>0);
++const edge=(meshes,x)=>new Set(Array.from({length:meshes.vertices.length/3},(_,i)=>
++  meshes.vertices[i*3]===x?Array.from(meshes.vertices.slice(i*3,i*3+3)).join(','):null).filter(Boolean));
++assert.deepEqual(edge(proposal.ground[0],64),edge(proposal.ground[1],64),'shared bed vertices match');
++assert.deepEqual(edge(proposal.water[0],64),edge(proposal.water[1],64),'clipped water shoreline matches across tiles');
++const center=planRiverbed(route([[32,8],[32,56]]));
++const protectedPolygon=[{x:28,z:28},{x:36,z:28},{x:36,z:36},{x:28,z:36}];
++const blocked=buildRiverbedProposal([left],center,{protectedPolygons:[protectedPolygon]});
++assert.equal(blocked.status,'rejected');assert.ok(blocked.issues.includes('incomplete-water-path'));
++for(let i=0;i<left.vertices.length;i+=3)if(left.vertices[i]>=24&&left.vertices[i]<=40&&left.vertices[i+2]>=24&&left.vertices[i+2]<=40)
++  assert.equal(blocked.ground[0].vertices[i+1],0,'foundation footprint / incident triangles remain supported');
++assert.ok(buildRiverbedProposal([left],planRiverbed(route([[32,8],[32,56]]),{maxCut:1})).issues.includes('excavation-limit'));
++const authoredNormals=new Float32Array(left.vertices.length);for(let i=0;i<authoredNormals.length;i+=3)authoredNormals.set([.1,Math.sqrt(.99),0],i);
++const shaded=buildRiverbedProposal([{...left,normals:authoredNormals}],planRiverbed(route([[48,8],[48,56]])));
++assert.deepEqual(shaded.ground[0].normals.slice(0,3),authoredNormals.slice(0,3),'unmodified triangle stars retain original shading');
++assert.throws(()=>planRiverbed(route([[0,0],[8,8],[0,8],[8,0]])),/Self-intersecting/);
++assert.throws(()=>planRiverbed(route([[0,0],[8,0],[4,0]])),/Backtracking/);
++assert.throws(()=>buildRiverbedProposal([left],{...plan,minGrade:NaN}),/minGrade/);
++assert.throws(()=>buildRiverbedProposal([left],{...plan,sourceBedY:0}),/Inconsistent/);
++assert.throws(()=>planRiverbed({status:'unresolved-outlet',points:[]}),/resolved/);
++assert.throws(()=>buildRiverbedProposal([left],plan,{protectedPolygons:[[{x:0,z:0},{x:1,z:1},{x:2,z:2}]]}),/convex/);
++function groundY(mesh,face,x,z){
++  const v=mesh.vertices,t=Array.from(mesh.indices.slice(face*3,face*3+3),i=>({x:v[i*3],y:v[i*3+1],z:v[i*3+2]}));
++  const [a,b,c]=t,den=(b.z-c.z)*(a.x-c.x)+(c.x-b.x)*(a.z-c.z);
++  const u=((b.z-c.z)*(x-c.x)+(c.x-b.x)*(z-c.z))/den,w=((c.z-a.z)*(x-c.x)+(a.x-c.x)*(z-c.z))/den;
++  assert.ok(Math.min(u,w,1-u-w)>-1e-4);return u*a.y+w*b.y+(1-u-w)*c.y;
++}
++function contactCheck(p,limit=250){
++  const world=new RAPIER.World({x:0,y:0,z:0});let queries=0,maxError=0;
++  try{
++    for(const mesh of p.ground)world.createCollider(RAPIER.ColliderDesc.trimesh(mesh.vertices,mesh.indices));world.step();
++    for(let part=0;part<p.water.length;part++){
++      const mesh=p.water[part],step=Math.max(1,Math.floor(mesh.sourceFaces.length/limit));
++      for(let i=0;i<mesh.sourceFaces.length;i+=step){
++        const x=Math.fround((mesh.vertices[i*9]+mesh.vertices[i*9+3]+mesh.vertices[i*9+6])/3),
++          y=(mesh.vertices[i*9+1]+mesh.vertices[i*9+4]+mesh.vertices[i*9+7])/3,
++          z=Math.fround((mesh.vertices[i*9+2]+mesh.vertices[i*9+5]+mesh.vertices[i*9+8])/3);
++        const expected=groundY(p.ground[part],mesh.sourceFaces[i],x,z);assert.ok(y>=expected-.0001);
++        const originY=Math.fround(y+2),hit=world.castRayAndGetNormal(new RAPIER.Ray({x,y:originY,z},{x:0,y:-1,z:0}),100,true),distance=rayContactDistance(hit,100);
++        assert.notEqual(distance,null);maxError=Math.max(maxError,Math.abs(originY-distance-expected));queries++;
++        const normal=mesh.normals.slice(i*9,i*9+3);assert.ok(normal[1]>0);assert.ok(Math.abs(Math.hypot(...normal)-1)<1e-5);
++      }
++    }
++    assert.equal(world.colliders.len(),p.ground.length,'water has no wheel-support collider');
++    assert.ok(queries>0);assert.ok(maxError<.0002,'actual Rapier bed / visible triangle mismatch: '+maxError);
++    return {queries,maxError};
++  }finally{world.free();}
++}
++const syntheticContacts=contactCheck(proposal),reports=[];
++for(const seed of ['LEVEL-1','LEVEL-2','ROAD-38274CD4']){
++  const f=riverbedFixture(seed),built=f.proposal,contacts=contactCheck(built,40);
++  reports.push({seed,pathPoints:f.pathPoints,foundations:f.foundations,roadProtections:f.roadProtections,status:built.status,
++    issues:built.issues,outletStatus:built.outletStatus,summary:built.summary,contacts,sourceHash:f.sourceHash});
++}
++writeFileSync(new URL('../../artifacts/tests/p2-riverbed-latest.json',import.meta.url),JSON.stringify({
++  scope:'actual-terrain construction proposals; not connected river network, game integration or hydraulic simulation',syntheticContacts,reports},null,2)+'\n');
++console.log('PASS riverbed proposal: protected footprint, source ownership, canonical shared bed / water seams, rejected invalid plans, water path coverage and actual Rapier ground support: '+JSON.stringify(reports));
+--- /dev/null
++++ b/desktop3d/tests/riverbed-fixture.mjs
+@@ -0,0 +1,42 @@
++import {createHash} from 'node:crypto';
++import {planRiverbed,buildRiverbedProposal} from '../src/riverbed-proposal.mjs';
++import {sampleDrainageGrid,analyzeDrainage,traceDrainage} from '../src/terrain-drainage.mjs';
++import {TerrainWorld} from '../src/terrain-world.mjs';
++import {buildRoadChunkV3} from '../src/road-geometry-v3.mjs';
++import {fixture,base} from './road-v3-fixture.mjs';
++
++// Node-only construction fixture and preview input, never a second map route.
++export function riverbedFixture(seed){
++  const core=fixture({...base,seed},48),state=core.route.v3State,
++    feature=state.features.find(f=>['bridge','suspension'].includes(f.kind)),
++    center=core.roadPointAt((feature.start+feature.end)/2),terrain=new TerrainWorld({physics:core});
++  try{
++    const grid=sampleDrainageGrid(terrain,{originX:Math.floor(center.x/8)*8-128,originZ:Math.floor(center.z/8)*8-128});
++    // Foundation queries may populate more cache tiles. They do not enlarge the
++    // construction domain beyond the actual sampled terrain window.
++    const meshes=Array.from(terrain.data.values()),bounds={minX:Math.min(...meshes.map(m=>m.tx*128)),maxX:Math.max(...meshes.map(m=>(m.tx+1)*128)),
++      minZ:Math.min(...meshes.map(m=>m.tz*128)),maxZ:Math.max(...meshes.map(m=>(m.tz+1)*128))};
++    const analysis=analyzeDrainage(grid),distance=i=>Math.hypot(grid.originX+i%grid.width*8-center.x,grid.originZ+Math.floor(i/grid.width)*8-center.z);
++    const deepest=Array.from(analysis.order).filter(i=>analysis.receiver[i]>=0).sort((a,b)=>analysis.fillDepth[b]-analysis.fillDepth[a]||distance(a)-distance(b)||a-b)[0],
++      path=traceDrainage(analysis,deepest),plan=planRiverbed(path),polygons=[],bridgeMeshes=[];
++    const rectangle=(x,z,hx,hz,heading)=>{const c=Math.cos(heading),s=Math.sin(heading);
++      return [[-1,-1],[1,-1],[1,1],[-1,1]].map(([a,b])=>({x:x+a*hx*c+b*hz*s,z:z-a*hx*s+b*hz*c}));};
++    let roadProtections=0,foundations=0,last=-1;
++    for(const p of state.points){
++      if(Math.floor(p.s/16)===last)continue;last=Math.floor(p.s/16);
++      if(p.x<bounds.minX-16||p.x>bounds.maxX+16||p.z<bounds.minZ-16||p.z>bounds.maxZ+16)continue;
++      if(['bridge','suspension'].includes(core.roadStructureAt(p.s)?.kind))continue;
++      polygons.push(rectangle(p.x,p.z,8,12,p.heading));roadProtections++;
++    }
++    for(let index=Math.floor(feature.start/100);index<=Math.floor(feature.end/100);index++){
++      const data=buildRoadChunkV3(core,index,{surfaceAt:(x,z)=>terrain.surfaceAt(x,z),groundFootprint:(p,h,x,z)=>terrain.footprint(p,h,x,z)});
++      for(const f of data.components.filter(f=>f.kind==='foundation')){polygons.push(rectangle(f.x,f.z,f.footX,f.footZ,f.heading));foundations++;}
++      for(const [kind,part] of Object.entries(data.meshes))if(!['earth','mark'].includes(kind)&&part.indices.length)
++        bridgeMeshes.push({kind,vertices:part.vertices,indices:part.indices});
++    }
++    const fingerprint=()=>{const hash=createHash('sha256');for(const m of meshes)hash.update(m.vertices).update(m.indices);return hash.digest('hex');};
++    const sourceHash=fingerprint(),proposal=buildRiverbedProposal(meshes,plan,{protectedPolygons:polygons});
++    if(fingerprint()!==sourceHash)throw Error('Construction proposal mutated original terrain');
++    return {seed,center,feature,meshes,bridgeMeshes,plan,proposal,sourceHash,pathPoints:path.points.length,foundations,roadProtections};
++  }finally{terrain.clear();terrain.depthMaterial.dispose();}
++}
+--- /dev/null
++++ b/desktop3d/tests/riverbed-preview.mjs
+@@ -0,0 +1,44 @@
++import * as THREE from 'three';
++import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
++import {createSceneLighting} from '../src/scene-lighting.mjs';
++
++const data=JSON.parse(document.getElementById('riverbed-data').textContent),renderer=new THREE.WebGLRenderer({antialias:true});
++renderer.setPixelRatio(1);renderer.setSize(innerWidth,innerHeight);document.body.append(renderer.domElement);
++const scene=new THREE.Scene();scene.background=new THREE.Color('#a2c0cb');
++const lighting=createSceneLighting(renderer,scene),before=new THREE.Group(),after=new THREE.Group(),structure=new THREE.Group();
++scene.add(before,after,structure);
++const materials={ground:new THREE.MeshStandardMaterial({vertexColors:true,roughness:1}),
++  water:new THREE.MeshStandardMaterial({color:'#257b94',roughness:.27,transparent:true,opacity:.82,depthWrite:false,side:THREE.DoubleSide}),
++  structure:new THREE.MeshStandardMaterial({color:'#9a9a90',roughness:.8}),asphalt:new THREE.MeshStandardMaterial({color:'#333b40',roughness:.9}),
++  rail:new THREE.MeshStandardMaterial({color:'#7b857f',metalness:.5,roughness:.5})};
++const decode=(encoded,Type)=>{const text=atob(encoded),bytes=new Uint8Array(text.length);for(let i=0;i<text.length;i++)bytes[i]=text.charCodeAt(i);return new Type(bytes.buffer);};
++for(const name of ['before','ground','water','bridge'])for(const part of data[name]){
++  part.vertices=decode(part.vertices,Float32Array);part.indices=decode(part.indices,Uint32Array);if(part.normals)part.normals=decode(part.normals,Float32Array);
++}
++function mesh(part,material,source=null){
++  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(part.vertices,3));
++  geometry.setIndex(new THREE.BufferAttribute(part.indices,1));if(part.normals)geometry.setAttribute('normal',new THREE.Float32BufferAttribute(part.normals,3));else geometry.computeVertexNormals();
++  if(material===materials.ground){const colors=[];
++    for(let i=0;i<part.vertices.length;i+=3)colors.push(...(source&&part.vertices[i+1]<source.vertices[i+1]-.01?[.37,.25,.14]:[.28,.36,.23]));
++    geometry.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));}
++  const object=new THREE.Mesh(geometry,material);object.castShadow=material!==materials.water;object.receiveShadow=true;return object;
++}
++data.before.forEach(part=>before.add(mesh(part,materials.ground)));
++data.ground.forEach((part,i)=>after.add(mesh(part,materials.ground,data.before[i])));
++data.water.filter(part=>part.indices.length).forEach(part=>after.add(mesh(part,materials.water)));
++data.bridge.forEach(part=>structure.add(mesh(part,materials[part.kind]||materials.structure)));
++const bounds=new THREE.Box3().setFromObject(before),center=bounds.getCenter(new THREE.Vector3()),size=bounds.getSize(new THREE.Vector3()),distance=Math.max(size.x,size.z)*.75;
++const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.5,3000);
++camera.position.copy(center).add(new THREE.Vector3(distance*.8,distance*.85,distance));
++const controls=new OrbitControls(camera,renderer.domElement);controls.target.copy(center);controls.update();lighting.update(center);
++const status=document.getElementById('status');
++status.textContent=data.seed+' · '+(data.status==='geometry-candidate'?'局部幾何候選；出口尚待接續':'未通過施工檢查：'+data.issues.join(' / '));
++function showAfter(value){before.visible=!value;after.visible=value;renderer.render(scene,camera);}
++document.getElementById('before').onclick=()=>showAfter(false);document.getElementById('after').onclick=()=>showAfter(true);
++window.addEventListener('resize',()=>{renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();});
++const gl=renderer.getContext(),ext=gl.getExtension('WEBGL_debug_renderer_info');
++window.__SHIFT_LAB_RIVERBED_PREVIEW__={ready:true,showAfter,snapshot:()=>({seed:data.seed,status:data.status,issues:data.issues,
++  afterVisible:after.visible,groundParts:data.ground.length,waterTriangles:data.summary.waterTriangles,
++  camera:camera.position.toArray(),target:controls.target.toArray(),device:ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER),geometries:renderer.info.memory.geometries})};
++showAfter(true);
++function render(){controls.update();renderer.render(scene,camera);requestAnimationFrame(render);}render();
+--- /dev/null
++++ b/desktop3d/tests/build-riverbed-preview.mjs
+@@ -0,0 +1,17 @@
++import {build} from 'esbuild';
++import {writeFile} from 'node:fs/promises';
++import {riverbedFixture} from './riverbed-fixture.mjs';
++
++const fixture=riverbedFixture('ROAD-38274CD4'),proposal=fixture.proposal;
++const encode=(values,Type)=>Buffer.from(new Type(values).buffer).toString('base64');
++const buffers=meshes=>meshes.map(m=>({kind:m.kind,tx:m.tx,tz:m.tz,vertices:encode(m.vertices,Float32Array),indices:encode(m.indices,Uint32Array),normals:m.normals?encode(m.normals,Float32Array):null}));
++const data={seed:fixture.seed,status:proposal.status,issues:proposal.issues,summary:proposal.summary,
++  before:buffers(fixture.meshes.slice().sort((a,b)=>a.tx-b.tx||a.tz-b.tz)),ground:buffers(proposal.ground),water:buffers(proposal.water),bridge:buffers(fixture.bridgeMeshes)};
++const result=await build({entryPoints:[new URL('./riverbed-preview.mjs',import.meta.url).pathname.replace(/^\/([A-Za-z]:)/,'$1')],bundle:true,format:'iife',write:false,minify:true});
++const script=result.outputFiles[0].text.replace(/<\/script/gi,'<\\/script'),json=JSON.stringify(data).replace(/</g,'\\u003c');
++const html=`<!doctype html><html lang="zh-Hant"><meta charset="utf-8"><title>P2 河床施工候選預覽</title>
++<style>body{margin:0;overflow:hidden;font-family:system-ui;background:#a2c0cb}aside{position:absolute;top:14px;left:14px;max-width:650px;background:#102032e8;color:#e8f0f5;padding:16px;border-radius:8px;line-height:1.6}h1{font-size:18px;margin:0 0 8px}p{font-size:12px;margin:6px 0}button{padding:8px 12px;margin-right:8px;cursor:pointer}canvas{display:block}</style>
++<aside><h1>P2 河床施工候選預覽 · 尚未接入遊戲</h1><p id="status"></p><button id="before">原地形</button><button id="after">河床候選</button><p>褐色：挖方區；藍色：裁切水面，不作輪胎承載面。拖曳旋轉、滾輪縮放。</p><p>這是局部施工幾何，出口、水理、材質重烘焙與遊戲串流整合仍待完成。</p></aside>
++<script id="riverbed-data" type="application/json">${json}</script><script>${script}</script></html>`;
++await writeFile(new URL('../../artifacts/tests/p2-riverbed-preview-2026-11-02.html',import.meta.url),html);
++console.log('PASS self-contained offline riverbed preview generated: '+JSON.stringify({status:proposal.status,issues:proposal.issues,...proposal.summary,bytes:Buffer.byteLength(html)}));
+--- a/desktop3d/tests/validate-procedural-browser.mjs
++++ b/desktop3d/tests/validate-procedural-browser.mjs
+@@ -7,7 +7,7 @@
+ import net from 'node:net';
+ import {spawn} from 'node:child_process';
+ import {once} from 'node:events';
+-import {fileURLToPath} from 'node:url';
++import {fileURLToPath,pathToFileURL} from 'node:url';
+ 
+ const root=fileURLToPath(new URL('../',import.meta.url));
+ const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+@@ -70,7 +70,7 @@
+   assert.ok(browser,'Pass a Chrome/Edge executable path as the first argument');
+   const listener=net.createServer();listener.listen(0,'127.0.0.1');await once(listener,'listening');
+   const port=listener.address().port;await new Promise(resolve=>listener.close(resolve));
+-  const production=process.argv.includes('--production');
++  const production=process.argv.includes('--production'),riverbedPreview=process.argv.includes('--riverbed-preview');
+   const acceptance=process.argv.includes('--acceptance');
+   const vehicleDiagnostics=process.argv.includes('--vehicle-diagnostics');
+   const surfaceContact=process.argv.includes('--surface-contact');
+@@ -126,10 +126,10 @@
+   await cdp.send('Network.enable',{},sessionId);
+   await cdp.send('Emulation.setDeviceMetricsOverride',
+     {width:1440,height:900,deviceScaleFactor:1,mobile:false},sessionId);
+-  await cdp.send('Page.navigate',{url:materialGallery?url+'tests/material-gallery/index.html':vehicleDiagnostics?url+'tests/vehicle-diagnostics/index.html':acceptance?url+'tests/acceptance/index.html':url},sessionId);
++  await cdp.send('Page.navigate',{url:riverbedPreview?pathToFileURL(path.join(root,'../artifacts/tests/p2-riverbed-preview-2026-11-02.html')).href:materialGallery?url+'tests/material-gallery/index.html':vehicleDiagnostics?url+'tests/vehicle-diagnostics/index.html':acceptance?url+'tests/acceptance/index.html':url},sessionId);
+   let gameReady=false;
+   for(let i=0;i<200;i++){
+-    gameReady=await cdp.evaluate(materialGallery?'!!window.__SHIFT_LAB_MATERIAL_GALLERY__?.snapshot':vehicleDiagnostics?'!!window.__SHIFT_LAB_VEHICLE_DIAGNOSTICS__?.ready':acceptance?'!!window.__SHIFT_LAB_ACCEPTANCE__?.ready':production?
++    gameReady=await cdp.evaluate(riverbedPreview?'!!window.__SHIFT_LAB_RIVERBED_PREVIEW__?.ready':materialGallery?'!!window.__SHIFT_LAB_MATERIAL_GALLERY__?.snapshot':vehicleDiagnostics?'!!window.__SHIFT_LAB_VEHICLE_DIAGNOSTICS__?.ready':acceptance?'!!window.__SHIFT_LAB_ACCEPTANCE__?.ready':production?
+       "!!document.getElementById('dash-speed')&&!document.getElementById('screen-overlay')":
+       '!!window.__SHIFT_LAB_3D_QA__?.ready',sessionId);
+     if(gameReady)break;
+@@ -138,6 +138,20 @@
+   }
+   assert.ok(gameReady,'Game startup timeout');
+   const evaluate=expression=>cdp.evaluate(expression,sessionId);
++  if(riverbedPreview){
++    const views={};
++    for(const [name,value] of [['before',false],['after',true]]){
++      await evaluate(`window.__SHIFT_LAB_RIVERBED_PREVIEW__.showAfter(${value})`);
++      views[name]=await evaluate('window.__SHIFT_LAB_RIVERBED_PREVIEW__.snapshot()');
++      assert.equal(views[name].afterVisible,value);assert.equal(views[name].status,'geometry-candidate');assert.ok(views[name].waterTriangles>0);
++      if(nativeGpu)assert.ok(!/swiftshader|software|llvmpipe/i.test(views[name].device));
++      await fs.writeFile(path.join(root,'../artifacts/tests/p2-riverbed-'+name+'-2026-11-02.png'),Buffer.from((await cdp.send('Page.captureScreenshot',{format:'png'},sessionId)).data,'base64'));
++    }
++    assert.deepEqual(views.before.camera,views.after.camera);assert.deepEqual(views.before.target,views.after.target);
++    assert.deepEqual(cdp.errors,[]);assert.deepEqual(httpErrors,[]);
++    await fs.writeFile(path.join(root,'../artifacts/tests/p2-riverbed-preview-verification-2026-11-02.json'),JSON.stringify(views,null,2)+'\n');
++    console.log('PASS standalone native riverbed preview: same camera / lighting, before and after geometry, no runtime / HTTP errors; not game integration or performance acceptance');return;
++  }
+   if(process.argv.includes('--manual-performance')){
+     const before=await evaluate(`(()=>{const q=window.__SHIFT_LAB_3D_QA__;q.applyMap({...q.map,generator:3,seed:'ROAD-38274CD4'});const select=document.getElementById('car-preset');select.value='city';select.dispatchEvent(new Event('change'));q.openMode('drive');const snapshot=q.snapshot();q.startManualCapture({captureSeconds:1,download:false});let concurrentRejected=false;try{q.startBaseline({captureSeconds:1});}catch{concurrentRejected=true;}return {snapshot,concurrentRejected};})()`);
+     assert.ok(before.concurrentRejected,'instrumentation sessions cannot overlap');
+--- a/desktop3d/package.json
++++ b/desktop3d/package.json
+@@ -18,7 +18,7 @@
+     "qa:all": "npm run qa:streaming && npm run qa:vehicle && npm run qa:surface && npm run qa:terrain && npm run qa:grading && npm run qa:materials && npm run qa:lighting && npm run qa:engineering && npm run qa:performance && npm run qa:scenarios && npm run qa:map && npm run qa:transmission && npm run qa:manual && npm run qa:health && npm run qa:prnd",
+     "qa:performance": "node ./tests/validate-performance-capture.mjs && node ./tests/validate-manual-performance.mjs",
+     "qa:surface": "node ./tests/validate-surface-map.mjs && node ./tests/validate-pavement.mjs",
+-    "qa:terrain": "node ./tests/validate-terrain.mjs && node ./tests/validate-terrain-surface.mjs && node ./tests/validate-scenery.mjs && node ./tests/validate-drainage.mjs",
++    "qa:terrain": "node ./tests/validate-terrain.mjs && node ./tests/validate-terrain-surface.mjs && node ./tests/validate-scenery.mjs && node ./tests/validate-drainage.mjs && node ./tests/validate-riverbed.mjs",
+     "qa:grading": "node ./tests/validate-terrain-grading.mjs",
+     "qa:lighting": "node ./tests/validate-tunnel-lighting.mjs",
+     "qa:materials": "node ./tests/validate-surface-materials.mjs",
+--- /dev/null
++++ b/docs/P2_RIVERBED_PROPOSALS.md
+@@ -0,0 +1,39 @@
++# P2 河床施工候選與離線預覽
++
++日期：2026-11-02。接續[排水拓樸基礎](P2_DRAINAGE_FOUNDATION.md)，本包提供局部河床施工幾何與檢查；尚未接入遊戲，不代表P2水系完成。玩家大量地形載入與碰撞卡頓仍待實際操作記錄，這份預覽不作效能驗收。
++
++## 實作範圍
++
++`desktop3d/src/riverbed-proposal.mjs`接收已解析至視窗邊界的排水路徑及既有Float32地形。候選沿路徑建立下降床面，僅挖方、不填高，保留來源三角面拓樸；受保護道路和基礎足跡相交的三角面及共享頂點不挖除。來源資料不變，輸出持有自己的頂點、索引與法線。相鄰分塊的河床及裁切水面共邊須一致，未受施工影響的三角面頂點鄰域保留原法線。
++
++水面按新地面三角面裁切，輸出深度、方向及來源面索引；它不建立輪胎承載碰撞體。河床地面可由同一頂點和索引建立Rapier trimesh。深度、寬度、最小坡度、最大挖深均為專案試作尺寸，不是經校準的水文或工程設計。
++
++超出挖深、濕區碰到走廊側界、中心水路不連續都會拒絕候選。路徑自交、折返、無效數值、來源高度接縫不一致或工作量超限則直接拒絕輸入。拒絕結果保留幾何供外部診斷，不送入遊戲。
++
++## 實際結果
++
++固定使用既有三個種子的橋梁附近地形與道路／基礎保護足跡；檢查未改動原始地形。下列最大挖深是候選實際值，包含被拒絕的結果。
++
++| 種子 | 路徑點數 | 最大挖深 | 局部結果 | 原因 |
++| --- | --- | --- | --- | --- |
++| LEVEL-1 | 29 | 38.454m | 拒絕 | 超過32m挖深、中心水路不連續 |
++| LEVEL-2 | 31 | 33.006m | 拒絕 | 超過32m挖深、側界仍有水、水路不連續 |
++| ROAD-38274CD4 | 17 | 21.360m | 幾何候選 | 通過本包局部檢查，出口仍未連接 |
++
++三種子合計769次實際Rapier地面射線，比較Float32射線座標下的來源三角面重心內插，最大高度誤差約0.034mm。另以合成相鄰分塊檢查反向輸入順序、地面與水面共邊、基礎支撐保護及原始資料不變。這些檢查沒有證明全流域連通或自然河道形態。
++
++原始結果：[逐案JSON](../artifacts/tests/p2-riverbed-results-2026-11-02.json)。
++
++## 預覽與驗證
++
++[離線3D預覽](../artifacts/tests/p2-riverbed-preview-2026-11-02.html)封裝現有Three.js、光照及固定種子幾何，不需外部資源。可切換原地形／河床候選，拖曳旋轉及滾輪縮放；褐色標示挖方，藍色標示裁切水面。預覽使用與遊戲相同的光照模組，但地面和水面材質是檢視用色彩，尚非遊戲成品。
++
++`node tests/validate-procedural-browser.mjs --riverbed-preview --native-gpu`使用獨立設定檔，確認原生Intel UHD 770、前後相同鏡位、候選水面及零執行／HTTP錯誤。已人工檢視兩張截圖：文字可讀，岸坡仍有規律三角折線，水路沿橋的形態也不能作自然河網品質證據。預覽流程與其他QA同時執行，沒有採用其幀時間作效能成績。
++
++重現指令在`desktop3d`執行：`node tests/validate-riverbed.mjs`、`node tests/build-riverbed-preview.mjs`及上述瀏覽器命令。完整回歸、建置與正式版隔離的實際結果另記於本包verification JSON。
++
++## 尚未完成的交付
++
++目前端點以射線延伸至提供的地形範圍，`outletStatus=window-continuation-required`明確表示不是完整出口。需要更大範圍的集水與出口規劃、自然路線、受限區域繞行及挖深控制，不能以放寬32m限制使兩個種子假通過。
++
++候選仍須處理岸坡細分與法線邊界、重新烘焙地表材質／接觸分類、造景避讓、Worker生成與串流原子提交。所有結果均標記`requiresSurfaceRebake=true`；沒有建立流體模擬、涉水阻力或完整水理模型。P2水系、外側場景銜接、遠景，P3十場景與長時效能，以及P4／P5仍維持規劃書完整範圍。
+--- a/docs/DEVELOPMENT_PLAN.md
++++ b/docs/DEVELOPMENT_PLAN.md
+@@ -1,6 +1,6 @@
+ # SHIFT LAB 車輛與環境整合開發規劃書
+ 
+-版本：1.8　更新：2026-10-30（Asia/Taipei）；初版：2026-10-28
++版本：1.9　更新：2026-11-02（Asia/Taipei）；初版：2026-10-28
+ 
+ 適用專案：`SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/`。
+ 
+@@ -47,7 +47,7 @@
+ | 地形與造景 | 已有連續地形分塊、實際道路面裁切、共享法線及車身位置串流；P2第一包已接入遊戲 | 連續地形、結構接地、洞口、三層材質、閉合隧道光照與基本造景已整合；水系、外側入口銜接、遠景與品質仍待完成 |
+ | 材質與光照 | 已加入程序PBR、公尺UV、主光陰影、ACES固定曝光與程序PMREM；10類外觀樣板及四條件可駕駛發布已接入 | 三層地形、十種路面及基本造景已整合；閉合隧道局部光照已接入；水系與P3性能仍待完成 |
+ | 地表接觸 | SurfaceMap依實際collider／三角面／道路層取得10類道路的四條件；三層地表由同源遮罩重心內插，岩石分開分類 | 既有四條件為示範係數；新連續地表有獨立earth假設係數及功能驗證，路肩仍未分類；其他新材質須另行驗證，roughness不決定摩擦 |
+-| 知識儲備 | 道路設計7份、材質環境16份、渲染14份來源條目，均附閱讀範圍 | 可作開發依據；知識條目不等於功能已實作或工程安全認證 |
++| 知識儲備 | 道路設計7份、材質環境17份、渲染14份來源條目，均附閱讀範圍 | 可作開發依據；知識條目不等於功能已實作或工程安全認證 |
+ | 網頁性能 | 已有UHD 770原生GPU簡化靜止基線及單種子40秒行駛串流比較；10個完整環境場景仍未量測 | 新增路面與完整環境尚未完成P3量測，不能宣稱已達最佳畫質或特定FPS |
+ | 專案管理 | 目前不是Git repository，已有分類目錄與暫存備份 | 變更前記錄檔案狀態與回復點；不以Git指令假設可復原 |
+ 
+@@ -247,9 +247,9 @@
+ 
+ ## 下一個可執行工作包
+ 
+-P2第一包的連續地表、土路接觸及結構／洞口已整合，實作及邊界見[P2連續地表](P2_CONTINUOUS_TERRAIN.md)。下列工作包保留完整目標；結構基礎接地與洞口後續成果見[P2結構整合](P2_ENGINEERING.md)。橋端整形、PBR與光照後續成果見[P2材質與整形](P2_PBR_AND_GRADING.md)。已依使用者最新要求恢復分階段開發；混凝土與碎石已加入遊戲路面選擇及接觸驗證，詳見[P2可行駛路面](P2_DRIVABLE_PAVEMENTS.md)。第十包的基本樹木／岩石與土色變化見[P2造景](P2_SCENERY.md)。第十一包的土／碎石／裸岩混合與同源接觸見[P2地形混合](P2_TERRAIN_BLEND.md)。第十二包的局部天空光、洞內燈光與側緣銜接見[P2洞內外光照](P2_TUNNEL_LIGHTING.md)。第十三包的十類路面發布與40組制動見[P2十類路面](P2_TEN_PAVEMENTS.md)。第十五包的局部排水分析及實際谷底修整需求見[P2排水拓樸](P2_DRAINAGE_FOUNDATION.md)，尚未接入水面或遊戲串流。水系、外側入口造景及遠景品質仍保留原目標。
+-
+-目前優先取得實際玩家長幀／碰撞／串流記錄並依證據處理卡頓，再接續水系與外側入口地形銜接；下方保留已實作地形工作的驗收定義，不表示重新開發另一套地圖。
++P2第一包的連續地表、土路接觸及結構／洞口已整合，實作及邊界見[P2連續地表](P2_CONTINUOUS_TERRAIN.md)。下列工作包保留完整目標；結構基礎接地與洞口後續成果見[P2結構整合](P2_ENGINEERING.md)。橋端整形、PBR與光照後續成果見[P2材質與整形](P2_PBR_AND_GRADING.md)。已依使用者最新要求恢復分階段開發；混凝土與碎石已加入遊戲路面選擇及接觸驗證，詳見[P2可行駛路面](P2_DRIVABLE_PAVEMENTS.md)。第十包的基本樹木／岩石與土色變化見[P2造景](P2_SCENERY.md)。第十一包的土／碎石／裸岩混合與同源接觸見[P2地形混合](P2_TERRAIN_BLEND.md)。第十二包的局部天空光、洞內燈光與側緣銜接見[P2洞內外光照](P2_TUNNEL_LIGHTING.md)。第十三包的十類路面發布與40組制動見[P2十類路面](P2_TEN_PAVEMENTS.md)。第十五包的局部排水分析及實際谷底修整需求見[P2排水拓樸](P2_DRAINAGE_FOUNDATION.md)，第十六包新增[河床施工候選與離線預覽](P2_RIVERBED_PROPOSALS.md)，三種子有兩個被施工門檻拒絕，另一個仍無全域出口；尚未接入遊戲。水系、外側入口造景及遠景品質仍保留原目標。
++
++目前優先取得實際玩家長幀／碰撞／串流記錄並依證據處理卡頓；等待記錄期間繼續水系施工、自然河網／出口與外側入口地形銜接；下方保留已實作地形工作的驗收定義，不表示重新開發另一套地圖。
+ 
+ **P2地形工作包：可駕駛的連續地形與道路銜接。**沿用V3中心線、拓樸及結構資料，新增地形不得消耗道路的隨機序列或改變下一個彎道。
+ 
+--- a/docs/DEVELOPMENT_PROGRESS.md
++++ b/docs/DEVELOPMENT_PROGRESS.md
+@@ -1,3 +1,7 @@
++# 第十六工作包 P2河床施工候選
++
++2026-11-02完成局部河床挖方、水面裁切與施工拒絕檢查，並提供獨立離線3D預覽。三種子中LEVEL-1／LEVEL-2仍因挖深或連通問題拒絕；ROAD-38274CD4僅通過局部幾何檢查，出口待接續。769次實際Rapier查詢最大高度誤差約0.034mm。來源地形不變，未接入遊戲；岸坡折線、自然河網、全域出口、地表重烘焙及串流整合仍待完成。詳見[P2河床候選](P2_RIVERBED_PROPOSALS.md)。玩家卡頓尚待實際記錄；P2至P5完整範圍保留。下方為歷史紀錄。
++
+ # 第十五工作包 P2排水拓樸基礎
+ 
+ 2026-10-30新增實際地形排水分析，完成最小溢出面、無循環接收圖、缺面／斜角屏障及面積累積；獨立minimax對照與三種子3254次有效面命中通過。LEVEL-1／LEVEL-2局部谷底約16m虛擬填平需求，後續須施工河床與出口。詳見[P2排水基礎](P2_DRAINAGE_FOUNDATION.md)。此模組未接入遊戲，不代表水系完成或卡頓已解除；P2水面／銜接、P3完整性能及P4／P5保留。下方保留歷史。
+--- a/docs/AGENT_KNOWLEDGE.md
++++ b/docs/AGENT_KNOWLEDGE.md
+@@ -1,3 +1,7 @@
++# 第十六工作包 P2河床施工候選
++
++2026-11-02完成局部河床挖方、水面裁切與施工拒絕檢查，並提供獨立離線3D預覽。三種子中LEVEL-1／LEVEL-2仍因挖深或連通問題拒絕；ROAD-38274CD4僅通過局部幾何檢查，出口待接續。769次實際Rapier查詢最大高度誤差約0.034mm。來源地形不變，未接入遊戲；岸坡折線、自然河網、全域出口、地表重烘焙及串流整合仍待完成。詳見[P2河床候選](P2_RIVERBED_PROPOSALS.md)。玩家卡頓尚待實際記錄；P2至P5完整範圍保留。下方為歷史紀錄。
++
+ # 第十五工作包 P2排水拓樸基礎
+ 
+ 2026-10-30新增實際地形排水分析，完成最小溢出面、無循環接收圖、缺面／斜角屏障及面積累積；獨立minimax對照與三種子3254次有效面命中通過。LEVEL-1／LEVEL-2局部谷底約16m虛擬填平需求，後續須施工河床與出口。詳見[P2排水基礎](P2_DRAINAGE_FOUNDATION.md)。此模組未接入遊戲，不代表水系完成或卡頓已解除；P2水面／銜接、P3完整性能及P4／P5保留。下方保留歷史。
+--- a/docs/AGENT_VERIFICATION.md
++++ b/docs/AGENT_VERIFICATION.md
+@@ -1,3 +1,7 @@
++# 第十六工作包 P2河床施工候選
++
++2026-11-02完成局部河床挖方、水面裁切與施工拒絕檢查，並提供獨立離線3D預覽。三種子中LEVEL-1／LEVEL-2仍因挖深或連通問題拒絕；ROAD-38274CD4僅通過局部幾何檢查，出口待接續。769次實際Rapier查詢最大高度誤差約0.034mm。來源地形不變，未接入遊戲；岸坡折線、自然河網、全域出口、地表重烘焙及串流整合仍待完成。詳見[P2河床候選](P2_RIVERBED_PROPOSALS.md)。玩家卡頓尚待實際記錄；P2至P5完整範圍保留。下方為歷史紀錄。
++
+ # 第十五工作包 P2排水拓樸基礎
+ 
+ 2026-10-30新增實際地形排水分析，完成最小溢出面、無循環接收圖、缺面／斜角屏障及面積累積；獨立minimax對照與三種子3254次有效面命中通過。LEVEL-1／LEVEL-2局部谷底約16m虛擬填平需求，後續須施工河床與出口。詳見[P2排水基礎](P2_DRAINAGE_FOUNDATION.md)。此模組未接入遊戲，不代表水系完成或卡頓已解除；P2水面／銜接、P3完整性能及P4／P5保留。下方保留歷史。
+--- a/docs/DATA_CATALOG.md
++++ b/docs/DATA_CATALOG.md
+@@ -30,6 +30,8 @@
+ ## P2水系開發分析（尚未接入遊戲）
+ 
+ `desktop3d/src/terrain-drainage.mjs`採樣真實地形三角面，求局部溢出面、無循環接收圖與等面積格心累積。數據為河床規劃分析，不是已施工地形、水面、流量或玩家storage。原始三種子結果位於`artifacts/tests/p2-drainage-latest.json`；規格見[排水基礎](P2_DRAINAGE_FOUNDATION.md)。
++
++`desktop3d/src/riverbed-proposal.mjs`產生局部挖方／裁切水面候選，保留受保護足跡、來源拓樸與明確拒絕原因；水面不是承載碰撞體。資料尚未進入遊戲或玩家storage。固定結果、離線預覽與接續缺口見[河床候選](P2_RIVERBED_PROPOSALS.md)。
+ 
+ ## 車輛研究與校準資料
+ 

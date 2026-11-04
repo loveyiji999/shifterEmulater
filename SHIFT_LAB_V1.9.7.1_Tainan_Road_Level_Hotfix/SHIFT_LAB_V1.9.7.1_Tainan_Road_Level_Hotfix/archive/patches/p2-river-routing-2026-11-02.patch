@@ -1,0 +1,362 @@
+--- /dev/null
++++ b/desktop3d/src/river-routing.mjs
+@@ -0,0 +1,86 @@
++// Construction routing on sampled terrain. A local window boundary is not a
++// verified downstream outlet. Candidate geometry still requires full validation.
++const steps=[[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,1],[0,1],[1,1]];
++const cross=(a,b,p)=>(b.x-a.x)*(p.z-a.z)-(b.z-a.z)*(p.x-a.x);
++function distanceToPolygon(p,polygon){
++  const signs=polygon.map((a,i)=>Math.sign(cross(a,polygon[(i+1)%polygon.length],p))).filter(Boolean);
++  if(signs.every(s=>s===signs[0]))return 0;
++  let distance=Infinity;
++  for(let i=0;i<polygon.length;i++){
++    const a=polygon[i],b=polygon[(i+1)%polygon.length],dx=b.x-a.x,dz=b.z-a.z;
++    const t=Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.z-a.z)*dz)/(dx*dx+dz*dz||1)));
++    distance=Math.min(distance,Math.hypot(p.x-a.x-t*dx,p.z-a.z-t*dz));
++  }
++  return distance;
++}
++class Heap{
++  constructor(){this.items=[];}
++  less(a,b){return a.cost<b.cost||a.cost===b.cost&&a.id<b.id;}
++  push(item){const q=this.items;q.push(item);let i=q.length-1;
++    while(i){const p=(i-1)>>1;if(!this.less(q[i],q[p]))break;[q[i],q[p]]=[q[p],q[i]];i=p;}}
++  pop(){const q=this.items,first=q[0],last=q.pop();if(q.length){q[0]=last;let i=0;
++    for(;;){let c=i*2+1;if(c>=q.length)break;if(c+1<q.length&&this.less(q[c+1],q[c]))c++;
++      if(!this.less(q[c],q[i]))break;[q[c],q[i]]=[q[i],q[c]];i=c;}}
++    return first;}
++}
++
++export function findRiverRoute(grid,start,{protectedPolygons=[],outletCells=null,clearance=28,depth=3,maxCut=32,cutWeight=4,turnWeight=.2}={}){
++  const {width:w,height:h,cellSize,originX,originZ,heights,valid}=grid;
++  if(!Number.isInteger(w)||!Number.isInteger(h)||w<3||h<3||w>129||h>129||
++    !(heights instanceof Float32Array||heights instanceof Float64Array)||!(valid instanceof Uint8Array)||
++    heights.length!==w*h||valid.length!==w*h||!Number.isFinite(cellSize)||cellSize<1||cellSize>128||
++    !Number.isFinite(originX)||!Number.isFinite(originZ)||Math.abs(originX)>1e7||Math.abs(originZ)>1e7||
++    !Number.isInteger(start)||start<0||start>=w*h)throw Error('Invalid river routing grid');
++  for(let i=0;i<valid.length;i++)if(valid[i]>1||valid[i]&&(!Number.isFinite(heights[i])||Math.abs(heights[i])>1e7))throw Error('Invalid river routing sample');
++  for(const [name,value,lo,hi] of [['clearance',clearance,0,104],['depth',depth,.25,8],['maxCut',maxCut,.5,64],
++    ['cutWeight',cutWeight,0,100],['turnWeight',turnWeight,0,.25]])
++    if(!Number.isFinite(value)||value<lo||value>hi)throw Error('Invalid river routing '+name);
++  if(!Array.isArray(protectedPolygons)||protectedPolygons.length>4096||w*h*protectedPolygons.length>8000000)
++    throw Error('River routing footprint budget exceeded');
++  const boundary=i=>i<w||i>=w*(h-1)||i%w===0||i%w===w-1;
++  if(outletCells!==null&&(!Array.isArray(outletCells)||!outletCells.length||outletCells.length>2*(w+h)-4||
++    outletCells.some(i=>!Number.isInteger(i)||i<0||i>=w*h||!boundary(i))))throw Error('Invalid river routing outlets');
++  const outlets=outletCells===null?null:new Set(outletCells);
++  for(const p of protectedPolygons){
++    if(!Array.isArray(p)||p.length<3||p.length>8||p.some(v=>!Number.isFinite(v.x)||!Number.isFinite(v.z)||Math.abs(v.x)>1e7||Math.abs(v.z)>1e7))throw Error('Invalid river routing footprint');
++    const signs=p.map((a,i)=>Math.sign(cross(a,p[(i+1)%p.length],p[(i+2)%p.length]))).filter(Boolean);
++    if(!signs.length||signs.some(s=>s!==signs[0])||p.some((a,i)=>p.some(v=>cross(a,p[(i+1)%p.length],v)*signs[0]<-1e-8)))
++      throw Error('River routing footprint must be convex');
++  }
++  const point=i=>({cell:i,x:Math.fround(originX+i%w*cellSize),z:Math.fround(originZ+Math.floor(i/w)*cellSize),groundY:heights[i]});
++  const blocked=new Uint8Array(w*h),sourceBed=heights[start]-depth;
++  // One grid diagonal also reserves the incident terrain triangles. This is
++  // conservative protection, not an exact engineering setback calculation.
++  const reserve=clearance+Math.SQRT2*cellSize;
++  for(let i=0;i<blocked.length;i++)blocked[i]=!valid[i]||heights[i]-sourceBed>maxCut||
++    protectedPolygons.some(p=>distanceToPolygon(point(i),p)<=reserve)?1:0;
++  const result=(status,points=[],extra={})=>({status,points,outletStatus:'window-continuation-required',...extra});
++  if(blocked[start])return result('blocked-source');
++  if(boundary(start))return result('source-on-boundary');
++  // Direction is part of each state so a turn cost does not invalidate the
++  // shortest-path search. Heap ties and predecessor updates are deterministic.
++  const n=w*h*8,distances=new Float64Array(n).fill(Infinity),previous=new Int32Array(n).fill(-2),heap=new Heap();
++  for(let direction=0;direction<8;direction++){const id=start*8+direction;distances[id]=0;previous[id]=-1;heap.push({id,cost:0});}
++  let terminal=-1,visited=0;
++  while(heap.items.length){
++    const state=heap.pop();if(state.cost!==distances[state.id])continue;
++    const cell=Math.floor(state.id/8),direction=state.id%8,x=cell%w,z=Math.floor(cell/w);visited++;
++    if(boundary(cell)&&(!outlets||outlets.has(cell))){terminal=state.id;break;}
++    for(let nextDirection=0;nextDirection<8;nextDirection++){
++      const [dx,dz]=steps[nextDirection],nx=x+dx,nz=z+dz;
++      if(nx<0||nz<0||nx>=w||nz>=h)continue;
++      const next=nz*w+nx;if(blocked[next]||dx&&dz&&(blocked[z*w+nx]||blocked[nz*w+x]))continue;
++      const length=Math.hypot(dx,dz)*cellSize,cut=Math.max(0,heights[next]-sourceBed),fromCut=Math.max(0,heights[cell]-sourceBed);
++      const [px,pz]=steps[direction],cosine=(px*dx+pz*dz)/(Math.hypot(px,pz)*Math.hypot(dx,dz));
++      const cost=state.cost+length*(1+cutWeight*(cut*cut+fromCut*fromCut)/2)+cellSize*turnWeight*(1-cosine);
++      const id=next*8+nextDirection;
++      if(cost<distances[id]){distances[id]=cost;previous[id]=state.id;heap.push({id,cost});}
++    }
++  }
++  if(terminal<0)return result('no-local-route',[],{visited});
++  const points=[];let id=terminal;
++  while(id>=0){points.push(point(Math.floor(id/8)));id=previous[id];}
++  points.reverse();
++  return result('window-boundary',points,{cost:distances[terminal],visited,clearance:reserve,
++    length:points.slice(1).reduce((sum,p,i)=>sum+Math.hypot(p.x-points[i].x,p.z-points[i].z),0)});
++}
+--- /dev/null
++++ b/desktop3d/tests/validate-river-routing.mjs
+@@ -0,0 +1,71 @@
++import assert from 'node:assert/strict';
++import {writeFileSync} from 'node:fs';
++import {findRiverRoute} from '../src/river-routing.mjs';
++import {planRiverbed,buildRiverbedProposal} from '../src/riverbed-proposal.mjs';
++import {riverbedFixture} from './riverbed-fixture.mjs';
++
++function grid(width=4,height=4,cellSize=8){return {width,height,cellSize,originX:0,originZ:0,
++  heights:new Float64Array(width*height),valid:new Uint8Array(width*height).fill(1)};}
++// Exhaust all simple paths on a tiny grid, independently of the heap/state
++// implementation. First heading is free; subsequent bends have a positive cost.
++function oracle(g,start){
++  let best=Infinity;const used=new Set([start]),bed=g.heights[start]-3;
++  function visit(cell,cost,heading){
++    if(cost>=best)return;
++    const x=cell%g.width,z=Math.floor(cell/g.width);
++    if(x===0||z===0||x===g.width-1||z===g.height-1){best=cost;return;}
++    for(let nz=z-1;nz<=z+1;nz++)for(let nx=x-1;nx<=x+1;nx++){
++      if(nx===x&&nz===z||nx<0||nz<0||nx>=g.width||nz>=g.height)continue;
++      const next=nz*g.width+nx;if(used.has(next)||!g.valid[next])continue;
++      if(nx!==x&&nz!==z&&(!g.valid[z*g.width+nx]||!g.valid[nz*g.width+x]))continue;
++      const cut=Math.max(0,g.heights[next]-bed),before=Math.max(0,g.heights[cell]-bed);
++      if(cut>32)continue;
++      const angle=Math.atan2(nz-z,nx-x),length=Math.hypot(nx-x,nz-z)*g.cellSize;
++      const extra=length*(1+4*(cut*cut+before*before)/2)+(heading===null?0:g.cellSize*.2*(1-Math.cos(angle-heading)));
++      used.add(next);visit(next,cost+extra,angle);used.delete(next);
++    }
++  }
++  visit(start,0,null);return best;
++}
++for(let n=0;n<16;n++){
++  const g=grid();for(let i=0;i<g.heights.length;i++)g.heights[i]=((i*13+n*7)%17-8)/4;
++  const source=5,route=findRiverRoute(g,source),expected=oracle(g,source);
++  assert.equal(route.status,'window-boundary');assert.ok(Math.abs(route.cost-expected)<1e-8,JSON.stringify({n,expected,actual:route.cost}));
++  assert.equal(route.outletStatus,'window-continuation-required');assert.deepEqual(route,findRiverRoute(g,source));
++  assert.equal(new Set(route.points.map(p=>p.cell)).size,route.points.length,'route cannot loop');
++  planRiverbed(route);
++}
++const obstacleGrid=grid(17,17),source=8*17+3,outlet=8*17+16,
++  footprint=[{x:64,z:40},{x:72,z:40},{x:72,z:88},{x:64,z:88}],before=structuredClone(obstacleGrid);
++const detour=findRiverRoute(obstacleGrid,source,{protectedPolygons:[footprint],clearance:0,outletCells:[outlet]});
++assert.equal(detour.status,'window-boundary');assert.equal(detour.points.at(-1).cell,outlet);
++assert.ok(detour.points.some(p=>p.z<40||p.z>88),'route must travel around the protected structure');
++for(const p of detour.points)assert.ok(Math.hypot(Math.max(64-p.x,0,p.x-72),Math.max(40-p.z,0,p.z-88))>detour.clearance);
++assert.deepEqual(obstacleGrid,before,'routing cannot mutate terrain buffers');planRiverbed(detour);
++const sealed=structuredClone(obstacleGrid);for(let z=0;z<17;z++)sealed.valid[z*17+8]=0;
++assert.equal(findRiverRoute(sealed,source,{outletCells:[outlet]}).status,'no-local-route');
++assert.equal(findRiverRoute(obstacleGrid,8*17+8,{protectedPolygons:[footprint],clearance:0}).status,'blocked-source');
++assert.equal(findRiverRoute(obstacleGrid,0).status,'source-on-boundary');
++const corner=grid(3,3);corner.valid.fill(0);corner.valid[4]=corner.valid[0]=1;
++assert.equal(findRiverRoute(corner,4).status,'no-local-route','no diagonal crossing of missing corners');
++assert.throws(()=>findRiverRoute(grid(),5,{outletCells:[5]}),/outlets/);
++assert.throws(()=>findRiverRoute(grid(),5,{turnWeight:NaN}),/turnWeight/);
++assert.throws(()=>findRiverRoute({...grid(),valid:new Uint8Array(1)},5),/grid/);
++const invalid=grid();invalid.heights[0]=NaN;assert.throws(()=>findRiverRoute(invalid,5),/sample/);
++const pentagon=Array.from({length:5},(_,i)=>({x:Math.cos(i*Math.PI*2/5)*8,z:Math.sin(i*Math.PI*2/5)*8}));
++assert.throws(()=>findRiverRoute(grid(),5,{protectedPolygons:[[0,2,4,1,3].map(i=>pentagon[i])]}),/convex/,'a self-crossing star is not a convex protection footprint');
++
++const reports=[];
++for(const seed of ['LEVEL-1','LEVEL-2','ROAD-38274CD4']){
++  const f=riverbedFixture(seed),r=f.routing;
++  assert.equal(r.status,'window-boundary',seed);assert.ok(r.points.length>=2);planRiverbed(r);
++  const proposal=buildRiverbedProposal(f.meshes,planRiverbed(r),{protectedPolygons:f.polygons});
++  assert.equal(proposal.summary.minPathCoverage,1,'routed center path must remain connected: '+seed);
++  assert.ok(proposal.summary.maxCut<32,'existing excavation budget still applies: '+seed);
++  reports.push({seed,routing:{points:r.points.length,length:r.length,cost:r.cost,visited:r.visited,outletStatus:r.outletStatus},
++    status:proposal.status,issues:proposal.issues,summary:proposal.summary,sourceHash:f.sourceHash});
++}
++writeFileSync(new URL('../../artifacts/tests/p2-river-routing-latest.json',import.meta.url),JSON.stringify({
++  scope:'local construction routing with protected footprints; regional outlets / river network and runtime integration still incomplete',
++  exhaustiveOracleCases:16,previousResults:'p2-riverbed-results-2026-11-02.json',reports},null,2)+'\n');
++console.log('PASS local river routing: 16 exhaustive oracles, deterministic costs, footprint detour, no-data barriers, source ownership and actual terrain: '+JSON.stringify(reports));
+--- a/desktop3d/tests/riverbed-fixture.mjs
++++ b/desktop3d/tests/riverbed-fixture.mjs
+@@ -1,6 +1,7 @@
+ import {createHash} from 'node:crypto';
+ import {planRiverbed,buildRiverbedProposal} from '../src/riverbed-proposal.mjs';
+-import {sampleDrainageGrid,analyzeDrainage,traceDrainage} from '../src/terrain-drainage.mjs';
++import {sampleDrainageGrid,analyzeDrainage} from '../src/terrain-drainage.mjs';
++import {findRiverRoute} from '../src/river-routing.mjs';
+ import {TerrainWorld} from '../src/terrain-world.mjs';
+ import {buildRoadChunkV3} from '../src/road-geometry-v3.mjs';
+ import {fixture,base} from './road-v3-fixture.mjs';
+@@ -18,7 +19,7 @@
+       minZ:Math.min(...meshes.map(m=>m.tz*128)),maxZ:Math.max(...meshes.map(m=>(m.tz+1)*128))};
+     const analysis=analyzeDrainage(grid),distance=i=>Math.hypot(grid.originX+i%grid.width*8-center.x,grid.originZ+Math.floor(i/grid.width)*8-center.z);
+     const deepest=Array.from(analysis.order).filter(i=>analysis.receiver[i]>=0).sort((a,b)=>analysis.fillDepth[b]-analysis.fillDepth[a]||distance(a)-distance(b)||a-b)[0],
+-      path=traceDrainage(analysis,deepest),plan=planRiverbed(path),polygons=[],bridgeMeshes=[];
++      polygons=[],bridgeMeshes=[];
+     const rectangle=(x,z,hx,hz,heading)=>{const c=Math.cos(heading),s=Math.sin(heading);
+       return [[-1,-1],[1,-1],[1,1],[-1,1]].map(([a,b])=>({x:x+a*hx*c+b*hz*s,z:z-a*hx*s+b*hz*c}));};
+     let roadProtections=0,foundations=0,last=-1;
+@@ -35,8 +36,9 @@
+         bridgeMeshes.push({kind,vertices:part.vertices,indices:part.indices});
+     }
+     const fingerprint=()=>{const hash=createHash('sha256');for(const m of meshes)hash.update(m.vertices).update(m.indices);return hash.digest('hex');};
+-    const sourceHash=fingerprint(),proposal=buildRiverbedProposal(meshes,plan,{protectedPolygons:polygons});
++    const path=findRiverRoute(grid,deepest,{protectedPolygons:polygons}),plan=planRiverbed(path),
++      sourceHash=fingerprint(),proposal=buildRiverbedProposal(meshes,plan,{protectedPolygons:polygons});
+     if(fingerprint()!==sourceHash)throw Error('Construction proposal mutated original terrain');
+-    return {seed,center,feature,meshes,bridgeMeshes,plan,proposal,sourceHash,pathPoints:path.points.length,foundations,roadProtections};
++    return {seed,center,feature,meshes,bridgeMeshes,plan,proposal,sourceHash,pathPoints:path.points.length,foundations,roadProtections,grid,analysis,polygons,source:deepest,routing:path};
+   }finally{terrain.clear();terrain.depthMaterial.dispose();}
+ }
+--- a/desktop3d/tests/build-riverbed-preview.mjs
++++ b/desktop3d/tests/build-riverbed-preview.mjs
+@@ -2,6 +2,8 @@
+ import {writeFile} from 'node:fs/promises';
+ import {riverbedFixture} from './riverbed-fixture.mjs';
+ 
++const previewName=process.argv.find(arg=>arg.startsWith('--preview-name='))?.slice(15)||'p2-river-routing';
++if(!/^p2-[a-z-]+$/.test(previewName))throw Error('Invalid preview name');
+ const fixture=riverbedFixture('ROAD-38274CD4'),proposal=fixture.proposal;
+ const encode=(values,Type)=>Buffer.from(new Type(values).buffer).toString('base64');
+ const buffers=meshes=>meshes.map(m=>({kind:m.kind,tx:m.tx,tz:m.tz,vertices:encode(m.vertices,Float32Array),indices:encode(m.indices,Uint32Array),normals:m.normals?encode(m.normals,Float32Array):null}));
+@@ -13,5 +15,5 @@
+ <style>body{margin:0;overflow:hidden;font-family:system-ui;background:#a2c0cb}aside{position:absolute;top:14px;left:14px;max-width:650px;background:#102032e8;color:#e8f0f5;padding:16px;border-radius:8px;line-height:1.6}h1{font-size:18px;margin:0 0 8px}p{font-size:12px;margin:6px 0}button{padding:8px 12px;margin-right:8px;cursor:pointer}canvas{display:block}</style>
+ <aside><h1>P2 河床施工候選預覽 · 尚未接入遊戲</h1><p id="status"></p><button id="before">原地形</button><button id="after">河床候選</button><p>褐色：挖方區；藍色：裁切水面，不作輪胎承載面。拖曳旋轉、滾輪縮放。</p><p>這是局部施工幾何，出口、水理、材質重烘焙與遊戲串流整合仍待完成。</p></aside>
+ <script id="riverbed-data" type="application/json">${json}</script><script>${script}</script></html>`;
+-await writeFile(new URL('../../artifacts/tests/p2-riverbed-preview-2026-11-02.html',import.meta.url),html);
++await writeFile(new URL('../../artifacts/tests/'+previewName+'-preview-2026-11-02.html',import.meta.url),html);
+ console.log('PASS self-contained offline riverbed preview generated: '+JSON.stringify({status:proposal.status,issues:proposal.issues,...proposal.summary,bytes:Buffer.byteLength(html)}));
+--- a/desktop3d/tests/validate-procedural-browser.mjs
++++ b/desktop3d/tests/validate-procedural-browser.mjs
+@@ -71,6 +71,8 @@
+   const listener=net.createServer();listener.listen(0,'127.0.0.1');await once(listener,'listening');
+   const port=listener.address().port;await new Promise(resolve=>listener.close(resolve));
+   const production=process.argv.includes('--production'),riverbedPreview=process.argv.includes('--riverbed-preview');
++  const previewName=process.argv.find(arg=>arg.startsWith('--preview-name='))?.slice(15)||'p2-riverbed';
++  assert.ok(/^p2-[a-z-]+$/.test(previewName),'Invalid preview name');
+   const acceptance=process.argv.includes('--acceptance');
+   const vehicleDiagnostics=process.argv.includes('--vehicle-diagnostics');
+   const surfaceContact=process.argv.includes('--surface-contact');
+@@ -126,7 +128,7 @@
+   await cdp.send('Network.enable',{},sessionId);
+   await cdp.send('Emulation.setDeviceMetricsOverride',
+     {width:1440,height:900,deviceScaleFactor:1,mobile:false},sessionId);
+-  await cdp.send('Page.navigate',{url:riverbedPreview?pathToFileURL(path.join(root,'../artifacts/tests/p2-riverbed-preview-2026-11-02.html')).href:materialGallery?url+'tests/material-gallery/index.html':vehicleDiagnostics?url+'tests/vehicle-diagnostics/index.html':acceptance?url+'tests/acceptance/index.html':url},sessionId);
++  await cdp.send('Page.navigate',{url:riverbedPreview?pathToFileURL(path.join(root,'../artifacts/tests/'+previewName+'-preview-2026-11-02.html')).href:materialGallery?url+'tests/material-gallery/index.html':vehicleDiagnostics?url+'tests/vehicle-diagnostics/index.html':acceptance?url+'tests/acceptance/index.html':url},sessionId);
+   let gameReady=false;
+   for(let i=0;i<200;i++){
+     gameReady=await cdp.evaluate(riverbedPreview?'!!window.__SHIFT_LAB_RIVERBED_PREVIEW__?.ready':materialGallery?'!!window.__SHIFT_LAB_MATERIAL_GALLERY__?.snapshot':vehicleDiagnostics?'!!window.__SHIFT_LAB_VEHICLE_DIAGNOSTICS__?.ready':acceptance?'!!window.__SHIFT_LAB_ACCEPTANCE__?.ready':production?
+@@ -145,11 +147,11 @@
+       views[name]=await evaluate('window.__SHIFT_LAB_RIVERBED_PREVIEW__.snapshot()');
+       assert.equal(views[name].afterVisible,value);assert.equal(views[name].status,'geometry-candidate');assert.ok(views[name].waterTriangles>0);
+       if(nativeGpu)assert.ok(!/swiftshader|software|llvmpipe/i.test(views[name].device));
+-      await fs.writeFile(path.join(root,'../artifacts/tests/p2-riverbed-'+name+'-2026-11-02.png'),Buffer.from((await cdp.send('Page.captureScreenshot',{format:'png'},sessionId)).data,'base64'));
++      await fs.writeFile(path.join(root,'../artifacts/tests/'+previewName+'-'+name+'-2026-11-02.png'),Buffer.from((await cdp.send('Page.captureScreenshot',{format:'png'},sessionId)).data,'base64'));
+     }
+     assert.deepEqual(views.before.camera,views.after.camera);assert.deepEqual(views.before.target,views.after.target);
+     assert.deepEqual(cdp.errors,[]);assert.deepEqual(httpErrors,[]);
+-    await fs.writeFile(path.join(root,'../artifacts/tests/p2-riverbed-preview-verification-2026-11-02.json'),JSON.stringify(views,null,2)+'\n');
++    await fs.writeFile(path.join(root,'../artifacts/tests/'+previewName+'-preview-verification-2026-11-02.json'),JSON.stringify(views,null,2)+'\n');
+     console.log('PASS standalone native riverbed preview: same camera / lighting, before and after geometry, no runtime / HTTP errors; not game integration or performance acceptance');return;
+   }
+   if(process.argv.includes('--manual-performance')){
+--- a/desktop3d/package.json
++++ b/desktop3d/package.json
+@@ -18,7 +18,7 @@
+     "qa:all": "npm run qa:streaming && npm run qa:vehicle && npm run qa:surface && npm run qa:terrain && npm run qa:grading && npm run qa:materials && npm run qa:lighting && npm run qa:engineering && npm run qa:performance && npm run qa:scenarios && npm run qa:map && npm run qa:transmission && npm run qa:manual && npm run qa:health && npm run qa:prnd",
+     "qa:performance": "node ./tests/validate-performance-capture.mjs && node ./tests/validate-manual-performance.mjs",
+     "qa:surface": "node ./tests/validate-surface-map.mjs && node ./tests/validate-pavement.mjs",
+-    "qa:terrain": "node ./tests/validate-terrain.mjs && node ./tests/validate-terrain-surface.mjs && node ./tests/validate-scenery.mjs && node ./tests/validate-drainage.mjs && node ./tests/validate-riverbed.mjs",
++    "qa:terrain": "node ./tests/validate-terrain.mjs && node ./tests/validate-terrain-surface.mjs && node ./tests/validate-scenery.mjs && node ./tests/validate-drainage.mjs && node ./tests/validate-riverbed.mjs && node ./tests/validate-river-routing.mjs",
+     "qa:grading": "node ./tests/validate-terrain-grading.mjs",
+     "qa:lighting": "node ./tests/validate-tunnel-lighting.mjs",
+     "qa:materials": "node ./tests/validate-surface-materials.mjs",
+--- /dev/null
++++ b/docs/P2_RIVER_ROUTING.md
+@@ -0,0 +1,41 @@
++# P2 受保護地形上的局部河床尋路
++
++日期：2026-11-02。接續[河床施工候選](P2_RIVERBED_PROPOSALS.md)，以開挖成本與保護區參與尋路，改善原本先沿虛擬填平面選路、事後才拒絕碰到結構的流程。這是水系施工規劃的進展；整體P2–P5範圍保持，玩家卡頓仍待實際手動效能記錄。
++
++## 實際修改
++
++`desktop3d/src/river-routing.mjs`在真實地形取樣格上搜尋局部路徑，節點同時記錄格心及進入方向。成本包含路長、相對起點預定床高的挖深平方及轉折；所有成本為正，使用確定性佇列與前驅選擇。成本是作者設定的施工偏好，並非挖方體積、水流能量或水理校準。
++
++道路及結構足跡在搜尋前列為保護區，距離包含施工走廊半寬與一個取樣格對角線，以保守預留鄰接三角面。預設走廊半寬28m對應目前河床12m加岸坡16m；改尺寸時呼叫者須同步調整clearance。無資料格及受保護格不通行，斜向不能穿過兩側屏障。
++
++可指定局部邊界節點作候選接續點；未指定則搜尋本視窗邊界。來源在保護區、來源已在邊界或找不到局部路線時回報狀態，不改用穿越結構的路徑。回傳仍標記`outletStatus=window-continuation-required`，不把邊界當成已驗證下游出口。
++
++`tests/riverbed-fixture.mjs`改用此搜尋方式，排水拓樸仍提供來源選擇與局部地形分析。V3道路線形及亂數序列不變；這是環境施工規劃，沒有另開道路生成器。候選仍經原河床建構器驗證最大挖深、中心水路覆蓋與濕區側界，沒有放寬32m門檻或移除拒絕條件。
++
++## 三種子實際比較
++
++| 種子 | 舊最大挖深 | 新最大挖深 | 新結果 |
++| --- | --- | --- | --- |
++| LEVEL-1 | 38.454m | 20.909m | 局部幾何候選；原挖深超限及水路不連續已消除 |
++| LEVEL-2 | 33.006m | 20.821m | 仍拒絕；中心連續，但11處濕區側界問題未完成 |
++| ROAD-38274CD4 | 21.360m | 22.201m | 維持局部幾何候選；挖深略增，未宣稱全面改善 |
++
++三種子中心水路覆蓋皆為1，原始地形頂點／索引hash均和前包相同。新候選合計776次實際Rapier地面查詢，最大高度誤差約0.042mm，低於既有0.2mm測試門檻；水面仍不建立輪胎承載碰撞體。
++
++這些數值只支持特定局部施工候選。約21–22m的挖方仍很深，不能因低於試作上限便視為合理河道工程；自然形態、地域路線與真實下游連接仍須處理。
++
++結果：[路徑與施工JSON](../artifacts/tests/p2-river-routing-results-2026-11-02.json)、[實際接地JSON](../artifacts/tests/p2-river-routing-contact-results-2026-11-02.json)；前包固定對照為[p2-riverbed-results](../artifacts/tests/p2-riverbed-results-2026-11-02.json)。
++
++## 驗證與預覽
++
++`node tests/validate-river-routing.mjs`以16組小格網的窮舉路徑獨立核對最低成本，另檢查確定性、來源資料不變、指定邊界、受保護結構繞行、無資料封鎖與斜角屏障。三個實際種子再交給原施工檢查。`node tests/validate-riverbed.mjs`驗證實際Rapier支撐與原有共邊／保護條件。新測試已加入`qa:terrain`。
++
++[新離線預覽](../artifacts/tests/p2-river-routing-preview-2026-11-02.html)由`node tests/build-riverbed-preview.mjs`產生，使用目前尋路方式；前包HTML及截圖保留。瀏覽器驗證命令為`node tests/validate-procedural-browser.mjs --riverbed-preview --preview-name=p2-river-routing --native-gpu`。預覽名稱僅容許`p2-`開頭的英文字母及連字號，不改遊戲入口或測試API。
++
++原生Intel UHD 770前後畫面已通過相同鏡位、候選水面、零執行／HTTP錯誤檢查；已人工查看新畫面，仍可見格網折線、岸坡鋸齒及窗界的開口。這是局部幾何檢視，沒有取得新的遊戲效能成績。完整回歸、建置、正式版隔離及來源快照的最終狀態見本包verification JSON。
++
++## 接續缺口
++
++開挖成本以固定來源床高估算，未納入整條下降床面及兩側坡體的完整體積；因此尋路成功仍可能被施工驗證拒絕。路徑目前只有格網方向，需要在保護區與真實地形約束下平滑，不能直接套曲線穿過障礙。
++
++後續仍需地域集水與出口、跨視窗一致性、側界溢水處理、岸坡細分、材質／接觸重新烘焙、造景避讓與Worker串流整合。水系尚未接入遊戲；P2外側銜接及遠景、P3十場景與長時畫質效能、P4完整調教及P5創作均未因此縮減。
+--- a/docs/DEVELOPMENT_PLAN.md
++++ b/docs/DEVELOPMENT_PLAN.md
+@@ -1,6 +1,6 @@
+ # SHIFT LAB 車輛與環境整合開發規劃書
+ 
+-版本：1.9　更新：2026-11-02（Asia/Taipei）；初版：2026-10-28
++版本：1.10　更新：2026-11-02（Asia/Taipei）；初版：2026-10-28
+ 
+ 適用專案：`SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/SHIFT_LAB_V1.9.7.1_Tainan_Road_Level_Hotfix/`。
+ 
+@@ -247,7 +247,7 @@
+ 
+ ## 下一個可執行工作包
+ 
+-P2第一包的連續地表、土路接觸及結構／洞口已整合，實作及邊界見[P2連續地表](P2_CONTINUOUS_TERRAIN.md)。下列工作包保留完整目標；結構基礎接地與洞口後續成果見[P2結構整合](P2_ENGINEERING.md)。橋端整形、PBR與光照後續成果見[P2材質與整形](P2_PBR_AND_GRADING.md)。已依使用者最新要求恢復分階段開發；混凝土與碎石已加入遊戲路面選擇及接觸驗證，詳見[P2可行駛路面](P2_DRIVABLE_PAVEMENTS.md)。第十包的基本樹木／岩石與土色變化見[P2造景](P2_SCENERY.md)。第十一包的土／碎石／裸岩混合與同源接觸見[P2地形混合](P2_TERRAIN_BLEND.md)。第十二包的局部天空光、洞內燈光與側緣銜接見[P2洞內外光照](P2_TUNNEL_LIGHTING.md)。第十三包的十類路面發布與40組制動見[P2十類路面](P2_TEN_PAVEMENTS.md)。第十五包的局部排水分析及實際谷底修整需求見[P2排水拓樸](P2_DRAINAGE_FOUNDATION.md)，第十六包新增[河床施工候選與離線預覽](P2_RIVERBED_PROPOSALS.md)，三種子有兩個被施工門檻拒絕，另一個仍無全域出口；尚未接入遊戲。水系、外側入口造景及遠景品質仍保留原目標。
++P2第一包的連續地表、土路接觸及結構／洞口已整合，實作及邊界見[P2連續地表](P2_CONTINUOUS_TERRAIN.md)。下列工作包保留完整目標；結構基礎接地與洞口後續成果見[P2結構整合](P2_ENGINEERING.md)。橋端整形、PBR與光照後續成果見[P2材質與整形](P2_PBR_AND_GRADING.md)。已依使用者最新要求恢復分階段開發；混凝土與碎石已加入遊戲路面選擇及接觸驗證，詳見[P2可行駛路面](P2_DRIVABLE_PAVEMENTS.md)。第十包的基本樹木／岩石與土色變化見[P2造景](P2_SCENERY.md)。第十一包的土／碎石／裸岩混合與同源接觸見[P2地形混合](P2_TERRAIN_BLEND.md)。第十二包的局部天空光、洞內燈光與側緣銜接見[P2洞內外光照](P2_TUNNEL_LIGHTING.md)。第十三包的十類路面發布與40組制動見[P2十類路面](P2_TEN_PAVEMENTS.md)。第十五包的局部排水分析及實際谷底修整需求見[P2排水拓樸](P2_DRAINAGE_FOUNDATION.md)，第十六包新增[河床施工候選與離線預覽](P2_RIVERBED_PROPOSALS.md)，三種子有兩個被施工門檻拒絕，另一個仍無全域出口；第十七包的[局部尋路](P2_RIVER_ROUTING.md)改善受保護地形與開挖成本選路，LEVEL-1通過局部檢查，LEVEL-2仍拒絕；地域出口、自然形態與遊戲整合未完成。水系、外側入口造景及遠景品質仍保留原目標。
+ 
+ 目前優先取得實際玩家長幀／碰撞／串流記錄並依證據處理卡頓；等待記錄期間繼續水系施工、自然河網／出口與外側入口地形銜接；下方保留已實作地形工作的驗收定義，不表示重新開發另一套地圖。
+ 
+--- a/docs/DEVELOPMENT_PROGRESS.md
++++ b/docs/DEVELOPMENT_PROGRESS.md
+@@ -1,3 +1,7 @@
++# 第十七工作包 P2局部河床尋路
++
++2026-11-02將道路／結構保護區及開挖成本納入河床尋路。LEVEL-1最大挖深38.454→20.909m並通過局部施工；LEVEL-2仍因濕區側界拒絕；ROAD-38274CD4維持候選但挖深略增。16組窮舉成本對照及三種子776次實際Rapier地面查詢通過，原始地形hash不變。詳見[P2局部河床尋路](P2_RIVER_ROUTING.md)。仍未接入遊戲，地域出口、自然形態、岸坡與串流待完成；卡頓仍待實際記錄，P2–P5完整目標保留。下方保留歷史。
++
+ # 第十六工作包 P2河床施工候選
+ 
+ 2026-11-02完成局部河床挖方、水面裁切與施工拒絕檢查，並提供獨立離線3D預覽。三種子中LEVEL-1／LEVEL-2仍因挖深或連通問題拒絕；ROAD-38274CD4僅通過局部幾何檢查，出口待接續。769次實際Rapier查詢最大高度誤差約0.034mm。來源地形不變，未接入遊戲；岸坡折線、自然河網、全域出口、地表重烘焙及串流整合仍待完成。詳見[P2河床候選](P2_RIVERBED_PROPOSALS.md)。玩家卡頓尚待實際記錄；P2至P5完整範圍保留。下方為歷史紀錄。
+--- a/docs/AGENT_KNOWLEDGE.md
++++ b/docs/AGENT_KNOWLEDGE.md
+@@ -1,3 +1,7 @@
++# 第十七工作包 P2局部河床尋路
++
++2026-11-02將道路／結構保護區及開挖成本納入河床尋路。LEVEL-1最大挖深38.454→20.909m並通過局部施工；LEVEL-2仍因濕區側界拒絕；ROAD-38274CD4維持候選但挖深略增。16組窮舉成本對照及三種子776次實際Rapier地面查詢通過，原始地形hash不變。詳見[P2局部河床尋路](P2_RIVER_ROUTING.md)。仍未接入遊戲，地域出口、自然形態、岸坡與串流待完成；卡頓仍待實際記錄，P2–P5完整目標保留。下方保留歷史。
++
+ # 第十六工作包 P2河床施工候選
+ 
+ 2026-11-02完成局部河床挖方、水面裁切與施工拒絕檢查，並提供獨立離線3D預覽。三種子中LEVEL-1／LEVEL-2仍因挖深或連通問題拒絕；ROAD-38274CD4僅通過局部幾何檢查，出口待接續。769次實際Rapier查詢最大高度誤差約0.034mm。來源地形不變，未接入遊戲；岸坡折線、自然河網、全域出口、地表重烘焙及串流整合仍待完成。詳見[P2河床候選](P2_RIVERBED_PROPOSALS.md)。玩家卡頓尚待實際記錄；P2至P5完整範圍保留。下方為歷史紀錄。
+--- a/docs/AGENT_VERIFICATION.md
++++ b/docs/AGENT_VERIFICATION.md
+@@ -1,3 +1,7 @@
++# 第十七工作包 P2局部河床尋路
++
++2026-11-02將道路／結構保護區及開挖成本納入河床尋路。LEVEL-1最大挖深38.454→20.909m並通過局部施工；LEVEL-2仍因濕區側界拒絕；ROAD-38274CD4維持候選但挖深略增。16組窮舉成本對照及三種子776次實際Rapier地面查詢通過，原始地形hash不變。詳見[P2局部河床尋路](P2_RIVER_ROUTING.md)。仍未接入遊戲，地域出口、自然形態、岸坡與串流待完成；卡頓仍待實際記錄，P2–P5完整目標保留。下方保留歷史。
++
+ # 第十六工作包 P2河床施工候選
+ 
+ 2026-11-02完成局部河床挖方、水面裁切與施工拒絕檢查，並提供獨立離線3D預覽。三種子中LEVEL-1／LEVEL-2仍因挖深或連通問題拒絕；ROAD-38274CD4僅通過局部幾何檢查，出口待接續。769次實際Rapier查詢最大高度誤差約0.034mm。來源地形不變，未接入遊戲；岸坡折線、自然河網、全域出口、地表重烘焙及串流整合仍待完成。詳見[P2河床候選](P2_RIVERBED_PROPOSALS.md)。玩家卡頓尚待實際記錄；P2至P5完整範圍保留。下方為歷史紀錄。
+--- a/docs/DATA_CATALOG.md
++++ b/docs/DATA_CATALOG.md
+@@ -32,6 +32,8 @@
+ `desktop3d/src/terrain-drainage.mjs`採樣真實地形三角面，求局部溢出面、無循環接收圖與等面積格心累積。數據為河床規劃分析，不是已施工地形、水面、流量或玩家storage。原始三種子結果位於`artifacts/tests/p2-drainage-latest.json`；規格見[排水基礎](P2_DRAINAGE_FOUNDATION.md)。
+ 
+ `desktop3d/src/riverbed-proposal.mjs`產生局部挖方／裁切水面候選，保留受保護足跡、來源拓樸與明確拒絕原因；水面不是承載碰撞體。資料尚未進入遊戲或玩家storage。固定結果、離線預覽與接續缺口見[河床候選](P2_RIVERBED_PROPOSALS.md)。
++
++`desktop3d/src/river-routing.mjs`以地形、保護足跡與作者設定開挖成本搜尋局部河床路線，可指定邊界接續點；邊界不是已驗證出口。僅接入外部施工fixture，未供遊戲直接載入。規格與固定比較結果見[局部河床尋路](P2_RIVER_ROUTING.md)。
+ 
+ ## 車輛研究與校準資料
+ 
